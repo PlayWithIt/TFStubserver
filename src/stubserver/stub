@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# valgrind --leak-check=full --show-reachable=yes --log-file=vg.log \
+../../bin/Debug/stubserver -p 4225 -d homestation.properties

@@ -1,0 +1,126 @@
+/*
+ * Socket.cpp
+ *
+ * Copyright (C) 2013 Holger Grosenick
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <netinet/tcp.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <errno.h>
+#include <memory.h>
+#include <strings.h>
+#include <stdexcept>
+
+#include "Log.h"
+#include "utils.h"
+#include "Socket.h"
+
+
+namespace utils {
+
+/**
+ * Open the socket.
+ */
+Socket::Socket(int port)
+  : handle(-1)
+  , closeAll(true)
+{
+    char msg[512];
+
+    handle = socket(AF_INET, SOCK_STREAM, 0);
+    if (handle < 0)
+    {
+        sprintf(msg, "Create socket(AF_INET) on port %d failed: %s", port, strerror(errno));
+        throw std::runtime_error(msg);
+    }
+
+    struct sockaddr_in serv_addr;
+    bzero(&serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(port);
+
+    if (bind(handle, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+    {
+        ::close(handle);
+        sprintf(msg, "Bind socket %d failed: %s", port, strerror(errno));
+        throw std::runtime_error(msg);
+    }
+    if (listen(handle, 5) < 0)
+    {
+        ::close(handle);
+        sprintf(msg, "Socket listen %d failed: %s", port, strerror(errno));
+        throw std::runtime_error(msg);
+    }
+    closeAll = false;
+    Log::log("Create a socket on port", port);
+}
+
+/**
+ * Close all ...
+ */
+Socket::~Socket()
+{
+    close();
+}
+
+/**
+ * Close all ...
+ */
+void Socket::close()
+{
+    closeAll = true;
+    if (handle > 0)
+    {
+        Log::log("Socket::close()");
+        shutdown(handle, SHUT_RDWR);
+        utils::msleep(10);
+        ::close(handle);
+        handle = -1;
+    }
+}
+
+/**
+ * Wait for a new client connection.
+ */
+int Socket::waitForClient()
+{
+    struct sockaddr_in cli_addr;
+    socklen_t clilen = sizeof(cli_addr);
+
+    int newsockfd = accept(handle, (struct sockaddr *) &cli_addr, &clilen);
+    if (newsockfd < 0)
+    {
+        if (closeAll)
+            return -1;
+        Log::perror("Socket::waitForClient - accept()");
+        return -4;
+    }
+
+    int flag = 1;
+    if (setsockopt(newsockfd, IPPROTO_TCP, TCP_NODELAY, (void *)&flag, sizeof(flag)) < 0) {
+        Log::perror("Socket::waitForClient - setsockopt()");
+        ::close(newsockfd);
+        return -4;
+    }
+    return newsockfd;
+}
+
+} /* namespace utils */
