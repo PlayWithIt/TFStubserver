@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-04-08.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.0                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -387,9 +387,8 @@ int lcd_20x4_get_default_text_counter(LCD20x4 *lcd_20x4, int32_t *ret_counter);
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int lcd_20x4_get_identity(LCD20x4 *lcd_20x4, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
 

@@ -19,6 +19,7 @@
 
 #include <cstring>
 #include <sstream>
+#include <stdexcept>
 
 #include <bricklet_industrial_quad_relay.h>
 #include <bricklet_industrial_digital_out_4.h>
@@ -33,49 +34,16 @@
 
 using utils::Log;
 
-
-DeviceRelay::DeviceRelay(unsigned _type, int n)
-  : DeviceFunctions(), type(_type), numSwitches(n), callbacks()
+/**
+ * Just basic init.
+ */
+DeviceRelay::DeviceRelay(unsigned n, bool _bitSwitches)
+  : DeviceFunctions(), numSwitches(n), bitSwitches(_bitSwitches), callbacks()
 {
+    if (n > 16)
+        throw std::invalid_argument("numSwitches must be <= 16, but is larger");
     bzero(switchOn, sizeof(switchOn));
     bzero(functionCodes, sizeof(functionCodes));
-
-    uint8_t cbFunc = 0;
-    if (n == 4 && type == INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER)
-    {
-        functionCodes[FUNC_SET_STATE] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_VALUE;
-        functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_SELECTED_VALUES;
-        functionCodes[FUNC_GET_STATE] = INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_VALUE;
-        functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_MONOFLOP;
-        functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_MONOFLOP;
-        cbFunc = INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE;
-    }
-    else if (n == 4 && type == INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER)
-    {
-        functionCodes[FUNC_SET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_VALUE;
-        functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_SELECTED_VALUES;
-        functionCodes[FUNC_GET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_VALUE;
-        functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_MONOFLOP;
-        functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_MONOFLOP;
-        cbFunc = INDUSTRIAL_DIGITAL_OUT_4_CALLBACK_MONOFLOP_DONE;
-    }
-    else if (n == 2)
-    {
-        functionCodes[FUNC_SET_STATE] = DUAL_RELAY_FUNCTION_SET_STATE;
-        functionCodes[FUNC_SET_SELECTED] = DUAL_RELAY_FUNCTION_SET_SELECTED_STATE;
-        functionCodes[FUNC_GET_STATE] = DUAL_RELAY_FUNCTION_GET_STATE;
-        functionCodes[FUNC_SET_MONOFLOP] = DUAL_RELAY_FUNCTION_SET_MONOFLOP;
-        functionCodes[FUNC_GET_MONOFLOP] = DUAL_RELAY_FUNCTION_GET_MONOFLOP;
-        cbFunc = DUAL_RELAY_CALLBACK_MONOFLOP_DONE;
-    }
-    else
-        throw utils::LogicError("Only 2/4 switches per relay are supported!");
-
-    // one callback per switch
-    for (int i = 0; i < n; ++i) {
-        BasicCallback cb(0, 0, cbFunc, i);
-        callbacks.push_back(cb);
-    }
 }
 
 /**
@@ -104,24 +72,30 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
     uint8_t func = p.header.function_id;
     if (func == functionCodes[FUNC_SET_STATE])
     {
-        if (numSwitches == 2) {
-            switchOn[0] = p.fullData.payload[0] != 0;
-            switchOn[1] = p.fullData.payload[1] != 0;
+        stateChanged = true;
+
+        if (!bitSwitches)
+        {
+            for (unsigned x = 0; x < numSwitches; ++x)
+                switchOn[x] = p.fullData.payload[x] != 0;
             return true;
         }
-        switchOn[0] = p.uint16Value & 1;
-        switchOn[1] = p.uint16Value & 2;
-        switchOn[2] = p.uint16Value & 4;
-        switchOn[3] = p.uint16Value & 8;
-        stateChanged = true;
+
+        unsigned bitMask = 1;
+        for (unsigned x = 0; x < numSwitches; ++x)
+        {
+            switchOn[x] = p.uint16Value & bitMask;
+            bitMask <<= 1;
+        }
         return true;
     }
 
     if (func == functionCodes[FUNC_SET_SELECTED])
     {
-        if (numSwitches == 2) {
+        if (!bitSwitches)
+        {
             uint8_t n = p.uint8Value;
-            if (--n > 1) {
+            if (--n > numSwitches) {
                 Log::log("Invalid switch number for dual relay:", n);
                 return false;
             }
@@ -132,7 +106,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
         uint16_t selection = p.ushorts.value1;
         uint16_t bits      = p.ushorts.value2;
 
-        for (int i = 0; i < numSwitches; ++i)
+        for (unsigned i = 0; i < numSwitches; ++i)
         {
             uint16_t bit = (1 << i);
             if ((selection & bit) != 0)
@@ -145,14 +119,15 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
     {
         p.header.length = sizeof(p.header) + 2;
 
-        if (numSwitches == 2) {
-            p.fullData.payload[0] = switchOn[0];
-            p.fullData.payload[1] = switchOn[1];
+        if (!bitSwitches)
+        {
+            for (unsigned x = 0; x < numSwitches; ++x)
+                p.fullData.payload[x] = switchOn[x];
             return true;
         }
 
         uint16_t result = 0;
-        for (int i = 0; i < numSwitches; ++i) {
+        for (unsigned i = 0; i < numSwitches; ++i) {
             if (switchOn[i])
                 result |= (1 << i);
         }
@@ -163,10 +138,10 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
     if (func == functionCodes[FUNC_GET_MONOFLOP])
     {
         // read monoflop for dual relay
-        if (numSwitches == 2)
+        if (!bitSwitches)
         {
             uint8_t n = p.uint8Value;
-            if (--n > 1) {
+            if (--n > numSwitches) {
                 Log::log("Invalid switch number for dual relay:", n);
                 return false;
             }
@@ -203,10 +178,10 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
 
     if (func == functionCodes[FUNC_SET_MONOFLOP])
     {
-        if (numSwitches == 2)
+        if (!bitSwitches)
         {
             uint8_t n = p.uint8Value;
-            if (--n > 1) {
+            if (--n > numSwitches) {
                 Log::log("Invalid switch number for dual relay:", n);
                 return false;
             }
@@ -224,7 +199,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
                 p.monoflopDefine.selection_mask, p.monoflopDefine.value_mask, p.monoflopDefine.time);
         Log::log(msg);
 
-        for (int i = 0; i < numSwitches; ++i)
+        for (unsigned i = 0; i < numSwitches; ++i)
         {
             uint16_t bit = (1 << i);
             if ((p.monoflopDefine.selection_mask & bit) != 0)
@@ -255,7 +230,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
                 if (!found)
                 {
                     // callback does not exist -> logic error!!
-                    Log::log("LOGIC ERROR: callback not found, PIN was", i);
+                    Log::log("LOGIC ERROR: callback not found, PIN was", (int)i);
                 }
             }
         }
@@ -283,7 +258,7 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
             // dual relay responds with 2 bytes, quad-relay with 4 (by chance)
             IOPacket packet(uid, it->callbackCode, numSwitches);
 
-            if (numSwitches == 4)
+            if (bitSwitches)
             {
                 packet.ushorts.value1 = (1 << it->param1);
                 packet.ushorts.value2 = it->param2 ? (1 << it->param1) : 0;
@@ -298,6 +273,62 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
         }
     }
 }
+
+/**
+ * Init the callback array with one callback per switch.
+ */
+void DeviceRelay::initMonoflopCallbacks(uint8_t callbackCode)
+{
+    for (unsigned i = 0; i < numSwitches; ++i)
+    {
+        BasicCallback cb(0, 0, callbackCode, i);
+        callbacks.push_back(cb);
+    }
+}
+
+/**
+ * Init dual relay with get/set and monoflop.
+ */
+DeviceDualRelay::DeviceDualRelay()
+  : DeviceRelay(2, false)
+{
+    functionCodes[FUNC_SET_STATE] = DUAL_RELAY_FUNCTION_SET_STATE;
+    functionCodes[FUNC_SET_SELECTED] = DUAL_RELAY_FUNCTION_SET_SELECTED_STATE;
+    functionCodes[FUNC_GET_STATE] = DUAL_RELAY_FUNCTION_GET_STATE;
+    functionCodes[FUNC_SET_MONOFLOP] = DUAL_RELAY_FUNCTION_SET_MONOFLOP;
+    functionCodes[FUNC_GET_MONOFLOP] = DUAL_RELAY_FUNCTION_GET_MONOFLOP;
+    initMonoflopCallbacks(DUAL_RELAY_CALLBACK_MONOFLOP_DONE);
+}
+
+/**
+ * Init quad relay with get/set and monoflop.
+ */
+DeviceQuadRelay::DeviceQuadRelay()
+  : DeviceRelay(4, true)
+{
+    functionCodes[FUNC_SET_STATE] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_VALUE;
+    functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_SELECTED_VALUES;
+    functionCodes[FUNC_GET_STATE] = INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_VALUE;
+    functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_MONOFLOP;
+    functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_MONOFLOP;
+    initMonoflopCallbacks(INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE);
+}
+
+/**
+ * Init digital out 4 with get/set and monoflop: behaves like a relay.
+ */
+DeviceDigitalOut4::DeviceDigitalOut4()
+  : DeviceRelay(4, true)
+{
+    functionCodes[FUNC_SET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_VALUE;
+    functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_SELECTED_VALUES;
+    functionCodes[FUNC_GET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_VALUE;
+    functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_MONOFLOP;
+    functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_MONOFLOP;
+    initMonoflopCallbacks(INDUSTRIAL_DIGITAL_OUT_4_CALLBACK_MONOFLOP_DONE);
+}
+
+
 
 /**
  * Default init.

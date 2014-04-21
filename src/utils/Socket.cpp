@@ -29,7 +29,6 @@
 #include <stdexcept>
 
 #include "Log.h"
-#include "utils.h"
 #include "Socket.h"
 
 
@@ -38,7 +37,7 @@ namespace utils {
 /**
  * Open the socket.
  */
-Socket::Socket(int port)
+Socket::Socket(int port, bool reuse)
   : handle(-1)
   , closeAll(true)
 {
@@ -54,9 +53,16 @@ Socket::Socket(int port)
     struct sockaddr_in serv_addr;
     bzero(&serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(port);
 
+    int on = reuse ? 1 : 0;
+    if (setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+    {
+        Log::perror("Failed to set socket option SO_REUSEADDR", errno);
+    }
+
+    Log::log("Bind a socket on port", port);
     if (bind(handle, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
         ::close(handle);
@@ -70,7 +76,6 @@ Socket::Socket(int port)
         throw std::runtime_error(msg);
     }
     closeAll = false;
-    Log::log("Create a socket on port", port);
 }
 
 /**
@@ -91,7 +96,6 @@ void Socket::close()
     {
         Log::log("Socket::close()");
         shutdown(handle, SHUT_RDWR);
-        utils::msleep(10);
         ::close(handle);
         handle = -1;
     }
@@ -105,7 +109,7 @@ int Socket::waitForClient()
     struct sockaddr_in cli_addr;
     socklen_t clilen = sizeof(cli_addr);
 
-    int newsockfd = accept(handle, (struct sockaddr *) &cli_addr, &clilen);
+    int newsockfd = accept4(handle, (struct sockaddr *) &cli_addr, &clilen, SOCK_CLOEXEC);
     if (newsockfd < 0)
     {
         if (closeAll)
@@ -114,6 +118,7 @@ int Socket::waitForClient()
         return -4;
     }
 
+    // TCP_NODELAY: disable Nagle alg. (200ms wait until packet gets transferred
     int flag = 1;
     if (setsockopt(newsockfd, IPPROTO_TCP, TCP_NODELAY, (void *)&flag, sizeof(flag)) < 0) {
         Log::perror("Socket::waitForClient - setsockopt()");

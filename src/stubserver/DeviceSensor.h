@@ -40,6 +40,7 @@ class DeviceSensor : public DeviceFunctions
     RangeCallback rangeCallback;
 
 public:
+    DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint8_t _callbackFunc);
     DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, uint8_t _setCallbackFunc,
                  uint8_t _setCallbackFuncAnalog, uint8_t _callbackFunc, uint8_t _callbackFuncAnalog);
     DeviceSensor(ValueProvider *values,

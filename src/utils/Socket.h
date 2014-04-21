@@ -32,10 +32,12 @@ class Socket
 
 public:
     /**
-     * Create a socket and bind to 0.0.0.0:<port>.
+     * Create a socket and bind to 0.0.0.0:&lt;port&gt;.
      * Throws an exception in case of error.
+     * @param port the port number to use
+     * @param reuse the socket SO_REUSEADDR option ?
      */
-    Socket(int port);
+    Socket(int port, bool reuse = true);
 
     /**
      * Close the socket, even if there is still a client listening.

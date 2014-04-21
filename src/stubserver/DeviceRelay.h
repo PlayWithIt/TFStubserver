@@ -31,8 +31,10 @@
  */
 class DeviceRelay : public DeviceFunctions
 {
-    unsigned type;
-    int numSwitches;
+protected:
+    unsigned numSwitches;
+    bool     bitSwitches;
+
     enum {
         FUNC_SET_STATE = 0,
         FUNC_SET_SELECTED,
@@ -50,12 +52,46 @@ class DeviceRelay : public DeviceFunctions
     typedef std::vector<BasicCallback>::iterator CallbackIterator;
     CallbackIterator findCallbackForPin(int pin);
 
-public:
-    DeviceRelay(unsigned _type, int _numSwitches);
+    void initMonoflopCallbacks(uint8_t callbackCode);
 
+protected:
+    DeviceRelay(unsigned _numSwitches, bool _bitSwitches);
+
+public:
     bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
     void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
 };
+
+
+/**
+ * The dual relay
+ */
+class DeviceDualRelay : public DeviceRelay
+{
+public:
+    DeviceDualRelay();
+};
+
+
+/**
+ * The industrial quad relay
+ */
+class DeviceQuadRelay : public DeviceRelay
+{
+public:
+    DeviceQuadRelay();
+};
+
+
+/**
+ * The digital out 4 switch
+ */
+class DeviceDigitalOut4 : public DeviceRelay
+{
+public:
+    DeviceDigitalOut4();
+};
+
 
 /**
  * A remote switch: this differs a little bit from the other relays, since it

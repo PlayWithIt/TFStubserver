@@ -22,6 +22,7 @@
 
 #include <string>
 #include <thread>
+#include <atomic>
 #include <condition_variable>
 
 #include "Mutexes.h"
@@ -46,8 +47,8 @@ class AsyncTask
 {
     std::string taskName;
     std::thread *th;
-    bool active;       // thread is running
-    bool finish;       // thread loop should finish
+    std::atomic_bool active;    // thread is running
+    std::atomic_bool finish;    // thread loop should finish
 
     std::condition_variable eventCondition;
 
@@ -92,8 +93,11 @@ public:
 
     /**
      * the {@link run()} method is still active?
+     * The access is atomic, concurrent.
      */
-    bool isActive() const;
+    bool isActive() const {
+        return active;
+    }
 
     /**
      * Wake up the thread if it is waiting in {@link shouldFinish()}.

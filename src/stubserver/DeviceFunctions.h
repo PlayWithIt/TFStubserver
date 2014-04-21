@@ -82,7 +82,9 @@ template<class T> uint8_t* buildBytes(T v)
 
 
 /**
- * TODO
+ * Class that is used as base for delegation and composition of functionality.
+ * The major functionality must be implemented in {@link #consumeCommand} and
+ * {@link #checkCallbacks}
  */
 class DeviceFunctions
 {

@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2012-2013 Matthias Bolte <matthias@tinkerforge.com>
+ * Copyright (C) 2012-2014 Matthias Bolte <matthias@tinkerforge.com>
  * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
  *
  * Redistribution and use in source and binary forms of this file,
- * with or without modification, are permitted.
+ * with or without modification, are permitted. See the Creative
+ * Commons Zero (CC0 1.0) License for more details.
  */
 
 #ifndef IP_CONNECTION_H
@@ -114,7 +115,6 @@ typedef struct _QueueItem {
 	struct _QueueItem *next;
 	int kind;
 	void *data;
-	int length;
 } QueueItem;
 
 typedef struct {
@@ -348,6 +348,12 @@ struct _IPConnection {
 #ifdef IPCON_EXPOSE_INTERNALS
 
 #define IPCON_NUM_CALLBACK_IDS 256
+#define IPCON_MAX_SECRET_LENGTH 64
+
+/**
+ * \internal
+ */
+typedef Device BrickDaemon;
 
 /**
  * \internal
@@ -369,6 +375,9 @@ struct _IPConnectionPrivate {
 	Mutex sequence_number_mutex;
 	uint8_t next_sequence_number; // protected by sequence_number_mutex
 
+	Mutex authentication_mutex; // protects authentication handshake
+	uint32_t next_authentication_nonce; // protected by authentication_mutex
+
 	Table devices;
 
 	void *registered_callbacks[IPCON_NUM_CALLBACK_IDS];
@@ -388,6 +397,8 @@ struct _IPConnectionPrivate {
 	Event disconnect_probe_event;
 
 	Semaphore wait;
+
+	BrickDaemon brickd;
 };
 
 #endif // IPCON_EXPOSE_INTERNALS
@@ -425,6 +436,8 @@ void ipcon_destroy(IPConnection *ipcon);
 int ipcon_connect(IPConnection *ipcon, const char *host, uint16_t port);
 
 /**
+ * \ingroup IPConnection
+ *
  * Record each command packet into the given FILE. If the FILE is NULL,
  * recording is switched off.
  *
@@ -448,6 +461,21 @@ bool ipcon_recordTo(FILE* recordFile);
  * Extension.
  */
 int ipcon_disconnect(IPConnection *ipcon);
+
+/**
+ * \ingroup IPConnection
+ *
+ * Performs an authentication handshake with the connected Brick Daemon or
+ * WIFI/Ethernet Extension. If the handshake succeeds the connection switches
+ * from non-authenticated to authenticated state and communication can
+ * continue as normal. If the handshake fails then the connection gets closed.
+ * Authentication can fail if the wrong secret was used or if authentication
+ * is not enabled at all on the Brick Daemon or the WIFI/Ethernet Extension.
+ *
+ * For more information about authentication see
+ * http://www.tinkerforge.com/en/doc/Tutorials/Tutorial_Authentication/Tutorial.html
+ */
+int ipcon_authenticate(IPConnection *ipcon, const char secret[64]);
 
 /**
  * \ingroup IPConnection

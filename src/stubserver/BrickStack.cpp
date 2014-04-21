@@ -230,7 +230,7 @@ void BrickStack::consumeRequestQueue()
                     }
                 }
                 catch (const std::exception &ex) {
-                    Log::log("ERROR in consumeRequestQueue()", ex);
+                    Log::error("ERROR in consumeRequestQueue()", ex);
                 }
             }
         }

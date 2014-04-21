@@ -58,17 +58,7 @@ void AsyncTask::callRunMethod()
  */
 void AsyncTask::setActive(bool a)
 {
-    MutexLock l(myMutex);
     active = a;
-}
-
-/**
- * return the value of the active flag.
- */
-bool AsyncTask::isActive() const
-{
-    MutexLock l(myMutex);
-    return active;
 }
 
 /**
@@ -76,7 +66,6 @@ bool AsyncTask::isActive() const
  */
 bool AsyncTask::shouldFinish()
 {
-    MutexLock l(myMutex);
     return finish;
 }
 
@@ -95,10 +84,10 @@ bool AsyncTask::shouldFinish(int waitMs)
  */
 bool AsyncTask::start()
 {
-    MutexLock l(myMutex);
-
-    if (th || active)
+    if (active || th)
         return false;
+
+    MutexLock l(myMutex);
     finish = false;
     active = true;
     th = new std::thread(&AsyncTask::callRunMethod, this);
@@ -145,9 +134,10 @@ bool AsyncTask::stop(int wait) noexcept
  */
 void AsyncTask::wakeUp()
 {
-    MutexLock l(myMutex);
-    if (active)
+    if (active) {
+        MutexLock l(myMutex);
         eventCondition.notify_all();
+    }
 }
 
 } /* namespace utils */

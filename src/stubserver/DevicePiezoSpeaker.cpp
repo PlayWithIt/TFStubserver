@@ -65,7 +65,6 @@ bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bo
 
     case PIEZO_SPEAKER_FUNCTION_MORSE_CODE:
     {
-        // TODO: create morse code buffer or start thread with morse code beeps.
         callbackFunctionId = PIEZO_SPEAKER_CALLBACK_MORSE_CODE_FINISHED;
         duration     = 0;
         sendCallback = true;

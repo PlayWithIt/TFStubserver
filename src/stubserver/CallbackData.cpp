@@ -38,6 +38,21 @@ BasicCallback::BasicCallback(uint64_t _relativeStartTime, uint8_t setFuncCode, u
 }
 
 /**
+ * Init all attributes
+ */
+BasicCallback::BasicCallback(uint8_t getFuncCode, uint8_t setFuncCode, uint8_t cbCode, uint32_t _period)
+: relativeStartTime(0)
+, period(_period)
+, callbackCode(cbCode)
+, getPeriodFunc(getFuncCode)
+, setPeriodFunc(setFuncCode)
+, param1(0)
+, param2(0)
+, active(false)
+{
+}
+
+/**
  * Checks if the callback is active and if the current time is after the next
  * planed execution of the callback (relativeStartTime + period).
  */
@@ -54,7 +69,7 @@ bool BasicCallback::mayExecute(uint64_t currentTimeMs) const
  */
 RangeCallback::RangeCallback()
   : BasicCallback(0, 0, 0, 0)
-  , option('X')     // not active
+  , option('x')     // not active
   , setFunctionCode(0)
   , getFunctionCode(0)
   , setDebounceFunctionCode(0)
@@ -99,15 +114,15 @@ bool RangeCallback::consumeGetSetThreshold(IOPacket &p)
 }
 
 /**
- * Change the callback option, if the option is 'X' or invalid,
+ * Change the callback option, if the option is 'x' or invalid,
  * the callback gets disabled
- * @param o one of 'X', '<', '>', 'o', 'i'
+ * @param o one of 'x', '<', '>', 'o', 'i'
  */
 void RangeCallback::setOption(char o)
 {
-    if (strchr("X<>oi", o))
+    if (strchr("x<>oi", o))
         option = o;
     else
-        option ='X';
-    active = option != 'X';
+        option ='x';
+    active = option != 'x';
 }

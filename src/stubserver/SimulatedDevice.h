@@ -31,7 +31,7 @@
 /**
  * The main class which is used in the {@link BrickStack} for all software
  * simulated devices. Internally this class constructs the devices out
- * of {@link DeviceFunction}s or specific device implementations.
+ * of {@link DeviceFunctions} or specific device implementations.
  */
 class SimulatedDevice
 {

@@ -32,7 +32,7 @@
 namespace utils {
 
 /**
- * @defgroup ValueProvider
+ * @defgroup ValueProvider Classes that generate values that maybe consumed somewhere else.
  */
 
 /**

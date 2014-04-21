@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <list>
+#include <utils/Mutexes.h>
 
 // ALSA handle
 struct _snd_pcm;
@@ -35,7 +36,7 @@ namespace utils {
  * You'll have to install 'libasound2-dev' on Debian to compile this or
  * 'alsa-devel' on OpenSuse.
  */
-class SoundPlayback
+class SoundPlayback : public SyncedObject
 {
 public:
     SoundPlayback();
@@ -130,12 +131,14 @@ public:
 private:
     bool finish;
     bool done;
+    bool swapBuffer;
     int  channels;
     int  sampleRate;
     int  sampleSize;
     _snd_pcm *playbackHandle;
 
     WavBuffer wavBuffer;
+    WavBuffer newBuffer;
 
     bool loadSound(const char *name);
     int  openSoundHandle() noexcept;

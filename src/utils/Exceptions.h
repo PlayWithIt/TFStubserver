@@ -42,6 +42,10 @@ protected:
         msg = m;
     }
 
+    void setMessage(const char *m) {
+        msg = m;
+    }
+
 public:
     explicit Exception(const std::string &msg);
     explicit Exception(const char *msg);
@@ -120,6 +124,23 @@ class KeyNotFound : public Exception
 public:
     explicit KeyNotFound(const std::string &key);
     ~KeyNotFound() noexcept;
+};
+
+
+/**
+ * Exception thrown if a value is not in the expected range, different
+ * constructors are offered in order to build a defined error string.
+ */
+class OutOfRange : public Exception
+{
+public:
+    explicit OutOfRange(const std::string &msg)
+      : Exception(msg) { }
+
+    explicit OutOfRange(const std::string &hint, unsigned current, unsigned _max);
+    explicit OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max);
+
+    ~OutOfRange() noexcept;
 };
 
 } /* namespace utils */

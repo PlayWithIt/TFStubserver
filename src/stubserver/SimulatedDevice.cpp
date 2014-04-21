@@ -27,7 +27,10 @@
 #include <bricklet_industrial_digital_out_4.h>
 #include <bricklet_industrial_digital_in_4.h>
 #include <bricklet_industrial_quad_relay.h>
+#include <bricklet_io16.h>
+#include <bricklet_io4.h>
 #include <bricklet_humidity.h>
+#include <bricklet_sound_intensity.h>
 #include <bricklet_temperature.h>
 #include <bricklet_voltage_current.h>
 #include <device_table.h>
@@ -38,6 +41,7 @@
 #include "BrickStack.h"
 #include "DeviceBarometer.h"
 #include "DeviceButtons.h"
+#include "DeviceInOut.h"
 #include "DeviceLCD.h"
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
@@ -165,39 +169,40 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         isBrick = true;
         break;
 
-    case VOLTAGE_CURRENT_DEVICE_IDENTIFIER:
-        {
-            DeviceVoltageCurrent *vc = new DeviceVoltageCurrent();
-            const char *vp = getProperty("valueProviderV");
-            if (*vp)
-                vc->setVoltageValueProvider(createValueProvider(vp));
-            vp = getProperty("valueProviderC");
-            if (*vp)
-                vc->setCurrentValueProvider(createValueProvider(vp));
-            functions  = vc;
-        }
+    //----------- Bricklets -------------------------------------------------------------------------------------------
+
+    case BAROMETER_DEVICE_IDENTIFIER:
+        functions = new DeviceBarometer();
         break;
 
-    case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
-        functions = new DeviceRelay(INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER, 4);
-        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
-        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
+    case DUAL_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceDualRelay();
         break;
 
     case INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER:
-        functions = new DeviceRelay(INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER, 4);
+        functions = new DeviceDigitalIn(createValueProvider(getProperty("valueProvider")));
         functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
         functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
         break;
 
+    case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
+        functions = new DeviceDigitalOut4();
+        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
+        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
+        break;
+
     case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceRelay(INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER, 4);
+        functions = new DeviceQuadRelay();
         functions = new DoNothing(functions, INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
         functions = new DoNothing(functions, INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
         break;
 
-    case DUAL_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceRelay(DUAL_RELAY_DEVICE_IDENTIFIER, 2);
+    case IO16_DEVICE_IDENTIFIER:
+        functions = new DeviceInOut16(createValueProvider(getProperty("valueProviderA")), createValueProvider(getProperty("valueProviderB")));
+        break;
+
+    case IO4_DEVICE_IDENTIFIER:
+        functions = new DeviceInOut(createValueProvider(getProperty("valueProvider")));
         break;
 
     case ROTARY_POTI_DEVICE_IDENTIFIER:
@@ -244,39 +249,60 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case TEMPERATURE_DEVICE_IDENTIFIER:
         // has no analog value
-        sensor = new DeviceSensor(
-                TEMPERATURE_FUNCTION_GET_TEMPERATURE, 0,
-                TEMPERATURE_FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, 0,
-                TEMPERATURE_CALLBACK_TEMPERATURE, 0);
-        sensor->setRangeCallback(HUMIDITY_FUNCTION_SET_HUMIDITY_CALLBACK_THRESHOLD,
-                TEMPERATURE_FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD,
-                TEMPERATURE_FUNCTION_SET_DEBOUNCE_PERIOD,
-                TEMPERATURE_FUNCTION_GET_DEBOUNCE_PERIOD,
-                TEMPERATURE_CALLBACK_TEMPERATURE_REACHED);
+        sensor = new DeviceSensor(TEMPERATURE_FUNCTION_GET_TEMPERATURE,
+                                  TEMPERATURE_FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, TEMPERATURE_CALLBACK_TEMPERATURE);
+        sensor->setRangeCallback(TEMPERATURE_FUNCTION_SET_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 TEMPERATURE_FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 TEMPERATURE_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 TEMPERATURE_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 TEMPERATURE_CALLBACK_TEMPERATURE_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
         functions = sensor;
         break;
 
-    case BAROMETER_DEVICE_IDENTIFIER:
-        functions = new DeviceBarometer();
+    case SOUND_INTENSITY_DEVICE_IDENTIFIER:
+        // has no analog value
+        sensor = new DeviceSensor(SOUND_INTENSITY_FUNCTION_GET_INTENSITY,
+                                  SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_PERIOD, SOUND_INTENSITY_CALLBACK_INTENSITY);
+        sensor->setRangeCallback(SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_THRESHOLD,
+                                 SOUND_INTENSITY_FUNCTION_GET_INTENSITY_CALLBACK_THRESHOLD,
+                                 SOUND_INTENSITY_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 SOUND_INTENSITY_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2800,step=5,interval=300")));
+        functions = sensor;
         break;
 
     case LCD_20X4_DEVICE_IDENTIFIER:
         functions = new DeviceLCD(20, 4);
         break;
 
-    case PIEZO_SPEAKER_DEVICE_IDENTIFIER:
-        functions = new DevicePiezoSpeaker();
-        break;
-
     case MULTI_TOUCH_DEVICE_IDENTIFIER:
         functions = new DeviceTouchPad(12, createValueProvider(getProperty("valueProvider")));
+        break;
+
+    case PIEZO_SPEAKER_DEVICE_IDENTIFIER:
+        functions = new DevicePiezoSpeaker();
         break;
 
     case REMOTE_SWITCH_DEVICE_IDENTIFIER:
         functions = new DeviceRemoteRelay();
         break;
+
+    case VOLTAGE_CURRENT_DEVICE_IDENTIFIER:
+        {
+            DeviceVoltageCurrent *vc = new DeviceVoltageCurrent();
+            const char *vp = getProperty("valueProviderV");
+            if (*vp)
+                vc->setVoltageValueProvider(createValueProvider(vp));
+            vp = getProperty("valueProviderC");
+            if (*vp)
+                vc->setCurrentValueProvider(createValueProvider(vp));
+            functions  = vc;
+        }
+        break;
     }
+
     return functions;
 }
 
@@ -402,10 +428,15 @@ const char *SimulatedDevice::getProperty(const std::string &key, int minLength)
         if (minLength <= 0)
             return "";
     }
-    if (res == NULL || (int)strlen(res) < minLength) {
+    if (res == NULL || (int)strlen(res) < minLength)
+    {
         char msg[128];
-        sprintf(msg, "Property '%s' for uid %s must have length %d, but has %d",
-                key.c_str(), uidStr.c_str(), minLength, res ? (int) strlen(res) : 0);
+        if (!res)
+            sprintf(msg, "Property '%s' for uid %s does not exist, check properties",
+                    key.c_str(), uidStr.c_str());
+        else
+            sprintf(msg, "Property '%s' for uid %s must have length %d, but has %d",
+                    key.c_str(), uidStr.c_str(), minLength, res ? (int) strlen(res) : 0);
         throw Exception(msg);
     }
     return res;
@@ -478,6 +509,8 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
 {
     MutexLock lock(deviceMutex);
 
+    // if there is a function associated and consumed -> all OK
+    // if not: if responseExpected=false, the packet is just consumed with a warning
     uint64_t time = brickStack->getRelativeTimeMs();
     if (functions && functions->consumeCommand(time, p, visibleStateChange))
         return true;
@@ -513,7 +546,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     {
         // CHIP_TEMPERATURE is available in all bricks and has the same function-id in all bricks
         p.header.length = sizeof(p.header) + sizeof(int16_t);
-        p.int16Value = 290 + (time % 10);
+        p.int16Value = 320 + (time % 10);
         return true;
     }
     if (MASTER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME == func)

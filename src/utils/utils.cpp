@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
-#include <stdio.h>
+#include <stdexcept>
 
 #include "utils.h"
 
@@ -74,8 +74,8 @@ unsigned int base58Decode(const char *str)
 {
     int i;
     int k;
-    uint32_t value = 0;
-    uint32_t base = 1;
+    uint64_t value = 0;
+    uint64_t base = 1;
 
     for (i = 0; i < BASE58_MAX_STR_SIZE; i++) {
         if (str[i] == '\0') {
@@ -96,8 +96,17 @@ unsigned int base58Decode(const char *str)
             }
         }
 
+        uint64_t oldValue = value;
         value += k * base;
         base *= 58;
+
+        // invalid ID?
+        if (value < oldValue || value > 0xffffffff)
+        {
+            char msg[256];
+            sprintf(msg, "base58Decode: overflow in string '%s'", str);
+            throw std::overflow_error(msg);
+        }
     }
 
     return value;

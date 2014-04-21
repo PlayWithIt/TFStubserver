@@ -127,6 +127,15 @@ void ClientThread::run()
 
         // put request into queue
         ++packetsIn;
+
+        /*
+        // Just for testing ...
+        char msg[256];
+        sprintf(msg, "New packet for uid=%s (%x), func-id %d, msg-size %d",
+                utils::base58Encode(packet.header.uid).c_str(), packet.header.uid,
+                packet.header.function_id, packet.header.length);
+        Log::log(msg);
+        */
         brickStack.enqueueRequest(this, packet);
 
     } while (!shouldFinish(1));

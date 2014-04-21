@@ -38,6 +38,7 @@ struct BasicCallback
     int      param2;
     bool     active;
 
+    BasicCallback(uint8_t getFuncCode, uint8_t setFuncCode, uint8_t cbCode, uint32_t _period = 100);
     BasicCallback(uint64_t relativeStartTime, uint8_t setFuncCode, uint8_t cbCode, int p1, int p2 = -1, uint32_t _period = 0);
 
     /**
@@ -56,7 +57,7 @@ struct BasicCallback
  */
 class RangeCallback : public BasicCallback
 {
-    char     option;                     // option: 'X', '<', '>', 'o', 'i'
+    char     option;                     // option: 'x', '<', '>', 'o', 'i'
 
 public:
     uint8_t  setFunctionCode;            // set the threshold callback
@@ -70,9 +71,9 @@ public:
     RangeCallback();
 
     /**
-     * Change the callback option, if the option is 'X' or invalid,
+     * Change the callback option, if the option is 'x' or invalid,
      * the callback gets disabled.
-     * @param o one of 'X', '<', '>', 'o', 'i'
+     * @param o one of 'x', '<', '>', 'o', 'i'
      */
     void setOption(char o);
 

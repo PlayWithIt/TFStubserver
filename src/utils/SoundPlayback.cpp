@@ -28,7 +28,6 @@
 #include <alsa/asoundlib.h>
 #include <thread>
 
-#include <utils/Mutexes.h>
 #include <utils/utils.h>
 
 #include "SoundPlayback.h"
@@ -138,7 +137,8 @@ void SoundPlayback::triggerSound()
  */
 SoundPlayback::SoundPlayback()
   : finish(false)
-  , done(false)
+  , done(true)
+  , swapBuffer(false)
   , channels(-1)
   , sampleRate(-1)
   , sampleSize(-1)
@@ -358,6 +358,8 @@ int SoundPlayback::openSoundHandle() noexcept
 void SoundPlayback::playSound()
 {
     MutexLock guard(g_sound_mutex);
+
+start:
     if (wavBuffer.data.get() == NULL || wavBuffer.size < 1024)
         return;
 
@@ -385,13 +387,36 @@ void SoundPlayback::playSound()
             else
                 fprintf(stderr, "Expected to write %d packets, wrote %d\n", todo, err);
         }
-        remain -= todo;
-        ptr += (todo*sampleSize);
+
+        {
+            if (swapBuffer)
+            {
+                MutexLock lock(myMutex);
+                wavBuffer  = newBuffer;
+                ptr        = wavBuffer.data.get() + 32;
+                remain     = (wavBuffer.size-32) / sampleSize;
+                swapBuffer = false;
+            }
+            else {
+                remain -= todo;
+                ptr    += (todo*sampleSize);
+            }
+        }
     }
 
-    // we have do close the handle here: two playback which have a delay some
+    if (swapBuffer)
+    {
+        MutexLock lock(myMutex);
+        wavBuffer  = newBuffer;
+        swapBuffer = false;
+        goto start;
+    }
+
+    // we have do close the handle here: two playbacks which have a delay of
     // some seconds will fail otherwise: the ALSA handle will result in the
     // broken pipe after some seconds unused.
+    // TODO: close async if there is not more input for 0.5 seconds.
+    // TODO: rework the mechanism with 'swapBuffer'
     closeSoundHandle();
     done = true;
 }
@@ -430,6 +455,21 @@ bool SoundPlayback::playback(const char *filename, bool async)
  */
 bool SoundPlayback::playback(const WavBuffer &newBuffer, bool async)
 {
+    // if a playback is still active: try to swap the playback data
+    // while the playback is running. This only works if the playback
+    // has the same sample size and rate.
+    if (async && !done)
+    {
+        WavHeader *hdr = (WavHeader*) newBuffer.data.get();
+        if (sampleRate == hdr->sampleRate && sampleSize == hdr->numChannels * hdr->bitsPerSample / 8)
+        {
+            MutexLock lock(myMutex);
+            this->newBuffer = newBuffer;
+            this->swapBuffer = true;
+            return true;
+        }
+    }
+
     // check that the last playback has finished
     stopPlayback();
 

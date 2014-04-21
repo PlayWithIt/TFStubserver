@@ -95,6 +95,30 @@ KeyNotFound::~KeyNotFound() noexcept { }
 
 
 //--------------------------------------------------------------------------
+// utils::OutOfRange
+//--------------------------------------------------------------------------
+OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _max)
+  : Exception()
+{
+    char buffer[256];
+    sprintf(buffer, "%s '%u' out of range, max = %u",
+            hint.length() > 0 ? "" : "Value", current, _max);
+    setMessage(hint + buffer);
+}
+
+OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max)
+  : Exception()
+{
+    char buffer[256];
+    sprintf(buffer, "%s' %u' out of range, expected range is %u .. %u",
+            hint.length() > 0 ? "" : "Value", current, _min, _max);
+    setMessage(hint + buffer);
+}
+
+OutOfRange::~OutOfRange() noexcept { }
+
+
+//--------------------------------------------------------------------------
 // utils::ValueFormatError
 //--------------------------------------------------------------------------
 ValueFormatError::ValueFormatError(const std::string &m)

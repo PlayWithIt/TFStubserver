@@ -28,6 +28,17 @@
 using utils::Log;
 
 
+
+DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint8_t _callbackCode)
+  : getValueFunc(_getValueFunc)
+  , getValueAnalogFunc(0)
+  , maxAnalogValue(4095)
+  , values(NULL)
+  , changedCb(0, _setCallbackFunc, _callbackCode, 0)
+  , changedAnalogCb(0, 0, 0, 0)
+{
+}
+
 DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, uint8_t _setCallbackFunc,
                            uint8_t _setCallbackFuncAnalog, uint8_t _callbackCode, uint8_t _callbackCodeAnalog)
   : getValueFunc(_getValueFunc)
@@ -142,6 +153,7 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
         changedAnalogCb.param1 = v;
     }
 
+    // mayExecute also checks the 'option' value ...
     if (!rangeCallback.mayExecute(relativeTimeMs))
         return;
 
@@ -149,7 +161,7 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
     if ( (option == 'i' && currentValue >= rangeCallback.param1 && currentValue <= rangeCallback.param2)
       || (option == 'o' && (currentValue < rangeCallback.param1 || currentValue > rangeCallback.param2))
       || (option == '<' && currentValue < rangeCallback.param1)
-      || (option == '<' && currentValue > rangeCallback.param2)
+      || (option == '>' && currentValue > rangeCallback.param1)
        )
     {
         triggerCallbackShort(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);
