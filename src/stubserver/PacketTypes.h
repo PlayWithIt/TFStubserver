@@ -38,6 +38,8 @@
         #error unknown compiler, do not know how to enable struct packing
 #endif
 
+namespace stubserver {
+
 /**
  * Same as in ip_connection.h
  */
@@ -167,6 +169,8 @@ typedef struct IOPacket
     }
 
 } ATTRIBUTE_PACKED _IOPacket;
+
+} /* namespace stubserver */
 
 
 #if defined _MSC_VER || defined __BORLANDC__

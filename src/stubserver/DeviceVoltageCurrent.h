@@ -21,6 +21,7 @@
 
 #include "DeviceFunctions.h"
 
+namespace stubserver {
 
 /**
  * A device sub-functionality that handles getCurrent() and getVoltage() requests
@@ -59,5 +60,6 @@ public:
     void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
 };
 
+} /* namespace stubserver */
 
 #endif /* DEVICEVOLTAGECURRENT_H_ */

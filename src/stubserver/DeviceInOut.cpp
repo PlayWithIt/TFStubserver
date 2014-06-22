@@ -26,6 +26,7 @@
 #include "BrickStack.h"
 #include "DeviceInOut.h"
 
+namespace stubserver {
 
 DeviceDigitalIn::EdgeCount::EdgeCount()
   : count(0)
@@ -263,3 +264,5 @@ void DeviceInOut16::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Br
     portA.checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
     portB.checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
 }
+
+} /* namespace stubserver */

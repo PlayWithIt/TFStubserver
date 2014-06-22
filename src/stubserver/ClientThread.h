@@ -20,51 +20,40 @@
 #ifndef CLIENTTHREAD_H_
 #define CLIENTTHREAD_H_
 
-#include <utils/AsyncTask.h>
+#include <utils/BlockingQueueTasks.h>
 
 #include "BrickClient.h"
 #include "BrickStack.h"
+
+namespace stubserver {
 
 /**
  * A separate thread which consumes incoming requests from the network
  * socket and sends them to the stack of bricks. The stack will then
  * asynchronously respond if necessary. This objects creates a separate
- * thread for sending outgoing requests back.
+ * thread for sending outgoing requests back to the client.
  */
-class ClientThread : public utils::AsyncTask, BrickClient
+class ClientThread : public utils::QueueProducerTask<IOPacket>, BrickClient
 {
     int socketHandle;
     BrickStack &brickStack;
     uint64_t packetsIn;
 
     /**
-     * Separate thread that handles the responses. The overall throughput
+     * Separate thread that handles the responses to the client. The overall throughput
      * is the same as if the call is directly in sendResponse().
      */
-    class SenderThread : public utils::AsyncTask
+    class SenderThread : public utils::QueueConsumerTask<IOPacket>
     {
         int socketHandle;
         uint64_t packetsOut;
-        std::mutex queueMutex;
-        std::queue<IOPacket> sendQueue;
-        std::condition_variable queueEvent;
 
     public:
-        SenderThread(int _socketHandle)
-         : AsyncTask("SenderThread"), socketHandle(_socketHandle), packetsOut(0), queueMutex(), sendQueue(), queueEvent()
+        SenderThread(int _socketHandle, utils::BlockingQueue<IOPacket> &queue)
+         : QueueConsumerTask("SenderThread", queue), socketHandle(_socketHandle), packetsOut(0)
         { }
 
-        /**
-         * Put a new packet into the outgoing queue.
-         */
-        void enqueue(const IOPacket& packet);
-
-        virtual void run();
-
-        /**
-         * Wake up the thread which consumes the queue.
-         */
-        void notify();
+        virtual bool consume(IOPacket &data);
     };
 
     // created if necessary to send responses
@@ -81,5 +70,6 @@ public:
     virtual bool sendResponse(const IOPacket& packet);
 };
 
+} /* namespace stubserver */
 
 #endif /* CLIENTTHREAD_H_ */

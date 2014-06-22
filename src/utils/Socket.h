@@ -29,6 +29,8 @@ class Socket
 {
     int  handle;
     bool closeAll;
+    unsigned timeoutRead;
+    unsigned timeoutWrite;
 
 public:
     /**
@@ -43,6 +45,26 @@ public:
      * Close the socket, even if there is still a client listening.
      */
     virtual ~Socket();
+
+    /**
+     * Set a read-timeout in milliseconds on all new client connections which are created by
+     * {@link waitForClient()}. If the value is 0, no timeout will be set and <code>recv()</code>
+     * is a blocking call.
+     * An exception is thrown if this operation fails.
+     */
+    void setReadTimeout(unsigned ms) {
+        timeoutRead = ms;
+    }
+
+    /**
+     * Set a write-timeout in milliseconds on all new client connections which are created by
+     * {@link waitForClient()}. If the value is 0, no timeout will be set and <code>send()</code>
+     * is a blocking call.
+     * An exception is thrown if this operation fails.
+     */
+    void setWriteTimeout(unsigned ms) {
+        timeoutWrite = ms;
+    }
 
     /**
      * Waits on the socket for a new client.

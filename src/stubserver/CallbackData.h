@@ -22,6 +22,8 @@
 
 #include "PacketTypes.h"
 
+namespace stubserver {
+
 /**
  * Basic callback data to hold the execution time, repeating period and
  * some parameters like the last value. The values are public in order
@@ -97,5 +99,7 @@ public:
                       uint8_t _setDebounceFunctionCode, uint8_t _getDebounceFunctionCode,
                       uint8_t _callbackCode);
 };
+
+} /* namespace stubserver */
 
 #endif /* CALLBACKINFOS_H_ */

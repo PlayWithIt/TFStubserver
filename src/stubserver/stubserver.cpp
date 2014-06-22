@@ -34,6 +34,9 @@
 using utils::Log;
 using utils::Socket;
 
+using stubserver::ClientThread;
+using stubserver::BrickThread;
+
 
 static std::list<ClientThread*> clients;
 static BrickThread *brickThread = NULL;

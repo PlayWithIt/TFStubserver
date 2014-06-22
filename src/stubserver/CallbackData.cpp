@@ -22,6 +22,8 @@
 
 #include "CallbackData.h"
 
+namespace stubserver {
+
 /**
  * Init all attributes
  */
@@ -126,3 +128,5 @@ void RangeCallback::setOption(char o)
         option ='x';
     active = option != 'x';
 }
+
+} /* namespace stubserver */

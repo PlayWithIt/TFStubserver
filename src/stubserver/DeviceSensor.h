@@ -21,6 +21,7 @@
 
 #include "DeviceFunctions.h"
 
+namespace stubserver {
 
 /**
  * A simulated sensor device which has a 'normal' value and an analog value which
@@ -96,5 +97,6 @@ public:
 };
 
 
+} /* namespace stubserver */
 
 #endif /* DEVICESENSOR_H_ */

@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <iostream>
 
+#include "Object.h"
 #include "Exceptions.h"
 
 
@@ -32,8 +33,8 @@ namespace utils {
  * A simple class which can hold name/value pairs and load/save
  * this from file.
  */
-class Properties {
-
+class Properties : public Object
+{
     typedef std::unordered_map<std::string, std::string> TStringMap;
     TStringMap values;
 
@@ -42,9 +43,18 @@ public:
     Properties();
     virtual ~Properties() noexcept;
 
-    /** load properties from file */
+    /**
+     * Load properties from file.
+     * @param filename the path to the file
+     * @throws FileOpenError if the file cannot be opened
+     */
     Properties(const char *filename);
-    /** load properties from file */
+
+    /**
+     * Load properties from file.
+     * @param filename the path to the file
+     * @throws FileOpenError if the file cannot be opened
+     */
     Properties(const std::string &filename);
 
     /**
@@ -166,6 +176,9 @@ public:
      * Throws an exception in case of error.
      */
     void load(const char *filename);
+    void load(const std::string &filename) {
+        load(filename.c_str());
+    }
 
     /**
      * Saves the properties into a file: replaces the file if this already exists.

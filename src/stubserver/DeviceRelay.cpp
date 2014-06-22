@@ -32,6 +32,8 @@
 #include "BrickStack.h"
 #include "DeviceRelay.h"
 
+namespace stubserver {
+
 using utils::Log;
 
 /**
@@ -391,3 +393,5 @@ void DeviceRemoteRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
         busy = false;
     }
 }
+
+} /* namespace stubserver */

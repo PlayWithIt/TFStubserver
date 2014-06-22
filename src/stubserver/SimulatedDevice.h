@@ -27,6 +27,8 @@
 
 #include "DeviceFunctions.h"
 
+namespace stubserver {
+
 
 /**
  * The main class which is used in the {@link BrickStack} for all software
@@ -114,5 +116,7 @@ public:
         return uidStr;
     }
 };
+
+} /* namespace stubserver */
 
 #endif /* SIMULATEDDEVICE_H_ */

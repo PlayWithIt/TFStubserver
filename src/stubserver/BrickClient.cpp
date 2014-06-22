@@ -19,6 +19,8 @@
 
 #include "BrickClient.h"
 
+namespace stubserver {
+
 BrickClient::BrickClient() {
 
 }
@@ -27,3 +29,4 @@ BrickClient::~BrickClient() {
 
 }
 
+} /* namespace stubserver */

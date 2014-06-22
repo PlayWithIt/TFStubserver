@@ -17,12 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdexcept>
 #include <memory.h>
 #include <utils/Log.h>
 #include <utils/Exceptions.h>
 
 #include <BrickStack.h>
 #include "DeviceFunctions.h"
+
+namespace stubserver {
 
 using utils::Log;
 
@@ -40,7 +43,7 @@ ResponseData::ResponseData(unsigned _size, uint8_t *_bytes)
     if (_size > 0)
     {
         if (_size > sizeof(bytes))
-            throw utils::LogicError("size too large");
+            throw std::logic_error("size too large");
         if (_bytes)
             memcpy(bytes, _bytes, _size);
     }
@@ -378,7 +381,7 @@ void GetSetRaw::updateIntermediateValue()
 
     char msg[256];
     sprintf(msg, "GetSetRaw::updateIntermediateValue() called, but not implemented, funcCode %u", getFunctionIntermediate);
-    throw utils::LogicError(msg);
+    throw std::logic_error(msg);
 }
 
 
@@ -450,3 +453,5 @@ void EnableDisableBool::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
     if (other)
         other->checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
 }
+
+} /* namespace stubserver */

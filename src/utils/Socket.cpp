@@ -39,7 +39,9 @@ namespace utils {
  */
 Socket::Socket(int port, bool reuse)
   : handle(-1)
-  , closeAll(true)
+  , closeAll(false)
+  , timeoutRead(0)
+  , timeoutWrite(0)
 {
     char msg[512];
 
@@ -121,9 +123,31 @@ int Socket::waitForClient()
     // TCP_NODELAY: disable Nagle alg. (200ms wait until packet gets transferred
     int flag = 1;
     if (setsockopt(newsockfd, IPPROTO_TCP, TCP_NODELAY, (void *)&flag, sizeof(flag)) < 0) {
-        Log::perror("Socket::waitForClient - setsockopt()");
+        Log::perror("Socket::waitForClient - setsockopt(TCP_NODELAY)");
         ::close(newsockfd);
         return -4;
+    }
+
+    if (timeoutRead > 0)
+    {
+        struct timeval tv;
+        tv.tv_sec = timeoutRead / 1000;
+        tv.tv_usec = timeoutRead * 1000;
+
+        if (setsockopt(newsockfd, IPPROTO_TCP, SO_RCVTIMEO, (void *)&tv, sizeof(tv)) < 0) {
+            Log::perror("Socket::waitForClient - setsockopt(SO_RCVTIMEO)");
+        }
+    }
+
+    if (timeoutWrite > 0)
+    {
+        struct timeval tv;
+        tv.tv_sec = timeoutWrite / 1000;
+        tv.tv_usec = timeoutWrite * 1000;
+
+        if (setsockopt(newsockfd, IPPROTO_TCP, SO_SNDTIMEO, (void *)&tv, sizeof(tv)) < 0) {
+            Log::perror("Socket::waitForClient - setsockopt(SO_SNDTIMEO)");
+        }
     }
     return newsockfd;
 }

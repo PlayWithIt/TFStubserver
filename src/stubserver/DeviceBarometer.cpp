@@ -9,6 +9,8 @@
 
 #include "DeviceBarometer.h"
 
+namespace stubserver {
+
 
 DeviceBarometer::DeviceBarometer()
   : values(new utils::LinearValueProvider(900000, 1100000, 123, 1100))
@@ -146,3 +148,5 @@ void DeviceBarometer::setValueProvider(utils::ValueProvider *_values)
     delete values;
     values = _values;
 }
+
+} /* namespace stubserver */

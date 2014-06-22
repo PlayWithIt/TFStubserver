@@ -22,6 +22,8 @@
 
 #include "DeviceLCD.h"
 
+namespace stubserver {
+
 /**
  * Default init.
  */
@@ -129,3 +131,5 @@ void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
     else if (counter > 0)
         --counter;
 }
+
+} /* namespace stubserver */

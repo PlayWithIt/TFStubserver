@@ -28,8 +28,9 @@
 #include "BrickStack.h"
 #include "DeviceButtons.h"
 
-using utils::Log;
+namespace stubserver {
 
+using utils::Log;
 
 /**
  * Default init.
@@ -102,3 +103,5 @@ void DeviceTouchPad::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, B
         //brickStack->dispatchCallback(packet);
     }
 }
+
+} /* namespace stubserver */

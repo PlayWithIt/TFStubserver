@@ -19,6 +19,7 @@
 
 #include <cxxabi.h>
 
+#include <time.h>
 #include <sys/time.h>
 #include <iomanip>
 #include <sstream>
@@ -90,18 +91,19 @@ void Log::printTime(std::ostream *os)
 {
     struct timeval current;
     gettimeofday(&current, NULL);
-    std::tm* time = localtime( &(current.tv_sec) );
+    std::tm time;
+    localtime_r( &(current.tv_sec), &time );
 
     if (!os)
         os = logStream;
 
-    *os << (time->tm_year + 1900) << '-'
+    *os << (time.tm_year + 1900) << '-'
         << std::setfill('0')
-        << std::setw(2) << (time->tm_mon + 1) << '-'
-        << std::setw(2) << time->tm_mday << ' '
-        << std::setw(2) << time->tm_hour << ':'
-        << std::setw(2) << time->tm_min << ':'
-        << std::setw(2) << time->tm_sec << '.'
+        << std::setw(2) << (time.tm_mon + 1) << '-'
+        << std::setw(2) << time.tm_mday << ' '
+        << std::setw(2) << time.tm_hour << ':'
+        << std::setw(2) << time.tm_min << ':'
+        << std::setw(2) << time.tm_sec << '.'
         << std::setw(3) << (current.tv_usec / 1000) << "  ";
 }
 
@@ -138,6 +140,18 @@ void Log::log(const char* msg, uint64_t v)
     *logStream << msg << ' ' << v << '\n' << std::flush;
 }
 
+void Log::log(const char* msg, const char *arg)
+{
+    MutexLock lock(logMutex);
+    printTime();
+    *logStream << msg << ' ' << (arg ? arg : "NULL") << '\n' << std::flush;
+}
+
+void Log::log(const std::string& msg, const char *v)
+{
+    log(msg.c_str(), v);
+}
+
 void Log::log(const std::string& msg, int v)
 {
     log(msg.c_str(), v);
@@ -149,6 +163,24 @@ void Log::error(const char* msg)
     std::stringstream os;
     printTime(&os);
     os << msg;
+    saveAndPrintError(os);
+}
+
+void Log::error(const std::string &msg, const char* arg)
+{
+    MutexLock lock(logMutex);
+    std::stringstream os;
+    printTime(&os);
+    os << msg << ' ' << arg;
+    saveAndPrintError(os);
+}
+
+void Log::error(const std::string &msg, int arg)
+{
+    MutexLock lock(logMutex);
+    std::stringstream os;
+    printTime(&os);
+    os << msg << ' ' << arg;
     saveAndPrintError(os);
 }
 
@@ -170,9 +202,15 @@ void Log::error(const char* msg, const std::exception &ex)
     int status = 0;
     char *realname = abi::__cxa_demangle(typeid(ex).name(), 0, 0, &status);
 
-    os << "Caught exception of type '"
-       << (status == 0 ? realname : typeid(ex).name())
-       << "' in " << msg << ": " << ex.what();
+    if (status == 0) {
+        // exception name is readable
+        os << realname;
+    }
+    else {
+        os << "Exception of type '" << typeid(ex).name() << "'";
+    }
+
+    os << " in " << msg << ": " << ex.what();
     saveAndPrintError(os);
 
     if (realname && status == 0)

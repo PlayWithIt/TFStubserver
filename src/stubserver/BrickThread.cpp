@@ -20,6 +20,9 @@
 #include "BrickThread.h"
 
 #include <utils/Log.h>
+
+namespace stubserver {
+
 using utils::Log;
 
 
@@ -35,11 +38,19 @@ void BrickThread::run()
 {
     Log::log("BrickThread is running ...");
 
+    auto now = std::chrono::system_clock::now();
+    std::chrono::milliseconds waitTime(1);
+
     do {
-        incrementTime();
+        incrementTime(now);
         consumeRequestQueue();
         checkCallbacks();
-    } while (!shouldFinish(1));
+
+        // sleep until the next millisecond is reached
+        now += waitTime;
+    } while (!shouldFinish(now));
 
     Log::log("BrickThread has stopped ...");
 }
+
+} /* namespace stubserver */

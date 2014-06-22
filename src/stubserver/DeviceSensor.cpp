@@ -25,6 +25,8 @@
 #include "DeviceSensor.h"
 #include "BrickStack.h"
 
+namespace stubserver {
+
 using utils::Log;
 
 
@@ -196,3 +198,5 @@ DevicePotentiometer::DevicePotentiometer(bool _linear)
   , linear(_linear)
 {
 }
+
+} /* namespace stubserver */

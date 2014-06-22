@@ -18,7 +18,6 @@
  */
 
 #include <stdlib.h>
-#include <time.h>
 #include <math.h>
 #include <fstream>
 #include <cstring>
@@ -40,7 +39,7 @@ ValueProvider::ValueProvider(int _min, int _max, unsigned int _interval)
   , interval(_interval)
 {
     if (max < min)
-        throw LogicError("max < min in ValueProvider definition");
+        throw std::logic_error("max < min in ValueProvider definition");
 }
 
 ValueProvider::~ValueProvider() {
@@ -212,7 +211,7 @@ OnOffValueProvider::OnOffValueProvider(unsigned intervalOn, unsigned _durationOn
    , isOn(false)
 {
     if (randomTime > 0)
-        throw LogicError("randomTime not yet supported");
+        throw std::logic_error("randomTime not yet supported");
 }
 
 /**
@@ -283,6 +282,9 @@ StoredValueProvider::StoredValueProvider(const char *filename)
   : ValueProvider(0, 0, 0)
   , values()
   , current(values.begin())
+  , valueCount(0)
+  , latestTime(0)
+  , timeOffset(0)
 {
     std::ifstream input;
     input.open(filename);
@@ -297,63 +299,16 @@ StoredValueProvider::StoredValueProvider(const char *filename)
 
     // now parse text
     std::string line;
-    int lineNo = 0;
+    unsigned lineNo = 0;
     while (std::getline(input, line))
     {
         ++lineNo;
-        size_t l = line.length();
-        if (l == 0 || line[0] == '#')
-            // comment
-            continue;
-
-        // trim key
-        size_t start = 0;
-        while (start < l && line[start] == ' ')
-            ++start;
-        size_t end = start+1;
-        while (end < l && line[end] != ' ')
-            ++end;
-        std::string val = line.substr(start, end-start);
-
-        // first value is the time
-        unsigned time = atol(val.c_str());
-        int value;
-        int base;
-
-        // trim values
-        start = end + 1;
-        while (start < l && line[start] == ' ')
-            ++start;
-
-        // determine value base
-        val = line.substr(start, l);
-        if (utils::StringUtil::startsWith(val, "0x")) {
-            base = 16;
-            val = val.substr(2);
-        }
-        else if (utils::StringUtil::startsWith(val, "0b")) {
-            base = 2;
-            val = val.substr(2);
-        }
-        else
-            base = 10;
-
-        char *endPtr = NULL;
-        value = strtol(val.c_str(), &endPtr, base);
-
-        if (value < min)
-            min = value;
-        if (value > max)
-            max = value;
-        values.push_back(TValueItem(time, value));
+        parseLine(line, lineNo);
     }
     input.close();
 
-    if (values.empty())
+    if (checkSequence() == 0)
         throw Exception(std::string("No values defined in ") + filename);
-
-    // set-up again
-    current = values.cbegin();
 }
 
 
@@ -364,6 +319,9 @@ StoredValueProvider::StoredValueProvider(const Properties &props, const std::str
   : ValueProvider(0, 0, 0)
   , values()
   , current(values.begin())
+  , valueCount(0)
+  , latestTime(0)
+  , timeOffset(0)
 {
     unsigned row = 0;
     char buffer[512];
@@ -383,88 +341,202 @@ StoredValueProvider::StoredValueProvider(const Properties &props, const std::str
         if (strlen(value) > 30)
             throw Exception(std::string("Strange value in properties for key ") + buffer);
 
-        // trim value
-        while (*value == ' ')
-            ++value;
-        int end = 0;
-        while (value[end] != ' ')
-        {
-            if (value[end] == 0)
-                throw Exception(std::string("Value needs a blank between two integers, but hasn't, key: ") + buffer);
-            ++end;
-        }
-        memcpy(buffer, value, end);
-        buffer[end] = 0;
-
-        unsigned time = atol(buffer);
-
-        // trim values
-        value = value + end;
-        while (*value == ' ')
-            ++value;
-
-        // determine value base
-        int base;
-        if (*value == '0' && value[1] == 'x') {
-            base = 16;
-            value += 2;
-        }
-        else if (*value == '0' && value[1] == 'b') {
-            base = 2;
-            value += 2;
-        }
-        else
-            base = 10;
-
-        char *endPtr = NULL;
-        int v = strtol(value, &endPtr, base);
-
-        if (v < min)
-            min = v;
-        if (v > max)
-            max = v;
-        values.push_back(TValueItem(time, v));
+        std::string line(value);
+        parseLine(line, row);
     }
 
-    if (values.empty())
-        throw Exception(std::string("No values defined in properties with key-prefix") + key);
-
-    // set-up again
-    current = values.cbegin();
+    if (checkSequence() == 0)
+        throw Exception(std::string("No values defined in properties with key-prefix ") + key);
 }
 
+/**
+ * Check consistency return number of value items (no random).
+ */
+unsigned StoredValueProvider::checkSequence()
+{
+    unsigned act = 0;
+    unsigned row = 0;
+
+    for (auto it : values)
+    {
+        ++row;
+        if (it.isRandom)
+            continue;
+
+        if (it.timeOffset < act)
+        {
+            char error[128];
+            sprintf(error, "Relative time in row %u is lower than previous one!", row);
+            throw Exception(error);
+        }
+        act = it.timeOffset;
+    }
+
+    // first value
+    current = values.begin();
+    if (current != values.end())
+        checkApplyRandom();
+    return valueCount;
+}
+
+/**
+ * Check if the current item is a random marker and set a new random
+ * time offset if it is a random marker.
+ */
+void StoredValueProvider::checkApplyRandom()
+{
+    if (current->isRandom)
+    {
+        // determine new random offset
+        unsigned newRandom = rand() % current->addOffset;
+        std::list<TValueItem>::iterator next = current;
+
+        do {
+            if (++next == values.end())
+                next = values.begin();
+
+            // apply only to value items, stop at next random item
+            if (next->isRandom)
+                break;
+            next->addOffset = newRandom;
+            // printf("***** set offset to %u, time = %u *****\n", newRandom, next->timeOffset);
+        } while (true);
+
+        if (++current == values.end())
+            current = values.begin();
+
+        // printf("***** CURRENT is time = %u %d *****\n", current->timeOffset, current->value);
+        if (current->isRandom)
+            throw Exception("Random markers must have at least one normal item in between, found two in a sequence!");
+    }
+}
 
 /**
  * Get the actual value at the given relative time.
  */
 int StoredValueProvider::getValue(uint64_t relativeTimeMs)
 {
-    TValueItem value = *current;
-    unsigned relTime = std::get<0>(value);
+    TValueItem item = *current;
+    unsigned relTime = item.getOffset();
 
     if (lastValueTime + relTime < relativeTimeMs)
     {
         bool done = false;
         do {
-            if (++current == values.cend())
+            if (++current == values.end())
             {
                 // start at the beginning again
                 lastValueTime = relativeTimeMs;
                 current = values.begin();
-                value = *current;
+                checkApplyRandom();
+
+                item = *current;
                 done = true;
             }
             else {
-                value = *current;
-                relTime = std::get<0>(value);
+                checkApplyRandom();
+                item = *current;
+                relTime = item.getOffset();
                 if (lastValueTime + relTime >= relativeTimeMs)
                     done = true;
             }
         } while (!done);
     }
 
-    int result = std::get<1>(value);
+    int result = item.value;
     return result;
 }
+
+
+/**
+ * Init with given value range and update frequency.
+ */
+void StoredValueProvider::parseLine(std::string &line, unsigned lineNo)
+{
+    size_t l = line.length();
+    if (l == 0 || line[0] == '#')
+        // comment
+        return;
+
+    // trim key
+    size_t start = 0;
+    while (start < l && line[start] == ' ')
+        ++start;
+    size_t end = start+1;
+    while (end < l && line[end] != ' ')
+        ++end;
+    std::string val = line.substr(start, end-start);
+
+    // next item has zero time value again ...
+    bool isOffset = val.compare("offset") == 0;
+    bool isRandom = val.compare("random") == 0;
+
+    // first value is the time
+    unsigned time = isRandom || isOffset ? 0 : atol(val.c_str());
+    int value;
+    int base;
+
+    // trim values
+    start = end + 1;
+    while (start < l && line[start] == ' ')
+        ++start;
+
+    // determine value base
+    val = line.substr(start, l);
+    if (utils::strings::startsWith(val, "0x")) {
+        base = 16;
+        val = val.substr(2);
+    }
+    else if (utils::strings::startsWith(val, "0b")) {
+        base = 2;
+        val = val.substr(2);
+    }
+    else
+        base = 10;
+
+    char *endPtr = NULL;
+    value = strtol(val.c_str(), &endPtr, base);
+    if (endPtr == val.c_str())
+    {
+        char error[128];
+        sprintf(error, "Invalid line format in value of line %u", lineNo);
+        throw Exception(error);
+    }
+
+    // add more offset to all following values?
+    if (isOffset)
+    {
+        timeOffset = latestTime+value;
+        return;
+    }
+
+    // mark random delay time entry
+    if (isRandom) {
+        values.push_back(TValueItem(value));
+        return;
+    }
+
+    // normal entry: time + value
+    if (value < min)
+        min = value;
+    if (value > max)
+        max = value;
+
+    latestTime = time + timeOffset;
+    values.push_back(TValueItem(latestTime, value));
+    ++valueCount;
+}
+
+/**
+ * Mark a random entry
+ */
+StoredValueProvider::TValueItem::TValueItem(unsigned r)
+  : timeOffset(0), addOffset(r), value(0), isRandom(true) { }
+
+/**
+ * A normal value entry
+ */
+StoredValueProvider::TValueItem::TValueItem(unsigned t, int v)
+  : timeOffset(t), addOffset(0), value(v), isRandom(false) { }
 
 }

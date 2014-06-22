@@ -70,6 +70,7 @@ public:
      * has finished. If 'async' the set to true, the function will
      * return after loading the file and play the sound in another thread.
      *
+     * @param filename path + name of a file to load a WAV files from
      * @param async start the sound playback in a separate thread?
      * @return false if the file cannot be read, true on success
      */
@@ -80,6 +81,7 @@ public:
      * has finished. If 'async' the set to true, the function will
      * return after passing the sound to a playback thread.
      *
+     * @param buffer wav source to playback
      * @param async start the sound playback in a separate thread?
      * @return false if the file cannot be read, true on success
      */
@@ -107,12 +109,10 @@ public:
     typedef std::list<Sound> SoundList;
 
     /**
-     * Create a buffer which contains a WAV file with a constant frequency
-     * and given duration. The result with have 2 channels and a sample rate
-     * of 22000Hz.
+     * Create a buffer which contains a WAV file with a given sound list. Each
+     * single sound from the list is constant.
      *
-     * @param durationMs the duration of the tone in milliseconds
-     * @param frequency the frequency to use for the sound
+     * @param sounds - list of single tones / sounds to create a WAV part for
      * @return an object with a dynamically allocated buffer and the size of the buffer
      */
     WavBuffer makeWav(SoundList &sounds);

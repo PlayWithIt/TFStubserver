@@ -22,6 +22,7 @@
 #include "DevicePiezoSpeaker.h"
 #include "BrickStack.h"
 
+namespace stubserver {
 
 DevicePiezoSpeaker::DevicePiezoSpeaker()
   : sendCallback(false)
@@ -126,3 +127,5 @@ void DevicePiezoSpeaker::checkCallbacks(uint64_t relativeTimeMs, unsigned int ui
         sendCallback = false;
     }
 }
+
+} /* namespace stubserver */

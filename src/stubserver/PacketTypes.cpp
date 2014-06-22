@@ -22,6 +22,8 @@
 
 #include "PacketTypes.h"
 
+namespace stubserver {
+
 /**
  * Init all with zeroes.
  */
@@ -50,3 +52,5 @@ void IOPacket::setErrorCode(ErrorCode rc)
 {
     header.error_code_and_future_use |= (rc << 6);
 }
+
+} /* namespace stubserver */

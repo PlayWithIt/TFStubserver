@@ -22,6 +22,8 @@
 
 #include "PacketTypes.h"
 
+namespace stubserver {
+
 /**
  * Basic interface which is used by {@link BrickStack} in order to send
  * back responses to the clients.
@@ -34,5 +36,7 @@ public:
 
     virtual bool sendResponse(const IOPacket& packet) = 0;
 };
+
+} /* namespace stubserver */
 
 #endif /* BRICKCLIENT_H_ */

@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/time.h>
 #include <sstream>
 
 #include <utils/Log.h>
@@ -36,6 +35,9 @@ using utils::Log;
 using utils::Properties;
 
 #define ATTRIBUTE_PACKED __attribute__((packed))
+
+namespace stubserver {
+
 
 typedef struct {
         PacketHeader header;
@@ -61,7 +63,7 @@ BrickStack::BrickStack(const char *filename)
   , devices()
   , clients()
   , packetQueue()
-  , startTimeMs(0)
+  , startTime(system_clock::now())
   , relativeTimeMs(0)
   , packetsIn(0)
   , packetsOut(0)
@@ -70,11 +72,6 @@ BrickStack::BrickStack(const char *filename)
     if (objectCount > 0)
         throw utils::Exception("ERROR: there maybe only one BrickStack at a time!");
     ++objectCount;
-
-    // determine start time in ms
-    struct timeval current;
-    gettimeofday(&current, NULL);
-    startTimeMs = (current.tv_sec * 1000) + (current.tv_usec / 1000);
 
     if (filename == NULL)
     {
@@ -89,7 +86,7 @@ BrickStack::BrickStack(const char *filename)
         throw utils::Exception("Property 'UIDS' is not present!");
 
     std::vector<std::string> uids;
-    for (std::string &it : utils::StringUtil::split(str, ' ', uids))
+    for (std::string &it : utils::strings::split(str, ' ', uids))
     {
         SimulatedDevice *dev = new SimulatedDevice(this, it.c_str(), p);
         devices.push_back(dev);
@@ -103,28 +100,23 @@ BrickStack::~BrickStack()
         delete it;
     --objectCount;
 
-    struct timeval current;
-    gettimeofday(&current, NULL);
-    uint64_t endTimeMs = (current.tv_sec * 1000) + (current.tv_usec / 1000);
+    system_clock::time_point endTimeMs = system_clock::now();
+    uint64_t delta = std::chrono::duration_cast<std::chrono::milliseconds>(endTimeMs - startTime).count();
 
     std::ostringstream os;
-    os << "UpTime: " << (endTimeMs - startTimeMs) << "ms, "
+    os << "UpTime: " << delta << "ms, "
        << callbackCycles << " callback cycles ("
-       << static_cast<double>(callbackCycles) / ((endTimeMs - startTimeMs) / 1000.0) << " cyles/sec), "
+       << static_cast<double>(callbackCycles) / (delta / 1000.0) << " cyles/sec), "
        << packetsIn << " packets in, " << packetsOut << " packets out";
     Log::log(os.str());
 }
 
 /**
- * Read realtime and recalculate the relative time
+ * Recalculate the relative time
  */
-void BrickStack::incrementTime()
+void BrickStack::incrementTime(const system_clock::time_point &now)
 {
-    // determine start time in ms
-    struct timeval current;
-    gettimeofday(&current, NULL);
-    uint64_t newTimeMs = (current.tv_sec * 1000) + (current.tv_usec / 1000);
-    relativeTimeMs = newTimeMs - startTimeMs;
+    relativeTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
 }
 
 /**
@@ -323,3 +315,5 @@ void BrickStack::deregisterClient(BrickClient *cln)
         }
     }
 }
+
+} /* namespace stubserver */

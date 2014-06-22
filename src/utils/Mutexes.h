@@ -22,6 +22,9 @@
 
 #include <mutex>
 
+#include "Object.h"
+
+
 namespace utils {
 
 typedef std::lock_guard<std::mutex> MutexLock;
@@ -31,7 +34,7 @@ typedef std::lock_guard<std::recursive_mutex> RecursiveLock;
  * A class that just holds a lock which can be used in derived classes,
  * the lock is non-recursive.
  */
-class SyncedObject
+class SyncedObject : public Object
 {
 protected:
     mutable std::mutex myMutex;
@@ -44,7 +47,7 @@ protected:
  * A class that just holds a lock which can be used in derived classes,
  * the lock is recursive.
  */
-class RecursiveSyncedObject
+class RecursiveSyncedObject : public Object
 {
 protected:
     mutable std::recursive_mutex myMutex;

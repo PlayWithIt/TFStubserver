@@ -31,6 +31,8 @@
 
 typedef std::lock_guard<std::mutex> MutexLock;
 
+namespace stubserver {
+
 using utils::ValueProvider;
 
 // forward decl
@@ -348,5 +350,6 @@ public:
     void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
 };
 
+} /* namespace stubserver */
 
 #endif /* DEVICEFUNCTIONS_H_ */

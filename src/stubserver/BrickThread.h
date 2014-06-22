@@ -23,6 +23,8 @@
 #include <utils/AsyncTask.h>
 #include "BrickStack.h"
 
+namespace stubserver {
+
 /**
  * The main thread of the server which consumes the client
  * requests queue and checks for callback periodically.
@@ -41,5 +43,6 @@ public:
     virtual void run();
 };
 
+} /* namespace stubserver */
 
 #endif /* BRICKTHREAD_H_ */

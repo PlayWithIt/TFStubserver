@@ -21,6 +21,7 @@
 
 #include "DeviceRelay.h"
 
+namespace stubserver {
 
 /**
  * The digital input with a given number of input switches.
@@ -102,5 +103,6 @@ public:
     void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
 };
 
+} /* namespace stubserver */
 
 #endif /* DEVICEINOUT_H_ */

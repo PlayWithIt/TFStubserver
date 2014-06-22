@@ -1,7 +1,7 @@
 /*
- * utils.h
+ * Object.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2014 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,34 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef UTILS_H_
-#define UTILS_H_
-
-#include <string>
+#include "Object.h"
 
 namespace utils {
 
-// set SIGTERM + SIGINT signal handler which sets in internal flag so that 'doFinish()'
-// will return true afterwards.
-void initSignalHandlers() noexcept;
-
-// return a flag that is true after a signal handler is called.
-bool shouldFinish() noexcept;
-
-// sleep 'ms' milliseconds
-void msleep(int ms) noexcept;
-
-// sleep 'us' microseconds
-void usleep(int us) noexcept;
-
-/**
- * Convert an int into a base58 encoded string.
- */
-const std::string base58Encode(unsigned int value);
-unsigned int      base58Decode(const char *value);
+Object::~Object() {
 
 }
 
-
-#endif /* UTILS_H_ */
+} /* namespace utils */

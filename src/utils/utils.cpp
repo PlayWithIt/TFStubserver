@@ -157,24 +157,4 @@ void initSignalHandlers() noexcept
     sigaction(SIGINT,  &act, NULL);
 }
 
-/**
- * Save a PID file:
- * returns 0 if OK, 1 on file write error, 2 if 'filename' is invalid
- */
-int writePidFile(const char *filename) noexcept
-{
-    if (filename && *filename)
-    {
-        FILE *f = fopen(filename, "w");
-        if (f == NULL) {
-            perror(filename);
-            return 1;
-        }
-        fprintf(f, "%d", getpid());
-        fclose(f);
-        return 0;
-    }
-    return 2;
-}
-
 }

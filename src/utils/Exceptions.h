@@ -103,20 +103,6 @@ public:
 
 
 /**
- * Exception thrown if a value has not the expected format.
- */
-class LogicError : public Exception
-{
-public:
-    explicit LogicError(const char *msg)
-       : Exception(msg) { }
-    explicit LogicError(const std::string &msg)
-       : Exception(msg) { }
-    ~LogicError() noexcept;
-};
-
-
-/**
  * Exception thrown if key was not found.
  */
 class KeyNotFound : public Exception

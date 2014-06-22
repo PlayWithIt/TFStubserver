@@ -46,7 +46,6 @@ Exception::Exception(const char *m, int arg)
 }
 
 Exception::~Exception() noexcept { }
-LogicError::~LogicError() noexcept { }
 
 const char *Exception::what() const noexcept
 {
@@ -102,7 +101,7 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _max)
 {
     char buffer[256];
     sprintf(buffer, "%s '%u' out of range, max = %u",
-            hint.length() > 0 ? "" : "Value", current, _max);
+            hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _max);
     setMessage(hint + buffer);
 }
 
@@ -111,7 +110,7 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min,
 {
     char buffer[256];
     sprintf(buffer, "%s' %u' out of range, expected range is %u .. %u",
-            hint.length() > 0 ? "" : "Value", current, _min, _max);
+            hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _min, _max);
     setMessage(hint + buffer);
 }
 

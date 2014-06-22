@@ -72,10 +72,20 @@ bool AsyncTask::shouldFinish()
 /**
  * Return the value of the finish flag.
  */
-bool AsyncTask::shouldFinish(int waitMs)
+bool AsyncTask::shouldFinish(unsigned waitUs)
 {
     std::unique_lock<std::mutex> l(myMutex);
-    eventCondition.wait_for(l, std::chrono::milliseconds(waitMs));
+    eventCondition.wait_for(l, std::chrono::microseconds(waitUs));
+    return finish;
+}
+
+/**
+ * Return the value of the finish flag.
+ */
+bool AsyncTask::shouldFinish(const std::chrono::system_clock::time_point &absTime)
+{
+    std::unique_lock<std::mutex> l(myMutex);
+    eventCondition.wait_until(l, absTime);
     return finish;
 }
 
@@ -115,15 +125,15 @@ bool AsyncTask::stop(int wait) noexcept
 
     int ms = wait <= 0 ? 40 : wait;
     while (isActive() && ms >= 0) {
-        utils::msleep(40);
-        ms -= 40;
+        utils::msleep(10);
+        ms -= 10;
     }
-    if (ms < 0)
+    if (isActive())
         utils::Log::log(std::string("WARNING: async-task '") + taskName + "' didn't end in time!");
     th->join();
     delete th;
     th = NULL;
-    active = false;
+    setActive(false);
     finish = false;
     return (ms >= 0);
 }

@@ -23,6 +23,8 @@
 #include <string>
 #include "DeviceFunctions.h"
 
+namespace stubserver {
+
 /**
  * Simulates the LCD device with some lines of text and a cursor.
  * The backlight flag is simulated with other functions.
@@ -52,5 +54,7 @@ public:
     bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
     void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
 };
+
+} /* namespace stubserver */
 
 #endif /* DEVICELCD_H_ */

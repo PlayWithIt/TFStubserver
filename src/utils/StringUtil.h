@@ -27,14 +27,8 @@ namespace utils {
 /**
  * A helper class that offers only static methods for string functionality.
  */
-class StringUtil
+namespace strings
 {
-    StringUtil();
-    StringUtil(const StringUtil &) = delete;
-    StringUtil& operator=(const StringUtil &) = delete;
-
-public:
-
     /**
      * Split a string using a given delimiter into a vector of strings.
      * @param s the string to split
@@ -43,17 +37,23 @@ public:
      *        the vector is not cleared before adding new elements.
      * @return the address of the input vector
      */
-    static std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems);
+    std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems);
 
     /**
      * Does a string start with the given prefix string?
      */
-    static bool startsWith(const std::string &s, const char *prefix);
-    static bool startsWith(const std::string &s, const std::string &prefix) {
+    bool startsWith(const std::string &s, const char *prefix);
+
+    inline bool startsWith(const std::string &s, const std::string &prefix) {
         return startsWith(s, prefix.c_str());
     }
-};
 
+    /**
+     * Does a string end with the given suffix string?
+     */
+    bool endsWith(const std::string &s, const std::string &suffix);
+
+} /* namespace strings */
 } /* namespace utils */
 
 #endif /* STRINGUTIL_H_ */

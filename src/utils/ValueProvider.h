@@ -57,10 +57,12 @@ public:
     /**
      * Dynamically create a known value provider from some options which have the
      * following format:<br>
+     * "const  <value>" <br>
      * "linear <min> <max> <step> <interval>" <br>
      * "random <min> <max> <interval>" <br>
      * "sinus  <min> <max> <interval>" <br>
      * "stored <filename>" <br>
+     * "onOff  <interval>" <br>
      */
     static ValueProvider* buildFrom(const std::string &options);
 
@@ -209,10 +211,44 @@ public:
  */
 class StoredValueProvider : public ValueProvider
 {
-    typedef std::tuple<unsigned,int> TValueItem;
+    struct TValueItem
+    {
+        unsigned timeOffset;
+        unsigned addOffset;
+        int      value;
+        bool     isRandom;
+
+        /**
+         * Mark a random entry
+         */
+        TValueItem(unsigned);
+        /**
+         * A normal value entry
+         */
+        TValueItem(unsigned,int);
+
+        /**
+         * Returns the effective time offset in ms.
+         */
+        unsigned getOffset() const {
+            return timeOffset + addOffset;
+        }
+    };
 
     std::list<TValueItem> values;
-    std::list<TValueItem>::const_iterator current;
+    std::list<TValueItem>::iterator current;
+    size_t   valueCount;
+    unsigned latestTime;
+    unsigned timeOffset;
+
+    // parse a value out of the input line
+    void parseLine(std::string &line, unsigned lineNo);
+
+    /**
+     * Check consistency return number of value items (no random).
+     */
+    unsigned checkSequence();
+    void checkApplyRandom();
 
 public:
     /**
@@ -224,7 +260,7 @@ public:
     /**
      * Reads the values from properties with a given prefix: the prefix will
      * be extended with a line number in order to extract the values.
-     * If the prefix is "data", "data1", "data2", ... are read until a
+     * If the prefix is "data" then "data1", "data2", ... are read until a
      * key was not found.
      * <P>
      * Each property value must be a tuple of two blank separated integers.
@@ -234,8 +270,8 @@ public:
     /**
      * Returns the number of values defined in the input file.
      */
-    size_t numValues() const {
-        return values.size();
+    size_t size() const {
+        return valueCount;
     }
 
     /**

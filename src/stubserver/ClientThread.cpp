@@ -30,13 +30,15 @@
 #include "ClientThread.h"
 #include "SimulatedDevice.h"
 
+namespace stubserver {
+
 using utils::Log;
 
 /**
  *
  */
 ClientThread::ClientThread(int _socketHandle, BrickStack &_brickStack)
-    : AsyncTask("ClientThread")
+    : QueueProducerTask("ClientThread")
     , socketHandle(_socketHandle)
     , brickStack(_brickStack)
     , packetsIn(0)
@@ -66,8 +68,8 @@ void ClientThread::cleanUpSenderThread()
 {
     if (senderThread == NULL)
         return;
+    queue.closeQueue();
     senderThread->signalToStop();
-    senderThread->notify();
     senderThread->stop(50);
     delete senderThread;
     senderThread = NULL;
@@ -85,7 +87,7 @@ void ClientThread::run()
     int headerSize = sizeof(packet.header);
 
     // create response thread
-    senderThread = new SenderThread(socketHandle);
+    senderThread = new SenderThread(socketHandle, queue);
     senderThread->start();
 
     do {
@@ -138,8 +140,9 @@ void ClientThread::run()
         */
         brickStack.enqueueRequest(this, packet);
 
-    } while (!shouldFinish(1));
+    } while (!shouldFinish(100));
 
+    queue.closeQueue();
     Log::log("ClientThread has stopped: packets in", packetsIn);
 }
 
@@ -148,62 +151,21 @@ void ClientThread::run()
  */
 bool ClientThread::sendResponse(const IOPacket& packet)
 {
-    if (senderThread) {
-        senderThread->enqueue(packet);
-        return true;
-    }
-    return false;
+    queue.enqueue(packet);
+    return true;
 }
 
 /**
- * Main loop to consume responses for one client.
+ * Consume one data packet: send this back to the client.
  */
-void ClientThread::SenderThread::run()
+bool ClientThread::SenderThread::consume(IOPacket &packet)
 {
-    while (true)
-    {
-        std::unique_lock<std::mutex> l(queueMutex);
-        queueEvent.wait(l);
-
-        if (sendQueue.empty())
-        {
-            if (shouldFinish()) {
-                // wakeUp without data -> terminate
-                Log::log("SenderThread has stopped, packets out", packetsOut);
-                return;
-            }
-            else {
-                // see condition_variable api: the variable might be triggered without condition
-                Log::log("SenderThread wakeup without data??");
-                continue;
-            }
-        }
-
-        do {
-            auto packet = sendQueue.front();
-            int size = send(socketHandle, &packet, packet.header.length, 0);
-            if (size != packet.header.length) {
-                Log::perror("send()");
-            }
-            ++packetsOut;
-            sendQueue.pop();
-        } while (!sendQueue.empty());
+    int size = send(socketHandle, &packet, packet.header.length, 0);
+    if (size != packet.header.length) {
+        Log::perror("send()");
     }
+    ++packetsOut;
+    return true;
 }
 
-void ClientThread::SenderThread::enqueue(const IOPacket& packet)
-{
-    {
-        MutexLock lock(queueMutex);
-        sendQueue.push(packet);
-    }
-    notify();
-}
-
-/**
- * Wake up the thread which consumes the queue.
- */
-void ClientThread::SenderThread::notify()
-{
-    queueEvent.notify_one();
-}
+} /* namespace stubserver */

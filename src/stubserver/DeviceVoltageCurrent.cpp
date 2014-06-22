@@ -27,6 +27,7 @@ using utils::Log;
 using utils::ValueProvider;
 using utils::LinearValueProvider;
 
+namespace stubserver {
 
 /**
  * Init with build-in value provider
@@ -214,3 +215,5 @@ void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
     if (other)
         other->checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
 }
+
+} /* namespace stubserver */

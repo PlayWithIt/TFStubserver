@@ -23,6 +23,7 @@
 
 #include "DeviceFunctions.h"
 
+namespace stubserver {
 
 /**
  * A touch pad / multi touch panel.
@@ -46,5 +47,7 @@ public:
         return numButtons;
     }
 };
+
+} /* namespace stubserver */
 
 #endif /* DEVICEBUTTONS_H_ */

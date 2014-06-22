@@ -38,7 +38,6 @@ class Log {
     Log(const Log &other) = delete;
     ~Log();
 
-    static void printTime(std::ostream *os = NULL);
     static void saveAndPrintError(std::stringstream &os);
 
 public:
@@ -53,14 +52,21 @@ public:
     static void log(const char* msg, int v);
     static void log(const std::string& msg, int v);
     static void log(const char* msg, uint64_t v);
+    static void log(const char* msg, const char *arg);
+    static void log(const std::string& msg, const char *arg);
 
     // log message with strerror() as parameter
     static void perror(const char* msg, int errorCode = errno);
     static void perror(const std::string& msg, int errorCode = errno);
 
+    // print date time and milliseconds to the stream
+    static void printTime(std::ostream *os = NULL);
+
     // log error message and put into error history
     static void error(const char* msg);
     static void error(const std::string& msg);
+    static void error(const std::string& msg, const char *arg);
+    static void error(const std::string& msg, int arg);
 
     // exception trace
     static void error(const char* msg, const std::exception &ex);

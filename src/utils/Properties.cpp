@@ -72,7 +72,7 @@ Properties::Properties(const std::string &data, char separator)
         while (data[i] != '=') {
             ++i;
             if (i >= last)
-                throw LogicError("No '=' found after key");
+                throw std::logic_error("No '=' found after key");
         }
         size_t end = i;
         while (data[end-1] == ' ')
@@ -119,8 +119,7 @@ void Properties::clear() noexcept {
  */
 void Properties::load(const char *filename)
 {
-    std::ifstream input;
-    input.open(filename);
+    std::ifstream input(filename);
 
     // open file
     if (!input.is_open()) {
@@ -242,7 +241,7 @@ std::ostream& Properties::write(std::ostream& output, bool sort) const
         {
             auto item = values.find(it);
             if (item == values.end())
-                throw LogicError(std::string("Key not found any more: '") + it + "'");
+                throw std::logic_error(std::string("Key not found any more: '") + it + "'");
             output << it << '=' << item->second << '\n';
         }
         return output;

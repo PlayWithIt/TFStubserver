@@ -23,6 +23,8 @@
 
 #include "DeviceFunctions.h"
 
+namespace stubserver {
+
 using utils::SoundPlayback;
 
 /**
@@ -48,5 +50,7 @@ public:
     bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
     void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
 };
+
+} /* namespace stubserver */
 
 #endif /* DEVICEPIEZOSPEAKER_H_ */

@@ -21,15 +21,12 @@
 #include "StringUtil.h"
 
 namespace utils {
-
-StringUtil::StringUtil() {
-
-}
+namespace strings {
 
 /**
  * Helper to split a string using a given delimiter
  */
-std::vector<std::string>& StringUtil::split(const std::string &s, char delim, std::vector<std::string> &elems)
+std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems)
 {
     std::stringstream ss(s);
     std::string item;
@@ -42,7 +39,7 @@ std::vector<std::string>& StringUtil::split(const std::string &s, char delim, st
 /**
  * Does a string start with the given prefix string?
  */
-bool StringUtil::startsWith(const std::string &s, const char *prefix)
+bool startsWith(const std::string &s, const char *prefix)
 {
     // search empty?
     if (*prefix == 0)
@@ -61,4 +58,22 @@ bool StringUtil::startsWith(const std::string &s, const char *prefix)
     return false;
 }
 
+/**
+ * Does a string end with the given suffix string?
+ */
+bool endsWith(const std::string &whole, const std::string &suffix)
+{
+    size_t suffix_l = suffix.length();
+    if (suffix_l == 0)
+        return true;
+
+    // string too short?
+    size_t whole_l = whole.length();
+    if (whole_l < suffix_l)
+        return false;
+
+    return (0 == whole.compare (whole_l - suffix_l, suffix_l, suffix));
+}
+
+} /* namespace strings */
 } /* namespace utils */

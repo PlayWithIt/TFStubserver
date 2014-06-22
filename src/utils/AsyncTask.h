@@ -23,8 +23,10 @@
 #include <string>
 #include <thread>
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 
+#include "Object.h"
 #include "Mutexes.h"
 
 
@@ -43,7 +45,7 @@ namespace utils {
  * the separate thread. The constructor only initializes things, but
  * does not yet start a thread.
  */
-class AsyncTask
+class AsyncTask : public Object
 {
     std::string taskName;
     std::thread *th;
@@ -81,11 +83,17 @@ protected:
     void setActive(bool a);
 
     /**
-     * Waits max 'waitMs' milliseconds for the finish flag to be changed to 'true'.
+     * Waits max 'waitUs' microseconds for the finish flag to be changed to 'true'.
      * If the flag is not set to true, the function returns false.
-     * @param waitMs number of milliseconds to wait for the thread to finish normally
+     * @param waitUs number of microseconds to wait for the thread to finish normally
      */
-    bool shouldFinish(int waitMs);
+    bool shouldFinish(unsigned waitUs);
+
+    /**
+     * Waits until the given time is reached or the condition_variable was signaled.
+     * @param absTime to wait until
+     */
+    bool shouldFinish(const std::chrono::system_clock::time_point &absTime);
 
 public:
     AsyncTask(const char *name);
@@ -97,6 +105,13 @@ public:
      */
     bool isActive() const {
         return active;
+    }
+
+    /**
+     * Returns the logical task name of this thread.
+     */
+    const std::string& getTaskName() const {
+        return taskName;
     }
 
     /**
@@ -127,7 +142,7 @@ public:
      *
      * @return false if the thread is not running any more, true otherwise.
      */
-    bool signalToStop() noexcept;
+    virtual bool signalToStop() noexcept;
 
     /**
      * Sets active to true, starts {@link run()} in a separate thread and returns.

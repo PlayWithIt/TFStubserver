@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/time.h>
 #include <memory>
+#include <stdexcept>
 
 #include <brick_master.h>
 #include <brick_servo.h>
@@ -29,6 +29,8 @@
 #include <bricklet_industrial_quad_relay.h>
 #include <bricklet_io16.h>
 #include <bricklet_io4.h>
+#include <bricklet_humidity.h>
+#include <bricklet_moisture.h>
 #include <bricklet_humidity.h>
 #include <bricklet_sound_intensity.h>
 #include <bricklet_temperature.h>
@@ -53,6 +55,8 @@
 using utils::Log;
 using utils::Properties;
 using utils::Exception;
+
+namespace stubserver {
 
 /**
  * Dynamically create a value provider.
@@ -245,6 +249,19 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 HUMIDITY_CALLBACK_HUMIDITY_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=700,step=5,interval=300")));
         functions = sensor;
+        break;
+
+    case MOISTURE_DEVICE_IDENTIFIER:
+        // has no analog value
+        sensor = new DeviceSensor(MOISTURE_FUNCTION_GET_MOISTURE_VALUE,
+                                  MOISTURE_FUNCTION_SET_MOISTURE_CALLBACK_PERIOD, MOISTURE_CALLBACK_MOISTURE);
+        sensor->setRangeCallback(MOISTURE_FUNCTION_SET_MOISTURE_CALLBACK_THRESHOLD,
+                                 MOISTURE_FUNCTION_GET_MOISTURE_CALLBACK_THRESHOLD,
+                                 MOISTURE_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 MOISTURE_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 MOISTURE_CALLBACK_MOISTURE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
+        functions = new GetSet<uint8_t>(sensor, MOISTURE_FUNCTION_GET_MOVING_AVERAGE, MOISTURE_FUNCTION_GET_MOVING_AVERAGE, 100);
         break;
 
     case TEMPERATURE_DEVICE_IDENTIFIER:
@@ -477,7 +494,7 @@ void SimulatedDevice::connect(SimulatedDevice* child)
     {
         if (it->uid == child->uid) {
             sprintf(msg, "Device with uid %s already connected!", it->getUidStr().c_str());
-            throw utils::LogicError(msg);
+            throw std::logic_error(msg);
         }
         index = it->position;
         positions[index] = true;
@@ -486,12 +503,12 @@ void SimulatedDevice::connect(SimulatedDevice* child)
     if (index > 'd') {
         sprintf(msg, "Device with uid %s uses position '%c' which is an invalid value!",
                 child->getUidStr().c_str(), index);
-        throw utils::LogicError(msg);
+        throw std::logic_error(msg);
     }
     if (positions[index]) {
         sprintf(msg, "Device with uid %s uses position '%c' which is already connected!",
                 child->getUidStr().c_str(), index);
-        throw utils::LogicError(msg);
+        throw std::logic_error(msg);
     }
     children.push_back(child);
 }
@@ -560,3 +577,5 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
 
     return false;
 }
+
+} /* namespace stubserver */

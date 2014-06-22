@@ -24,13 +24,18 @@
 #include <queue>
 #include <mutex>
 #include <tuple>
+#include <chrono>
 
 #include "SimulatedDevice.h"
 
 
+typedef std::lock_guard<std::mutex> MutexLock;
+
+namespace stubserver {
+
 class BrickClient;
 
-typedef std::lock_guard<std::mutex> MutexLock;
+using std::chrono::system_clock;
 
 /**
  * Simulates the stack of bricks and bricklets. This class offers methods
@@ -51,7 +56,7 @@ class BrickStack
     std::queue<TQueueItem> packetQueue;
 
     // current time as relative time in milliseconds
-    uint64_t startTimeMs;
+    system_clock::time_point startTime;
     uint64_t relativeTimeMs;
     uint64_t packetsIn;
     uint64_t packetsOut;
@@ -84,7 +89,11 @@ public:
 
     void consumeRequestQueue();
     void checkCallbacks();
-    void incrementTime();
+
+    /**
+     * Update the current relative time
+     */
+    void incrementTime(const system_clock::time_point &now);
 
     uint64_t getRelativeTimeMs() const {
         return relativeTimeMs;
@@ -103,5 +112,7 @@ public:
     void registerClient  (BrickClient *cln);
     void deregisterClient(BrickClient *cln);
 };
+
+} /* namespace stubserver */
 
 #endif /* SIMULATEDSTACK_H_ */
