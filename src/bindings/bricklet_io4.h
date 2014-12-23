@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-04-08.      *
+ * This file was automatically generated on 2014-08-11.      *
  *                                                           *
- * Bindings Version 2.1.0                                    *
+ * Bindings Version 2.1.4                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_IO4_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIO4 IO4 Bricklet
@@ -287,6 +291,8 @@ int io4_get_value(IO4 *io4, uint8_t *ret_value_mask);
  * * (8, 'i', false) or (0b1000, 'i', false) will set pin 3 of as input default (floating if nothing is connected).
  * * (3, 'o', false) or (0b0011, 'o', false) will set pins 0 and 1 as output low.
  * * (4, 'o', true) or (0b0100, 'o', true) will set pin 2 of as output high.
+ * 
+ * The default configuration is input with pull-up.
  */
 int io4_set_configuration(IO4 *io4, uint8_t selection_mask, char direction, bool value);
 
@@ -460,5 +466,9 @@ int io4_get_edge_count_config(IO4 *io4, uint8_t pin, uint8_t *ret_edge_type, uin
  * |device_identifier_constant|
  */
 int io4_get_identity(IO4 *io4, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

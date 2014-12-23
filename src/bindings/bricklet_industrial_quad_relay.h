@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-04-08.      *
+ * This file was automatically generated on 2014-08-11.      *
  *                                                           *
- * Bindings Version 2.1.0                                    *
+ * Bindings Version 2.1.4                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_INDUSTRIAL_QUAD_RELAY_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIndustrialQuadRelay IndustrialQuadRelay Bricklet
@@ -299,5 +303,9 @@ int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_qu
  * |device_identifier_constant|
  */
 int industrial_quad_relay_get_identity(IndustrialQuadRelay *industrial_quad_relay, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

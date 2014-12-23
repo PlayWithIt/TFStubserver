@@ -26,7 +26,6 @@
 #include <chrono>
 #include <condition_variable>
 
-#include "Object.h"
 #include "Mutexes.h"
 
 
@@ -44,6 +43,10 @@ namespace utils {
  * An external user must explicitly call {@link start()} in order to start
  * the separate thread. The constructor only initializes things, but
  * does not yet start a thread.
+ * <P>
+ * It is also possible to wait on the eventCondition variable: an external
+ * data provider can call {@link wakeUp()} in order to notify this thread
+ * that new data has arrived.
  */
 class AsyncTask : public Object
 {
@@ -61,7 +64,7 @@ class AsyncTask : public Object
     AsyncTask& operator=(const AsyncTask&) = delete;
 
 protected:
-    mutable std::mutex myMutex;
+    mutable std::mutex taskMutex;
 
     /**
      * Must be implemented in derived classes, a typical implementation
@@ -81,6 +84,12 @@ protected:
      * method terminates.
      */
     void setActive(bool a);
+
+    /**
+     * Wait until the 'eventCondition' variable gets notified via {@link wakeUp()}.
+     * If the thread should not wait endlessly, use {@link shouldFinish(unsigned)}.
+     */
+    void waitForEvent();
 
     /**
      * Waits max 'waitUs' microseconds for the finish flag to be changed to 'true'.
@@ -115,14 +124,17 @@ public:
     }
 
     /**
-     * Wake up the thread if it is waiting in {@link shouldFinish()}.
+     * Signal the thread which currently calls 'shouldFinish()' or waits for the condition
+     * variable to get notified.
      */
-    void wakeUp();
+    virtual void wakeUp();
 
     /**
      * Just return the value of the "finish" flag without waiting.
      */
-    bool shouldFinish();
+    bool shouldFinish() const {
+        return finish;
+    }
 
     /**
      * Sets the "finish" flag to true and waits some time so that

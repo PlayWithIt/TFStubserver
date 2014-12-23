@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-04-08.      *
+ * This file was automatically generated on 2014-08-11.      *
  *                                                           *
- * Bindings Version 2.1.0                                    *
+ * Bindings Version 2.1.4                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "brick_master.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -893,7 +897,7 @@ void master_create(Master *master, const char *uid, IPConnection *ipcon) {
 }
 
 void master_destroy(Master *master) {
-	device_destroy(master);
+	device_release(master->p);
 }
 
 int master_get_response_expected(Master *master, uint8_t function_id, bool *ret_response_expected) {
@@ -2670,3 +2674,7 @@ int master_get_identity(Master *master, char ret_uid[8], char ret_connected_uid[
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

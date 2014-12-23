@@ -1,4 +1,10 @@
 #!/bin/bash
 
+if [ -z "$CONFIG" ]; then
+    CONFIG=Debug
+fi
+
+export LD_LIBRARY_PATH=../../lib/$CONFIG
+
 # valgrind --leak-check=full --show-reachable=yes --log-file=vg.log \
-../../bin/Debug/stubserver -p 4225 -d homestation.properties
+../../bin/$CONFIG/stubserver -p 4225 -d homestation.properties

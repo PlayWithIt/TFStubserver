@@ -70,10 +70,25 @@ public:
 
 
 /**
+ * Exception thrown if an IO related function fails, then exception then has the message:<br>
+ * <code>func(args): strerror(errno)</code>
+ *
+ * which means that the string returned by strerror() is appended to the messages.
+ */
+class IOException : public Exception
+{
+public:
+    IOException(const std::string &func, const std::string &args);
+    IOException(int _errno, const std::string &func, const std::string &args);
+    ~IOException() noexcept;
+};
+
+
+/**
  * Exception thrown if a file cannot be opened: it adds the last errno
  * message text.
  */
-class FileOpenError : public Exception
+class FileOpenError : public IOException
 {
 public:
     /**
@@ -101,6 +116,20 @@ public:
     ~ValueFormatError() noexcept;
 };
 
+/**
+ * An exception used when a system function failed unpredicted.
+ * The constructor <b>always</b> appends the result of 'strerror(errno)' to the messages text.
+ */
+class RuntimeError : public Exception
+{
+public:
+    explicit RuntimeError(const char *msg);
+    explicit RuntimeError(const std::string &msg);
+
+    explicit RuntimeError(const char *msg, int _errno);
+    ~RuntimeError() noexcept;
+};
+
 
 /**
  * Exception thrown if key was not found.
@@ -109,6 +138,7 @@ class KeyNotFound : public Exception
 {
 public:
     explicit KeyNotFound(const std::string &key);
+    KeyNotFound(const std::string &messagePrefix, const std::string &key);
     ~KeyNotFound() noexcept;
 };
 
@@ -123,8 +153,8 @@ public:
     explicit OutOfRange(const std::string &msg)
       : Exception(msg) { }
 
-    explicit OutOfRange(const std::string &hint, unsigned current, unsigned _max);
-    explicit OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max);
+    OutOfRange(const std::string &hint, unsigned current, unsigned _max);
+    OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max);
 
     ~OutOfRange() noexcept;
 };

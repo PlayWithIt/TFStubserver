@@ -20,9 +20,7 @@
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <errno.h>
 #include <memory.h>
-#include <sstream>
 
 #include <utils/Log.h>
 #include <utils/utils.h>

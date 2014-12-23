@@ -20,16 +20,18 @@
 #ifndef CHILDPROCESS_H_
 #define CHILDPROCESS_H_
 
-#include <string>
 #include <vector>
 #include <thread>
+#include <atomic>
+#include <iostream>
+#include <condition_variable>
 
-#include "Mutexes.h"
-#include "Exceptions.h"
+#include "File.h"
 
 
 namespace utils {
 
+struct Redirect;
 
 /**
  * This class is used for starting other processes asynchronously.
@@ -37,43 +39,109 @@ namespace utils {
  */
 class ChildProcess {
 
-    int  rc;
-    int  pid;
-    bool active;
-    std::thread *th;
-    std::string errorMsg;
-
-    mutable std::mutex myMutex;
-
-    // split one line into a list of arguments
-    static void splitCmdLine(const char *cmdLine, std::vector<std::string> &out);
-
-    // start the process
-    void startChild(const std::vector<std::string> &programAndArgs, const char *workDir) throw(Exception);
-
-    void watchChild();
-    void setActive(bool a);
-
 public:
     /**
-     * Immediately starts a child process and returns. If starting the process
-     * fails due to any reason an exception is thrown!
+     * Prepare to start a child process and return, the cmd-array must have at least the name
+     * of the executable.
      */
-    ChildProcess(const std::string &cmdline)
-        throw(Exception);
-    ChildProcess(const std::string &cmdline, const std::string &workDir)
-        throw(Exception);
-    ChildProcess(const std::vector<std::string> &programAndArgs)
-        throw(Exception);
-    ChildProcess(const std::vector<std::string> &programAndArgs, const std::string &workDir)
-        throw(Exception);
+    explicit ChildProcess(const std::string &cmdline);
+    explicit ChildProcess(const char *cmdline);
+    ChildProcess(const std::vector<std::string> &programAndArgs);
 
+    /**
+     * This kills the child if it is still active.
+     */
     virtual ~ChildProcess() noexcept;
+
+    /**
+     * Change the working directory of the child process, before the process is started.
+     */
+    void setWorkDir(const File &workDir);
+    void setWorkDir(const char *workDir);
+    void setWorkDir(const std::string &workDir) {
+        setWorkDir(workDir.c_str());
+    }
+
+    /**
+     * Start the child process asynchronously and return. If starting the process fails, an
+     * exception is thrown.
+     * <P>
+     * If a child has finished, the start() method maybe called again. Be aware that existing
+     * redirects get invalidated when the child terminates.
+     */
+    void start();
+
+    /**
+     * Get the stdout from the child process: this must be called before {@link #start()}
+     * in order to create a pipe before starting the child.
+     */
+    std::istream& stdout();
+
+    /**
+     * Get the stderr from the child process: this must be called before {@link #start()}
+     * in order to create a pipe before starting the child.
+     */
+    std::istream& stderr();
+
+    /**
+     * Get the stdin from the child process: this must be called before {@link #start()}
+     * in order to create a pipe before starting the child. The parent can write into the
+     * stream, but the child process must consume stdin, otherwise writing into the pipe
+     * will block.
+     */
+    std::ostream& stdin();
+
+    /**
+     * Set file where to read from in the child process. If the file is relative, it
+     * is relative to the working dir of the child process!
+     */
+    void redirectStdin(const File &in);
+    ChildProcess& operator<(const File &in) {
+        redirectStdin(in);
+        return *this;
+    }
+
+    /**
+     * Set file where to write to in the child process. If the file is relative, it
+     * is relative to the working dir of the child process!
+     */
+    void redirectStdout(const File &out, bool append = false);
+
+    /**
+     * Redirect stdout of the child process into a file (overwrite the file).
+     */
+    ChildProcess& operator>(const File &out) {
+        redirectStdout(out, false);
+        return *this;
+    }
+
+    /**
+     * Redirect stdout of the child process into a file (append the file).
+     */
+    ChildProcess& operator>>(const File &out) {
+        redirectStdout(out, true);
+        return *this;
+    }
+
+    /**
+     * Set file where to write to in the child process. If the file is relative, it
+     * is relative to the working dir of the child process!
+     */
+    void redirectStderr(const File &out, bool append = false);
+
+    /**
+     * Close stdin if it was piped to the child process. This might be necessary
+     * to terminate the child which reads stdin. If stdin was not piped, this
+     * method throws an exception.
+     */
+    void closeStdin();
 
     /**
      * Is the process still running?
      */
-    bool isActive() const;
+    bool isActive() const {
+        return active;
+    }
 
     /**
      * Send a specific signal to the child.
@@ -107,6 +175,34 @@ public:
     const std::string& getErrorMsg() const {
         return errorMsg;
     }
+
+    /**
+     * Wait for the child process 'ms' milliseconds to terminate, if 'ms' is 0,
+     * wait endlessly (be careful). If the method returns because the child has terminated,
+     * TRUE is returned, otherwise FALSE (this means, the method returns '!active').
+     */
+    bool waitFor(unsigned ms = 0);
+
+private:
+    std::vector<std::string> programAndArgs;
+    File             workDir;
+    std::string      errorMsg;
+    Redirect        *redirect;   // implementation detail
+    std::thread     *th;
+    std::atomic_bool active;
+
+    // for synchronization
+    std::mutex              childMutex;
+    std::condition_variable childEvent;
+
+    int  rc;
+    int  pid;
+
+    // split one line into a list of arguments
+    static void splitCmdLine(const char *cmdLine, std::vector<std::string> &out);
+    void checkArgs();
+    void watchChild();
+    void validateRedirect();
 };
 
 } /* namespace utils */

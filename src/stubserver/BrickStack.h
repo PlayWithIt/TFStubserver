@@ -20,11 +20,12 @@
 #ifndef SIMULATEDSTACK_H_
 #define SIMULATEDSTACK_H_
 
+#include <atomic>
+#include <chrono>
 #include <list>
 #include <queue>
 #include <mutex>
 #include <tuple>
-#include <chrono>
 
 #include "SimulatedDevice.h"
 
@@ -62,7 +63,10 @@ class BrickStack
     uint64_t packetsOut;
     uint64_t callbackCycles;
 
-    void enumerate();
+    std::atomic_bool doReconnect;
+    std::atomic_uint reconnectCount;
+
+    void enumerate(uint8_t enumType, const std::string &uid);
 
 public:
     /**
@@ -89,6 +93,11 @@ public:
 
     void consumeRequestQueue();
     void checkCallbacks();
+
+    /**
+     * A method that should simulate a disconnect event of a brick (like USB unplug and plug again).
+     */
+    void reconnectBricks();
 
     /**
      * Update the current relative time

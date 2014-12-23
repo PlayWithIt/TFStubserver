@@ -58,14 +58,14 @@ TimerThread::~TimerThread() noexcept
     stop(2*delay+100);
 
     // free the remaining commands
-    myMutex.lock();
+    taskMutex.lock();
     for (std::list<TimerCommand*>::iterator it = allCmds.begin(); it != allCmds.end(); ++it)
     {
         TimerCommand *c = *it;
         if (c->destroyAfterRemove())
             delete c;
     }
-    myMutex.unlock();
+    taskMutex.unlock();
 }
 
 /**
@@ -74,11 +74,11 @@ TimerThread::~TimerThread() noexcept
  */
 void TimerThread::addCommand(TimerCommand *c)
 {
-    if (myMutex.try_lock())
+    if (taskMutex.try_lock())
     {
         allCmds.push_front(c);
         c->onAdd();
-        myMutex.unlock();
+        taskMutex.unlock();
     }
     else {
         // put into a temp list.
@@ -92,7 +92,7 @@ void TimerThread::addCommand(TimerCommand *c)
  */
 TimerCommand* TimerThread::getCommand(const char *name) const noexcept
 {
-    MutexLock guard(myMutex);
+    MutexLock guard(taskMutex);
 
     for (auto it = allCmds.cbegin(); it != allCmds.cend(); ++it)
     {
@@ -141,7 +141,7 @@ void TimerThread::run()
 
                     // now add
                     {
-                        MutexLock guard(myMutex);
+                        MutexLock guard(taskMutex);
                         allCmds.push_front(it);
                     }
                     it->onAdd();
@@ -157,7 +157,7 @@ void TimerThread::run()
         }
 
         // repeat those commands which are still in the list of repeating commands
-        myMutex.lock();
+        taskMutex.lock();
         for (std::list<TimerCommand*>::iterator it = allCmds.begin(); it != allCmds.end(); )
         {
             TimerCommand *c = *it;
@@ -185,7 +185,7 @@ void TimerThread::run()
                 ++it;
             }
         }
-        myMutex.unlock();
+        taskMutex.unlock();
 
         absTime += waitTime;
     }
@@ -200,7 +200,7 @@ bool TimerThread::stopCommand(TimerCommand *toRemove)
     if (!toRemove)
         return false;
 
-    MutexLock guard(myMutex);
+    MutexLock guard(taskMutex);
 
     for (auto it = allCmds.begin(); it != allCmds.end(); ++it)
     {

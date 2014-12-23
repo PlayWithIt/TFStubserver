@@ -27,10 +27,10 @@ namespace utils {
  */
 class Socket
 {
-    int  handle;
-    bool closeAll;
+    int      handle;
     unsigned timeoutRead;
     unsigned timeoutWrite;
+    bool     closeAll;
 
 public:
     /**

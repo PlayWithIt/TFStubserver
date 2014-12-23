@@ -53,6 +53,12 @@ namespace strings
      */
     bool endsWith(const std::string &s, const std::string &suffix);
 
+    /**
+     * Returns a locale specific error text for the given error code (see 'errno'). This
+     * method is thread-safe.
+     */
+    std::string strerror(int err);
+
 } /* namespace strings */
 } /* namespace utils */
 

@@ -20,7 +20,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #if !defined __cplusplus && defined __GNUC__
 	#include <stdbool.h>
@@ -34,6 +33,10 @@
 #else
 	#include <pthread.h>
 	#include <semaphore.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 enum {
@@ -206,6 +209,8 @@ struct _Device {
  * \internal
  */
 struct _DevicePrivate {
+	int ref_count;
+
 	uint32_t uid;
 
 	IPConnectionPrivate *ipcon_p;
@@ -247,7 +252,7 @@ void device_create(Device *device, const char *uid,
 /**
  * \internal
  */
-void device_destroy(Device *device);
+void device_release(DevicePrivate *device_p);
 
 /**
  * \internal
@@ -378,6 +383,7 @@ struct _IPConnectionPrivate {
 	Mutex authentication_mutex; // protects authentication handshake
 	uint32_t next_authentication_nonce; // protected by authentication_mutex
 
+	Mutex devices_ref_mutex; // protects DevicePrivate.ref_count
 	Table devices;
 
 	void *registered_callbacks[IPCON_NUM_CALLBACK_IDS];
@@ -434,25 +440,6 @@ void ipcon_destroy(IPConnection *ipcon);
  * host and port.
  */
 int ipcon_connect(IPConnection *ipcon, const char *host, uint16_t port);
-
-/**
- * \ingroup IPConnection
- *
- * Record each command packet into the given FILE. If the FILE is NULL,
- * recording is switched off.
- *
- * The format of the recorded data looks like this (without header line):
- *
- * SEC.USEC          LEN UID    FUNC OPT  PAYLOAD DATA
- * 1376724754.011230  0C 00009C4C 08 68 - F4 01 00 00
- * 1376724754.011323  10 00009442 03 70 - 01 00 01 00 D0 07 00 00
- * 1376724754.017937  0C 00009C4C 0A 88 - F4 01 00 00
- * 1376724754.023898  09 DC332931 01 90 - 00
- * 1376724754.023926  0B DC332931 07 A0 - 00 FF FF
- * 1376724754.023946  0B DC332931 0A C0 - 00 FF FF
- * 1376724754.023975  0D DC332931 10 D0 - 00 6C EE 94 11
- */
-bool ipcon_recordTo(FILE* recordFile);
 
 /**
  * \ingroup IPConnection
@@ -672,5 +659,9 @@ uint64_t leconvert_uint64_from(uint64_t little);
 float leconvert_float_from(float little);
 
 #endif // IPCON_EXPOSE_INTERNALS
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

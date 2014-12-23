@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-04-08.      *
+ * This file was automatically generated on 2014-08-11.      *
  *                                                           *
- * Bindings Version 2.1.0                                    *
+ * Bindings Version 2.1.4                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_IO16_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIO16 IO16 Bricklet
@@ -288,6 +292,8 @@ int io16_get_port(IO16 *io16, char port, uint8_t *ret_value_mask);
  * * ('a', 128, 'i', false) or ('a', 0b10000000, 'i', false) will set pin 7 of port A as input default (floating if nothing is connected).
  * * ('b', 3, 'o', false) or ('b', 0b00000011, 'o', false) will set pins 0 and 1 of port B as output low.
  * * ('b', 4, 'o', true) or ('b', 0b00000100, 'o', true) will set pin 2 of port B as output high.
+ * 
+ * The default configuration is input with pull-up.
  */
 int io16_set_port_configuration(IO16 *io16, char port, uint8_t selection_mask, char direction, bool value);
 
@@ -463,5 +469,9 @@ int io16_get_edge_count_config(IO16 *io16, uint8_t pin, uint8_t *ret_edge_type, 
  * |device_identifier_constant|
  */
 int io16_get_identity(IO16 *io16, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

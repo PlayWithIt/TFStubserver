@@ -52,7 +52,6 @@ protected:
 
     // Find the callback where param1 has the given 'pin' value.
     typedef std::vector<BasicCallback>::iterator CallbackIterator;
-    CallbackIterator findCallbackForPin(int pin);
 
     void initMonoflopCallbacks(uint8_t callbackCode);
 
@@ -62,6 +61,19 @@ protected:
 public:
     bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
     void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+};
+
+
+/**
+ * The solid state relay
+ */
+class DeviceSolidStateRelay : public DeviceRelay
+{
+public:
+    DeviceSolidStateRelay();
+
+    virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged) override;
+    virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged) override;
 };
 
 

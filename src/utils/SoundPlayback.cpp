@@ -338,7 +338,7 @@ int SoundPlayback::openSoundHandle() noexcept
                             hdr->bitsPerSample == 8 ? SND_PCM_FORMAT_U8 : SND_PCM_FORMAT_S16_LE,
                             SND_PCM_ACCESS_RW_INTERLEAVED,
                             hdr->numChannels, hdr->sampleRate, 1, 50000); // 0.05 s latency
-    if (!rc < 0) {
+    if (rc < 0) {
         fprintf(stderr, "snd_pcm_set_params() failed: %s\n", snd_strerror(rc));
         snd_pcm_close (playbackHandle);
         playbackHandle = NULL;

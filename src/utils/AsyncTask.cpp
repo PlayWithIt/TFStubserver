@@ -21,6 +21,8 @@
 #include "utils.h"
 #include "AsyncTask.h"
 
+#include <pthread.h>
+#include <signal.h>
 
 using utils::MutexLock;
 
@@ -36,7 +38,7 @@ AsyncTask::AsyncTask(const char* name)
    , active(false)
    , finish(false)
    , eventCondition()
-   , myMutex()
+   , taskMutex()
 {
 }
 
@@ -62,11 +64,13 @@ void AsyncTask::setActive(bool a)
 }
 
 /**
- * Return the value of the finish flag.
+ * Wait until the 'eventCondition' variable gets notified via {@link wakeUp()}.
+ * If the thread should not wait endlessly, use {@link shouldFinish(unsigned)}.
  */
-bool AsyncTask::shouldFinish()
+void AsyncTask::waitForEvent()
 {
-    return finish;
+    std::unique_lock<std::mutex> l(taskMutex);
+    eventCondition.wait(l);
 }
 
 /**
@@ -74,7 +78,7 @@ bool AsyncTask::shouldFinish()
  */
 bool AsyncTask::shouldFinish(unsigned waitUs)
 {
-    std::unique_lock<std::mutex> l(myMutex);
+    std::unique_lock<std::mutex> l(taskMutex);
     eventCondition.wait_for(l, std::chrono::microseconds(waitUs));
     return finish;
 }
@@ -84,7 +88,7 @@ bool AsyncTask::shouldFinish(unsigned waitUs)
  */
 bool AsyncTask::shouldFinish(const std::chrono::system_clock::time_point &absTime)
 {
-    std::unique_lock<std::mutex> l(myMutex);
+    std::unique_lock<std::mutex> l(taskMutex);
     eventCondition.wait_until(l, absTime);
     return finish;
 }
@@ -97,7 +101,7 @@ bool AsyncTask::start()
     if (active || th)
         return false;
 
-    MutexLock l(myMutex);
+    MutexLock l(taskMutex);
     finish = false;
     active = true;
     th = new std::thread(&AsyncTask::callRunMethod, this);
@@ -106,7 +110,7 @@ bool AsyncTask::start()
 
 bool AsyncTask::signalToStop() noexcept
 {
-    MutexLock l(myMutex);
+    MutexLock l(taskMutex);
     if (!th)
         return false;
     finish = true;
@@ -129,7 +133,12 @@ bool AsyncTask::stop(int wait) noexcept
         ms -= 10;
     }
     if (isActive())
+    {
         utils::Log::log(std::string("WARNING: async-task '") + taskName + "' didn't end in time!");
+        int rc = pthread_kill(th->native_handle(), SIGTERM);
+        if (rc != 0)
+            utils::Log::log("pthread_kill returned", rc);
+    }
     th->join();
     delete th;
     th = NULL;
@@ -140,12 +149,13 @@ bool AsyncTask::stop(int wait) noexcept
 
 
 /**
- * Signal the thread which currently calls 'shouldFinish()'.
+ * Signal the thread which currently calls 'shouldFinish()' or waits for the condition
+ * variable to get notified.
  */
 void AsyncTask::wakeUp()
 {
     if (active) {
-        MutexLock l(myMutex);
+        MutexLock l(taskMutex);
         eventCondition.notify_all();
     }
 }

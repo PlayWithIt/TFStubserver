@@ -19,84 +19,227 @@
 
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <string.h>
 
+#include <stdexcept>
 #include <sstream>
 #include <vector>
 
 #include "ChildProcess.h"
+#include "Exceptions.h"
+#include "File.h"
+#include "HandleStreambuf.h"
+#include "StringUtil.h"
 
 #define MAX_ARGS 200
 
 
 namespace utils {
 
-using utils::MutexLock;
-
-
 /**
- * Immediately starts a child process and returns. If starting the process
- * fails due to any reason an exception is thrown!
+ * Helper class with redirect options: it handles creation of pipes and/or files.
  */
-ChildProcess::ChildProcess(const std::string &cmdline) throw(Exception)
-    : rc(-1)
-    , pid(-1)
-    , active(false)
-    , th(NULL)
-    , myMutex()
+struct Redirect
 {
-    std::vector<std::string> args;
+    enum Type {
+        FROM_PARENT,
+        PIPE,
+        TO_FILE
+    };
 
-    splitCmdLine(cmdline.c_str(), args);
-    startChild(args, NULL);
+    Redirect() : file(), append(false), type(FROM_PARENT), pipeHandles{-1, -1}, in(NULL), out(NULL) { };
+
+    /**
+     * Close all
+     */
+    ~Redirect() {
+        closePipe();
+    }
+
+    /**
+     * Close the pipes and steams if they are open.
+     */
+    void closePipe();
+
+    /**
+     * Open output for stdout or stderr (pipe or file).
+     */
+    void openInOut(int targetFileno);
+
+    /**
+     * Prepare the pipes to the child process (not reversible).
+     */
+    void openPipe()
+    {
+        if (pipeHandles[0] >= 0 || pipeHandles[1] >= 0)
+            throw std::logic_error("Child stream already open, cannot change any more!");
+        if (pipe(pipeHandles) < 0)
+            throw utils::RuntimeError("pipe() failed");
+        type = Redirect::PIPE;
+    }
+
+    /**
+     * Set the file where to read from or write to, do not yet open the file.
+     */
+    void setFile(const File &f, bool _append);
+
+    /**
+     * Close a pipe opened as stdin to the child.
+     */
+    void closeIn()
+    {
+        if (type != Redirect::PIPE)
+            throw std::logic_error("Cannot close child's stdin: not opened as PIPE");
+        delete out;
+        out = NULL;
+    }
+
+private:
+    utils::File file;
+    bool        append;
+public:
+    Type        type;
+    int         pipeHandles[2];
+    InputStream  *in;
+    OutputStream *out;
+};
+
+
+/**
+ * Close the pipes and steams if they are open.
+ */
+void Redirect::closePipe()
+{
+    if (type != Redirect::PIPE)
+        return;
+
+    if (pipeHandles[0] >= 0)
+        close(pipeHandles[0]);
+    if (pipeHandles[1] >= 0)
+        close(pipeHandles[1]);
+
+    delete in;
+    in = NULL;
+    delete out;
+    out = NULL;
+
+    type = Redirect::FROM_PARENT;
 }
 
-ChildProcess::ChildProcess(const std::string &cmdline, const std::string &workDir) throw(Exception)
-    : rc(-1)
-    , pid(-1)
-    , active(false)
-    , th(NULL)
-    , myMutex()
+/**
+ * Open output for stdout or stderr (pipe or file).
+ */
+void Redirect::openInOut(int targetFileno)
 {
-    std::vector<std::string> args;
+    int idxDup = (targetFileno == STDIN_FILENO ? 0 : 1);
 
-    splitCmdLine(cmdline.c_str(), args);
-    startChild(args, workDir.c_str());
+    if ( type == Redirect::PIPE )
+    {
+        int idxClose = (targetFileno == STDIN_FILENO ? 1 : 0);
+
+        // close read or write side of the pipe and alter the other side
+        close(pipeHandles[idxClose]);
+        pipeHandles[idxClose] = -1;
+        dup2(pipeHandles[idxDup], targetFileno);
+    }
+    else if ( type == Redirect::TO_FILE )
+    {
+        bool read = targetFileno == STDIN_FILENO;
+        pipeHandles[idxDup] = open(file.getFullname().c_str(),
+                                   read ? O_RDONLY : O_WRONLY | O_CREAT | (append ? O_APPEND : 0),
+                                   S_IRUSR | S_IWUSR);
+        if (pipeHandles[idxDup] < 0)
+        {
+            // this is called within the child process: terminate after error
+            fprintf(::stderr, "open(%s) failed: %s\n", file.getFullname().c_str(), strerror(errno));
+            _exit(125);
+        }
+        dup2(pipeHandles[idxDup], targetFileno);
+    }
 }
 
-ChildProcess::ChildProcess(const std::vector<std::string> &programAndArgs) throw(Exception)
-    : rc(-1)
-    , pid(-1)
-    , active(false)
-    , th(NULL)
-    , myMutex()
+/**
+ * Set the file where to read from or write to, do not yet open the file.
+ */
+void Redirect::setFile(const File &f, bool _append)
 {
-    startChild(programAndArgs, NULL);
+    if (pipeHandles[0] >= 0 || pipeHandles[1] >= 0)
+        throw std::logic_error("Child stream already open, cannot change any more!");
+    type = Redirect::TO_FILE;
+    file = f;
+    append = _append;
 }
 
-ChildProcess::ChildProcess(const std::vector<std::string> &programAndArgs, const std::string &workDir) throw(Exception)
-    : rc(-1)
-    , pid(-1)
-    , active(false)
-    , th(NULL)
-    , myMutex()
+
+// -----------------------------------------------------------------------------------
+
+
+/**
+ * Prepare to start a child process and return, the cmd-array must have at least the name
+ * of the executable.
+ */
+ChildProcess::ChildProcess(const std::string &_cmdline)
+  : workDir(".")
+  , redirect(new Redirect[3])
+  , th(NULL)
+  , active(false)
+  , rc(-1)
+  , pid(-1)
 {
-    startChild(programAndArgs, workDir.c_str());
+    splitCmdLine(_cmdline.c_str(), programAndArgs);
+    checkArgs();
+}
+
+ChildProcess::ChildProcess(const char *_cmdline)
+  : workDir(".")
+  , redirect(new Redirect[3])
+  , th(NULL)
+  , active(false)
+  , rc(-1)
+  , pid(-1)
+{
+    splitCmdLine(_cmdline, programAndArgs);
+    checkArgs();
+}
+
+ChildProcess::ChildProcess(const std::vector<std::string> &_programAndArgs)
+  : programAndArgs(_programAndArgs)
+  , workDir(".")
+  , redirect(new Redirect[3])
+  , th(NULL)
+  , active(false)
+  , rc(-1)
+  , pid(-1)
+{
+    checkArgs();
 }
 
 
 /**
- * Check if the thread is still active: if not way delete it, otherwise
- * we might have a memory leak ...
+ * Kill the child process if it is still active and cleanup the thread.
  */
 ChildProcess::~ChildProcess() noexcept
 {
-    if (!active && th) {
+    if (th) {
+        kill();
         th->join();
         delete th;
     }
+    delete[] redirect;
+}
+
+void ChildProcess::checkArgs()
+{
+    if (programAndArgs.size() == 0)
+        throw std::invalid_argument("command array must have a length > 0 and at least the name of the executable");
+}
+
+void ChildProcess::closeStdin()
+{
+    redirect[0].closeIn();
 }
 
 /**
@@ -114,21 +257,43 @@ bool ChildProcess::kill(int signum)
 }
 
 /**
- * Return the value of the 'active' flag
+ * Set file where to read from in the child process.
  */
-bool ChildProcess::isActive() const
+void ChildProcess::redirectStdin(const File &in)
 {
-    MutexLock lock(myMutex);
-    return active;
+    validateRedirect();
+    redirect[0].setFile(in, false);
 }
 
 /**
- * Changes the 'active' flag to the given value.
+ * Set file where to write to in the child process.
  */
-void ChildProcess::setActive(bool a)
+void ChildProcess::redirectStdout(const File &out, bool append)
 {
-    MutexLock lock(myMutex);
-    active = a;
+    validateRedirect();
+    redirect[1].setFile(out, append);
+}
+
+/**
+ * Set file where to write to in the child process.
+ */
+void ChildProcess::redirectStderr(const File &out, bool append)
+{
+    validateRedirect();
+    redirect[2].setFile(out, append);
+}
+
+/**
+ * Change the working directory of the child process, before the process is started.
+ */
+void ChildProcess::setWorkDir(const File &_workDir)
+{
+    this->workDir = _workDir;
+}
+
+void ChildProcess::setWorkDir(const char *_workDir)
+{
+    this->workDir = File(_workDir);
 }
 
 // split one line into a list of arguments
@@ -150,14 +315,15 @@ void ChildProcess::splitCmdLine(const char *cmdLine, std::vector<std::string> &o
 
       while (*c != 0 && *c != ' ')            // find end of word
       {
-          if (*c == '\'')
+          if (*c == '\'' || *c == '"')
           {
+              char start = *c;
               ++c;
-              while (*c != 0 && *c != '\'')   // find end of string
+              while (*c != 0 && *c != start)   // find end of string
               {
                   arg[i++] = *c;
                   if (i > sizeof(arg) - 5)    // argument to large
-                      throw Exception("Command-Line too long!");
+                      throw Exception("String terminator not found: command-Line too long!");
                   ++c;
               }
           }
@@ -181,76 +347,94 @@ void ChildProcess::splitCmdLine(const char *cmdLine, std::vector<std::string> &o
     } while (!done);
 }
 
-
 /**
- * Helper to split a string using a given delimiter
+ * Now really start the child process.
  */
-static std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
+void ChildProcess::start()
 {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
+    // check if active
+    if (active)
+        throw Exception("ChildProcess still active, cannot start!");
 
+    active = true;
+    rc     = -1;
+    pid    = -1;
 
-// start the process
-void ChildProcess::startChild(const std::vector<std::string> &args, const char *workDir) throw(Exception)
-{
-    const char *exe = args[0].c_str();
-    std::string temp;
-
-    if (*exe != '/' && access(exe, R_OK) != 0)
+    // cleanup if the process is about to be restarted
+    if (th)
     {
-        // path is not absolute => determine EXE via 'PATH' environment
-        std::vector<std::string> paths;
-        std::string path(getenv("PATH"));
-        split(path, ':', paths);
+        th->join();
+        delete th;
+        th = NULL;
+        redirect[0].closePipe();
+        redirect[1].closePipe();
+        redirect[2].closePipe();
+    }
 
-        bool found = false;
-        for (std::vector<std::string>::const_iterator it = paths.cbegin(); !found && it != paths.cend(); ++it)
-        {
-            temp = (*it) + '/' + exe;
-            if (access(temp.c_str(), R_OK) == 0)
-            {
-                exe = temp.c_str();
-                found = true;
-            }
+    bool changeWorkDir = workDir.getFullname().compare(".") != 0;
+    std::string exe = programAndArgs[0];
+
+    // path is absolute or relative to workdir
+    if (changeWorkDir)
+    {
+        if (!workDir.exists())
+            throw Exception(workDir.getFullname() + ": does not exist!");
+        if (!workDir.isDirectory())
+            throw Exception(workDir.getFullname() + ": is not a valid directory!");
+    }
+
+    if (exe.find(File::PATH_SEP_CHAR) == std::string::npos)
+    {
+        // path is not absolute or relative to workdir => determine EXE via 'PATH' environment
+        try {
+            File out = File::which("PATH", exe.c_str());
+            exe = out.getAbsolutePath();
         }
-        if (!found)
-            throw Exception(args[0] + ": not found");
+        catch (const Exception &e) {
+            throw Exception(programAndArgs[0] + ": not found");
+        }
+    }
+    else {
+        File target(workDir, exe);
+        if (!target.exists())
+            throw Exception(target.getFullname() + ": not found");
+        exe = target.getAbsolutePath();
     }
 
     // check path's
-    if (access(exe, X_OK) != 0) {
-        throw Exception(std::string(exe) + ": has no executable flag!");
-    }
-    if (workDir && *workDir && access(workDir, R_OK | X_OK) != 0) {
-        throw Exception(std::string(workDir) + " not a valid directory!");
-    }
+    File exeFile(exe);
+
+    if (!exeFile.exists())
+        throw Exception(exe + ": no such executable!");
+    if (!exeFile.isRegularFile())
+        throw Exception(exe + ": is not a regular file!");
+    if (!exeFile.canExecute())
+        throw Exception(exe + ": is not an executable!");
 
     int childPid = fork();
     if (childPid == 0)
     {
+        redirect[0].openInOut(STDIN_FILENO);
+        redirect[1].openInOut(STDOUT_FILENO);
+        redirect[2].openInOut(STDERR_FILENO);
+
         // this is the child process: change workDir if it is set
-        if ( workDir && *workDir && 0 != chdir(workDir) )
+        if ( changeWorkDir && 0 != chdir(workDir.getFullname().c_str()) )
         {
-            fprintf(stderr, "chdir(%s) failed: %s\n", workDir, strerror(errno));
+            fprintf(::stderr, "chdir(%s) failed: %s\n", workDir.getFullname().c_str(), strerror(errno));
             _exit(126);
         }
 
         // copy array + terminating NULL entry ...
         char *cmd[MAX_ARGS];
         size_t i;
-        for (i = 1; i < args.size(); ++i)
-            cmd[i] = (char*) args[i].c_str();
-        cmd[0] = (char*) exe;
+        for (i = 1; i < programAndArgs.size(); ++i)
+            cmd[i] = (char*) programAndArgs[i].c_str();
+        cmd[0] = (char*) exe.c_str();
         cmd[i] = NULL;
 
         execv(cmd[0], cmd);
-        fprintf(stderr, "execv(%s) failed: %s\n", cmd[0], strerror(errno));
+        fprintf(::stderr, "execv(%s) failed: %s\n", cmd[0], strerror(errno));
         _exit(127);
         return;
     }
@@ -259,15 +443,103 @@ void ChildProcess::startChild(const std::vector<std::string> &args, const char *
     {
         // this is the parent process
         pid = childPid;
-        setActive(true);
+
+        if (redirect[0].type == Redirect::PIPE)
+        {
+            // close write side of the pipe
+            close(redirect[0].pipeHandles[0]);
+            redirect[0].pipeHandles[0] = -1;
+        }
+        if (redirect[1].type == Redirect::PIPE)
+        {
+            // close read side of the pipe
+            close(redirect[1].pipeHandles[1]);
+            redirect[1].pipeHandles[1] = -1;
+        }
+        if (redirect[2].type == Redirect::PIPE)
+        {
+            // close read side of the pipe
+            close(redirect[2].pipeHandles[1]);
+            redirect[2].pipeHandles[1] = -1;
+        }
 
         // creating a thread can throw an exception ...
         th = new std::thread(&ChildProcess::watchChild, this);
     }
     else {
         // PID < 0: start of process failed ...
-        throw Exception(std::string("Start of '" + args[0] + "' failed: " + strerror(errno)));
+        active = false;
+
+        int err = errno;
+        char buffer[2048];
+        sprintf(buffer, "Start of '%s' failed", programAndArgs[0].c_str());
+        throw utils::RuntimeError(buffer, err);
     }
+}
+
+/**
+ * Redirect childs stdin to a stream
+ */
+std::ostream& ChildProcess::stdin()
+{
+    validateRedirect();
+    redirect[0].openPipe();
+    redirect[0].out = new OutputStream(redirect[0].pipeHandles[1]);
+    return *redirect[0].out;
+}
+
+/**
+ * Redirect childs stdout to a stream
+ */
+std::istream& ChildProcess::stdout()
+{
+    validateRedirect();
+    redirect[1].openPipe();
+    redirect[1].in = new InputStream(redirect[1].pipeHandles[0]);
+    return *redirect[1].in;
+}
+
+/**
+ * Redirect childs stderr to a stream
+ */
+std::istream& ChildProcess::stderr()
+{
+    validateRedirect();
+    redirect[2].openPipe();
+    redirect[2].in = new InputStream(redirect[2].pipeHandles[0]);
+    return *redirect[2].in;
+}
+
+/**
+ * Check if redirection of pipes is still possible
+ */
+void ChildProcess::validateRedirect()
+{
+    if (active)
+        throw Exception("Child process already active, cannot change redirect any more!");
+
+}
+
+/**
+ * Wait for the child process 'ms' milliseconds to terminate, if 'ms' is 0,
+ * wait endlessly (be careful). If the method returns because the child has terminated,
+ * TRUE is returned, otherwise FALSE (this means, the method returns '!active').
+ */
+bool ChildProcess::waitFor(unsigned ms)
+{
+    if (!active)
+        return true;
+
+    std::unique_lock<std::mutex> l(childMutex);
+    if (ms > 0)
+    {
+        std::chrono::milliseconds rel_time(ms);
+        childEvent.wait_for(l, rel_time);
+    }
+    else {
+        childEvent.wait(l);
+    }
+    return !active;
 }
 
 /**
@@ -282,7 +554,7 @@ void ChildProcess::watchChild()
     if (waitRc == -1)
     {
         rc = -200;
-        errorMsg = std::string("waitpid() failed: ") + std::string(strerror(errno));
+        errorMsg = std::string("waitpid() failed: ") + utils::strings::strerror(errno);
     }
 
     if ( WIFEXITED(status) )
@@ -298,7 +570,8 @@ void ChildProcess::watchChild()
         rc = -201;
         errorMsg = "Undefined exit() status of child-process";
     }
-    setActive(false);
+    active = false;
+    childEvent.notify_all();
 }
 
 } /* namespace utils */

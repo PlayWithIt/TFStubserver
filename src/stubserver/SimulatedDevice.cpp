@@ -45,6 +45,8 @@
 #include "DeviceButtons.h"
 #include "DeviceInOut.h"
 #include "DeviceLCD.h"
+#include "DeviceLedStrip.h"
+#include "DeviceMotionDetector.h"
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
 #include "DeviceSensor.h"
@@ -176,11 +178,15 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     //----------- Bricklets -------------------------------------------------------------------------------------------
 
     case BAROMETER_DEVICE_IDENTIFIER:
-        functions = new DeviceBarometer();
+        functions = new DeviceBarometer(createValueProvider(getProperty("valueProvider")));
         break;
 
     case DUAL_RELAY_DEVICE_IDENTIFIER:
         functions = new DeviceDualRelay();
+        break;
+
+    case SOLID_STATE_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceSolidStateRelay();
         break;
 
     case INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER:
@@ -247,7 +253,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 HUMIDITY_FUNCTION_SET_DEBOUNCE_PERIOD,
                 HUMIDITY_FUNCTION_GET_DEBOUNCE_PERIOD,
                 HUMIDITY_CALLBACK_HUMIDITY_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=700,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=650,step=5,interval=500")));
         functions = sensor;
         break;
 
@@ -292,6 +298,14 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case LCD_20X4_DEVICE_IDENTIFIER:
         functions = new DeviceLCD(20, 4);
+        break;
+
+    case LED_STRIP_DEVICE_IDENTIFIER:
+        functions = new DeviceLedStrip();
+        break;
+
+    case MOTION_DETECTOR_DEVICE_IDENTIFIER:
+        functions = new DeviceMotionDetector(createValueProvider(getProperty("valueProvider")));
         break;
 
     case MULTI_TOUCH_DEVICE_IDENTIFIER:
@@ -383,6 +397,8 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
         throw Exception(msg);
     }
 
+    deviceType = str;
+
     str = getProperty("firmwareVersion", 3);
     firmwareVersion[0] = str[0];
     firmwareVersion[1] = str[1];
@@ -412,8 +428,8 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     if (connectedUidStr.compare("0") != 0) {
         SimulatedDevice *parent = brickStack->getDevice(connectedUidStr);
         if (parent == NULL) {
-            Log::getStream() << "ERROR: parent device with uid " << str
-                    << " not found! (I am " << getUidStr() << "), check order of config file\n";
+            Log() << "ERROR: parent device with uid " << str
+                  << " not found! (I am " << getUidStr() << "), check order of config file";
         }
         else
             parent->connect(this);
@@ -533,9 +549,8 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         return true;
 
     if (!responseExpected) {
-        char msg[256];
-        sprintf(msg, "Consume function %u for device %s due to responseExpected=false", p.header.function_id, this->getUidStr().c_str());
-        Log::log(msg);
+        Log() << "Consume function " << (int) p.header.function_id
+              << " for device " << this->getUidStr() << " due to responseExpected=false";
         return true;
     }
 

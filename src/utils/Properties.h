@@ -203,6 +203,7 @@ public:
     void put(const std::string &key, bool value);
     void put(const std::string &key, double value);
     void put(const std::string &key, int value);
+    void put(const std::string &key, unsigned value);
 
     /**
      * Put all properties from other into the current object, this would

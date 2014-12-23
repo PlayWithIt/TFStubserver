@@ -21,6 +21,7 @@
 #include <errno.h>
 
 #include "Exceptions.h"
+#include "StringUtil.h"
 
 namespace utils {
 
@@ -67,18 +68,12 @@ ConnectionLostException::~ConnectionLostException() noexcept { }
 // utils::FileOpenError
 //--------------------------------------------------------------------------
 FileOpenError::FileOpenError(bool read, const std::string &filename)
-{
-    std::string m(read ? "Error reading '" : "Error writing '");
-    m = m + filename + "': " + strerror(errno);
-    setMessage(m);
-}
+  : IOException(read ? "read" : "write", filename)
+{ }
 
 FileOpenError::FileOpenError(bool read, const char *filename)
-{
-    std::string m(read ? "Error reading '" : "Error writing '");
-    m = m + filename + "': " + strerror(errno);
-    setMessage(m);
-}
+  : IOException(read ? "read" : "write", filename)
+{ }
 
 FileOpenError::~FileOpenError() noexcept { }
 
@@ -86,8 +81,14 @@ FileOpenError::~FileOpenError() noexcept { }
 //--------------------------------------------------------------------------
 // utils::KeyNotFound
 //--------------------------------------------------------------------------
+static const std::string not_found("' not found");
+
 KeyNotFound::KeyNotFound(const std::string &key)
-  : Exception(std::string("Key '") + key + "' not found")
+  : Exception(std::string("Key '") + key + not_found)
+{ }
+
+KeyNotFound::KeyNotFound(const std::string &messagePrefix, const std::string &key)
+  : Exception(messagePrefix + std::string(" '") + key + not_found)
 { }
 
 KeyNotFound::~KeyNotFound() noexcept { }
@@ -116,6 +117,25 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min,
 
 OutOfRange::~OutOfRange() noexcept { }
 
+//--------------------------------------------------------------------------
+// utils::RuntimeError
+//--------------------------------------------------------------------------
+RuntimeError::RuntimeError(const std::string &msg)
+{
+    setMessage(msg + ": " + strings::strerror(errno));
+}
+
+RuntimeError::RuntimeError(const char *msg)
+{
+    setMessage(std::string(msg) + ": " + strings::strerror(errno));
+}
+
+RuntimeError::RuntimeError(const char *msg, int _errno)
+{
+    setMessage(std::string(msg) + ": " + strings::strerror(_errno));
+}
+
+RuntimeError::~RuntimeError() noexcept { }
 
 //--------------------------------------------------------------------------
 // utils::ValueFormatError
@@ -125,6 +145,21 @@ ValueFormatError::ValueFormatError(const std::string &m)
 { }
 
 ValueFormatError::~ValueFormatError() noexcept { }
+
+
+//--------------------------------------------------------------------------
+// utils::IOException
+//--------------------------------------------------------------------------
+IOException::IOException(const std::string &func, const std::string &args)
+  : Exception(func + '(' + args + "): " + strings::strerror(errno))
+{ }
+
+IOException::IOException(int _errno, const std::string &func, const std::string &args)
+  : Exception(func + '(' + args + "): " + strings::strerror(_errno))
+{ }
+
+
+IOException::~IOException() noexcept { }
 
 
 

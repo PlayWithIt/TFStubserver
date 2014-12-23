@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-04-08.      *
+ * This file was automatically generated on 2014-08-11.      *
  *                                                           *
- * Bindings Version 2.1.0                                    *
+ * Bindings Version 2.1.4                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_INDUSTRIAL_DIGITAL_OUT_4_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIndustrialDigitalOut4 IndustrialDigitalOut4 Bricklet
@@ -299,5 +303,9 @@ int industrial_digital_out_4_set_selected_values(IndustrialDigitalOut4 *industri
  * |device_identifier_constant|
  */
 int industrial_digital_out_4_get_identity(IndustrialDigitalOut4 *industrial_digital_out_4, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

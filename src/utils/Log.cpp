@@ -19,36 +19,45 @@
 
 #include <cxxabi.h>
 
-#include <time.h>
-#include <sys/time.h>
 #include <iomanip>
-#include <sstream>
-#include <cstring>
 
 #include "Mutexes.h"
 #include "Log.h"
+#include "DateTime.h"
+#include "DateTimeFormat.h"
+#include "StringUtil.h"
+#include "CyclicVector.h"
 
 static std::ostream* logStream = &std::cerr;
 static std::mutex    logMutex;
 
-static std::vector<std::string> errors;
+static utils::DateTimeFormat format(utils::DateTimeFormat::LOG_FORMAT_DATE_TIME_MICROS);
+static utils::CyclicVector<std::string> errors(utils::Log::MAX_ERRORS);
 
 
 namespace utils {
 
-Log::Log() {
+Log::Log(unsigned precision, LogType t) : logType(t)
+{
+    os << std::setiosflags(std::_S_fixed) << std::setprecision(precision);
 }
 
-Log::~Log() {
+Log::~Log()
+{
+    if (os.tellp() > 0)
+    {
+        // Still some data left?
+        log(*this);
+    }
 }
 
 
 // log message with strerror() as parameter
-void Log::perror(const char* msg, int errorCode)
+int Log::perror(const char* msg, int errorCode)
 {
     MutexLock lock(logMutex);
 
-    std::stringstream os;
+    std::ostringstream os;
     printTime(&os);
 
     const char *c = msg;
@@ -60,7 +69,7 @@ void Log::perror(const char* msg, int errorCode)
         if (ch == '%')
         {
             if (*(c+1) == 's') {
-                os << strerror(errorCode);
+                os << strings::strerror(errorCode);
                 consumed = true;
             }
             else {
@@ -74,14 +83,15 @@ void Log::perror(const char* msg, int errorCode)
         ch = *c;
     }
     if (!consumed) {
-        os << ": " << strerror(errorCode);
+        os << ": " << strings::strerror(errorCode);
     }
     saveAndPrintError(os);
+    return errorCode;
 }
 
-void Log::perror(const std::string& msg, int errorCode)
+int Log::perror(const std::string& msg, int errorCode)
 {
-    Log::perror(msg.c_str(), errorCode);
+    return Log::perror(msg.c_str(), errorCode);
 }
 
 /**
@@ -89,22 +99,10 @@ void Log::perror(const std::string& msg, int errorCode)
  */
 void Log::printTime(std::ostream *os)
 {
-    struct timeval current;
-    gettimeofday(&current, NULL);
-    std::tm time;
-    localtime_r( &(current.tv_sec), &time );
-
+    DateTime current;  // get actual time
     if (!os)
         os = logStream;
-
-    *os << (time.tm_year + 1900) << '-'
-        << std::setfill('0')
-        << std::setw(2) << (time.tm_mon + 1) << '-'
-        << std::setw(2) << time.tm_mday << ' '
-        << std::setw(2) << time.tm_hour << ':'
-        << std::setw(2) << time.tm_min << ':'
-        << std::setw(2) << time.tm_sec << '.'
-        << std::setw(3) << (current.tv_usec / 1000) << "  ";
+    *os << format << current << "  ";
 }
 
 /**
@@ -116,12 +114,6 @@ void Log::log(const char* msg)
     printTime();
     *logStream << msg << '\n' << std::flush;
 }
-
-void Log::log(const std::string& msg)
-{
-    log(msg.c_str());
-}
-
 
 /**
  * Simple message output with a number behind.
@@ -157,10 +149,18 @@ void Log::log(const std::string& msg, int v)
     log(msg.c_str(), v);
 }
 
+void Log::log(const Log& _log)
+{
+    if (_log.logType == ERROR)
+        Log::error(_log.os.str());
+    else
+        Log::log(_log.os.str());
+}
+
 void Log::error(const char* msg)
 {
     MutexLock lock(logMutex);
-    std::stringstream os;
+    std::ostringstream os;
     printTime(&os);
     os << msg;
     saveAndPrintError(os);
@@ -169,7 +169,7 @@ void Log::error(const char* msg)
 void Log::error(const std::string &msg, const char* arg)
 {
     MutexLock lock(logMutex);
-    std::stringstream os;
+    std::ostringstream os;
     printTime(&os);
     os << msg << ' ' << arg;
     saveAndPrintError(os);
@@ -178,15 +178,10 @@ void Log::error(const std::string &msg, const char* arg)
 void Log::error(const std::string &msg, int arg)
 {
     MutexLock lock(logMutex);
-    std::stringstream os;
+    std::ostringstream os;
     printTime(&os);
     os << msg << ' ' << arg;
     saveAndPrintError(os);
-}
-
-void Log::error(const std::string& msg)
-{
-    error(msg.c_str());
 }
 
 /**
@@ -196,7 +191,7 @@ void Log::error(const char* msg, const std::exception &ex)
 {
     MutexLock lock(logMutex);
 
-    std::stringstream os;
+    std::ostringstream os;
     printTime(&os);
 
     int status = 0;
@@ -235,34 +230,22 @@ size_t Log::getErrorHistory(std::vector<std::string> *errorList)
     size_t num = errors.size();
 
     if (errorList) {
-        *errorList = std::move(errors);
+        for (auto& it : errors)
+            errorList->push_back(it);
+        errors.clear();
     }
 
     return num;
 }
 
 /**
- * Stream operators.
- */
-std::ostream& Log::getStream()
-{
-    MutexLock lock(logMutex);
-    printTime();
-    return *logStream;
-}
-
-/**
  * Append the error to the internal error list and dump into the 'logStream'.
  */
-void Log::saveAndPrintError(std::stringstream &os)
+void Log::saveAndPrintError(std::ostringstream &os)
 {
     std::string s = os.str();
     *logStream << s << '\n' << std::flush;
     errors.push_back(std::move(s));
-
-    // shrink the list
-    while (errors.size() > MAX_ERRORS)
-        errors.erase(errors.begin());
 }
 
 std::ostream& Log::setStream(std::ostream& os)
@@ -270,6 +253,30 @@ std::ostream& Log::setStream(std::ostream& os)
     std::ostream& old = *logStream;
     logStream = &os;
     return old;
+}
+
+/**
+ * Stream methods: print data into internal buffer and flush at '\n'
+ */
+Log& Log::operator<<(const char *s)
+{
+    while (*s) {
+        *this << *s;
+        ++s;
+    }
+    return *this;
+}
+
+Log& Log::operator<<(const char c)
+{
+    if (c == 10) {
+        log(*this);
+        os.str("");
+        os.clear();
+    }
+    else if (c != 13)
+        os << c;
+    return *this;
 }
 
 } /* namespace utils */

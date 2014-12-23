@@ -20,7 +20,7 @@
 #ifndef LOG_H_
 #define LOG_H_
 
-#include <string>
+#include <sstream>
 #include <iostream>
 #include <vector>
 #include <errno.h>
@@ -34,19 +34,50 @@ namespace utils {
  */
 class Log {
 
-    Log();
-    Log(const Log &other) = delete;
+public:
+    enum LogType {
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR,
+        FATAL
+    };
+
+    /**
+     * Constructor for a temporary Log-record which prints the log data if
+     * a newline appears in the input.
+     */
+    Log(LogType t = INFO) : logType(t) { }
+
+    /**
+     * Constructor for a temporary Log-record which prints the log data if
+     * a newline appears in the input, if any double value is printed into
+     * this stream, 'fixed' format will be used with the given number of decimals.
+     */
+    Log(unsigned precision, LogType t = INFO);
     ~Log();
 
-    static void saveAndPrintError(std::stringstream &os);
-
-public:
     /** max error in the memory list */
     static const size_t MAX_ERRORS = 50;
 
-    // simple text output
+    Log& operator<<(const char *);
+    Log& operator<<(const char);
+
+    Log& operator<<(const std::string& s) {
+        *this << s.c_str();
+        return *this;
+    }
+
+    template<typename _Tp> Log& operator<<(const _Tp& v) {
+        os << v;
+        return *this;
+    }
+
+    // simple text output which avoids creating temporary objects
     static void log(const char* msg);
-    static void log(const std::string& msg);
+    static void log(const std::string& msg) {
+        log(msg.c_str());
+    }
 
     // text and a number after the text
     static void log(const char* msg, int v);
@@ -54,17 +85,23 @@ public:
     static void log(const char* msg, uint64_t v);
     static void log(const char* msg, const char *arg);
     static void log(const std::string& msg, const char *arg);
+    static void log(const Log& _log);
 
-    // log message with strerror() as parameter
-    static void perror(const char* msg, int errorCode = errno);
-    static void perror(const std::string& msg, int errorCode = errno);
+    /**
+     * Log message with strerror() as additional text, returns the errorCode which was the input.
+     */
+    static int perror(const char* msg, int errorCode = errno);
 
-    // print date time and milliseconds to the stream
-    static void printTime(std::ostream *os = NULL);
+    /**
+     * Log message with strerror() as additional text, returns the errorCode which was the input.
+     */
+    static int perror(const std::string& msg, int errorCode = errno);
 
     // log error message and put into error history
     static void error(const char* msg);
-    static void error(const std::string& msg);
+    static void error(const std::string& msg) {
+        error(msg.c_str());
+    }
     static void error(const std::string& msg, const char *arg);
     static void error(const std::string& msg, int arg);
 
@@ -82,11 +119,21 @@ public:
      */
     static size_t getErrorHistory(std::vector<std::string> *errorList = NULL);
 
-    // get the current output stream: can be used to directly log into the stream
-    static std::ostream& getStream();
-
     // switch the logging stream
     static std::ostream& setStream(std::ostream& os);
+
+private:
+    std::ostringstream os;
+    LogType logType;
+
+    // no copy
+    Log(const Log &other) = delete;
+    Log& operator=(const Log &other) = delete;
+
+    static void saveAndPrintError(std::ostringstream &os);
+
+    // print date time and microseconds to the stream
+    static void printTime(std::ostream *os = NULL);
 
 };
 

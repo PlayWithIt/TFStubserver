@@ -19,6 +19,7 @@
 
 #include <stdexcept>
 #include <memory.h>
+
 #include <utils/Log.h>
 #include <utils/Exceptions.h>
 
@@ -201,9 +202,6 @@ DoNothing::~DoNothing()
  */
 bool DoNothing::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
 {
-    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
-        return true;
-
     for (auto it : functionCodes)
     {
         if (it == p.header.function_id) {
@@ -215,6 +213,10 @@ bool DoNothing::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &state
             return true;
         }
     }
+
+    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
+        return true;
+
     return false;
 }
 
@@ -293,9 +295,6 @@ void GetSetRaw::enableCallback(uint8_t getCallbackFuncCode, uint8_t setCallbackF
  */
 bool GetSetRaw::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
 {
-    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
-        return true;
-
     p.header.length = sizeof(p.header);
 
     // since the intermediate value is calculated each millisecond, the result is always up to date.
@@ -324,6 +323,9 @@ bool GetSetRaw::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &state
         getValueCb.active = getValueCb.period > 0;
         return true;
     }
+
+    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
+        return true;
 
     return false;
 }
@@ -357,9 +359,7 @@ void GetSetRaw::changeTargetValue(const IOPacket &p)
  */
 void GetSetRaw::triggerCallback(unsigned int uid, BrickStack *brickStack)
 {
-    char msg[128];
-    sprintf(msg, "EXECUTE callback %d time: %ums", getValueCb.callbackCode, getValueCb.period);
-    Log::log(msg);
+    Log() << "EXECUTE callback " << getValueCb.callbackCode << " time: " <<  getValueCb.period << "ms";
 
     IOPacket packet(uid, getValueCb.callbackCode, response.size);
     if (response.size > 0) {
@@ -424,9 +424,6 @@ DeviceFunctions* EnableDisableBool::clone() const
  */
 bool EnableDisableBool::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
 {
-    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
-        return true;
-
     p.header.length = sizeof(p.header);
     if (getFunction == p.header.function_id) {
         ++p.header.length;
@@ -441,6 +438,9 @@ bool EnableDisableBool::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, boo
         enabled = false;
         return true;
     }
+
+    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
+        return true;
 
     return false;
 }

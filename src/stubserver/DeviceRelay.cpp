@@ -18,13 +18,13 @@
  */
 
 #include <cstring>
-#include <sstream>
 #include <stdexcept>
 
 #include <bricklet_industrial_quad_relay.h>
 #include <bricklet_industrial_digital_out_4.h>
 #include <bricklet_dual_relay.h>
 #include <bricklet_remote_switch.h>
+#include <bricklet_solid_state_relay.h>
 
 #include <utils/Exceptions.h>
 #include <utils/Log.h>
@@ -46,20 +46,6 @@ DeviceRelay::DeviceRelay(unsigned n, bool _bitSwitches)
         throw std::invalid_argument("numSwitches must be <= 16, but is larger");
     bzero(switchOn, sizeof(switchOn));
     bzero(functionCodes, sizeof(functionCodes));
-}
-
-/**
- * Find the callback where param1 has the given 'pin' value.
- */
-DeviceRelay::CallbackIterator DeviceRelay::findCallbackForPin(int pin)
-{
-    CallbackIterator last = callbacks.end();
-    for (CallbackIterator it = callbacks.begin(); it != last; ++it)
-    {
-        if (it->param1 == pin)
-            return it;
-    }
-    return last;
 }
 
 /**
@@ -149,7 +135,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
             }
             p.header.length = sizeof(p.header) + sizeof(p.monoflopResponseDualRelay);
             if (callbacks[n].active) {
-                p.monoflopResponseDualRelay.state = !switchOn[n];
+                p.monoflopResponseDualRelay.state = switchOn[n];
                 p.monoflopResponseDualRelay.time  = callbacks[n].period;
                 p.monoflopResponseDualRelay.time_remaining = callbacks[n].relativeStartTime + callbacks[n].period - relativeTimeMs;
             }
@@ -162,18 +148,21 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
         }
 
         p.header.length = sizeof(p.header) + sizeof(p.monoflopResponse);
-        uint8_t pin = p.uint8Value;
+        unsigned pin = p.uint8Value;
+        if (pin >= numSwitches) {
+            Log() << "Invalid pin number for quad relay " << pin;
+            return false;
+        }
 
-        p.monoflopResponse.value = 0;
-        p.monoflopResponse.time  = 0;
-        p.monoflopResponse.time_remaining = 0;
-
-        CallbackIterator it = findCallbackForPin(pin);
-        if (it != callbacks.end() && it->active)
-        {
-            p.monoflopResponse.value = !switchOn[pin];
-            p.monoflopResponse.time  = it->period;
-            p.monoflopResponse.time_remaining = it->relativeStartTime + it->period - relativeTimeMs;
+        if (callbacks[pin].active) {
+            p.monoflopResponse.value = switchOn[pin];
+            p.monoflopResponse.time  = callbacks[pin].period;
+            p.monoflopResponse.time_remaining = callbacks[pin].relativeStartTime + callbacks[pin].period - relativeTimeMs;
+        }
+        else {
+            p.monoflopResponse.value = 0;
+            p.monoflopResponse.time  = 0;
+            p.monoflopResponse.time_remaining = 0;
         }
         return true;
     }
@@ -187,19 +176,13 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
                 Log::log("Invalid switch number for dual relay:", n);
                 return false;
             }
-            switchOn[n]         = p.fullData.payload[1] != 0;
-            callbacks[n].param1 = n+1;
-            callbacks[n].param2 = !switchOn[n];
-            callbacks[n].period = p.monoflopResponse.time;
-            callbacks[n].relativeStartTime = relativeTimeMs;
-            callbacks[n].active = true;
+            switchOn[n] = p.fullData.payload[1] != 0;
+            callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !switchOn[n]);
             return true;
         }
 
-        char msg[128];
-        sprintf(msg, "SET monoflop mask %x %x, time: %dms",
-                p.monoflopDefine.selection_mask, p.monoflopDefine.value_mask, p.monoflopDefine.time);
-        Log::log(msg);
+        Log() << "SET monoflop mask 0x" << std::hex << p.monoflopDefine.selection_mask << ' '
+              << p.monoflopDefine.value_mask << ", time: " << std::dec << p.monoflopDefine.time << "ms";
 
         for (unsigned i = 0; i < numSwitches; ++i)
         {
@@ -207,33 +190,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
             if ((p.monoflopDefine.selection_mask & bit) != 0)
             {
                 switchOn[i] = p.monoflopDefine.value_mask & bit;
-
-                bool found = false;
-                CallbackIterator it = findCallbackForPin(i);
-                if (it != callbacks.end())
-                {
-                    found = true;
-                    if (p.monoflopDefine.time == 0) {
-                        // clear callback
-                        it->active = false;
-                        break;
-                    }
-
-                    it->relativeStartTime = relativeTimeMs;
-                    it->param2 = !switchOn[i];
-                    it->period = p.monoflopDefine.time;
-                    it->active = true;
-
-                    std::ostringstream os;
-                    os << "-> update monoflop " << it->relativeStartTime << " - " << it->period << "ms";
-                    Log::log(os.str());
-                    break;
-                }
-                if (!found)
-                {
-                    // callback does not exist -> logic error!!
-                    Log::log("LOGIC ERROR: callback not found, PIN was", (int)i);
-                }
+                callbacks[i].update(relativeTimeMs, p.monoflopDefine.time, i, !switchOn[i]);
             }
         }
         return true;
@@ -251,10 +208,8 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
         if (it->mayExecute(relativeTimeMs))
         {
             // execute monoflop
-            char msg[128];
-            sprintf(msg, "EXECUTE monoflop switch %d value %d, time: %ums", it->param1, it->param2, it->period);
-            Log::log(msg);
-
+            Log() << "EXECUTE monoflop switch " << it->param1
+                  << " value " << it->param2 << ", time: " << it->period << "ms\n";
             it->active = false;
 
             // dual relay responds with 2 bytes, quad-relay with 4 (by chance)
@@ -285,6 +240,92 @@ void DeviceRelay::initMonoflopCallbacks(uint8_t callbackCode)
     {
         BasicCallback cb(0, 0, callbackCode, i);
         callbacks.push_back(cb);
+    }
+}
+
+/**
+ * Init solid state relay with get/set and monoflop.
+ */
+DeviceSolidStateRelay::DeviceSolidStateRelay()
+  : DeviceRelay(1, false)
+{
+    functionCodes[FUNC_SET_STATE] = SOLID_STATE_RELAY_FUNCTION_SET_STATE;
+    functionCodes[FUNC_SET_SELECTED] = 0;
+    functionCodes[FUNC_GET_STATE] = SOLID_STATE_RELAY_FUNCTION_GET_STATE;
+    functionCodes[FUNC_SET_MONOFLOP] = SOLID_STATE_RELAY_FUNCTION_SET_MONOFLOP;
+    functionCodes[FUNC_GET_MONOFLOP] = SOLID_STATE_RELAY_FUNCTION_GET_MONOFLOP;
+    initMonoflopCallbacks(SOLID_STATE_RELAY_CALLBACK_MONOFLOP_DONE);
+}
+
+/**
+ * Check for known function codes.
+ */
+bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+{
+    // set default dummy response size: header only
+    p.header.length = sizeof(p.header);
+
+    // check function to perform
+    uint8_t func = p.header.function_id;
+    if (func == functionCodes[FUNC_SET_STATE])
+    {
+        stateChanged = switchOn[0] != p.boolValue;
+        switchOn[0] = p.boolValue;
+        return true;
+    }
+
+    if (func == functionCodes[FUNC_GET_STATE])
+    {
+        p.header.length = sizeof(p.header) + 1;
+        p.boolValue = switchOn[0];
+        return true;
+    }
+
+    if (func == functionCodes[FUNC_GET_MONOFLOP])
+    {
+        // read monoflop
+        p.header.length = sizeof(p.header) + sizeof(p.monoflopResponseDualRelay);
+        if (callbacks[0].active) {
+            p.monoflopResponseDualRelay.state = switchOn[0];
+            p.monoflopResponseDualRelay.time  = callbacks[0].period;
+            p.monoflopResponseDualRelay.time_remaining = callbacks[0].relativeStartTime + callbacks[0].period - relativeTimeMs;
+        }
+        else {
+            p.monoflopResponseDualRelay.state = 0;
+            p.monoflopResponseDualRelay.time  = 0;
+            p.monoflopResponseDualRelay.time_remaining = 0;
+        }
+        return true;
+    }
+
+    if (func == functionCodes[FUNC_SET_MONOFLOP])
+    {
+        switchOn[0] = p.boolValue;
+        callbacks[0].update(relativeTimeMs, p.monoflopResponseDualRelay.time, 1, !p.boolValue);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Check callbacks for solid state relay.
+ */
+void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+{
+    for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
+    {
+        if (it->mayExecute(relativeTimeMs))
+        {
+            // execute monoflop
+            Log() << "EXECUTE solid state monoflop, value " << it->param2 << ", time: " << it->period << "ms\n";
+            it->active = false;
+
+            // responds with 1 extra byte for the current state
+            IOPacket packet(uid, it->callbackCode, 1);
+            packet.boolValue = it->param2;
+            switchOn[0] = packet.boolValue;
+            brickStack->dispatchCallback(packet);
+        }
     }
 }
 

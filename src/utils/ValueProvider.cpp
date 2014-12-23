@@ -32,11 +32,11 @@ namespace utils {
 
 
 ValueProvider::ValueProvider(int _min, int _max, unsigned int _interval)
-  : min(_min)
-  , max(_max)
+  : lastValueTime(0)
   , lastValue(0)
-  , lastValueTime(0)
   , interval(_interval)
+  , min(_min)
+  , max(_max)
 {
     if (max < min)
         throw std::logic_error("max < min in ValueProvider definition");

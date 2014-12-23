@@ -12,22 +12,22 @@
 namespace stubserver {
 
 
-DeviceBarometer::DeviceBarometer()
-  : values(new utils::LinearValueProvider(900000, 1100000, 123, 1100))
+DeviceBarometer::DeviceBarometer(ValueProvider *vp)
+  : values(vp)
   , averaging{ 26,11,12,0 }
   , getSet(new GetSet<uint16_t>(BAROMETER_FUNCTION_GET_CHIP_TEMPERATURE, 0, 2430))   // 24.3 degrees
   , changedPressureCb(0, BAROMETER_FUNCTION_SET_AIR_PRESSURE_CALLBACK_PERIOD, BAROMETER_CALLBACK_AIR_PRESSURE, 0)
   , changedHeightCb(0, BAROMETER_FUNCTION_SET_ALTITUDE_CALLBACK_PERIOD, BAROMETER_CALLBACK_ALTITUDE, 0)
 {
     rangeCallback.callbackCode = BAROMETER_CALLBACK_AIR_PRESSURE_REACHED;
-    rangeCallback.setFunctionCode = BAROMETER_FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD;
+    rangeCallback.setFunctionCode = BAROMETER_FUNCTION_SET_AIR_PRESSURE_CALLBACK_THRESHOLD;
     rangeCallback.getFunctionCode = BAROMETER_FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD;
     rangeCallback.setDebounceFunctionCode = BAROMETER_FUNCTION_SET_DEBOUNCE_PERIOD;
     rangeCallback.getDebounceFunctionCode = BAROMETER_FUNCTION_GET_DEBOUNCE_PERIOD;
 
     // TODO: still not all functions prepared
     getSet = new GetSetRaw(getSet, BAROMETER_FUNCTION_GET_AVERAGING, BAROMETER_FUNCTION_SET_AVERAGING, 3, averaging);
-    getSetRefPressure = new GetSet<int32_t>(getSet, BAROMETER_FUNCTION_GET_REFERENCE_AIR_PRESSURE, BAROMETER_FUNCTION_SET_REFERENCE_AIR_PRESSURE, 1013000);
+    getSetRefPressure = new GetSet<int32_t>(getSet, BAROMETER_FUNCTION_GET_REFERENCE_AIR_PRESSURE, BAROMETER_FUNCTION_SET_REFERENCE_AIR_PRESSURE, 1013250);
 }
 
 DeviceBarometer::~DeviceBarometer()
@@ -36,11 +36,10 @@ DeviceBarometer::~DeviceBarometer()
     delete values;
 }
 
-// calculate altitude from height
+// calculate altitude (in cm) from pressure.
 int DeviceBarometer::getAltitude(int pressure) const
 {
-    // TODO: not correct here ...
-    return (1013000 - pressure);
+    return (getSetRefPressure->getTargetValue() - pressure);
 }
 
 
@@ -116,10 +115,12 @@ void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
         changedPressureCb.param1 = currentValue;
     }
 
-    // calculate height
-    int currentHeight = getAltitude(currentValue);
-    if (changedHeightCb.mayExecute(relativeTimeMs) && currentHeight != changedHeightCb.param1)
+    // changed callback: if pressure has changed, height has changed too.
+    // param1 of height callback holds the latest pressure value...
+    if (changedHeightCb.mayExecute(relativeTimeMs) && currentValue != changedHeightCb.param1)
     {
+        // calculate height
+        int currentHeight = getAltitude(currentValue);
         triggerCallbackInt(relativeTimeMs, uid, brickStack, changedHeightCb, currentHeight);
         changedHeightCb.param1 = currentValue;
     }

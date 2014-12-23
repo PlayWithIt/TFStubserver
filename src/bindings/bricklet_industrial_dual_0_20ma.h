@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-04-08.      *
+ * This file was automatically generated on 2014-08-11.      *
  *                                                           *
- * Bindings Version 2.1.0                                    *
+ * Bindings Version 2.1.4                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_INDUSTRIAL_DUAL_0_20MA_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIndustrialDual020mA IndustrialDual020mA Bricklet
@@ -368,5 +372,9 @@ int industrial_dual_0_20ma_get_sample_rate(IndustrialDual020mA *industrial_dual_
  * |device_identifier_constant|
  */
 int industrial_dual_0_20ma_get_identity(IndustrialDual020mA *industrial_dual_0_20ma, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

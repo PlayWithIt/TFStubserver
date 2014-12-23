@@ -424,6 +424,13 @@ void Properties::put(const std::string &key, int i)
     put(key, std::string(buffer));
 }
 
+void Properties::put(const std::string &key, unsigned i)
+{
+    char buffer[32];
+    sprintf(buffer, "%u", i);
+    put(key, std::string(buffer));
+}
+
 void Properties::put(const std::string &key, double d)
 {
     char buffer[32];

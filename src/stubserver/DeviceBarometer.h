@@ -35,7 +35,7 @@ class DeviceBarometer : public DeviceFunctions
     int getAltitude(int pressure) const;
 
 public:
-    DeviceBarometer();
+    DeviceBarometer(utils::ValueProvider *_values);
     ~DeviceBarometer();
 
     /**

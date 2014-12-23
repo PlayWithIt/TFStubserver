@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sstream>
-
 #include <utils/Log.h>
 #include <utils/utils.h>
 #include <utils/StringUtil.h>
@@ -62,12 +60,13 @@ BrickStack::BrickStack(const char *filename)
   , clientMutex()
   , devices()
   , clients()
-  , packetQueue()
   , startTime(system_clock::now())
   , relativeTimeMs(0)
   , packetsIn(0)
   , packetsOut(0)
   , callbackCycles(0)
+  , doReconnect(false)
+  , reconnectCount(0)
 {
     if (objectCount > 0)
         throw utils::Exception("ERROR: there maybe only one BrickStack at a time!");
@@ -103,12 +102,10 @@ BrickStack::~BrickStack()
     system_clock::time_point endTimeMs = system_clock::now();
     uint64_t delta = std::chrono::duration_cast<std::chrono::milliseconds>(endTimeMs - startTime).count();
 
-    std::ostringstream os;
-    os << "UpTime: " << delta << "ms, "
-       << callbackCycles << " callback cycles ("
-       << static_cast<double>(callbackCycles) / (delta / 1000.0) << " cyles/sec), "
-       << packetsIn << " packets in, " << packetsOut << " packets out";
-    Log::log(os.str());
+    Log() << "UpTime: " << delta << "ms, "
+          << callbackCycles << " callback cycles ("
+          << static_cast<double>(callbackCycles) / (delta / 1000.0) << " cyles/sec), "
+          << packetsIn << " packets in, " << packetsOut << " packets out";
 }
 
 /**
@@ -159,11 +156,50 @@ void BrickStack::enqueueRequest(BrickClient *cln, const IOPacket& packet)
  */
 void BrickStack::checkCallbacks()
 {
-    MutexLock lock(clientMutex);
-    ++callbackCycles;
-    for (auto it : devices)
+    if (doReconnect)
     {
-        it->checkCallbacks();
+        int count = reconnectCount++;
+        std::string uid;
+        int brickNo;
+        uint8_t type;
+
+        if (count % 2 == 0)
+        {
+            brickNo = count / 2;
+            type = IPCON_ENUMERATION_TYPE_DISCONNECTED;
+        }
+        else {
+            brickNo = (count - 1) / 2;
+            doReconnect = false;
+            type = IPCON_ENUMERATION_TYPE_CONNECTED;
+        }
+
+        int act = 0;
+        for (auto it : devices)
+        {
+            if (it->getTypeId() == MASTER_DEVICE_IDENTIFIER)
+            {
+                uid = it->getUidStr();
+                if (act++ == brickNo)
+                    break;
+            }
+        }
+        if (brickNo > act)
+            reconnectCount = 0;
+
+        Log::log(type == IPCON_ENUMERATION_TYPE_CONNECTED ? "Reconnect brick" : "Disconnect brick", uid.c_str());
+        enumerate(type, uid);
+        return;
+    }
+
+    //--- start the lock if necessary
+    {
+        MutexLock lock(clientMutex);
+        ++callbackCycles;
+        for (auto it : devices)
+        {
+            it->checkCallbacks();
+        }
     }
 }
 
@@ -173,7 +209,6 @@ void BrickStack::checkCallbacks()
 void BrickStack::consumeRequestQueue()
 {
     MutexLock lock(queueMutex);
-    char msg[128];
 
     while (false == packetQueue.empty())
     {
@@ -185,15 +220,14 @@ void BrickStack::consumeRequestQueue()
         {
             // stack commands, returned to all clients
             if (packet.header.function_id == 254)
-                enumerate();
+                enumerate(IPCON_ENUMERATION_TYPE_AVAILABLE, "");
         }
         else {
             // brick / bricklet command
             SimulatedDevice* dev = getDevice(uid);
             if (dev == NULL) {
                 std::string uidStr = utils::base58Encode(uid);
-                sprintf(msg, "ERROR: Cannot find device with uid %s (%x)", uidStr.c_str(), uid);
-                Log::log(msg);
+                Log() << "ERROR: Cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
             }
             else {
                 try {
@@ -203,9 +237,9 @@ void BrickStack::consumeRequestQueue()
                     if (!done)
                     {
                         // not yet implemented
-                        sprintf(msg, "ERROR: function %d for device %s (%x) NOT CONSUMED!",
-                                packet.header.function_id, dev->getUidStr().c_str(), packet.header.uid);
-                        Log::log(msg);
+                        Log(Log::ERROR) << "ERROR: function " << (int) packet.header.function_id << " for device "
+                                << dev->getDeviceType() << " with id "
+                                << dev->getUidStr() << '(' << packet.header.uid << ") NOT CONSUMED!";
                         packet.setErrorCode(IOPacket::ErrorCode::NOT_SUPPORTED);
                     }
 
@@ -234,15 +268,19 @@ void BrickStack::consumeRequestQueue()
 /**
  *
  */
-void BrickStack::enumerate()
+void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
 {
     MutexLock lock(clientMutex);
 
     IOPacket          packet;
     EnumerateCallback response;
+    bool all = uid.length() == 0;
 
     for (auto it : devices)
     {
+        if (!all && !it->isConnectedTo(uid))
+            continue;
+
         bzero(&packet, sizeof(packet));
         bzero(&response, sizeof(response));
 
@@ -263,13 +301,22 @@ void BrickStack::enumerate()
 
         response.header.length = sizeof(EnumerateCallback);
         response.header.function_id = IPCON_CALLBACK_ENUMERATE;
-        response.enumeration_type = IPCON_ENUMERATION_TYPE_AVAILABLE;
+        response.enumeration_type = enumType; // IPCON_ENUMERATION_TYPE_AVAILABLE;
 
+        // put command into queue
         for (auto cln : clients)
             cln->sendResponse((IOPacket&) response);
     }
 
     Log::log("Enumerate #devices =", static_cast<int>(devices.size()));
+}
+
+/**
+ * A method that should simulate a disconnect event of a brick (like USB unplug and plug again).
+ */
+void BrickStack::reconnectBricks()
+{
+    doReconnect = true;
 }
 
 /**

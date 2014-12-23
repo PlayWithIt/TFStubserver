@@ -17,7 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include <sstream>
+
 #include "StringUtil.h"
 
 namespace utils {
@@ -73,6 +75,16 @@ bool endsWith(const std::string &whole, const std::string &suffix)
         return false;
 
     return (0 == whole.compare (whole_l - suffix_l, suffix_l, suffix));
+}
+
+/**
+ * Returns a locale specific error text for the given error code (see 'errno'). This
+ * method is thread-safe.
+ */
+std::string strerror(int err)
+{
+    char buff[2048];
+    return strerror_r(err, buff, sizeof(buff));
 }
 
 } /* namespace strings */

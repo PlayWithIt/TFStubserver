@@ -52,6 +52,7 @@ class SimulatedDevice
     bool        visibleStateChange;
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
+    std::string deviceType;            // device type e.g. MASTER, LCD as string
     std::string uidStr;                // device uid as string
     std::string connectedUidStr;       // 'parent' device where this device is connected to
 
@@ -107,6 +108,21 @@ public:
      */
     unsigned int getUid() const {
         return uid;
+    }
+
+    /**
+     * Is this device connected to the given brick? This is true if the device is
+     * the brick or the parent of a bricklet.
+     */
+    bool isConnectedTo(const std::string& brickId) const {
+        return uidStr == brickId || connectedUidStr == brickId;
+    }
+
+    /**
+     * Returns a type string.
+     */
+    const std::string& getDeviceType() const {
+        return deviceType;
     }
 
     /**

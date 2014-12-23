@@ -24,7 +24,7 @@
 #include <condition_variable>
 #include <deque>
 #include <stdexcept>
-#include <thread>
+
 
 namespace utils {
 
@@ -36,7 +36,7 @@ class EmptyQueueException : public std::exception
     std::string msg;
 
 public:
-    EmptyQueueException() : msg("Queue is empty, call to front() is invalid!") { }
+    EmptyQueueException() : msg("Queue is empty, call to front() or pop() is invalid!") { }
     explicit EmptyQueueException(const std::string &s) : msg(s) { }
     explicit EmptyQueueException(const char *s) : msg(s) { }
 
@@ -76,7 +76,7 @@ template <typename _Tp> class BlockingQueue
      * Remove the front element (not synchronized).
      */
     void getAndRemoveFront(value_type &result) {
-        result = *items.begin();
+        result = items.front();
         items.pop_front();
         --size;
     }
@@ -102,6 +102,14 @@ public:
     }
 
     /**
+     * Returns true if the client should continue to call any of the {@link #waitFor()} methods.
+     * This is the case as long as there are items in the queue or the queue is not closed.
+     */
+    bool consumeable() const {
+        return size != 0 || !closing;
+    }
+
+    /**
      * Returns the number of elements in the queue.
      */
     unsigned length() const {
@@ -111,14 +119,18 @@ public:
     /**
      * Put an element into the queue and notify threads which are waiting for elements.
      * If the queue is already in closing state: ignore this call!
+     * @return true if the item was added, false if the queue is shutdown
      */
-    void enqueue(const value_type& item) {
+    bool enqueue(const value_type& item) {
         if (closing)
-            return;
-        std::lock_guard<std::mutex> lock(queueMutex);
-        items.push_back(item);
-        ++size;
+            return false;
+        {
+            std::lock_guard<std::mutex> lock(queueMutex);
+            items.push_back(item);
+            ++size;
+        }
         queueEvent.notify_one();
+        return true;
     }
 
     /**
@@ -130,13 +142,22 @@ public:
         if (closing)
             return;
 
-        while (size > 0)
+        unsigned s = size;
+        unsigned loops = s + 1000;
+        while (s > 0)
         {
-            // wait until all items are consumed
-            std::lock_guard<std::mutex> lock(queueMutex);
-            queueEvent.notify_one();
-            if (size <= 1)
+            {
+                // get a lock to wait until all items are consumed and then notify to wake up
+                std::lock_guard<std::mutex> lock(queueMutex);
+                queueEvent.notify_one();
+            }
+            s = size;
+            if (s <= 1)
                 closing = true;
+
+            // TODO: don't wait forever, this might be done via calculating max time for consuming
+            if (--loops == 0)
+                break;
         }
         closing = true;
         queueEvent.notify_all();
@@ -165,10 +186,10 @@ public:
      * @throws EmptyQueueException if the queue is empty
      */
     value_type& front() {
+        std::lock_guard<std::mutex> lock(queueMutex);
         if (size == 0)
             throw EmptyQueueException();
-        std::lock_guard<std::mutex> lock(queueMutex);
-        return *items.begin();
+        return items.front();
     }
 
     /**
@@ -176,9 +197,9 @@ public:
      * @throws EmptyQueueException if the queue is empty
      */
     void pop() {
+        std::lock_guard<std::mutex> lock(queueMutex);
         if (size == 0)
             throw EmptyQueueException();
-        std::lock_guard<std::mutex> lock(queueMutex);
         items.pop_front();
         --size;
     }
@@ -200,7 +221,7 @@ public:
      */
     bool waitFor(value_type& result)
     {
-        std::unique_lock<std::mutex> l(queueMutex);
+        std::unique_lock<std::mutex> lock(queueMutex);
         if (size > 0) {
             getAndRemoveFront(result);
             return true;
@@ -209,7 +230,7 @@ public:
             return false;
 
         // nothing in -> wait
-        queueEvent.wait(l);
+        queueEvent.wait(lock);
         if (size == 0) {
             return false;
         }
@@ -236,7 +257,7 @@ public:
      */
     bool waitFor(value_type& result, const std::chrono::milliseconds& rel_time)
     {
-        std::unique_lock<std::mutex> l(queueMutex);
+        std::unique_lock<std::mutex> lock(queueMutex);
         if (size > 0) {
             getAndRemoveFront(result);
             return true;
@@ -245,7 +266,7 @@ public:
             return false;
 
         // nothing in -> wait
-        if (queueEvent.wait_for(l, rel_time) == std::cv_status::timeout)
+        if (queueEvent.wait_for(lock, rel_time) == std::cv_status::timeout)
             return false;
         if (size == 0) {
             return false;

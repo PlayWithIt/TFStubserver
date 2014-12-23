@@ -67,8 +67,8 @@ public:
  */
 class DeviceInOut : public DeviceDigitalIn
 {
-    // if true, this behaves similar as a relay
-    bool    outputMode;
+    // TODO if true, this behaves similar as a relay
+    // bool    outputMode;
     uint8_t directionMask;
     uint8_t valueMask;
 

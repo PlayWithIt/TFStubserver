@@ -22,7 +22,6 @@
 
 #include <stdint.h>
 #include <list>
-#include <tuple>
 #include <string>
 
 #include "Properties.h"
@@ -43,11 +42,10 @@ namespace utils {
  */
 class ValueProvider {
 protected:
-    int min, max;
-    int lastValue;
-
     uint64_t lastValueTime;
+    int      lastValue;
     unsigned interval;
+    int      min, max;
 
     ValueProvider(int _min, int _max, unsigned int interval = 0);
 

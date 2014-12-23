@@ -121,6 +121,14 @@ typedef struct IOPacket
         } ATTRIBUTE_PACKED morseCode;
 
         struct {
+            uint16_t index;
+            uint8_t length;
+            uint8_t r[16];
+            uint8_t g[16];
+            uint8_t b[16];
+        } ATTRIBUTE_PACKED ledColors;
+
+        struct {
             char uid[8];
             char connected_uid[8];
             char position;

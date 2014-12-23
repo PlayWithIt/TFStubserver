@@ -300,11 +300,21 @@ public:
         DeviceFunctions* result = new GetSet<T>(*this);
         return result;
     }
+
+    /**
+     * Return the current value of the data field.
+     */
+    T getTargetValue() const {
+        return targetValue;
+    }
 };
 
 
 /**
- * TODO
+ * This is a virtual device which has an array index in the packet (e.g. for
+ * the ServoBrick. The brick has a channel index for each servo, this is handled
+ * by the ArrayDevice: define a device without the channel and use this multiple
+ * time in the ArrayDevice.
  */
 class ArrayDevice : public DeviceFunctions
 {

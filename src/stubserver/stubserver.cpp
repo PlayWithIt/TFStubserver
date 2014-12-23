@@ -54,6 +54,13 @@ static void sigTermHandler(int sig, siginfo_t *, void *)
     }
 }
 
+// signal handler to terminate the loop
+static void sigHupHandler(int sig)
+{
+    if (brickThread)
+        brickThread->reconnectBricks();
+}
+
 
 /**
  * Install the signal handler to terminate the process.
@@ -63,10 +70,16 @@ static void initSignalHandlers()
     struct sigaction act;
     memset(&act, 0, sizeof(act));
 
+    // TERM + INT: terminate process
     act.sa_sigaction = sigTermHandler;
     act.sa_flags     = SA_SIGINFO;
     sigaction(SIGTERM, &act, NULL);
     sigaction(SIGINT,  &act, NULL);
+
+    // HUP: disconnect and reconnect a brick (simulate)
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = sigHupHandler;
+    sigaction(SIGHUP, &act, NULL);
 }
 
 

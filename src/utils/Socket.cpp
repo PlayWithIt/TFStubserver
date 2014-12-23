@@ -30,6 +30,7 @@
 
 #include "Log.h"
 #include "Socket.h"
+#include "StringUtil.h"
 
 
 namespace utils {
@@ -39,16 +40,16 @@ namespace utils {
  */
 Socket::Socket(int port, bool reuse)
   : handle(-1)
-  , closeAll(false)
   , timeoutRead(0)
   , timeoutWrite(0)
+  , closeAll(false)
 {
     char msg[512];
 
     handle = socket(AF_INET, SOCK_STREAM, 0);
     if (handle < 0)
     {
-        sprintf(msg, "Create socket(AF_INET) on port %d failed: %s", port, strerror(errno));
+        sprintf(msg, "Create socket(AF_INET) on port %d failed: %s", port, strings::strerror(errno).c_str());
         throw std::runtime_error(msg);
     }
 
@@ -68,13 +69,13 @@ Socket::Socket(int port, bool reuse)
     if (bind(handle, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
         ::close(handle);
-        sprintf(msg, "Bind socket %d failed: %s", port, strerror(errno));
+        sprintf(msg, "Bind socket %d failed: %s", port, strings::strerror(errno).c_str());
         throw std::runtime_error(msg);
     }
     if (listen(handle, 5) < 0)
     {
         ::close(handle);
-        sprintf(msg, "Socket listen %d failed: %s", port, strerror(errno));
+        sprintf(msg, "Socket listen %d failed: %s", port, strings::strerror(errno).c_str());
         throw std::runtime_error(msg);
     }
     closeAll = false;
@@ -111,13 +112,15 @@ int Socket::waitForClient()
     struct sockaddr_in cli_addr;
     socklen_t clilen = sizeof(cli_addr);
 
-    int newsockfd = accept4(handle, (struct sockaddr *) &cli_addr, &clilen, SOCK_CLOEXEC);
-    if (newsockfd < 0)
+    int newsockfd;
+    while ( (newsockfd = accept4(handle, (struct sockaddr *) &cli_addr, &clilen, SOCK_CLOEXEC)) < 0)
     {
         if (closeAll)
             return -1;
-        Log::perror("Socket::waitForClient - accept()");
-        return -4;
+
+        // interrupted call: repeat, otherwise terminate
+        if (Log::perror("Socket::waitForClient - accept()") != EINTR)
+            return -4;
     }
 
     // TCP_NODELAY: disable Nagle alg. (200ms wait until packet gets transferred

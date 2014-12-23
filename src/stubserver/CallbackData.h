@@ -44,6 +44,17 @@ struct BasicCallback
     BasicCallback(uint64_t relativeStartTime, uint8_t setFuncCode, uint8_t cbCode, int p1, int p2 = -1, uint32_t _period = 0);
 
     /**
+     * Update some callback attributes (those when activating / deactivating).
+     */
+    void update(uint64_t _relativeStartTime, uint32_t _period, int p1, int p2, bool _active = true) {
+        relativeStartTime = _relativeStartTime;
+        period = _period;
+        param1 = p1;
+        param2 = p2;
+        active = _active;
+    }
+
+    /**
      * Checks if the callback is active and if the current time is after the next
      * planed execution of the callback (relativeStartTime + period).
      */

@@ -196,7 +196,6 @@ void DeviceDigitalIn::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
 
 DeviceInOut::DeviceInOut(utils::ValueProvider *vp, unsigned numPins)
   : DeviceDigitalIn(vp, numPins)
-  , outputMode(true)             // all 4 channels are output
   , directionMask(numPins == 8 ? 255 : 15)
   , valueMask(0)
 {
