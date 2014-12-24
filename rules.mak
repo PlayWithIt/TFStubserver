@@ -26,9 +26,7 @@ C_OBJ := $(patsubst %.c,$(OBJ_DIR)/%.o,$(C_SRC))
 EXTRA_OBJ=$(patsubst %.cpp,$(OBJ_DIR)/%.o,$(NO_COMPILE_CPP))
 
 print:
-	@echo "==========================================="
-	@echo "    Using config: $(CONFIG)"
-	@echo "==========================================="
+	@printf "===========================================\n    Using config: $(CONFIG) $(CC) $(CC_VERS)\n===========================================\n"
 
 status:
 	@echo "HDR:   $(HDR)"

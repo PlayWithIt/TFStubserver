@@ -4,7 +4,27 @@ if [ -z "$CONFIG" ]; then
     CONFIG=Debug
 fi
 
+# default file
+FILE=homestation.properties
+
+# evaluate arguments
+while [ ! -z "$1" ]; do
+    case "$1" in
+	-[h?])
+	    echo
+	    echo "Usage: stub {-vg} device_config.properties"
+	    echo
+	    exit 1
+	    ;;
+	-vg)
+	    VG="valgrind --leak-check=full --show-reachable=yes --log-file=vg.log "
+	    ;;
+	*) FILE=$1
+	    ;;
+    esac
+    shift
+done
+
 export LD_LIBRARY_PATH=../../lib/$CONFIG
 
-# valgrind --leak-check=full --show-reachable=yes --log-file=vg.log \
-../../bin/$CONFIG/stubserver -p 4225 -d homestation.properties
+$VG ../../bin/$CONFIG/stubserver -p 4225 -d $FILE

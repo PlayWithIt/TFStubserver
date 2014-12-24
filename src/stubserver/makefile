@@ -28,6 +28,6 @@ NO_COMPILE_CPP := stubserver.cpp
 all:	$(LIB) $(EXE)
 
 $(EXE): $(OBJ_DIR)/stubserver.o $(LIB) $(LIB_DIR)/*.a
-	g++ $(DEBUG) $< -o $@ -L$(LIB_DIR) -lstubserver -lutils -lpthread -lasound -lpthread
+	$(CC) $(DEBUG) $< -o $@ -L$(LIB_DIR) -lstubserver -lutils -lpthread -lasound -lpthread
 
 include ../../rules.mak

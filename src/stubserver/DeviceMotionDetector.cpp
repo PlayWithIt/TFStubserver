@@ -53,7 +53,7 @@ bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
 void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
 {
     if (inMotion) {
-        if (relativeTimeMs <= motionEnd) {
+        if (relativeTimeMs > motionEnd) {
             IOPacket packet(uid, MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED);
             brickStack->dispatchCallback(packet);
             inMotion = false;

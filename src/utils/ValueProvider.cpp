@@ -93,7 +93,8 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options)
     int interval = p.getInt("interval");
     if (type.compare("onOff") == 0)
     {
-        return new OnOffValueProvider(interval);
+        int duration = p.getInt("duration");
+        return new OnOffValueProvider(interval, duration);
     }
 
     int min = p.getInt("min");
