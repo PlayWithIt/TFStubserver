@@ -89,7 +89,7 @@ public:
      * changed notifications.
      * @param uid id of the device that has changed.
      */
-    void dispatchStateChanged(uint32_t uid);
+    void dispatchStateChanges();
 
     void consumeRequestQueue();
     void checkCallbacks();

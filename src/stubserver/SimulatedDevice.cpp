@@ -549,7 +549,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         return true;
 
     if (!responseExpected) {
-        Log() << "Consume function " << (int) p.header.function_id
+        Log() << "Consume not implemented function " << (int) p.header.function_id
               << " for device " << this->getUidStr() << " due to responseExpected=false";
         return true;
     }

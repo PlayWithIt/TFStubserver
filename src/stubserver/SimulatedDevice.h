@@ -49,7 +49,7 @@ class SimulatedDevice
     unsigned    typeId;
     char        position;              // port a..d or stack position 0..6
     bool        isBrick;
-    bool        visibleStateChange;
+    bool        visibleStateChange;    // flag that indicates that a change has happened which should update visualization
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
     std::string deviceType;            // device type e.g. MASTER, LCD as string
@@ -85,9 +85,24 @@ public:
 
     /**
      * Check if any of the callbacks should trigger a response. This method is
-     * called by the BrickStack periodically.
+     * called by the BrickStack periodically after {@link #consumePacket()}.
      */
     void checkCallbacks();
+
+    /**
+     * Reset the state change flag.
+     */
+    void ckearVisibleStateHasChange() {
+        visibleStateChange = false;
+    }
+
+    /**
+     * Was the device state noticeably change since last {@link #consumePacket()} and
+     * {@link #checkCallbacks()}?
+     */
+    bool hasVisibleStateChanged() const {
+        return visibleStateChange;
+    }
 
     /**
      * Connect a child with this device: the child is located at a

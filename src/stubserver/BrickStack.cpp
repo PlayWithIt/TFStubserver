@@ -130,13 +130,21 @@ void BrickStack::dispatchCallback(const IOPacket &packet)
 }
 
 /**
- * Sends a notification to specific clients which registered for state
- * changed notifications.
- * @param uid id of the device that has changed.
+ * Notify specific clients about state changes if necessary.
  */
-void BrickStack::dispatchStateChanged(uint32_t uid)
+void BrickStack::dispatchStateChanges()
 {
-    printf("State changed for UID = %u\n", uid);
+    // clear state flag
+    for (auto it : devices)
+    {
+        if (it->hasVisibleStateChanged())
+        {
+            //Log() << "Device " << it->getUidStr() << " has changed state";
+            // TODO: not yet implemented: inform visualization clients about new device state.
+            it->ckearVisibleStateHasChange();
+        }
+    }
+
 }
 
 /**
@@ -210,6 +218,7 @@ void BrickStack::consumeRequestQueue()
 {
     MutexLock lock(queueMutex);
 
+    // consume data
     while (false == packetQueue.empty())
     {
         auto item = packetQueue.front();
@@ -266,7 +275,7 @@ void BrickStack::consumeRequestQueue()
 }
 
 /**
- *
+ * Send the information for all devices to all clients via enumerate callback message.
  */
 void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
 {
@@ -274,6 +283,8 @@ void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
 
     IOPacket          packet;
     EnumerateCallback response;
+
+    // if uid is 0 -> enumerate all devices
     bool all = uid.length() == 0;
 
     for (auto it : devices)

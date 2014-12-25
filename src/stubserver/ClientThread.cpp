@@ -35,11 +35,12 @@ using utils::Log;
 /**
  *
  */
-ClientThread::ClientThread(int _socketHandle, BrickStack &_brickStack)
+ClientThread::ClientThread(int _socketHandle, BrickStack &_brickStack, bool _logRequests)
     : QueueProducerTask("ClientThread")
     , socketHandle(_socketHandle)
     , brickStack(_brickStack)
     , packetsIn(0)
+    , logRequests(_logRequests)
     , senderThread(NULL)
 {
     int flag = 1;
@@ -128,14 +129,16 @@ void ClientThread::run()
         // put request into queue
         ++packetsIn;
 
-        /*
+
         // Just for testing ...
-        char msg[256];
-        sprintf(msg, "New packet for uid=%s (%x), func-id %d, msg-size %d",
-                utils::base58Encode(packet.header.uid).c_str(), packet.header.uid,
-                packet.header.function_id, packet.header.length);
-        Log::log(msg);
-        */
+        if (logRequests)
+        {
+            char msg[256];
+            sprintf(msg, "Request in for uid=%-6s, func-id %3d, msg-size %d",
+                    utils::base58Encode(packet.header.uid).c_str(),
+                    packet.header.function_id, packet.header.length);
+            Log::log(msg);
+        }
         brickStack.enqueueRequest(this, packet);
 
     } while (!shouldFinish(100));

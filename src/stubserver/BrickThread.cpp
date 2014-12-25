@@ -40,11 +40,17 @@ void BrickThread::run()
 
     auto now = std::chrono::system_clock::now();
     std::chrono::milliseconds waitTime(1);
+    unsigned loopCount = 0;
 
     do {
         incrementTime(now);
         consumeRequestQueue();
         checkCallbacks();
+
+        if (++loopCount == 20) {
+            dispatchStateChanges();
+            loopCount = 0;
+        }
 
         // sleep until the next millisecond is reached
         now += waitTime;

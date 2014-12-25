@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
     const char *deviceList = NULL;
 
     std::ofstream os;
+    bool logRequests = false;
 
     for (int i = 1; i < argc; ++i)
     {
@@ -111,6 +112,11 @@ int main(int argc, char *argv[])
             deviceList = argv[++i];
             continue;
         }
+        if (strcmp(arg, "-rq") == 0)
+        {
+            logRequests = true;
+            continue;
+        }
         if (strcmp(arg, "-l") == 0 && i+1 < argc)
         {
             os.open(argv[++i], std::ofstream::out | std::ofstream::app);
@@ -124,7 +130,7 @@ int main(int argc, char *argv[])
 
         if (strcmp(arg, "-?") != 0)
             printf("\nUnknown option '%s' !\n", arg);
-        printf("\nUsage: stubserver {-p port} {-l logName} -d devices.properties\n"
+        printf("\nUsage: stubserver {-p port} {-l logName} {-rq} -d devices.properties\n"
                "\n");
         return 1;
     }
@@ -158,7 +164,7 @@ int main(int argc, char *argv[])
         }
         else {
             Log::log("Create a new client, fd =", newsockfd);
-            ClientThread *client = new ClientThread(newsockfd, *brickThread);
+            ClientThread *client = new ClientThread(newsockfd, *brickThread, logRequests);
             client->start();
 
             // cleanup clients that have terminated meanwhile
@@ -182,7 +188,7 @@ int main(int argc, char *argv[])
         gSocket = NULL;
     }
 
-    brickThread->stop(200);
+    brickThread->stop(100);
     for (auto it : clients)
         delete it;
     delete brickThread;

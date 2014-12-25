@@ -108,7 +108,8 @@ bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bo
     return true;
 
     case PIEZO_SPEAKER_FUNCTION_CALIBRATE:
-        // do nothing
+        ++p.header.length; // return a bool
+        p.boolValue = 1;
         return true;
     }
     return false;

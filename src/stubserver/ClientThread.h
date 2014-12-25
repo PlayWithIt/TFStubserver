@@ -35,9 +35,10 @@ namespace stubserver {
  */
 class ClientThread : public utils::QueueProducerTask<IOPacket>, BrickClient
 {
-    int socketHandle;
+    int         socketHandle;
     BrickStack &brickStack;
-    uint64_t packetsIn;
+    uint64_t    packetsIn;
+    bool        logRequests;
 
     /**
      * Separate thread that handles the responses to the client. The overall throughput
@@ -63,7 +64,7 @@ class ClientThread : public utils::QueueProducerTask<IOPacket>, BrickClient
     void cleanUpSenderThread();
 
 public:
-    ClientThread(int socketHandle, BrickStack &_brickStack);
+    ClientThread(int socketHandle, BrickStack &_brickStack, bool logRequests = false);
     virtual ~ClientThread();
 
     virtual void run();

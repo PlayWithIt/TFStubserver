@@ -6,6 +6,7 @@ fi
 
 # default file
 FILE=homestation.properties
+$OPT=
 
 # evaluate arguments
 while [ ! -z "$1" ]; do
@@ -15,6 +16,9 @@ while [ ! -z "$1" ]; do
 	    echo "Usage: stub {-vg} device_config.properties"
 	    echo
 	    exit 1
+	    ;;
+	-rq)
+	    OPT="$OPT -rq"
 	    ;;
 	-vg)
 	    VG="valgrind --leak-check=full --show-reachable=yes --log-file=vg.log "
@@ -27,4 +31,5 @@ done
 
 export LD_LIBRARY_PATH=../../lib/$CONFIG
 
-$VG ../../bin/$CONFIG/stubserver -p 4225 -d $FILE
+echo $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
+$VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE

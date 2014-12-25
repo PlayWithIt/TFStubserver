@@ -80,6 +80,8 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
 
     if (func == functionCodes[FUNC_SET_SELECTED])
     {
+        stateChanged = true;
+
         if (!bitSwitches)
         {
             uint8_t n = p.uint8Value;
@@ -176,6 +178,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
                 Log::log("Invalid switch number for dual relay:", n);
                 return false;
             }
+            stateChanged = true;
             switchOn[n] = p.fullData.payload[1] != 0;
             callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !switchOn[n]);
             return true;
@@ -189,6 +192,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
             uint16_t bit = (1 << i);
             if ((p.monoflopDefine.selection_mask & bit) != 0)
             {
+                stateChanged = true;
                 switchOn[i] = p.monoflopDefine.value_mask & bit;
                 callbacks[i].update(relativeTimeMs, p.monoflopDefine.time, i, !switchOn[i]);
             }
@@ -226,6 +230,7 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
                 packet.fullData.payload[1] = it->param2 ? 1 : 0;
                 switchOn[it->param1 -1] = it->param2 != 0;
             }
+            stateChanged = true;
             brickStack->dispatchCallback(packet);
         }
     }
@@ -323,6 +328,8 @@ void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int
             // responds with 1 extra byte for the current state
             IOPacket packet(uid, it->callbackCode, 1);
             packet.boolValue = it->param2;
+
+            stateChanged = switchOn[0] != packet.boolValue;
             switchOn[0] = packet.boolValue;
             brickStack->dispatchCallback(packet);
         }

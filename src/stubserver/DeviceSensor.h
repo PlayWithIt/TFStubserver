@@ -31,9 +31,10 @@ namespace stubserver {
  */
 class DeviceSensor : public DeviceFunctions
 {
-    uint8_t getValueFunc;
-    uint8_t getValueAnalogFunc;
+    uint8_t  getValueFunc;
+    uint8_t  getValueAnalogFunc;
     unsigned maxAnalogValue;
+    int      previousValue;
 
     ValueProvider *values;
     BasicCallback changedCb;
