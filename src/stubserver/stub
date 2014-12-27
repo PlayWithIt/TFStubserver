@@ -6,7 +6,7 @@ fi
 
 # default file
 FILE=homestation.properties
-$OPT=
+OPT=
 
 # evaluate arguments
 while [ ! -z "$1" ]; do
@@ -31,5 +31,5 @@ done
 
 export LD_LIBRARY_PATH=../../lib/$CONFIG
 
-echo $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
+# echo $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
 $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
