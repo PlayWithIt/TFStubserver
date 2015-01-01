@@ -394,7 +394,8 @@ void ChildProcess::start()
             throw Exception(programAndArgs[0] + ": not found");
         }
     }
-    else {
+    else if (exe[0] != File::PATH_SEP_CHAR) {
+        // if not absolute: find relative path
         File target(workDir, exe);
         if (!target.exists())
             throw Exception(target.getFullname() + ": not found");
