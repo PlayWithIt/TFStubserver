@@ -185,7 +185,7 @@ void BrickStack::checkCallbacks()
         int act = 0;
         for (auto it : devices)
         {
-            if (it->getTypeId() == MASTER_DEVICE_IDENTIFIER)
+            if (it->isMainBrick())
             {
                 uid = it->getUidStr();
                 if (act++ == brickNo)
@@ -247,7 +247,7 @@ void BrickStack::consumeRequestQueue()
                     {
                         // not yet implemented
                         Log(Log::ERROR) << "ERROR: function " << (int) packet.header.function_id << " for device "
-                                << dev->getDeviceType() << " with id "
+                                << dev->getDeviceTypeName() << " with id "
                                 << dev->getUidStr() << '(' << packet.header.uid << ") NOT CONSUMED!";
                         packet.setErrorCode(IOPacket::ErrorCode::NOT_SUPPORTED);
                     }
@@ -283,13 +283,14 @@ void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
 
     IOPacket          packet;
     EnumerateCallback response;
+    int               enumerated = 0;
 
     // if uid is 0 -> enumerate all devices
     bool all = uid.length() == 0;
 
     for (auto it : devices)
     {
-        if (!all && !it->isConnectedTo(uid))
+        if (!all && !it->isChildOf(uid))
             continue;
 
         bzero(&packet, sizeof(packet));
@@ -317,9 +318,10 @@ void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
         // put command into queue
         for (auto cln : clients)
             cln->sendResponse((IOPacket&) response);
+        ++enumerated;
     }
 
-    Log::log("Enumerate #devices =", static_cast<int>(devices.size()));
+    Log::log("Enumerated #devices =", enumerated);
 }
 
 /**

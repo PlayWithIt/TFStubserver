@@ -112,7 +112,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     DoNothing *doNothing;
     GetSetRaw *getSet;
 
-    switch (typeId) {
+    switch (deviceTypeId) {
     case MASTER_DEVICE_IDENTIFIER:
         functions = new DeviceVoltageCurrent(MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
                 MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD,
@@ -343,12 +343,12 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, u
     , properties(NULL)
     , functions(NULL)
     , deviceMutex()
+    , uidStr(_uidStr)
     , uid(utils::base58Decode(_uidStr))
-    , typeId(_typeId)
+    , deviceTypeId(_typeId)
     , position(0)
     , isBrick(false)
     , visibleStateChange(false)
-    , uidStr(_uidStr)
 {
     setupFunctions();
 }
@@ -363,12 +363,12 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     , properties(NULL)
     , functions(NULL)
     , deviceMutex()
+    , uidStr(_uidStr)
     , uid(utils::base58Decode(_uidStr))
-    , typeId(0)
+    , deviceTypeId(0)
     , position(0)
     , isBrick(false)
     , visibleStateChange(false)
-    , uidStr(_uidStr)
 {
     char msg[128];
 
@@ -387,17 +387,17 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     str = getProperty("type", 2);
 
     // find type code (int-value)
-    for (int i = 0; gAllDeviceIdentifiers[i].deviceIdentifier > 0 && typeId == 0; ++i)
+    for (int i = 0; gAllDeviceIdentifiers[i].deviceIdentifier > 0 && deviceTypeId == 0; ++i)
     {
         if (strcmp(gAllDeviceIdentifiers[i].name, str) == 0)
-            typeId = gAllDeviceIdentifiers[i].deviceIdentifier;
+            deviceTypeId = gAllDeviceIdentifiers[i].deviceIdentifier;
     }
-    if (typeId == 0) {
+    if (deviceTypeId == 0) {
         sprintf(msg, "Unkown device type '%s' for uid %s", str, _uidStr);
         throw Exception(msg);
     }
 
-    deviceType = str;
+    deviceTypeName = str;
 
     str = getProperty("firmwareVersion", 3);
     firmwareVersion[0] = str[0];
@@ -424,8 +424,9 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     else
         connectedUidStr = str;
 
-    // connect to a parent device
-    if (connectedUidStr.compare("0") != 0) {
+    // connect to a parent device ?
+    if (! isMainBrick() != 0)
+    {
         SimulatedDevice *parent = brickStack->getDevice(connectedUidStr);
         if (parent == NULL) {
             Log() << "ERROR: parent device with uid " << str
@@ -481,6 +482,29 @@ const char *SimulatedDevice::getProperty(const std::string &key, const char *def
     if (res == NULL || *res == 0)
         res = defaultValue;
     return res;
+}
+
+/**
+ * Returns true if this bricklet is in the stack where the given brickId is a
+ * parent of this bricklet.
+ */
+bool SimulatedDevice::isChildOf(const std::string &brickUid) const
+{
+    SimulatedDevice *brick = brickStack->getDevice(brickUid);
+    if (!brick)
+        return false;
+
+    if (this == brick)
+        return true;
+
+    for (auto it : brick->children)
+    {
+        if (it == this)
+            return true;
+        if (it->isBrick && isChildOf(it->uidStr))
+            return true;
+    }
+    return false;
 }
 
 /**
@@ -571,7 +595,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         p.identity.firmware_version[0] = firmwareVersion[0] - '0';
         p.identity.firmware_version[1] = firmwareVersion[1] - '0';
         p.identity.firmware_version[2] = firmwareVersion[2] - '0';
-        p.identity.device_identifier   = typeId;
+        p.identity.device_identifier   = deviceTypeId;
         return true;
     }
     if (MASTER_FUNCTION_GET_CHIP_TEMPERATURE == func && isBrick)

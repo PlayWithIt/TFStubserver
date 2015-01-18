@@ -45,16 +45,17 @@ class SimulatedDevice
     std::vector<SimulatedDevice*> children;
     std::mutex deviceMutex;
 
+    std::string deviceTypeName;        // device type e.g. MASTER, LCD as string
+    std::string uidStr;                // device uid as string
+    std::string connectedUidStr;       // 'parent' device where this device is connected to
+
     unsigned    uid;                   // device uid as number
-    unsigned    typeId;
+    unsigned    deviceTypeId;
     char        position;              // port a..d or stack position 0..6
     bool        isBrick;
     bool        visibleStateChange;    // flag that indicates that a change has happened which should update visualization
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
-    std::string deviceType;            // device type e.g. MASTER, LCD as string
-    std::string uidStr;                // device uid as string
-    std::string connectedUidStr;       // 'parent' device where this device is connected to
 
     DeviceFunctions *setupFunctions();
 
@@ -114,8 +115,15 @@ public:
     /**
      * Returns the device type identifier for Masterbrick, Servo etc.
      */
-    unsigned int getTypeId() const {
-        return typeId;
+    unsigned int getDeviceTypeId() const {
+        return deviceTypeId;
+    }
+
+    /**
+     * Returns a type string.
+     */
+    const std::string& getDeviceTypeName() const {
+        return deviceTypeName;
     }
 
     /**
@@ -134,11 +142,19 @@ public:
     }
 
     /**
-     * Returns a type string.
+     * Returns true if this brick is not connected to any other brick, so this brick
+     * is at the bottom of the stack.
      */
-    const std::string& getDeviceType() const {
-        return deviceType;
+    bool isMainBrick() const {
+        return connectedUidStr.compare("0") == 0;
     }
+
+    /**
+     * Returns true if this bricklet is in the stack where the given brickUid is a
+     * parent of this bricklet. This methid also returns true if the given uid
+     * actually matches the UID of the current object.
+     */
+    bool isChildOf(const std::string &brickUid) const;
 
     /**
      * Returns the base58 encoded uid as string.

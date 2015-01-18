@@ -85,9 +85,7 @@ public:
     void dispatchCallback(const IOPacket& packet);
 
     /**
-     * Sends a notification to specific clients which registered for state
-     * changed notifications.
-     * @param uid id of the device that has changed.
+     * Sends a notification to specific clients which have registered for state changed notifications.
      */
     void dispatchStateChanges();
 
