@@ -56,8 +56,7 @@ public:
     void setVoltageValueProvider(ValueProvider *vp);
     void setCurrentValueProvider(ValueProvider *vp);
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */

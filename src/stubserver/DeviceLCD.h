@@ -21,7 +21,9 @@
 #define DEVICELCD_H_
 
 #include <string>
+
 #include "DeviceFunctions.h"
+#include "VisualisationClient.h"
 
 namespace stubserver {
 
@@ -29,19 +31,10 @@ namespace stubserver {
  * Simulates the LCD device with some lines of text and a cursor.
  * The backlight flag is simulated with other functions.
  */
-class DeviceLCD : public DeviceFunctions
+class DeviceLCD : public DeviceFunctions, public LcdState
 {
-    static const unsigned MAX_COLS  = 20;
-    static const unsigned MAX_LINES = 10;
-
-    typedef char TextLine[MAX_COLS + 1];
-
-    unsigned    cols, lines;
-    unsigned    cursorX, cursorY;
     int         counter;            // default text counter
-    bool        cursor, blinking;
-    TextLine    chars[MAX_LINES];
-    TextLine    defaultText[MAX_LINES];
+    std::string defaultText[MAX_LINES];
 
     /**
      * Dumps the contents of the LCD to stdout.
@@ -51,8 +44,7 @@ class DeviceLCD : public DeviceFunctions
 public:
     DeviceLCD(unsigned _cols, unsigned _lines);
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */

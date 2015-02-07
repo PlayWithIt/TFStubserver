@@ -22,15 +22,10 @@
 
 #include <bricklet_multi_touch.h>
 
-#include <utils/Log.h>
-#include <utils/Exceptions.h>
-
 #include "BrickStack.h"
-#include "DeviceButtons.h"
+#include "DeviceTouchPad.h"
 
 namespace stubserver {
-
-using utils::Log;
 
 /**
  * Default init.
@@ -48,7 +43,7 @@ DeviceTouchPad::~DeviceTouchPad()
 /**
  * Check for known function codes.
  */
-bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -70,12 +65,12 @@ bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &
         return true;
 
     case MULTI_TOUCH_FUNCTION_GET_ELECTRODE_CONFIG:
-        sensitivity = p.uint8Value;
+        p.header.length = sizeof(p.header) + 2;
+        p.uint16Value = enabledBits;
         return true;
 
     case MULTI_TOUCH_FUNCTION_SET_ELECTRODE_SENSITIVITY:
-        p.header.length = sizeof(p.header) + 2;
-        p.uint16Value = enabledBits;
+        sensitivity = p.uint8Value;
         return true;
 
     case MULTI_TOUCH_FUNCTION_GET_ELECTRODE_SENSITIVITY:
@@ -89,18 +84,22 @@ bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &
 /**
  * Check for monoflop callbacks.
  */
-void DeviceTouchPad::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceTouchPad::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &vc)
 {
-    unsigned newValue = values->getValue(relativeTimeMs) & enabledBits;
+    unsigned newValue;
+
+    if (vc.useAsInputSource())
+        newValue = vc.getInputState();
+    else
+        newValue = values->getValue(relativeTimeMs) & enabledBits;
+
     if (newValue != currentState)
     {
-        printf("New value: %X\n", newValue);
-
         // trigger button press / release
         IOPacket packet(uid, MULTI_TOUCH_CALLBACK_TOUCH_STATE, 2);
         packet.uint16Value = newValue;
         currentState = newValue;
-        //brickStack->dispatchCallback(packet);
+        brickStack->dispatchCallback(packet);
     }
 }
 

@@ -20,6 +20,9 @@
 #include <bricklet_lcd_20x4.h>
 #include <string.h>
 
+#include <utils/Log.h>
+
+#include "BrickStack.h"
 #include "DeviceLCD.h"
 
 namespace stubserver {
@@ -28,35 +31,27 @@ namespace stubserver {
  * Default init.
  */
 DeviceLCD::DeviceLCD(unsigned _cols, unsigned _lines)
-    : cols(_cols)
-    , lines(_lines)
-    , cursorX(0)
-    , cursorY(0)
+    : LcdState(_cols, _lines)
     , counter(-1)
-    , cursor(false)
-    , blinking(false)
 {
-    for (unsigned i = 0; i < _lines; ++i) {
-        memset(chars[i], ' ', _cols);
-        memset(defaultText[i], ' ', _cols);
-        chars[i][_cols] = 0;
-        defaultText[i][_cols] = 0;
+    for (unsigned i = 0; i < MAX_LINES; ++i) {
+        text[i] = std::string(_cols, ' ');
+        defaultText[i] = text[i];
     }
 
     // customer character holds 8 bytes
     other = new GetSet<uint64_t>(LCD_20X4_FUNCTION_GET_CUSTOM_CHARACTER, LCD_20X4_FUNCTION_SET_CUSTOM_CHARACTER);
     other = new ArrayDevice(other, 8);
-    other = new EnableDisableBool(other, LCD_20X4_FUNCTION_BACKLIGHT_ON, LCD_20X4_FUNCTION_BACKLIGHT_OFF, LCD_20X4_FUNCTION_IS_BACKLIGHT_ON);
 }
 
 /**
  *
  */
-bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
-    unsigned l, c;
+    unsigned l, c, x;
 
     switch (p.header.function_id) {
     case LCD_20X4_FUNCTION_WRITE_LINE:
@@ -67,39 +62,64 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &state
             return true;
         }
 
-        while (c < cols && p.fullData.payload[c + 2] != 0) {
-            chars[l][c] = (char) p.fullData.payload[c + 2];
+        // 2 is the byte offset in payload
+        x = 2;
+        while (c < cols && p.fullData.payload[x] != 0) {
+            text[l][c] = (char) p.fullData.payload[x];
             ++c;
+            ++x;
         }
-        stateChanged = true;
+        utils::Log() << "New data: " << text[l];
+
+        changedLine = l;
+        notify(visualisationClient, TEXT_CHANGE);
         return true;
 
     case LCD_20X4_FUNCTION_CLEAR_DISPLAY:
         for (unsigned i = 0; i < lines; ++i) {
-            memset(chars[i], ' ', cols);
+            text[i] = std::string(cols, ' ');
         }
-        stateChanged = true;
+        notify(visualisationClient, CLEAR_SCREEN);
+        return true;
+
+    case LCD_20X4_FUNCTION_BACKLIGHT_ON:
+        backlightOn = true;
+        notify(visualisationClient, LIGHT_CHANGE);
+        return true;
+
+    case LCD_20X4_FUNCTION_BACKLIGHT_OFF:
+        backlightOn = false;
+        notify(visualisationClient, LIGHT_CHANGE);
         return true;
 
     case LCD_20X4_FUNCTION_SET_CONFIG:
-        cursor   = p.fullData.payload[0] != 0;
-        blinking = p.fullData.payload[1] != 0;
-        stateChanged = true;
+        cursorVisible = p.fullData.payload[0] != 0;
+        blinking      = p.fullData.payload[1] != 0;
+
+        notify(visualisationClient, CURSOR_CHANGE);
         return true;
 
     case LCD_20X4_FUNCTION_GET_CONFIG:
         p.header.length += 2;
-        p.fullData.payload[0] = cursor;
+        p.fullData.payload[0] = cursorVisible;
         p.fullData.payload[1] = blinking;
         return true;
 
-    case LCD_20X4_FUNCTION_SET_DEFAULT_TEXT:
+    case LCD_20X4_FUNCTION_IS_BACKLIGHT_ON:
+        p.header.length += 1;
+        p.boolValue = backlightOn;
+        return true;
+
+    case LCD_20X4_FUNCTION_SET_DEFAULT_TEXT: {
         l = p.fullData.payload[0];
         if (l >= lines) {
             p.setErrorCode(IOPacket::INVALID_PARAMETER);
             return true;
         }
-        memcpy(defaultText[l], p.fullData.payload+1, cols);
+        const uint8_t *ch = p.fullData.payload+1;
+        for (c = 0; c < cols; ++c)
+            defaultText[l][c] = *ch++;
+    }
         return true;
 
     case LCD_20X4_FUNCTION_SET_DEFAULT_TEXT_COUNTER:
@@ -108,25 +128,53 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &state
 
     case LCD_20X4_FUNCTION_IS_BUTTON_PRESSED:
         p.header.length += 1;
-        p.fullData.payload[0] = 0;
+        p.fullData.payload[0] = buttonState & (1 << p.uint8Value) ? true : false;
         return true;
     }
 
-    return other->consumeCommand(relativeTimeMs, p, stateChanged);
+    return other->consumeCommand(relativeTimeMs, p, visualisationClient);
 }
 
 /**
  * Sets the default text if the counter has reached 0 or triggers some
  * button press/release events if those are active.
  */
-void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
+    unsigned newValue = 0;
+
+    if (visualisationClient.useAsInputSource())
+        newValue = visualisationClient.getInputState();
+
+    // TODO: no value provider to button state yet
+    //else
+    //    newValue = values->getValue(relativeTimeMs) & enabledBits;
+
+    if (newValue != buttonState)
+    {
+        // trigger button press / release
+        for (unsigned i = 0; i < 4; ++i)
+        {
+            bool o = buttonState & (1 << i);  // true (1) means 'pressed'
+            bool n = newValue & (1 << i);
+
+            if (o == n)
+                continue;
+
+            IOPacket packet(uid, n ? LCD_20X4_CALLBACK_BUTTON_PRESSED : LCD_20X4_CALLBACK_BUTTON_RELEASED, 1);
+            packet.boolValue = n;
+            brickStack->dispatchCallback(packet);
+        }
+        buttonState = newValue;
+    }
+
     if (counter == 0) {
         // display default text
         for (unsigned i = 0; i < lines; ++i) {
-            memcpy(chars[i], defaultText[i], cols);
+            text[i] = defaultText[i];
         }
-        stateChanged = true;
+        changedLine = -1;
+        notify(visualisationClient, TEXT_CHANGE);
     }
     else if (counter > 0)
         --counter;

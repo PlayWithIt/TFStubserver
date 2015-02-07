@@ -55,8 +55,7 @@ public:
      */
     void changeValueProvider(utils::ValueProvider *newValueProvider);
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 
@@ -75,8 +74,7 @@ class DeviceInOut : public DeviceDigitalIn
 public:
     DeviceInOut(utils::ValueProvider *vp, unsigned numPins = 4);
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 
@@ -99,8 +97,7 @@ public:
         portB.changeValueProvider(newValueProvider);
     }
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */

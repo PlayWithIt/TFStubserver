@@ -249,6 +249,7 @@ SinusValueProvider::SinusValueProvider(int _min, int _max, unsigned int _interva
 
 /**
  * Get the actual value at the given relative time.
+ * The internal for Sinus defines the interval for one "wave".
  */
 int SinusValueProvider::getValue(uint64_t relativeTimeMs)
 {
@@ -270,7 +271,7 @@ int SinusValueProvider::getValue(uint64_t relativeTimeMs)
     double sinus = (sin(part) + 1) * 0.5;
     double res = (max - min) * sinus + min;
 
-    //printf("Delta %6lu -> part =%.4f, sinus = %.4f, result = %.1f\n", timeDelta, part, sinus, res);
+    // printf("Delta %6lu %4u -> part =%.4f, sinus = %.4f, result = %.1f\n", timeDelta, interval, part, sinus, res);
     lastValue = res;
     return lastValue;
 }

@@ -119,7 +119,7 @@ void TimerThread::run()
     absTime += waitTime;
 
     // wait until the absolute time value is reached (this is quite precise)
-    while (!shouldFinish(absTime) && !utils::shouldFinish())
+    while (!shouldFinish(absTime))
     {
         // count loops
         if (cycle > 2000000000)

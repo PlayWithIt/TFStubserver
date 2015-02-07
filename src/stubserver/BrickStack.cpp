@@ -130,24 +130,6 @@ void BrickStack::dispatchCallback(const IOPacket &packet)
 }
 
 /**
- * Notify specific clients about state changes if necessary.
- */
-void BrickStack::dispatchStateChanges()
-{
-    // clear state flag
-    for (auto it : devices)
-    {
-        if (it->hasVisibleStateChanged())
-        {
-            //Log() << "Device " << it->getUidStr() << " has changed state";
-            // TODO: not yet implemented: inform visualization clients about new device state.
-            it->ckearVisibleStateHasChange();
-        }
-    }
-
-}
-
-/**
  * Put one client request into the queue:
  * - enumerate will be returned to all clients
  * - get-value is returned to a single client

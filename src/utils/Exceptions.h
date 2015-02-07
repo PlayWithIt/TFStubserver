@@ -113,6 +113,8 @@ class ValueFormatError : public Exception
 {
 public:
     explicit ValueFormatError(const std::string &msg);
+    explicit ValueFormatError(const char *msg, int arg)
+      : Exception(msg, arg) { }
     ~ValueFormatError() noexcept;
 };
 
@@ -125,7 +127,6 @@ class RuntimeError : public Exception
 public:
     explicit RuntimeError(const char *msg);
     explicit RuntimeError(const std::string &msg);
-
     explicit RuntimeError(const char *msg, int _errno);
     ~RuntimeError() noexcept;
 };

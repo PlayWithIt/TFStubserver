@@ -26,7 +26,7 @@ namespace stubserver {
 
 /**
  * Basic interface which is used by {@link BrickStack} in order to send
- * back responses to the clients.
+ * back responses to the network connected clients.
  */
 class BrickClient
 {

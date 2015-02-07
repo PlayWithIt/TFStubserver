@@ -9,7 +9,9 @@
 #define DEVICEBAROMETER_H_
 
 #include <utils/ValueProvider.h>
-#include <DeviceFunctions.h>
+
+#include "DeviceFunctions.h"
+#include "VisualisationClient.h"
 
 namespace stubserver {
 
@@ -20,7 +22,7 @@ namespace stubserver {
  *
  * This device serves get requests and changed callbacks.
  */
-class DeviceBarometer : public DeviceFunctions
+class DeviceBarometer : public DeviceFunctions, public SensorState
 {
     utils::ValueProvider *values;   // the pressure value provider
 
@@ -44,8 +46,7 @@ public:
      */
     void setValueProvider(utils::ValueProvider *values);
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */

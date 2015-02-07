@@ -28,6 +28,9 @@ DeviceBarometer::DeviceBarometer(ValueProvider *vp)
     // TODO: still not all functions prepared
     getSet = new GetSetRaw(getSet, BAROMETER_FUNCTION_GET_AVERAGING, BAROMETER_FUNCTION_SET_AVERAGING, 3, averaging);
     getSetRefPressure = new GetSet<int32_t>(getSet, BAROMETER_FUNCTION_GET_REFERENCE_AIR_PRESSURE, BAROMETER_FUNCTION_SET_REFERENCE_AIR_PRESSURE, 1013250);
+
+    min = 500000;
+    max = 1400000;
 }
 
 DeviceBarometer::~DeviceBarometer()
@@ -43,7 +46,7 @@ int DeviceBarometer::getAltitude(int pressure) const
 }
 
 
-bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     if (values == NULL)
         throw utils::Exception("ValueProvider not set!");
@@ -101,13 +104,18 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool 
     }
 
     // other get set functions
-    return getSetRefPressure->consumeCommand(relativeTimeMs, p, stateChanged);
+    return getSetRefPressure->consumeCommand(relativeTimeMs, p, visualisationClient);
 }
 
 
-void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     int currentValue = values->getValue(relativeTimeMs);
+    if (currentValue != sensorValue)
+    {
+        sensorValue = currentValue;
+        notify(visualisationClient, VALUE_CHANGE);
+    }
 
     if (changedPressureCb.mayExecute(relativeTimeMs) && currentValue != changedPressureCb.param1)
     {

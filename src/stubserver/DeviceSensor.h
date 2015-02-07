@@ -20,6 +20,7 @@
 #define DEVICESENSOR_H_
 
 #include "DeviceFunctions.h"
+#include "VisualisationClient.h"
 
 namespace stubserver {
 
@@ -29,12 +30,11 @@ namespace stubserver {
  *
  * This device serves get requests and changed callbacks.
  */
-class DeviceSensor : public DeviceFunctions
+class DeviceSensor : public DeviceFunctions, public SensorState
 {
     uint8_t  getValueFunc;
     uint8_t  getValueAnalogFunc;
     unsigned maxAnalogValue;
-    int      previousValue;
 
     ValueProvider *values;
     BasicCallback changedCb;
@@ -58,6 +58,14 @@ public:
     }
 
     /**
+     * Sets the sensor dependent min / max value.
+     */
+    void setMinMax(int min, int max) {
+        this->min = min;
+        this->max = max;
+    }
+
+    /**
      * When settings these functions the get/set functions for the range callbacks get active.
      */
     void setRangeCallback(uint8_t _setFunctionCode, uint8_t _getFunctionCode,
@@ -77,8 +85,7 @@ public:
      */
     void setValueProvider(ValueProvider *values);
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 

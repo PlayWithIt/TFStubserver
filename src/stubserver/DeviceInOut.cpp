@@ -61,7 +61,7 @@ void DeviceDigitalIn::changeValueProvider(utils::ValueProvider *newValueProvider
 }
 
 
-bool DeviceDigitalIn::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceDigitalIn::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -150,7 +150,7 @@ bool DeviceDigitalIn::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool 
 }
 
 
-void DeviceDigitalIn::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceDigitalIn::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     unsigned newValue = valueProvider->getValue(relativeTimeMs);
 
@@ -212,7 +212,7 @@ DeviceInOut::DeviceInOut(utils::ValueProvider *vp, unsigned numPins)
 }
 
 
-bool DeviceInOut::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceInOut::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -231,13 +231,13 @@ bool DeviceInOut::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
         return true;
     }
 
-    if (DeviceDigitalIn::consumeCommand(relativeTimeMs, p, stateChanged))
+    if (DeviceDigitalIn::consumeCommand(relativeTimeMs, p, visualisationClient))
         return true;
 
-    return DeviceRelay::consumeCommand(relativeTimeMs, p, stateChanged);
+    return DeviceRelay::consumeCommand(relativeTimeMs, p, visualisationClient);
 }
 
-void DeviceInOut::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceInOut::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
 
 }
@@ -252,16 +252,16 @@ DeviceInOut16::DeviceInOut16(utils::ValueProvider *a, utils::ValueProvider *b)
 }
 
 
-bool DeviceInOut16::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceInOut16::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     return false;
 }
 
 
-void DeviceInOut16::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceInOut16::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
-    portA.checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
-    portB.checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
+    portA.checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
+    portB.checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
 }
 
 } /* namespace stubserver */

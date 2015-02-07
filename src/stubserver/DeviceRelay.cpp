@@ -36,22 +36,25 @@ namespace stubserver {
 
 using utils::Log;
 
+static const uint8_t NO4[4] = {'n', 'n', 'n', 'n' };
+
+
 /**
  * Just basic init.
  */
 DeviceRelay::DeviceRelay(unsigned n, bool _bitSwitches)
-  : DeviceFunctions(), numSwitches(n), bitSwitches(_bitSwitches), callbacks()
+    : DeviceFunctions()
+    , RelayState(n)
+    , bitSwitches(_bitSwitches)
+    , callbacks()
 {
-    if (n > 16)
-        throw std::invalid_argument("numSwitches must be <= 16, but is larger");
-    bzero(switchOn, sizeof(switchOn));
     bzero(functionCodes, sizeof(functionCodes));
 }
 
 /**
  * Check for known function codes.
  */
-bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -60,12 +63,11 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
     uint8_t func = p.header.function_id;
     if (func == functionCodes[FUNC_SET_STATE])
     {
-        stateChanged = true;
-
         if (!bitSwitches)
         {
             for (unsigned x = 0; x < numSwitches; ++x)
                 switchOn[x] = p.fullData.payload[x] != 0;
+            notify(visualisationClient, VALUE_CHANGE);
             return true;
         }
 
@@ -75,13 +77,12 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
             switchOn[x] = p.uint16Value & bitMask;
             bitMask <<= 1;
         }
+        notify(visualisationClient, VALUE_CHANGE);
         return true;
     }
 
     if (func == functionCodes[FUNC_SET_SELECTED])
     {
-        stateChanged = true;
-
         if (!bitSwitches)
         {
             uint8_t n = p.uint8Value;
@@ -90,6 +91,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
                 return false;
             }
             switchOn[n] = p.fullData.payload[1] != 0;
+            notify(visualisationClient, VALUE_CHANGE);
             return true;
         }
 
@@ -102,6 +104,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
             if ((selection & bit) != 0)
                 switchOn[i] = (bits & bit) != 0;
         }
+        notify(visualisationClient, VALUE_CHANGE);
         return true;
     }
 
@@ -178,9 +181,10 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
                 Log::log("Invalid switch number for dual relay:", n);
                 return false;
             }
-            stateChanged = true;
+            //stateChanged = true;
             switchOn[n] = p.fullData.payload[1] != 0;
             callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !switchOn[n]);
+            notify(visualisationClient, VALUE_CHANGE);
             return true;
         }
 
@@ -192,20 +196,24 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
             uint16_t bit = (1 << i);
             if ((p.monoflopDefine.selection_mask & bit) != 0)
             {
-                stateChanged = true;
+                //stateChanged = true;
                 switchOn[i] = p.monoflopDefine.value_mask & bit;
                 callbacks[i].update(relativeTimeMs, p.monoflopDefine.time, i, !switchOn[i]);
             }
         }
+        notify(visualisationClient, VALUE_CHANGE);
         return true;
     }
+
+    if (other)
+        return other->consumeCommand(relativeTimeMs, p, visualisationClient);
     return false;
 }
 
 /**
  * Check for monoflop callbacks.
  */
-void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
     {
@@ -230,10 +238,14 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
                 packet.fullData.payload[1] = it->param2 ? 1 : 0;
                 switchOn[it->param1 -1] = it->param2 != 0;
             }
-            stateChanged = true;
+            //stateChanged = true;
             brickStack->dispatchCallback(packet);
+            notify(visualisationClient, VALUE_CHANGE);
         }
     }
+
+    if (other)
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
 }
 
 /**
@@ -265,7 +277,7 @@ DeviceSolidStateRelay::DeviceSolidStateRelay()
 /**
  * Check for known function codes.
  */
-bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -274,7 +286,7 @@ bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p,
     uint8_t func = p.header.function_id;
     if (func == functionCodes[FUNC_SET_STATE])
     {
-        stateChanged = switchOn[0] != p.boolValue;
+        //stateChanged = switchOn[0] != p.boolValue;
         switchOn[0] = p.boolValue;
         return true;
     }
@@ -315,7 +327,7 @@ bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p,
 /**
  * Check callbacks for solid state relay.
  */
-void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
     {
@@ -329,7 +341,7 @@ void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int
             IOPacket packet(uid, it->callbackCode, 1);
             packet.boolValue = it->param2;
 
-            stateChanged = switchOn[0] != packet.boolValue;
+            //stateChanged = switchOn[0] != packet.boolValue;
             switchOn[0] = packet.boolValue;
             brickStack->dispatchCallback(packet);
         }
@@ -351,6 +363,20 @@ DeviceDualRelay::DeviceDualRelay()
 }
 
 /**
+ * Returns a label for the switch: this can be just the switch number
+ * of 'SW1' or the remote switch code.
+ */
+std::string DeviceDualRelay::getLabel(unsigned switchNo) const
+{
+    if (switchNo > numSwitches)
+        throw std::out_of_range("RelayState::isOn: 'switchNo' is too high");
+
+    char buf[16];
+    sprintf(buf, "SW%u", switchNo + 1);
+    return std::string(buf);
+}
+
+/**
  * Init quad relay with get/set and monoflop.
  */
 DeviceQuadRelay::DeviceQuadRelay()
@@ -362,6 +388,9 @@ DeviceQuadRelay::DeviceQuadRelay()
     functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_MONOFLOP;
     functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_MONOFLOP;
     initMonoflopCallbacks(INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE);
+
+    other = new DoNothing(INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
+    other = new DoNothing(other, INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_GROUP, 4, NO4);
 }
 
 /**
@@ -376,6 +405,9 @@ DeviceDigitalOut4::DeviceDigitalOut4()
     functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_MONOFLOP;
     functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_MONOFLOP;
     initMonoflopCallbacks(INDUSTRIAL_DIGITAL_OUT_4_CALLBACK_MONOFLOP_DONE);
+
+    other = new DoNothing(INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
+    other = new DoNothing(other, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, NO4);
 }
 
 
@@ -384,14 +416,42 @@ DeviceDigitalOut4::DeviceDigitalOut4()
  * Default init.
  */
 DeviceRemoteRelay::DeviceRemoteRelay()
-  : busy(false), repeats(5), switchDoneAtMs(0)
+  : RelayState(0)
+  , busy(false)
+  , repeats(5)
+  , switchDoneAtMs(0)
 { }
+
+void DeviceRemoteRelay::updateRelay(const char *id, uint8_t state)
+{
+    for (unsigned i = 0; i < numSwitches; ++i)
+    {
+        if (codes[i].compare(id) == 0)
+        {
+            switchOn[i] = state != REMOTE_SWITCH_SWITCH_TO_OFF;
+            return;
+        }
+    }
+    if (numSwitches < 16)
+    {
+        // add one more relay
+        codes[numSwitches]    = id;
+        switchOn[numSwitches] = state != REMOTE_SWITCH_SWITCH_TO_OFF;
+        ++numSwitches;
+    }
+    else {
+        Log::error("RemoteSwitch: relay code array overflow!");
+    }
+}
 
 /**
  * Check for known function codes.
  */
-bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
+    char buf[32];
+    const char *fmt;
+
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
 
@@ -415,7 +475,6 @@ bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, boo
 
     case REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET:
     case REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_A:
-    case REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_B:
     case REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_C:
         if (busy) {
             Log::log("RemoteRelay still busy, switch command ignored..");
@@ -423,15 +482,48 @@ bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, boo
         }
         busy = true;
         switchDoneAtMs = relativeTimeMs + (repeats * 100);
+
+        fmt = p.header.function_id == REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_C ? "Type C:\nSC: %c\nDC: %d" : "Type A:\nHC: 0x%X\nRC: 0x%X";
+        sprintf(buf, fmt, p.fullData.payload[0], p.fullData.payload[1]);
+        updateRelay(buf, p.fullData.payload[2]);
+        notify(visualisationClient, VALUE_CHANGE);
+        return true;
+
+    case REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_B:
+        if (busy) {
+            Log::log("RemoteRelay still busy, switch command ignored..");
+            return true;
+        }
+        busy = true;
+        switchDoneAtMs = relativeTimeMs + (repeats * 100);
+
+        sprintf(buf, "Type B:\nA: %u\nU: %u",
+                p.uint32Value, p.fullData.payload[4]);
+        updateRelay(buf, p.fullData.payload[5] ? true : false);
+        notify(visualisationClient, VALUE_CHANGE);
+        return true;
+
+    case REMOTE_SWITCH_FUNCTION_DIM_SOCKET_B:
+        if (busy) {
+            Log::log("RemoteRelay still busy, switch command ignored..");
+            return true;
+        }
+        busy = true;
+        switchDoneAtMs = relativeTimeMs + (repeats * 100);
+
+        //notify(visualisationClient, VALUE_CHANGE);
         return true;
     }
+
+    if (other)
+        return other->consumeCommand(relativeTimeMs, p, visualisationClient);
     return false;
 }
 
 /**
  * Check for the switchDone callbacks.
  */
-void DeviceRemoteRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceRemoteRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     if (busy && switchDoneAtMs <= relativeTimeMs)
     {
@@ -440,6 +532,19 @@ void DeviceRemoteRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
         brickStack->dispatchCallback(packet);
         busy = false;
     }
+}
+
+
+/**
+ * Returns a label for the switch: this can be just the switch number
+ * of 'SW1' or the remote switch code.
+ */
+std::string DeviceRemoteRelay::getLabel(unsigned switchNo) const
+{
+    if (switchNo > numSwitches)
+        throw std::out_of_range("RelayState::isOn: 'switchNo' is too high");
+
+    return codes[switchNo];
 }
 
 } /* namespace stubserver */

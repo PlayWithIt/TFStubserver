@@ -33,7 +33,7 @@ DeviceMotionDetector::DeviceMotionDetector(ValueProvider *vp)
 }
 
 
-bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -50,7 +50,7 @@ bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
     }
 }
 
-void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     if (inMotion) {
         if (relativeTimeMs > motionEnd) {

@@ -41,8 +41,7 @@ public:
      */
     DeviceMotionDetector(ValueProvider *vp);
 
-    virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged) override;
-    virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged) override;
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */

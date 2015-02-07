@@ -20,22 +20,21 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <string.h>
 #include <fstream>
 
-#include <list>
 #include <utils/Log.h>
 #include <utils/Socket.h>
 #include <utils/SoundPlayback.h>
 
 #include "ClientThread.h"
 #include "BrickThread.h"
+#include "stubserver.h"
 
 using utils::Log;
 using utils::Socket;
 
-using stubserver::ClientThread;
-using stubserver::BrickThread;
+
+namespace stubserver {
 
 
 static std::list<ClientThread*> clients;
@@ -47,20 +46,15 @@ static std::mutex socketMutex;
 // signal handler to terminate the loop
 static void sigTermHandler(int sig, siginfo_t *, void *)
 {
-    if (gSocket) {
-        utils::MutexLock lock(socketMutex);
-        delete gSocket;
-        gSocket = NULL;
-    }
+    stopServer();
 }
 
-// signal handler to terminate the loop
+// signal handler to trigger a brick reset
 static void sigHupHandler(int sig)
 {
     if (brickThread)
         brickThread->reconnectBricks();
 }
-
 
 /**
  * Install the signal handler to terminate the process.
@@ -82,62 +76,63 @@ static void initSignalHandlers()
     sigaction(SIGHUP, &act, NULL);
 }
 
+/**
+ * Try to stop the server by closing the socket.
+ *
+ * @return if the server was active and the socket was closed, false if not
+ */
+bool stopServer()
+{
+    if (gSocket)
+    {
+        utils::MutexLock lock(socketMutex);
+        delete gSocket;
+        gSocket = NULL;
+        return true;
+    }
+    return false;
+}
+
 
 /**
- * Main control.
+ * Retrieve the list of configured devices, this can be empty if
+ * the server is not running.
  */
-int main(int argc, char *argv[])
+std::list<const SimulatedDevice*> getDevices()
 {
-    int port = 4223;
-    const char *deviceList = NULL;
+    if (brickThread)
+        return brickThread->getDevices();
+    return std::list<const SimulatedDevice*>();  // empty
+}
 
+/**
+ * Start the stubserver with the given configuration which points to the
+ * device properties. This function return when the server gets stopped.
+ */
+int runServer(const char *deviceList, int port, const char *logName, bool logRequests)
+{
     std::ofstream os;
-    bool logRequests = false;
 
-    for (int i = 1; i < argc; ++i)
+    if (logName != NULL && *logName != 0)
     {
-        const char *arg = argv[i];
-        if (strcmp(arg, "-p") == 0 && i+1 < argc)
-        {
-            int p = atol(argv[++i]);
-            if (p < 1024 || p > 32000) {
-                fprintf(stderr, "'port' must be between 1024 and 32000, but is %d!\n", p);
-                return 1;
-            }
-            port = p;
-            continue;
+        // create a log-stream
+        os.open(logName, std::ofstream::out | std::ofstream::app);
+        if (!os.is_open()) {
+            Log::perror(logName);
+            return 2;
         }
-        if (strcmp(arg, "-d") == 0 && i+1 < argc)
-        {
-            deviceList = argv[++i];
-            continue;
-        }
-        if (strcmp(arg, "-rq") == 0)
-        {
-            logRequests = true;
-            continue;
-        }
-        if (strcmp(arg, "-l") == 0 && i+1 < argc)
-        {
-            os.open(argv[++i], std::ofstream::out | std::ofstream::app);
-            if (!os.is_open()) {
-                fprintf(stderr, "open(%s): %s\n", argv[i], strerror(errno));
-                return 1;
-            }
-            Log::setStream(os);
-            continue;
-        }
-
-        if (strcmp(arg, "-?") != 0)
-            printf("\nUnknown option '%s' !\n", arg);
-        printf("\nUsage: stubserver {-p port} {-l logName} {-rq} -d devices.properties\n"
-               "\n");
-        return 1;
+        Log::setStream(os);
     }
 
     if (deviceList == NULL)
     {
-        puts("\nERROR: option -d is mandatory!\n");
+        Log::error("ERROR: device list not defined, option -d is mandatory!");
+        return 1;
+    }
+
+    if (port < 1024 || port > 32000)
+    {
+        Log::error("'port' must be between 1024 and 32000, but is", port);
         return 1;
     }
 
@@ -151,6 +146,9 @@ int main(int argc, char *argv[])
     }
     catch (const std::exception &e) {
         Log::log(std::string("Opening a socket failed: ") + e.what());
+        brickThread->stop();
+        delete brickThread;
+        brickThread = NULL;
         return 4;
     }
     initSignalHandlers();
@@ -182,19 +180,21 @@ int main(int argc, char *argv[])
     } while (true);
 
     // should disconnect clients
-    {
-        utils::MutexLock lock(socketMutex);
-        delete gSocket;
-        gSocket = NULL;
-    }
+    stopServer();
 
-    brickThread->stop(100);
+    // cleanup all the rest
+    brickThread->stop();
     for (auto it : clients)
         delete it;
+    clients.clear();
+
     delete brickThread;
+    brickThread = NULL;
 
     // if a piezo speaker was used: release global data
     utils::SoundPlayback::releaseAll();
 
     return 0;
+}
+
 }

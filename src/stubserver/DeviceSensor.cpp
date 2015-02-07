@@ -35,7 +35,6 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(0)
   , maxAnalogValue(4095)
-  , previousValue(0)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, 0, 0, 0)
@@ -47,7 +46,6 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, u
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
   , maxAnalogValue(4095)
-  , previousValue(0)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -60,7 +58,6 @@ DeviceSensor::DeviceSensor(ValueProvider *values,
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
   , maxAnalogValue(4095)
-  , previousValue(0)
   , values(values)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -74,7 +71,7 @@ DeviceSensor::~DeviceSensor()
 }
 
 
-bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     if (values == NULL)
         throw utils::Exception("ValueProvider not set!");
@@ -136,13 +133,22 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &st
 }
 
 
-void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     int currentValue = values->getValue(relativeTimeMs);
-    if (currentValue != previousValue)
-    {
-        stateChanged  = true;
-        previousValue = currentValue;
+
+    if (visualisationClient.useAsInputSource()) {
+        currentValue = visualisationClient.getInputState();
+        if (currentValue != sensorValue)
+            sensorValue = currentValue;
+    }
+    else {
+        currentValue = values->getValue(relativeTimeMs);
+        if (currentValue != sensorValue)
+        {
+            sensorValue = currentValue;
+            notify(visualisationClient, VALUE_CHANGE);
+        }
     }
 
     if (changedCb.mayExecute(relativeTimeMs) && currentValue != changedCb.param1)

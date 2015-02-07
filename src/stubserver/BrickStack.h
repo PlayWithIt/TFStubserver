@@ -70,10 +70,9 @@ class BrickStack
 
 public:
     /**
-     * Init the stack from a configuration file. If the filename is NULL,
-     * some hard-coded dummy objects are created.
+     * Init the stack from a configuration file which has property format.
      */
-    BrickStack(const char *filename = NULL);
+    BrickStack(const char *filename);
     virtual ~BrickStack();
 
     /**
@@ -83,11 +82,6 @@ public:
      */
     void enqueueRequest(BrickClient *cln, const IOPacket& packet);
     void dispatchCallback(const IOPacket& packet);
-
-    /**
-     * Sends a notification to specific clients which have registered for state changed notifications.
-     */
-    void dispatchStateChanges();
 
     void consumeRequestQueue();
     void checkCallbacks();
@@ -112,6 +106,16 @@ public:
      */
     SimulatedDevice* getDevice(unsigned int uid);
     SimulatedDevice* getDevice(const std::string &uid);
+
+    /**
+     * Returns a copy of the list of currently configured devices.
+     */
+    std::list<const SimulatedDevice*> getDevices() const {
+        std::list<const SimulatedDevice*> result;
+        for (auto it : devices)
+            result.push_back(it);
+        return result;
+    }
 
     /**
      * Registers a client that will be triggered with callbacks.

@@ -28,6 +28,7 @@
 
 #include "PacketTypes.h"
 #include "CallbackData.h"
+#include "VisualisationClient.h"
 
 typedef std::lock_guard<std::mutex> MutexLock;
 
@@ -48,7 +49,7 @@ struct ResponseData
     unsigned size;
 
     ResponseData();
-    ResponseData(unsigned _size, uint8_t *_bytes = 0);
+    ResponseData(unsigned _size, const uint8_t *_bytes = 0);
 
     /**
      * Read out some binary data from the array, only the first bytes
@@ -72,7 +73,7 @@ struct ResponseData
 /**
  * Builds a byte array with the given type.
  */
-template<class T> uint8_t* buildBytes(T v)
+template<class T> uint8_t* buildBytes(const T v)
 {
     static union {
         uint8_t result[sizeof(T)];
@@ -111,15 +112,21 @@ public:
     /**
      * This method is called by the BrickStack if a client command comes in.
      */
-    virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged) = 0;
+    virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient) = 0;
 
     /**
      * This method is called periodically (about each ms) in order to check if a callback
      * must be triggered.
      */
-    virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged) = 0;
+    virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient) = 0;
 };
 
+/**
+ * Since we have quite a lot of derived classes: use a macro here to simplify interface changes.
+ */
+#define DECLARE_OWN_DEVICE_CALLBACKS \
+   virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient) override; \
+   virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient) override;
 
 
 /**
@@ -141,8 +148,8 @@ public:
     /**
      * Returns the header plus 'retSize' zero-bytes if the requested function equals 'funcCode'
      */
-    DoNothing(DeviceFunctions *other, uint8_t funcCode, unsigned retSize = 0, uint8_t *returnBytes = NULL);
-    DoNothing(uint8_t funcCode, unsigned retSize = 0, uint8_t *returnBytes = NULL);
+    DoNothing(DeviceFunctions *other, uint8_t funcCode, unsigned retSize = 0, const uint8_t *returnBytes = NULL);
+    DoNothing(uint8_t funcCode, unsigned retSize = 0, const uint8_t *returnBytes = NULL);
     DoNothing(const DoNothing& rhs);
     ~DoNothing();
 
@@ -155,8 +162,8 @@ public:
     }
 
     DeviceFunctions* clone() const;
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 
@@ -211,8 +218,7 @@ public:
         getFunctionIntermediate = f;
     }
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 /**
@@ -330,8 +336,7 @@ public:
     ArrayDevice(DeviceFunctions *_other, unsigned numDevices);
     ~ArrayDevice();
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 
@@ -356,8 +361,7 @@ public:
     /** create a deep copy of this device plus all child devices! */
     DeviceFunctions* clone() const;
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */

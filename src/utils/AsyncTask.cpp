@@ -80,7 +80,7 @@ bool AsyncTask::shouldFinish(unsigned waitUs)
 {
     std::unique_lock<std::mutex> l(taskMutex);
     eventCondition.wait_for(l, std::chrono::microseconds(waitUs));
-    return finish;
+    return finish || utils::shouldFinish();
 }
 
 /**
@@ -90,7 +90,7 @@ bool AsyncTask::shouldFinish(const std::chrono::system_clock::time_point &absTim
 {
     std::unique_lock<std::mutex> l(taskMutex);
     eventCondition.wait_until(l, absTime);
-    return finish;
+    return finish || utils::shouldFinish();
 }
 
 /**

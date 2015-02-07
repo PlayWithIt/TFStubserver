@@ -24,6 +24,8 @@
 #include <brick_servo.h>
 #include <brick_dc.h>
 #include <bricklet_ambient_light.h>
+#include <bricklet_distance_ir.h>
+#include <bricklet_distance_us.h>
 #include <bricklet_industrial_digital_out_4.h>
 #include <bricklet_industrial_digital_in_4.h>
 #include <bricklet_industrial_quad_relay.h>
@@ -42,7 +44,6 @@
 
 #include "BrickStack.h"
 #include "DeviceBarometer.h"
-#include "DeviceButtons.h"
 #include "DeviceInOut.h"
 #include "DeviceLCD.h"
 #include "DeviceLedStrip.h"
@@ -50,6 +51,7 @@
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
 #include "DeviceSensor.h"
+#include "DeviceTouchPad.h"
 #include "DeviceVoltageCurrent.h"
 
 #include "SimulatedDevice.h"
@@ -58,7 +60,17 @@ using utils::Log;
 using utils::Properties;
 using utils::Exception;
 
+
 namespace stubserver {
+
+
+//=======================================================================================
+
+static VisualisationClient dummyVisualisationInstance;
+
+
+//=======================================================================================
+
 
 /**
  * Dynamically create a value provider.
@@ -197,14 +209,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
         functions = new DeviceDigitalOut4();
-        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
-        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
         break;
 
     case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
         functions = new DeviceQuadRelay();
-        functions = new DoNothing(functions, INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
-        functions = new DoNothing(functions, INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
         break;
 
     case IO16_DEVICE_IDENTIFIER:
@@ -237,6 +245,40 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 AMBIENT_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
                 AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
+        sensor->setMinMax(0, 9000);
+        functions = sensor;
+        break;
+
+    case DISTANCE_IR_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(
+                DISTANCE_IR_FUNCTION_GET_DISTANCE,
+                DISTANCE_IR_FUNCTION_GET_ANALOG_VALUE,
+                DISTANCE_IR_FUNCTION_SET_DISTANCE_CALLBACK_PERIOD,
+                DISTANCE_IR_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD,
+                DISTANCE_IR_CALLBACK_DISTANCE,
+                DISTANCE_IR_CALLBACK_ANALOG_VALUE);
+        sensor->setRangeCallback(DISTANCE_IR_FUNCTION_SET_DISTANCE_CALLBACK_THRESHOLD,
+                DISTANCE_IR_FUNCTION_GET_DISTANCE_CALLBACK_THRESHOLD,
+                DISTANCE_IR_FUNCTION_SET_DEBOUNCE_PERIOD,
+                DISTANCE_IR_FUNCTION_GET_DEBOUNCE_PERIOD,
+                DISTANCE_IR_CALLBACK_DISTANCE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=800,step=5,interval=300")));
+        sensor->setMinMax(100, 800);
+        functions = sensor;
+        break;
+
+    case DISTANCE_US_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(
+                DISTANCE_US_FUNCTION_GET_DISTANCE_VALUE,
+                DISTANCE_US_FUNCTION_SET_DISTANCE_CALLBACK_PERIOD,
+                DISTANCE_US_CALLBACK_DISTANCE);
+        sensor->setRangeCallback(DISTANCE_US_FUNCTION_SET_DISTANCE_CALLBACK_THRESHOLD,
+                DISTANCE_US_FUNCTION_GET_DISTANCE_CALLBACK_THRESHOLD,
+                DISTANCE_US_FUNCTION_SET_DEBOUNCE_PERIOD,
+                DISTANCE_US_FUNCTION_GET_DEBOUNCE_PERIOD,
+                DISTANCE_US_CALLBACK_DISTANCE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=4095,step=20,interval=100")));
+        sensor->setMinMax(0, 4095);
         functions = sensor;
         break;
 
@@ -254,6 +296,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 HUMIDITY_FUNCTION_GET_DEBOUNCE_PERIOD,
                 HUMIDITY_CALLBACK_HUMIDITY_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=650,step=5,interval=500")));
+        sensor->setMinMax(0, 1000);
         functions = sensor;
         break;
 
@@ -280,6 +323,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  TEMPERATURE_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_CALLBACK_TEMPERATURE_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
+        sensor->setMinMax(-4000, 12500);
         functions = sensor;
         break;
 
@@ -342,13 +386,13 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, u
     : brickStack(_brickStack)
     , properties(NULL)
     , functions(NULL)
+    , visualisationClient(&dummyVisualisationInstance)
     , deviceMutex()
     , uidStr(_uidStr)
     , uid(utils::base58Decode(_uidStr))
     , deviceTypeId(_typeId)
     , position(0)
     , isBrick(false)
-    , visibleStateChange(false)
 {
     setupFunctions();
 }
@@ -362,13 +406,13 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     : brickStack(_brickStack)
     , properties(NULL)
     , functions(NULL)
+    , visualisationClient(&dummyVisualisationInstance)
     , deviceMutex()
     , uidStr(_uidStr)
     , uid(utils::base58Decode(_uidStr))
     , deviceTypeId(0)
     , position(0)
     , isBrick(false)
-    , visibleStateChange(false)
 {
     char msg[128];
 
@@ -442,8 +486,30 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
 /** clear objects */
 SimulatedDevice::~SimulatedDevice()
 {
+    visualisationClient->notify(VisibleDeviceState(VisibleDeviceState::DISCONNECT));
     delete properties;
     delete functions;
+}
+
+
+/**
+ * Set one VisualisationClient which must exist as long as it is registered here!
+ */
+void SimulatedDevice::setVisualisationClient(VisualisationClient &client) const {
+    const_cast<SimulatedDevice*>(this)->visualisationClient = &client;
+
+    VisibleDeviceState *state = dynamic_cast<VisibleDeviceState*>(functions);
+    if (state) {
+        Log() << "Device " << getUidStr() << " has base state";
+        state->notify(client, VisibleDeviceState::CONNECTED);
+    }
+}
+
+/**
+ * Clear a VisualisationClient set before using {@link setVisualisationClient(VisualisationClient)}.
+ */
+void SimulatedDevice::clearVisualisationClient() const {
+    const_cast<SimulatedDevice*>(this)->visualisationClient = &dummyVisualisationInstance;
 }
 
 
@@ -514,7 +580,7 @@ void SimulatedDevice::checkCallbacks()
 {
     MutexLock lock(deviceMutex);
     if (functions)
-        functions->checkCallbacks(brickStack->getRelativeTimeMs(), uid, brickStack, visibleStateChange);
+        functions->checkCallbacks(brickStack->getRelativeTimeMs(), uid, brickStack, *visualisationClient);
 }
 
 /**
@@ -569,7 +635,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     // if there is a function associated and consumed -> all OK
     // if not: if responseExpected=false, the packet is just consumed with a warning
     uint64_t time = brickStack->getRelativeTimeMs();
-    if (functions && functions->consumeCommand(time, p, visibleStateChange))
+    if (functions && functions->consumeCommand(time, p, *visualisationClient))
         return true;
 
     if (!responseExpected) {

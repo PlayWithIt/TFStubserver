@@ -1,0 +1,242 @@
+/*
+ * VisualisationClient.h
+ *
+ * Copyright (C) 2015 Holger Grosenick
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef STUBSERVER_VISUALISATIONCLIENT_H_
+#define STUBSERVER_VISUALISATIONCLIENT_H_
+
+#include <string>
+
+
+namespace stubserver {
+
+class VisibleDeviceState;
+
+/**
+ * A special in-memory client that can register to a device and receive events if some
+ * device states change (e.g. LCD text or sensor values). There maybe one client per device
+ * (client can be specific). It is even possible that some devices have a client, some not.
+ * <P>
+ * The client can be input and/or output: if {@link #useAsInputSource()} returns true
+ * the value provider is ignored and the value is read via {@link #getInputState()}.
+ */
+class VisualisationClient
+{
+public:
+    virtual ~VisualisationClient();
+
+    /**
+     * This method is called per state change, it should not consume too much CPU
+     * but just read the device state or copy the change information.
+     */
+    virtual void notify(const VisibleDeviceState &hint);
+
+    /**
+     * A simulated sensor needs simulated values which can come from a ValueProvider
+     * or from the visualisation, choose the source by this function. The default
+     * implementation returns false: use ValueProvider.
+     */
+    virtual bool useAsInputSource() const;
+
+    /**
+     * Return a device specific state (0 in default impl).
+     */
+    virtual int64_t getInputState() const;
+};
+
+
+/**
+ * A short living object which will be destroyed immediately after the
+ * method {@link VisualisationClient::notify()} returns.
+ */
+class VisibleDeviceState
+{
+    unsigned changeCode;
+
+public:
+    explicit VisibleDeviceState(unsigned c)
+       : changeCode(c) { }
+
+    virtual ~VisibleDeviceState();
+
+    /**
+     * If an event is triggered with this code, the object gets invalidated.
+     * If a VisualisationClient holds a reference to a StateChangeHint, it
+     * should clear this reference and may not use it any more.
+     */
+    static const unsigned DISCONNECT   = 0;
+    static const unsigned CONNECTED    = 1;
+    static const unsigned VALUE_CHANGE = 2;
+
+    void setChangeCode(unsigned c) {
+        changeCode = c;
+    }
+
+    bool isDisconnected() const {
+        return DISCONNECT == changeCode;
+    }
+
+    unsigned getChangeCode() const {
+        return changeCode;
+    }
+
+    void notify(VisualisationClient &client, unsigned code) {
+        changeCode = code;
+        client.notify(*this);
+    }
+};
+
+/**
+ * The state of an LCD screen.
+ */
+class LcdState : public VisibleDeviceState
+{
+public:
+    static const unsigned MAX_LINES     = 5;
+
+    // possible change events
+    static const unsigned CURSOR_CHANGE = 5;
+    static const unsigned LIGHT_CHANGE  = 6;
+    static const unsigned TEXT_CHANGE   = 7;
+    static const unsigned CLEAR_SCREEN  = 8;
+
+    /**
+     * Default init with screen size.
+     */
+    LcdState(unsigned _cols, unsigned _lines);
+
+    /**
+     * Returns the number of display columns.
+     */
+    unsigned getCols() const {
+        return cols;
+    }
+
+    /**
+     * Returns the number of display lines.
+     */
+    unsigned getLines() const {
+        return lines;
+    }
+
+    /**
+     * Returns the text from the given line.
+     */
+    const std::string& getLine(unsigned line) const;
+
+    /**
+     * Return the changed line: 0..MAX_LINES-1 means that just one line
+     * was changed, -1 means that the whole screen was changed.
+     */
+    int getChangedLine() const {
+        return changedLine;
+    }
+
+    unsigned getCursorX() const {
+        return cursorX;
+    }
+
+    unsigned getCursorY() const {
+        return cursorY;
+    }
+
+    bool isBacklightOn() const {
+        return backlightOn;
+    }
+
+    bool isBlinking() const {
+        return blinking;
+    }
+
+    bool isCursorVisible() const {
+        return cursorVisible;
+    }
+
+protected:
+    std::string text[MAX_LINES];
+
+    const unsigned cols, lines;
+
+    int      changedLine;
+    unsigned buttonState;
+    unsigned cursorX, cursorY;
+    bool     backlightOn;
+    bool     blinking;
+    bool     cursorVisible;
+};
+
+/**
+ * A simple sensor with one value in the range 0 .. 4095 (typically).
+ */
+class SensorState : public VisibleDeviceState
+{
+public:
+    /**
+     * Init with 0.
+     */
+    SensorState();
+    SensorState(int _min, int _max);
+
+    int getSensorValue() const {
+        return sensorValue;
+    }
+
+    int getMin() const {
+        return min;
+    }
+
+    int getMax() const {
+        return max;
+    }
+
+protected:
+    int sensorValue;
+    int min, max;
+};
+
+/**
+ * A simple relay state for a set of max 16 switches.
+ */
+class RelayState : public VisibleDeviceState
+{
+public:
+    /**
+     * Init with number of switches and set all switches off.
+     */
+    RelayState(unsigned num);
+
+    unsigned getNumSwitches() const {
+        return numSwitches;
+    }
+
+    bool isOn(unsigned switchNo) const;
+
+    /**
+     * Returns a label for the switch: this can be just the switch number
+     * of 'SW1' or the remote switch code.
+     */
+    virtual std::string getLabel(unsigned switchNo) const;
+
+protected:
+    unsigned numSwitches;
+    bool     switchOn[16];          // one flag per switch, max 16 switches
+};
+
+}
+
+#endif /* STUBSERVER_VISUALISATIONCLIENT_H_ */

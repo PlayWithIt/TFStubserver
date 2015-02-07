@@ -22,6 +22,7 @@
 #define DEVICERELAY_H_
 
 #include "DeviceFunctions.h"
+#include "VisualisationClient.h"
 
 namespace stubserver {
 
@@ -31,12 +32,9 @@ namespace stubserver {
  * <p>
  * Not yet supported: grouping.
  */
-class DeviceRelay : public DeviceFunctions
+class DeviceRelay : public DeviceFunctions, public RelayState
 {
 protected:
-    unsigned numSwitches;
-    bool     bitSwitches;
-
     enum {
         FUNC_SET_STATE = 0,
         FUNC_SET_SELECTED,
@@ -44,8 +42,12 @@ protected:
         FUNC_SET_MONOFLOP,
         FUNC_GET_MONOFLOP
     };
-    bool    switchOn[16];          // one flag per switch, max 16 switches
+
     uint8_t functionCodes[256];
+    bool    bitSwitches;
+
+    // init with number of relay switches
+    DeviceRelay(unsigned _numSwitches, bool _bitSwitches);
 
     // possible callback
     std::vector<BasicCallback> callbacks;
@@ -55,12 +57,8 @@ protected:
 
     void initMonoflopCallbacks(uint8_t callbackCode);
 
-protected:
-    DeviceRelay(unsigned _numSwitches, bool _bitSwitches);
-
 public:
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 
@@ -72,8 +70,7 @@ class DeviceSolidStateRelay : public DeviceRelay
 public:
     DeviceSolidStateRelay();
 
-    virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged) override;
-    virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged) override;
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 
@@ -84,6 +81,12 @@ class DeviceDualRelay : public DeviceRelay
 {
 public:
     DeviceDualRelay();
+
+    /**
+     * Returns a label for the switch: this can be just the switch number
+     * of 'SW1' or the remote switch code.
+     */
+    virtual std::string getLabel(unsigned switchNo) const override;
 };
 
 
@@ -112,18 +115,26 @@ public:
  * has a 'busy' flag and callback: while the relay is switching, no other command
  * is allowed.
  */
-class DeviceRemoteRelay : public DeviceFunctions
+class DeviceRemoteRelay : public DeviceFunctions, public RelayState
 {
     // switching is active
     bool     busy;
     unsigned repeats;
     uint64_t switchDoneAtMs;
+    std::string codes[16];
+
+    void updateRelay(const char *id, uint8_t state);
 
 public:
     DeviceRemoteRelay();
 
-    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged);
-    void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged);
+    /**
+     * Returns a label for the switch: this can be just the switch number
+     * of 'SW1' or the remote switch code.
+     */
+    virtual std::string getLabel(unsigned switchNo) const override;
+
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */

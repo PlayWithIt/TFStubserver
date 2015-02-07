@@ -37,7 +37,7 @@ ResponseData::ResponseData()
     bzero(bytes, sizeof(bytes));
 }
 
-ResponseData::ResponseData(unsigned _size, uint8_t *_bytes)
+ResponseData::ResponseData(unsigned _size, const uint8_t *_bytes)
   : size(_size)
 {
     bzero(bytes, sizeof(bytes));
@@ -125,20 +125,20 @@ ArrayDevice::~ArrayDevice()
 }
 
 
-bool ArrayDevice::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool ArrayDevice::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     uint8_t itemNo = p.uint8Value;
 
     memmove(p.fullData.payload, p.fullData.payload + 1, sizeof(p.fullData.payload) - 1);
     if (itemNo < others.size())
-        return others[itemNo]->consumeCommand(relativeTimeMs, p, stateChanged);
+        return others[itemNo]->consumeCommand(relativeTimeMs, p, visualisationClient);
 
     if (itemNo == 255)
     {
         printf("Delegate to ALL other devices\n");
         bool result = false;
         for (auto it : others)
-            result = it->consumeCommand(relativeTimeMs, p, stateChanged);
+            result = it->consumeCommand(relativeTimeMs, p, visualisationClient);
         return result;
     }
 
@@ -152,10 +152,10 @@ bool ArrayDevice::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &sta
 /**
  * Trigger all other objects.
  */
-void ArrayDevice::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void ArrayDevice::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     for (auto it : others) {
-        it->checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
+        it->checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
     }
 }
 
@@ -167,7 +167,7 @@ void ArrayDevice::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
 /**
  * Base init, nothing special
  */
-DoNothing::DoNothing(DeviceFunctions *_other, uint8_t funcCode, unsigned retSize, uint8_t *initBytes)
+DoNothing::DoNothing(DeviceFunctions *_other, uint8_t funcCode, unsigned retSize, const uint8_t *initBytes)
   : DeviceFunctions(_other)
   , functionCodes()
   , response(retSize, initBytes)
@@ -176,7 +176,7 @@ DoNothing::DoNothing(DeviceFunctions *_other, uint8_t funcCode, unsigned retSize
 }
 
 
-DoNothing::DoNothing(uint8_t funcCode, unsigned retSize, uint8_t *initBytes)
+DoNothing::DoNothing(uint8_t funcCode, unsigned retSize, const uint8_t *initBytes)
   : functionCodes()
   , response(retSize, initBytes)
 {
@@ -200,7 +200,7 @@ DoNothing::~DoNothing()
  * First check if the other function supports this packet, if not
  * check for this function and ignore it.
  */
-bool DoNothing::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool DoNothing::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     for (auto it : functionCodes)
     {
@@ -214,7 +214,7 @@ bool DoNothing::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &state
         }
     }
 
-    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
+    if (other && other->consumeCommand(relativeTimeMs, p, visualisationClient))
         return true;
 
     return false;
@@ -229,10 +229,10 @@ DeviceFunctions* DoNothing::clone() const
 /**
  * Just delegate to other function set since here we have no callbacks.
  */
-void DoNothing::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void DoNothing::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     if (other)
-        other->checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
 }
 
 
@@ -293,7 +293,7 @@ void GetSetRaw::enableCallback(uint8_t getCallbackFuncCode, uint8_t setCallbackF
  * First check if the other function supports this packet, if not
  * check for this function and ignore it.
  */
-bool GetSetRaw::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool GetSetRaw::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     p.header.length = sizeof(p.header);
 
@@ -324,7 +324,7 @@ bool GetSetRaw::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &state
         return true;
     }
 
-    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
+    if (other && other->consumeCommand(relativeTimeMs, p, visualisationClient))
         return true;
 
     return false;
@@ -333,7 +333,7 @@ bool GetSetRaw::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &state
 /**
  * Check for the getCurrentValue callback and call other callbacks.
  */
-void GetSetRaw::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void GetSetRaw::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     if (getFunctionIntermediate != 0)
         updateIntermediateValue();
@@ -342,7 +342,7 @@ void GetSetRaw::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
         triggerCallback(uid, brickStack);
     }
     if (other)
-        other->checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
 }
 
 /**
@@ -422,7 +422,7 @@ DeviceFunctions* EnableDisableBool::clone() const
  * First check if the other function supports this packet, if not
  * check for this function and ignore it.
  */
-bool EnableDisableBool::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, bool &stateChanged)
+bool EnableDisableBool::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {
     p.header.length = sizeof(p.header);
     if (getFunction == p.header.function_id) {
@@ -439,7 +439,7 @@ bool EnableDisableBool::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, boo
         return true;
     }
 
-    if (other && other->consumeCommand(relativeTimeMs, p, stateChanged))
+    if (other && other->consumeCommand(relativeTimeMs, p, visualisationClient))
         return true;
 
     return false;
@@ -448,10 +448,10 @@ bool EnableDisableBool::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, boo
 /**
  * Just delegate to other function set since here we have no callbacks.
  */
-void EnableDisableBool::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, bool &stateChanged)
+void EnableDisableBool::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
     if (other)
-        other->checkCallbacks(relativeTimeMs, uid, brickStack, stateChanged);
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
 }
 
 } /* namespace stubserver */

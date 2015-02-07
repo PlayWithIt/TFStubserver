@@ -26,6 +26,8 @@
 #include <utils/Properties.h>
 
 #include "DeviceFunctions.h"
+#include "VisualisationClient.h"
+
 
 namespace stubserver {
 
@@ -37,9 +39,10 @@ namespace stubserver {
  */
 class SimulatedDevice
 {
-    BrickStack *brickStack;
-    utils::Properties *properties;
-    DeviceFunctions *functions;
+    BrickStack          *brickStack;
+    utils::Properties   *properties;
+    DeviceFunctions     *functions;
+    VisualisationClient *visualisationClient;   // is always set, maybe a dummy instance
 
     // child devices e.g. of a MasterBrick: children are in the stack or at a port a..d
     std::vector<SimulatedDevice*> children;
@@ -53,7 +56,6 @@ class SimulatedDevice
     unsigned    deviceTypeId;
     char        position;              // port a..d or stack position 0..6
     bool        isBrick;
-    bool        visibleStateChange;    // flag that indicates that a change has happened which should update visualization
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
 
@@ -91,21 +93,6 @@ public:
     void checkCallbacks();
 
     /**
-     * Reset the state change flag.
-     */
-    void ckearVisibleStateHasChange() {
-        visibleStateChange = false;
-    }
-
-    /**
-     * Was the device state noticeably change since last {@link #consumePacket()} and
-     * {@link #checkCallbacks()}?
-     */
-    bool hasVisibleStateChanged() const {
-        return visibleStateChange;
-    }
-
-    /**
      * Connect a child with this device: the child is located at a
      * specific port (A-D) or position in the stack (0..7) if the child
      * is another brick.
@@ -113,9 +100,10 @@ public:
     void connect(SimulatedDevice* child);
 
     /**
-     * Returns the device type identifier for Masterbrick, Servo etc.
+     * Returns the device type identifier for Masterbrick, Servo etc, the values are
+     * those from the TF header files, like MASTER_DEVICE_IDENTIFIER, AMBIENT_LIGHT_DEVICE_IDENTIFIER etc.
      */
-    unsigned int getDeviceTypeId() const {
+    unsigned getDeviceTypeId() const {
         return deviceTypeId;
     }
 
@@ -132,6 +120,16 @@ public:
     unsigned int getUid() const {
         return uid;
     }
+
+    /**
+     * Set one VisualisationClient which must exist as long as it is registered here!
+     */
+    void setVisualisationClient(VisualisationClient &client) const;
+
+    /**
+     * Clear a VisualisationClient set before using {@link setVisualisationClient(VisualisationClient)}.
+     */
+    void clearVisualisationClient() const;
 
     /**
      * Is this device connected to the given brick? This is true if the device is
