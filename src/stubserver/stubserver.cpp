@@ -137,7 +137,15 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
     }
 
     // first read the config file before creating the socket
-    brickThread = new BrickThread(deviceList);
+    try {
+        brickThread = new BrickThread(deviceList);
+    }
+    catch (const std::exception &e) {
+        delete brickThread;
+        brickThread = NULL;
+        throw;
+    }
+
     brickThread->start();
 
     // then create the socket

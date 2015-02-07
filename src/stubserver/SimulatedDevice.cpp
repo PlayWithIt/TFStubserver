@@ -36,6 +36,7 @@
 #include <bricklet_humidity.h>
 #include <bricklet_sound_intensity.h>
 #include <bricklet_temperature.h>
+#include <bricklet_temperature_ir.h>
 #include <bricklet_voltage_current.h>
 #include <device_table.h>
 
@@ -302,6 +303,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case MOISTURE_DEVICE_IDENTIFIER:
         // has no analog value
+        functions = new GetSet<uint8_t>(MOISTURE_FUNCTION_GET_MOVING_AVERAGE, MOISTURE_FUNCTION_GET_MOVING_AVERAGE, 100);
         sensor = new DeviceSensor(MOISTURE_FUNCTION_GET_MOISTURE_VALUE,
                                   MOISTURE_FUNCTION_SET_MOISTURE_CALLBACK_PERIOD, MOISTURE_CALLBACK_MOISTURE);
         sensor->setRangeCallback(MOISTURE_FUNCTION_SET_MOISTURE_CALLBACK_THRESHOLD,
@@ -309,8 +311,9 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  MOISTURE_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  MOISTURE_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  MOISTURE_CALLBACK_MOISTURE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
-        functions = new GetSet<uint8_t>(sensor, MOISTURE_FUNCTION_GET_MOVING_AVERAGE, MOISTURE_FUNCTION_GET_MOVING_AVERAGE, 100);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2800,step=5,interval=300")));
+        sensor->setOther(functions);
+        functions = sensor;
         break;
 
     case TEMPERATURE_DEVICE_IDENTIFIER:
@@ -322,6 +325,20 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  TEMPERATURE_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_CALLBACK_TEMPERATURE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
+        sensor->setMinMax(-4000, 12500);
+        functions = sensor;
+        break;
+
+    case TEMPERATURE_IR_DEVICE_IDENTIFIER:
+        // has no analog value
+        sensor = new DeviceSensor(TEMPERATURE_IR_FUNCTION_GET_AMBIENT_TEMPERATURE,
+                                  TEMPERATURE_IR_FUNCTION_SET_AMBIENT_TEMPERATURE_CALLBACK_PERIOD, TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE);
+        sensor->setRangeCallback(TEMPERATURE_IR_FUNCTION_SET_AMBIENT_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 TEMPERATURE_IR_FUNCTION_GET_AMBIENT_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 TEMPERATURE_IR_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 TEMPERATURE_IR_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
         sensor->setMinMax(-4000, 12500);
         functions = sensor;
@@ -500,7 +517,7 @@ void SimulatedDevice::setVisualisationClient(VisualisationClient &client) const 
 
     VisibleDeviceState *state = dynamic_cast<VisibleDeviceState*>(functions);
     if (state) {
-        Log() << "Device " << getUidStr() << " has base state";
+        Log() << "Device " << getDeviceTypeName() << " " << getUidStr() << " has base state";
         state->notify(client, VisibleDeviceState::CONNECTED);
     }
 }

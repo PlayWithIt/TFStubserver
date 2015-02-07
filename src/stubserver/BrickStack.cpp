@@ -70,7 +70,6 @@ BrickStack::BrickStack(const char *filename)
 {
     if (objectCount > 0)
         throw utils::Exception("ERROR: there maybe only one BrickStack at a time!");
-    ++objectCount;
 
     if (filename == NULL)
     {
@@ -90,6 +89,9 @@ BrickStack::BrickStack(const char *filename)
         SimulatedDevice *dev = new SimulatedDevice(this, it.c_str(), p);
         devices.push_back(dev);
     }
+
+    // increment only if finally done
+    ++objectCount;
 }
 
 

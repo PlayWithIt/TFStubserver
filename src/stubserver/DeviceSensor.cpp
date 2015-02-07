@@ -62,6 +62,9 @@ DeviceSensor::DeviceSensor(ValueProvider *values,
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
 {
+    // can be changed later on...
+    if (values)
+        setMinMax(values->getMin(), values->getMax());
 }
 
 

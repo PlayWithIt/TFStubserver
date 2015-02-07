@@ -106,6 +106,10 @@ public:
     DeviceFunctions(const DeviceFunctions& o);
     virtual ~DeviceFunctions();
 
+    void setOther(DeviceFunctions* o) {
+        other = o;
+    }
+
     /** derived classes should override this: this method throws an exception by default! */
     virtual DeviceFunctions* clone() const;
 
