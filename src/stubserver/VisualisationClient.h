@@ -95,7 +95,7 @@ public:
         return changeCode;
     }
 
-    void notify(VisualisationClient &client, unsigned code) {
+    void notify(VisualisationClient &client, unsigned code = VALUE_CHANGE) {
         changeCode = code;
         client.notify(*this);
     }

@@ -69,7 +69,6 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisati
             ++c;
             ++x;
         }
-        utils::Log() << "New data: " << text[l];
 
         changedLine = l;
         notify(visualisationClient, TEXT_CHANGE);
@@ -162,7 +161,7 @@ void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
                 continue;
 
             IOPacket packet(uid, n ? LCD_20X4_CALLBACK_BUTTON_PRESSED : LCD_20X4_CALLBACK_BUTTON_RELEASED, 1);
-            packet.boolValue = n;
+            packet.uint8Value = i;
             brickStack->dispatchCallback(packet);
         }
         buttonState = newValue;

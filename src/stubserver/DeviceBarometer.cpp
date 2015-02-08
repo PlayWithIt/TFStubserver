@@ -110,11 +110,20 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
 
 void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
-    int currentValue = values->getValue(relativeTimeMs);
-    if (currentValue != sensorValue)
-    {
-        sensorValue = currentValue;
-        notify(visualisationClient, VALUE_CHANGE);
+    int currentValue;
+
+    if (visualisationClient.useAsInputSource()) {
+        currentValue = visualisationClient.getInputState();
+        if (currentValue != sensorValue)
+            sensorValue = currentValue;
+    }
+    else {
+        currentValue = values->getValue(relativeTimeMs);
+        if (currentValue != sensorValue)
+        {
+            sensorValue = currentValue;
+            notify(visualisationClient, VALUE_CHANGE);
+        }
     }
 
     if (changedPressureCb.mayExecute(relativeTimeMs) && currentValue != changedPressureCb.param1)

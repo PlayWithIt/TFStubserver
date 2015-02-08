@@ -20,20 +20,18 @@
 #ifndef STUBSERVER_DEVICEMOTIONDETECTOR_H_
 #define STUBSERVER_DEVICEMOTIONDETECTOR_H_
 
-#include <atomic>
-
 #include "DeviceFunctions.h"
+#include "VisualisationClient.h"
 
 namespace stubserver {
 
 /**
  * Simple MotionDetector which has only two callbacks.
  */
-class DeviceMotionDetector : public DeviceFunctions
+class DeviceMotionDetector : public DeviceFunctions, public SensorState
 {
     ValueProvider    *valueProvider;
     uint64_t         motionEnd;
-    std::atomic_bool inMotion;
 
 public:
     /**

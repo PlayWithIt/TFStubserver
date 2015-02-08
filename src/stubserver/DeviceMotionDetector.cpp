@@ -26,9 +26,9 @@ namespace stubserver {
 
 
 DeviceMotionDetector::DeviceMotionDetector(ValueProvider *vp)
-  : valueProvider(vp)
+  : SensorState(0, 1)
+  , valueProvider(vp)
   , motionEnd(0)
-  , inMotion(false)
 {
 }
 
@@ -41,7 +41,7 @@ bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
     // check function to perform
     switch (p.header.function_id) {
     case MOTION_DETECTOR_FUNCTION_GET_MOTION_DETECTED:
-        p.uint8Value = inMotion ? MOTION_DETECTOR_MOTION_DETECTED : MOTION_DETECTOR_MOTION_NOT_DETECTED;
+        p.uint8Value = sensorValue ? MOTION_DETECTOR_MOTION_DETECTED : MOTION_DETECTOR_MOTION_NOT_DETECTED;
         p.header.length += sizeof(p.uint8Value);
         return true;
 
@@ -52,11 +52,29 @@ bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
 
 void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
-    if (inMotion) {
+    if (visualisationClient.useAsInputSource())
+    {
+        int newValue = visualisationClient.getInputState() != 0 ? 1 : 0;
+        if (newValue == false && newValue != sensorValue)
+        {
+            IOPacket packet(uid, MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED);
+            brickStack->dispatchCallback(packet);
+        }
+        else if (newValue && newValue != sensorValue)
+        {
+            IOPacket packet(uid, MOTION_DETECTOR_CALLBACK_MOTION_DETECTED);
+            brickStack->dispatchCallback(packet);
+        }
+        sensorValue = newValue;
+        return;
+    }
+
+    if (sensorValue) {
         if (relativeTimeMs > motionEnd) {
             IOPacket packet(uid, MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED);
             brickStack->dispatchCallback(packet);
-            inMotion = false;
+            sensorValue = false;
+            notify(visualisationClient);
         }
     }
     // a new motion will be detected only with small break of 1,5 seconds from the last cycle
@@ -64,8 +82,9 @@ void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
     {
         IOPacket packet(uid, MOTION_DETECTOR_CALLBACK_MOTION_DETECTED);
         brickStack->dispatchCallback(packet);
-        inMotion = true;
+        sensorValue = true;
         motionEnd = relativeTimeMs + 5000;  // 5 seconds after start
+        notify(visualisationClient);
     }
 }
 

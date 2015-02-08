@@ -138,7 +138,7 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualis
 
 void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
-    int currentValue = values->getValue(relativeTimeMs);
+    int currentValue;
 
     if (visualisationClient.useAsInputSource()) {
         currentValue = visualisationClient.getInputState();
