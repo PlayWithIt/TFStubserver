@@ -54,14 +54,16 @@ int64_t VisualisationClient::getInputState() const {
 SensorState::SensorState()
   : VisibleDeviceState(0)
   , sensorValue(0)
+  , counter(0)
   , min(0)
-  , max(4096)
+  , max(4095)
 {
 }
 
 SensorState::SensorState(int _min, int _max)
   : VisibleDeviceState(0)
   , sensorValue(0)
+  , counter(0)
   , min(_min)
   , max(_max)
 {

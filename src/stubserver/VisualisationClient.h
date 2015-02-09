@@ -181,7 +181,8 @@ protected:
 };
 
 /**
- * A simple sensor with one value in the range 0 .. 4095 (typically).
+ * A simple sensor with one value in the range 0 .. 4095 (typically), Potentiometers
+ * can also be handled as sensors as they just return one value.
  */
 class SensorState : public VisibleDeviceState
 {
@@ -192,8 +193,18 @@ public:
     SensorState();
     SensorState(int _min, int _max);
 
+    /**
+     * Returns the current "sensor" value.
+     */
     int getSensorValue() const {
         return sensorValue;
+    }
+
+    /**
+     * Optionally used: flag counter or something like this.
+     */
+    unsigned getCounter() const {
+        return counter;
     }
 
     int getMin() const {
@@ -205,8 +216,9 @@ public:
     }
 
 protected:
-    int sensorValue;
-    int min, max;
+    int      sensorValue;
+    unsigned counter;
+    int      min, max;
 };
 
 /**

@@ -26,7 +26,6 @@
 #include <utils/Properties.h>
 
 #include "DeviceFunctions.h"
-#include "VisualisationClient.h"
 
 
 namespace stubserver {
@@ -51,6 +50,7 @@ class SimulatedDevice
     std::string deviceTypeName;        // device type e.g. MASTER, LCD as string
     std::string uidStr;                // device uid as string
     std::string connectedUidStr;       // 'parent' device where this device is connected to
+    std::string label;                 // device specific label for the optional GUI
 
     unsigned    uid;                   // device uid as number
     unsigned    deviceTypeId;
@@ -60,6 +60,9 @@ class SimulatedDevice
     uint8_t     firmwareVersion[3];
 
     DeviceFunctions *setupFunctions();
+
+    // release resources
+    void cleanup();
 
     /**
      * Read a property from the properties: first with UID prefix and if
@@ -159,6 +162,13 @@ public:
      */
     const std::string& getUidStr() const {
         return uidStr;
+    }
+
+    /**
+     * Returns the optional label string.
+     */
+    const std::string& getLabel() const {
+        return label;
     }
 };
 

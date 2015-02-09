@@ -26,14 +26,17 @@
 #include <bricklet_ambient_light.h>
 #include <bricklet_distance_ir.h>
 #include <bricklet_distance_us.h>
+#include <bricklet_dual_button.h>
+#include <bricklet_humidity.h>
 #include <bricklet_industrial_digital_out_4.h>
 #include <bricklet_industrial_digital_in_4.h>
 #include <bricklet_industrial_quad_relay.h>
 #include <bricklet_io16.h>
 #include <bricklet_io4.h>
-#include <bricklet_humidity.h>
+#include <bricklet_line.h>
 #include <bricklet_moisture.h>
 #include <bricklet_humidity.h>
+#include <bricklet_ptc.h>
 #include <bricklet_sound_intensity.h>
 #include <bricklet_temperature.h>
 #include <bricklet_temperature_ir.h>
@@ -46,12 +49,14 @@
 #include "BrickStack.h"
 #include "DeviceBarometer.h"
 #include "DeviceInOut.h"
+#include "DeviceHallEffect.h"
 #include "DeviceLCD.h"
 #include "DeviceLedStrip.h"
 #include "DeviceMotionDetector.h"
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
 #include "DeviceSensor.h"
+#include "DeviceTilt.h"
 #include "DeviceTouchPad.h"
 #include "DeviceVoltageCurrent.h"
 
@@ -194,12 +199,12 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DeviceBarometer(createValueProvider(getProperty("valueProvider")));
         break;
 
-    case DUAL_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceDualRelay();
+    case HALL_EFFECT_DEVICE_IDENTIFIER:
+        functions = new DeviceHallEffect(createValueProvider(getProperty("valueProvider")));
         break;
 
-    case SOLID_STATE_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceSolidStateRelay();
+    case DUAL_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceDualRelay();
         break;
 
     case INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER:
@@ -266,6 +271,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=800,step=5,interval=300")));
         sensor->setMinMax(100, 800);
         functions = sensor;
+        label = "Distance mm";  // default
         break;
 
     case DISTANCE_US_DEVICE_IDENTIFIER:
@@ -299,6 +305,22 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=650,step=5,interval=500")));
         sensor->setMinMax(0, 1000);
         functions = sensor;
+        label = "Humidity";  // default
+        break;
+
+    case LINE_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(
+                LINE_FUNCTION_GET_REFLECTIVITY,
+                LINE_FUNCTION_SET_REFLECTIVITY_CALLBACK_PERIOD,
+                LINE_CALLBACK_REFLECTIVITY);
+        sensor->setRangeCallback(LINE_FUNCTION_SET_REFLECTIVITY_CALLBACK_THRESHOLD,
+                LINE_FUNCTION_GET_REFLECTIVITY_CALLBACK_THRESHOLD,
+                LINE_FUNCTION_SET_DEBOUNCE_PERIOD,
+                LINE_FUNCTION_GET_DEBOUNCE_PERIOD,
+                LINE_CALLBACK_REFLECTIVITY_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=4000,step=5,interval=300")));
+        functions = sensor;
+        label = "Reflectivity";  // default
         break;
 
     case MOISTURE_DEVICE_IDENTIFIER:
@@ -316,6 +338,22 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = sensor;
         break;
 
+    case SOLID_STATE_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceSolidStateRelay();
+        break;
+
+    case PTC_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(PTC_FUNCTION_GET_TEMPERATURE, PTC_FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, PTC_CALLBACK_TEMPERATURE);
+        sensor->setRangeCallback(PTC_FUNCTION_SET_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 PTC_FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 PTC_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 PTC_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 PTC_CALLBACK_TEMPERATURE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
+        sensor->setMinMax(-4000, 12500);
+        functions = sensor;
+        break;
+
     case TEMPERATURE_DEVICE_IDENTIFIER:
         // has no analog value
         sensor = new DeviceSensor(TEMPERATURE_FUNCTION_GET_TEMPERATURE,
@@ -330,6 +368,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = sensor;
         break;
 
+        // TODO all object functions are still missing
     case TEMPERATURE_IR_DEVICE_IDENTIFIER:
         // has no analog value
         sensor = new DeviceSensor(TEMPERATURE_IR_FUNCTION_GET_AMBIENT_TEMPERATURE,
@@ -381,6 +420,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DeviceRemoteRelay();
         break;
 
+    case TILT_DEVICE_IDENTIFIER:
+        functions = new DeviceTilt(createValueProvider(getProperty("valueProvider")));
+        break;
+
     case VOLTAGE_CURRENT_DEVICE_IDENTIFIER:
         {
             DeviceVoltageCurrent *vc = new DeviceVoltageCurrent();
@@ -412,6 +455,17 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, u
     , isBrick(false)
 {
     setupFunctions();
+}
+
+/**
+ * Release resources: used in case of exception in constructor.
+ */
+void SimulatedDevice::cleanup()
+{
+    delete properties;
+    delete functions;
+    properties = NULL;
+    functions  = NULL;
 }
 
 /**
@@ -454,10 +508,12 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
             deviceTypeId = gAllDeviceIdentifiers[i].deviceIdentifier;
     }
     if (deviceTypeId == 0) {
+        cleanup();
         sprintf(msg, "Unkown device type '%s' for uid %s", str, _uidStr);
         throw Exception(msg);
     }
 
+    label = getProperty("label");
     deviceTypeName = str;
 
     str = getProperty("firmwareVersion", 3);
@@ -474,6 +530,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     if ((p >= 'a' && p <= 'd') || (p >= '0' && p <= '7'))
         position = str[0];
     else {
+        cleanup();
         sprintf(msg, "Invalid position char '%c' for uid %s", p, _uidStr);
         throw Exception(msg);
     }
@@ -497,15 +554,22 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
             parent->connect(this);
     }
 
-    setupFunctions();
+    // if setupFunctions throws an exception, one device might not be released if the
+    // 'new' was not assigned to 'functions'
+    try {
+        setupFunctions();
+    }
+    catch (const std::exception &e) {
+        cleanup();
+        throw;
+    }
 }
 
 /** clear objects */
 SimulatedDevice::~SimulatedDevice()
 {
     visualisationClient->notify(VisibleDeviceState(VisibleDeviceState::DISCONNECT));
-    delete properties;
-    delete functions;
+    cleanup();
 }
 
 
