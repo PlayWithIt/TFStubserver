@@ -38,10 +38,6 @@ DeviceLCD::DeviceLCD(unsigned _cols, unsigned _lines)
         text[i] = std::string(_cols, ' ');
         defaultText[i] = text[i];
     }
-
-    // customer character holds 8 bytes
-    other = new GetSet<uint64_t>(LCD_20X4_FUNCTION_GET_CUSTOM_CHARACTER, LCD_20X4_FUNCTION_SET_CUSTOM_CHARACTER);
-    other = new ArrayDevice(other, 8);
 }
 
 /**
@@ -69,6 +65,16 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisati
             ++c;
             ++x;
         }
+
+        cursorX = c;
+        if (c >= cols) {
+            cursorX = 0;
+            cursorY = l+1;
+            if (l >= lines)
+                l = 0;
+        }
+        else
+            cursorY = l;
 
         changedLine = l;
         notify(visualisationClient, TEXT_CHANGE);
@@ -116,8 +122,31 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisati
             return true;
         }
         const uint8_t *ch = p.fullData.payload+1;
-        for (c = 0; c < cols; ++c)
+        for (c = 0; c < cols && *ch; ++c)
             defaultText[l][c] = *ch++;
+    }
+        return true;
+
+    case LCD_20X4_FUNCTION_SET_CUSTOM_CHARACTER: {
+        unsigned index = p.uint8Value;
+        if (index > 7) {
+            p.setErrorCode(IOPacket::INVALID_PARAMETER);
+            return true;
+        }
+        memcpy(customChar + (index * 8), p.fullData.payload + 1, 8);
+        changedLine = index;
+        notify(visualisationClient, CUSTOM_CHAR);
+    }
+        return true;
+
+    case LCD_20X4_FUNCTION_GET_CUSTOM_CHARACTER: {
+        unsigned index = p.uint8Value;
+        if (index > 7) {
+            p.setErrorCode(IOPacket::INVALID_PARAMETER);
+            return true;
+        }
+        memcpy(p.fullData.payload, customChar + (index * 8), 8);
+        p.header.length += 8;
     }
         return true;
 
@@ -131,7 +160,19 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisati
         return true;
     }
 
-    return other->consumeCommand(relativeTimeMs, p, visualisationClient);
+    return false;
+}
+
+/**
+ * Return the char definition of the given customer char as an array of
+ * 8 bytes. The index must be in the customer char range (0..7) otherwise
+ * NULL will be returned.
+ */
+const uint8_t* DeviceLCD::getCustomerChar(unsigned index) const
+{
+    if (index < 8)
+        return customChar + (index*8);
+    return NULL;
 }
 
 /**
@@ -140,10 +181,12 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisati
  */
 void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
 {
-    unsigned newValue = 0;
+    unsigned newValue;
 
     if (visualisationClient.useAsInputSource())
         newValue = visualisationClient.getInputState();
+    else
+        newValue = 0;
 
     // TODO: no value provider to button state yet
     //else
@@ -174,6 +217,7 @@ void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
         }
         changedLine = -1;
         notify(visualisationClient, TEXT_CHANGE);
+        counter = -1;
     }
     else if (counter > 0)
         --counter;

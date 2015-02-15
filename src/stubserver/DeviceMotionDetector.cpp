@@ -32,6 +32,11 @@ DeviceMotionDetector::DeviceMotionDetector(ValueProvider *vp)
 {
 }
 
+DeviceMotionDetector::~DeviceMotionDetector()
+{
+    delete valueProvider;
+}
+
 
 bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
 {

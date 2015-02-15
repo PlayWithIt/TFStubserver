@@ -114,6 +114,7 @@ public:
     static const unsigned LIGHT_CHANGE  = 6;
     static const unsigned TEXT_CHANGE   = 7;
     static const unsigned CLEAR_SCREEN  = 8;
+    static const unsigned CUSTOM_CHAR   = 9;   // change custom char definition
 
     /**
      * Default init with screen size.
@@ -138,6 +139,13 @@ public:
      * Returns the text from the given line.
      */
     const std::string& getLine(unsigned line) const;
+
+    /**
+     * Return the char definition of the given customer char as an array of
+     * 8 bytes. The index must be in the customer char range (0..7) otherwise
+     * NULL will be returned.
+     */
+    virtual const uint8_t* getCustomerChar(unsigned index) const = 0;
 
     /**
      * Return the changed line: 0..MAX_LINES-1 means that just one line

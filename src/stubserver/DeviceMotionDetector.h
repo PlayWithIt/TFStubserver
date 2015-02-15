@@ -38,6 +38,7 @@ public:
      * The ValueProvider just needs to provide 1 (on) and 0 (off).
      */
     DeviceMotionDetector(ValueProvider *vp);
+    ~DeviceMotionDetector();
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

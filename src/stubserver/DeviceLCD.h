@@ -34,6 +34,7 @@ namespace stubserver {
 class DeviceLCD : public DeviceFunctions, public LcdState
 {
     int         counter;            // default text counter
+    uint8_t     customChar[8*8];
     std::string defaultText[MAX_LINES];
 
     /**
@@ -43,6 +44,13 @@ class DeviceLCD : public DeviceFunctions, public LcdState
 
 public:
     DeviceLCD(unsigned _cols, unsigned _lines);
+
+    /**
+     * Return the char definition of the given customer char as an array of
+     * 8 bytes. The index must be in the customer char range (0..7) otherwise
+     * NULL will be returned.
+     */
+    const uint8_t* getCustomerChar(unsigned index) const override;
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

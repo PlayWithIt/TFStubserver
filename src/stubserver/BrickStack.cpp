@@ -84,10 +84,19 @@ BrickStack::BrickStack(const char *filename)
         throw utils::Exception("Property 'UIDS' is not present!");
 
     std::vector<std::string> uids;
-    for (std::string &it : utils::strings::split(str, ' ', uids))
-    {
-        SimulatedDevice *dev = new SimulatedDevice(this, it.c_str(), p);
-        devices.push_back(dev);
+
+    try {
+        for (std::string &it : utils::strings::split(str, ' ', uids))
+        {
+            SimulatedDevice *dev = new SimulatedDevice(this, it.c_str(), p);
+            devices.push_back(dev);
+        }
+    }
+    catch (const std::exception &e) {
+        // if an exception happens here, the destructor is not called!
+        for (auto it : devices)
+            delete it;
+        throw;
     }
 
     // increment only if finally done
