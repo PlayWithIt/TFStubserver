@@ -41,7 +41,7 @@ DevicePiezoSpeaker::~DevicePiezoSpeaker()
 /**
  * Check for known function codes.
  */
-bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &)
+bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -118,7 +118,7 @@ bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vi
 /**
  * Check for the switchDone callbacks.
  */
-void DevicePiezoSpeaker::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &)
+void DevicePiezoSpeaker::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &)
 {
     if (sendCallback && callbackTime <= relativeTimeMs)
     {

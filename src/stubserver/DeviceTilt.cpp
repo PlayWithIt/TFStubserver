@@ -38,7 +38,7 @@ DeviceTilt::~DeviceTilt()
 }
 
 
-bool DeviceTilt::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceTilt::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -68,12 +68,12 @@ bool DeviceTilt::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisat
     }
 }
 
-void DeviceTilt::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceTilt::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    int newValue = visualisationClient.getInputState();
+    int newValue = visualizationClient.getInputState();
 
-    if (visualisationClient.useAsInputSource())
-        newValue = visualisationClient.getInputState();
+    if (visualizationClient.useAsInputSource())
+        newValue = visualizationClient.getInputState();
     else
         newValue = valueProvider->getValue(relativeTimeMs);
 
@@ -87,7 +87,7 @@ void DeviceTilt::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Brick
             brickStack->dispatchCallback(packet);
         }
 
-        notify(visualisationClient);
+        notify(visualizationClient);
     }
 }
 

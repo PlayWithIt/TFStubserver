@@ -26,9 +26,8 @@
 #include <string.h>
 #include <utils/ValueProvider.h>
 
-#include "PacketTypes.h"
 #include "CallbackData.h"
-#include "VisualisationClient.h"
+#include "VisualizationClient.h"
 
 typedef std::lock_guard<std::mutex> MutexLock;
 
@@ -116,21 +115,21 @@ public:
     /**
      * This method is called by the BrickStack if a client command comes in.
      */
-    virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient) = 0;
+    virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient) = 0;
 
     /**
      * This method is called periodically (about each ms) in order to check if a callback
      * must be triggered.
      */
-    virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient) = 0;
+    virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient) = 0;
 };
 
 /**
  * Since we have quite a lot of derived classes: use a macro here to simplify interface changes.
  */
 #define DECLARE_OWN_DEVICE_CALLBACKS \
-   virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient) override; \
-   virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient) override;
+   virtual bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient) override; \
+   virtual void checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient) override;
 
 
 /**

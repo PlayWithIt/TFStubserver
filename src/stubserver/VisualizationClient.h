@@ -1,5 +1,5 @@
 /*
- * VisualisationClient.h
+ * VisualizationClient.h
  *
  * Copyright (C) 2015 Holger Grosenick
  *
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STUBSERVER_VISUALISATIONCLIENT_H_
-#define STUBSERVER_VISUALISATIONCLIENT_H_
+#ifndef STUBSERVER_VISUALIZATIONCLIENT_H_
+#define STUBSERVER_VISUALIZATIONCLIENT_H_
 
 #include <string>
 
@@ -35,10 +35,10 @@ class VisibleDeviceState;
  * The client can be input and/or output: if {@link #useAsInputSource()} returns true
  * the value provider is ignored and the value is read via {@link #getInputState()}.
  */
-class VisualisationClient
+class VisualizationClient
 {
 public:
-    virtual ~VisualisationClient();
+    virtual ~VisualizationClient();
 
     /**
      * This method is called per state change, it should not consume too much CPU
@@ -48,35 +48,44 @@ public:
 
     /**
      * A simulated sensor needs simulated values which can come from a ValueProvider
-     * or from the visualisation, choose the source by this function. The default
+     * or from the visualization, choose the source by this function. The default
      * implementation returns false: use ValueProvider.
+     *
+     * @param sensorNo the internal sensor number for devices which have more than
+     *        one internal sensor. E.g. temperature IR has ambient and object
+     *        temperature: 2 internal sensors.
      */
-    virtual bool useAsInputSource() const;
+    virtual bool useAsInputSource(unsigned sensorNo = 0) const;
 
     /**
      * Return a device specific state (0 in default impl).
+     * @param sensorNo the internal sensor number for devices which have more than one
      */
-    virtual int64_t getInputState() const;
+    virtual int64_t getInputState(unsigned sensorNo = 0) const;
 };
 
 
 /**
  * A short living object which will be destroyed immediately after the
- * method {@link VisualisationClient::notify()} returns.
+ * method {@link VisualizationClient::notify()} returns.
  */
 class VisibleDeviceState
 {
     unsigned changeCode;
+    unsigned internalSensorNo;
 
 public:
     explicit VisibleDeviceState(unsigned c)
-       : changeCode(c) { }
+       : changeCode(c), internalSensorNo(0) { }
+
+    explicit VisibleDeviceState(unsigned c, unsigned sn)
+       : changeCode(c), internalSensorNo(sn) { }
 
     virtual ~VisibleDeviceState();
 
     /**
      * If an event is triggered with this code, the object gets invalidated.
-     * If a VisualisationClient holds a reference to a StateChangeHint, it
+     * If a VisualizationClient holds a reference to a StateChangeHint, it
      * should clear this reference and may not use it any more.
      */
     static const unsigned DISCONNECT   = 0;
@@ -95,7 +104,19 @@ public:
         return changeCode;
     }
 
-    void notify(VisualisationClient &client, unsigned code = VALUE_CHANGE) {
+    unsigned getInternalSensorNo() const {
+        return internalSensorNo;
+    }
+
+    /**
+     * Change the internal sensor number for devices that have more than one.
+     * The default is 0 for the first (main) sensor.
+     */
+    void setInternalSensorNo(unsigned sn) {
+        internalSensorNo = sn;
+    }
+
+    void notify(VisualizationClient &client, unsigned code = VALUE_CHANGE) {
         changeCode = code;
         client.notify(*this);
     }
@@ -259,4 +280,4 @@ protected:
 
 }
 
-#endif /* STUBSERVER_VISUALISATIONCLIENT_H_ */
+#endif /* STUBSERVER_VISUALIZATIONCLIENT_H_ */

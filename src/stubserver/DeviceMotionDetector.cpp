@@ -38,7 +38,7 @@ DeviceMotionDetector::~DeviceMotionDetector()
 }
 
 
-bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -55,11 +55,11 @@ bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
     }
 }
 
-void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    if (visualisationClient.useAsInputSource())
+    if (visualizationClient.useAsInputSource())
     {
-        int newValue = visualisationClient.getInputState() != 0 ? 1 : 0;
+        int newValue = visualizationClient.getInputState() != 0 ? 1 : 0;
         if (newValue == false && newValue != sensorValue)
         {
             IOPacket packet(uid, MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED);
@@ -79,7 +79,7 @@ void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
             IOPacket packet(uid, MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED);
             brickStack->dispatchCallback(packet);
             sensorValue = false;
-            notify(visualisationClient);
+            notify(visualizationClient);
         }
     }
     // a new motion will be detected only with small break of 1,5 seconds from the last cycle
@@ -89,7 +89,7 @@ void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
         brickStack->dispatchCallback(packet);
         sensorValue = true;
         motionEnd = relativeTimeMs + 5000;  // 5 seconds after start
-        notify(visualisationClient);
+        notify(visualizationClient);
     }
 }
 

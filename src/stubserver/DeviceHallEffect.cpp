@@ -43,7 +43,7 @@ DeviceHallEffect::~DeviceHallEffect()
 }
 
 
-bool DeviceHallEffect::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceHallEffect::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -97,12 +97,12 @@ bool DeviceHallEffect::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visu
     }
 }
 
-void DeviceHallEffect::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceHallEffect::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    int newValue = visualisationClient.getInputState();
+    int newValue = visualizationClient.getInputState();
 
-    if (visualisationClient.useAsInputSource())
-        newValue = visualisationClient.getInputState();
+    if (visualizationClient.useAsInputSource())
+        newValue = visualizationClient.getInputState();
     else
         newValue = valueProvider->getValue(relativeTimeMs);
 
@@ -123,7 +123,7 @@ void DeviceHallEffect::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid,
         }
 
         sensorValue = newValue;
-        notify(visualisationClient);
+        notify(visualizationClient);
 
         // edge interrupt
         if (edgeInterrupt > 0 && counter - latestInterrupt >= edgeInterrupt) {

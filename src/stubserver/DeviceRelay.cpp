@@ -54,7 +54,7 @@ DeviceRelay::DeviceRelay(unsigned n, bool _bitSwitches)
 /**
  * Check for known function codes.
  */
-bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -67,7 +67,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisa
         {
             for (unsigned x = 0; x < numSwitches; ++x)
                 switchOn[x] = p.fullData.payload[x] != 0;
-            notify(visualisationClient, VALUE_CHANGE);
+            notify(visualizationClient, VALUE_CHANGE);
             return true;
         }
 
@@ -77,7 +77,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisa
             switchOn[x] = p.uint16Value & bitMask;
             bitMask <<= 1;
         }
-        notify(visualisationClient, VALUE_CHANGE);
+        notify(visualizationClient, VALUE_CHANGE);
         return true;
     }
 
@@ -91,7 +91,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisa
                 return false;
             }
             switchOn[n] = p.fullData.payload[1] != 0;
-            notify(visualisationClient, VALUE_CHANGE);
+            notify(visualizationClient, VALUE_CHANGE);
             return true;
         }
 
@@ -104,7 +104,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisa
             if ((selection & bit) != 0)
                 switchOn[i] = (bits & bit) != 0;
         }
-        notify(visualisationClient, VALUE_CHANGE);
+        notify(visualizationClient, VALUE_CHANGE);
         return true;
     }
 
@@ -184,7 +184,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisa
             //stateChanged = true;
             switchOn[n] = p.fullData.payload[1] != 0;
             callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !switchOn[n]);
-            notify(visualisationClient, VALUE_CHANGE);
+            notify(visualizationClient, VALUE_CHANGE);
             return true;
         }
 
@@ -201,19 +201,19 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisa
                 callbacks[i].update(relativeTimeMs, p.monoflopDefine.time, i, !switchOn[i]);
             }
         }
-        notify(visualisationClient, VALUE_CHANGE);
+        notify(visualizationClient, VALUE_CHANGE);
         return true;
     }
 
     if (other)
-        return other->consumeCommand(relativeTimeMs, p, visualisationClient);
+        return other->consumeCommand(relativeTimeMs, p, visualizationClient);
     return false;
 }
 
 /**
  * Check for monoflop callbacks.
  */
-void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
     {
@@ -240,12 +240,12 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
             }
             //stateChanged = true;
             brickStack->dispatchCallback(packet);
-            notify(visualisationClient, VALUE_CHANGE);
+            notify(visualizationClient, VALUE_CHANGE);
         }
     }
 
     if (other)
-        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 }
 
 /**
@@ -277,7 +277,7 @@ DeviceSolidStateRelay::DeviceSolidStateRelay()
 /**
  * Check for known function codes.
  */
-bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -327,7 +327,7 @@ bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p,
 /**
  * Check callbacks for solid state relay.
  */
-void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
     {
@@ -447,7 +447,7 @@ void DeviceRemoteRelay::updateRelay(const char *id, uint8_t state)
 /**
  * Check for known function codes.
  */
-bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     char buf[32];
     const char *fmt;
@@ -486,7 +486,7 @@ bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
         fmt = p.header.function_id == REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_C ? "Type C:\nSC: %c\nDC: %d" : "Type A:\nHC: 0x%X\nRC: 0x%X";
         sprintf(buf, fmt, p.fullData.payload[0], p.fullData.payload[1]);
         updateRelay(buf, p.fullData.payload[2]);
-        notify(visualisationClient, VALUE_CHANGE);
+        notify(visualizationClient, VALUE_CHANGE);
         return true;
 
     case REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_B:
@@ -500,7 +500,7 @@ bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
         sprintf(buf, "Type B:\nA: %u\nU: %u",
                 p.uint32Value, p.fullData.payload[4]);
         updateRelay(buf, p.fullData.payload[5] ? true : false);
-        notify(visualisationClient, VALUE_CHANGE);
+        notify(visualizationClient, VALUE_CHANGE);
         return true;
 
     case REMOTE_SWITCH_FUNCTION_DIM_SOCKET_B:
@@ -511,19 +511,19 @@ bool DeviceRemoteRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
         busy = true;
         switchDoneAtMs = relativeTimeMs + (repeats * 100);
 
-        //notify(visualisationClient, VALUE_CHANGE);
+        //notify(visualizationClient, VALUE_CHANGE);
         return true;
     }
 
     if (other)
-        return other->consumeCommand(relativeTimeMs, p, visualisationClient);
+        return other->consumeCommand(relativeTimeMs, p, visualizationClient);
     return false;
 }
 
 /**
  * Check for the switchDone callbacks.
  */
-void DeviceRemoteRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceRemoteRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     if (busy && switchDoneAtMs <= relativeTimeMs)
     {

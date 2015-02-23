@@ -40,7 +40,7 @@ DeviceLedStrip::DeviceLedStrip()
 }
 
 
-bool DeviceLedStrip::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceLedStrip::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     unsigned index, length, last;
 
@@ -128,7 +128,7 @@ bool DeviceLedStrip::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visual
     }
 }
 
-void DeviceLedStrip::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceLedStrip::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     if (frameRenderedCb.mayExecute(relativeTimeMs))
     {

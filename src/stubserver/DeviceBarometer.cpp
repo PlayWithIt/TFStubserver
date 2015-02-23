@@ -46,7 +46,7 @@ int DeviceBarometer::getAltitude(int pressure) const
 }
 
 
-bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     if (values == NULL)
         throw utils::Exception("ValueProvider not set!");
@@ -104,16 +104,16 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
     }
 
     // other get set functions
-    return getSetRefPressure->consumeCommand(relativeTimeMs, p, visualisationClient);
+    return getSetRefPressure->consumeCommand(relativeTimeMs, p, visualizationClient);
 }
 
 
-void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     int currentValue;
 
-    if (visualisationClient.useAsInputSource()) {
-        currentValue = visualisationClient.getInputState();
+    if (visualizationClient.useAsInputSource()) {
+        currentValue = visualizationClient.getInputState();
         if (currentValue != sensorValue)
             sensorValue = currentValue;
     }
@@ -122,7 +122,7 @@ void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
         if (currentValue != sensorValue)
         {
             sensorValue = currentValue;
-            notify(visualisationClient, VALUE_CHANGE);
+            notify(visualizationClient, VALUE_CHANGE);
         }
     }
 

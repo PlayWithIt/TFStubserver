@@ -21,7 +21,7 @@
 #define STUBSERVER_DEVICETILT_H_
 
 #include "DeviceFunctions.h"
-#include "VisualisationClient.h"
+#include "VisualizationClient.h"
 
 namespace stubserver {
 

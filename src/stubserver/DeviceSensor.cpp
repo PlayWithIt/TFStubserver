@@ -74,7 +74,7 @@ DeviceSensor::~DeviceSensor()
 }
 
 
-bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     if (values == NULL)
         throw utils::Exception("ValueProvider not set!");
@@ -132,16 +132,19 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualis
         return true;
     }
 
+    if (other)
+        return other->consumeCommand(relativeTimeMs, p, visualizationClient);
+
     return false;
 }
 
 
-void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     int currentValue;
 
-    if (visualisationClient.useAsInputSource()) {
-        currentValue = visualisationClient.getInputState();
+    if (visualizationClient.useAsInputSource()) {
+        currentValue = visualizationClient.getInputState(getInternalSensorNo());
         if (currentValue != sensorValue)
             sensorValue = currentValue;
     }
@@ -150,7 +153,7 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
         if (currentValue != sensorValue)
         {
             sensorValue = currentValue;
-            notify(visualisationClient, VALUE_CHANGE);
+            notify(visualizationClient, VALUE_CHANGE);
         }
     }
 
@@ -171,6 +174,9 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
         triggerCallbackShort(relativeTimeMs, uid, brickStack, changedAnalogCb, v);
         changedAnalogCb.param1 = v;
     }
+
+    if (other)
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 
     // mayExecute also checks the 'option' value ...
     if (!rangeCallback.mayExecute(relativeTimeMs))

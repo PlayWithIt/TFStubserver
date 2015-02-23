@@ -94,7 +94,7 @@ void DeviceVoltageCurrent::setCurrentValueProvider(ValueProvider *vp)
 }
 
 
-bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     uint8_t func = p.header.function_id;
     p.header.length = sizeof(p.header);
@@ -179,13 +179,13 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
     }
 
     if (other)
-        return other->consumeCommand(relativeTimeMs, p, visualisationClient);
+        return other->consumeCommand(relativeTimeMs, p, visualizationClient);
 
     return false;
 }
 
 
-void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     int value;
     if (voltsChangedCb.mayExecute(relativeTimeMs) &&
@@ -213,7 +213,7 @@ void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
     }
 
     if (other)
-        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 }
 
 } /* namespace stubserver */

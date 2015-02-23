@@ -11,7 +11,7 @@
 #include <utils/ValueProvider.h>
 
 #include "DeviceFunctions.h"
-#include "VisualisationClient.h"
+#include "VisualizationClient.h"
 
 namespace stubserver {
 

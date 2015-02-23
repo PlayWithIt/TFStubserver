@@ -61,7 +61,7 @@ void DeviceDigitalIn::changeValueProvider(utils::ValueProvider *newValueProvider
 }
 
 
-bool DeviceDigitalIn::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceDigitalIn::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -150,7 +150,7 @@ bool DeviceDigitalIn::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
 }
 
 
-void DeviceDigitalIn::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceDigitalIn::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     unsigned newValue = valueProvider->getValue(relativeTimeMs);
 
@@ -212,7 +212,7 @@ DeviceInOut::DeviceInOut(utils::ValueProvider *vp, unsigned numPins)
 }
 
 
-bool DeviceInOut::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceInOut::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -231,13 +231,13 @@ bool DeviceInOut::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisa
         return true;
     }
 
-    if (DeviceDigitalIn::consumeCommand(relativeTimeMs, p, visualisationClient))
+    if (DeviceDigitalIn::consumeCommand(relativeTimeMs, p, visualizationClient))
         return true;
 
-    return DeviceRelay::consumeCommand(relativeTimeMs, p, visualisationClient);
+    return DeviceRelay::consumeCommand(relativeTimeMs, p, visualizationClient);
 }
 
-void DeviceInOut::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceInOut::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
 
 }
@@ -252,16 +252,16 @@ DeviceInOut16::DeviceInOut16(utils::ValueProvider *a, utils::ValueProvider *b)
 }
 
 
-bool DeviceInOut16::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceInOut16::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     return false;
 }
 
 
-void DeviceInOut16::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceInOut16::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    portA.checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
-    portB.checkCallbacks(relativeTimeMs, uid, brickStack, visualisationClient);
+    portA.checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
+    portB.checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 }
 
 } /* namespace stubserver */

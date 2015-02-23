@@ -72,7 +72,7 @@ namespace stubserver {
 
 //=======================================================================================
 
-static VisualisationClient dummyVisualisationInstance;
+static VisualizationClient dummyVisualisationInstance;
 
 
 //=======================================================================================
@@ -378,8 +378,21 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  TEMPERATURE_IR_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_IR_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider(getProperty("valueProviderA", "linear min=-500,max=2800,step=5,interval=300")));
         sensor->setMinMax(-4000, 12500);
+        sensor->setInternalSensorNo(1);
+        functions = sensor;
+
+        sensor = new DeviceSensor(TEMPERATURE_IR_FUNCTION_GET_OBJECT_TEMPERATURE,
+                                  TEMPERATURE_IR_FUNCTION_SET_OBJECT_TEMPERATURE_CALLBACK_PERIOD, TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE);
+        sensor->setRangeCallback(TEMPERATURE_IR_FUNCTION_SET_OBJECT_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 TEMPERATURE_IR_FUNCTION_GET_OBJECT_TEMPERATURE_CALLBACK_THRESHOLD,
+                                 TEMPERATURE_IR_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 TEMPERATURE_IR_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProviderO", "linear min=-500,max=4500,step=1,interval=5")));
+        sensor->setMinMax(-4000, 12500);
+        sensor->setOther(functions);
         functions = sensor;
         break;
 
@@ -446,7 +459,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, u
     : brickStack(_brickStack)
     , properties(NULL)
     , functions(NULL)
-    , visualisationClient(&dummyVisualisationInstance)
+    , visualizationClient(&dummyVisualisationInstance)
     , deviceMutex()
     , uidStr(_uidStr)
     , uid(utils::base58Decode(_uidStr))
@@ -477,7 +490,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     : brickStack(_brickStack)
     , properties(NULL)
     , functions(NULL)
-    , visualisationClient(&dummyVisualisationInstance)
+    , visualizationClient(&dummyVisualisationInstance)
     , deviceMutex()
     , uidStr(_uidStr)
     , uid(utils::base58Decode(_uidStr))
@@ -568,16 +581,16 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
 /** clear objects */
 SimulatedDevice::~SimulatedDevice()
 {
-    visualisationClient->notify(VisibleDeviceState(VisibleDeviceState::DISCONNECT));
+    visualizationClient->notify(VisibleDeviceState(VisibleDeviceState::DISCONNECT));
     cleanup();
 }
 
 
 /**
- * Set one VisualisationClient which must exist as long as it is registered here!
+ * Set one VisualizationClient which must exist as long as it is registered here!
  */
-void SimulatedDevice::setVisualisationClient(VisualisationClient &client) const {
-    const_cast<SimulatedDevice*>(this)->visualisationClient = &client;
+void SimulatedDevice::setVisualizationClient(VisualizationClient &client) const {
+    const_cast<SimulatedDevice*>(this)->visualizationClient = &client;
 
     VisibleDeviceState *state = dynamic_cast<VisibleDeviceState*>(functions);
     if (state) {
@@ -587,10 +600,10 @@ void SimulatedDevice::setVisualisationClient(VisualisationClient &client) const 
 }
 
 /**
- * Clear a VisualisationClient set before using {@link setVisualisationClient(VisualisationClient)}.
+ * Clear a VisualizationClient set before using {@link setVisualizationClient(VisualizationClient)}.
  */
-void SimulatedDevice::clearVisualisationClient() const {
-    const_cast<SimulatedDevice*>(this)->visualisationClient = &dummyVisualisationInstance;
+void SimulatedDevice::clearVisualizationClient() const {
+    const_cast<SimulatedDevice*>(this)->visualizationClient = &dummyVisualisationInstance;
 }
 
 
@@ -661,7 +674,7 @@ void SimulatedDevice::checkCallbacks()
 {
     MutexLock lock(deviceMutex);
     if (functions)
-        functions->checkCallbacks(brickStack->getRelativeTimeMs(), uid, brickStack, *visualisationClient);
+        functions->checkCallbacks(brickStack->getRelativeTimeMs(), uid, brickStack, *visualizationClient);
 }
 
 /**
@@ -716,7 +729,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     // if there is a function associated and consumed -> all OK
     // if not: if responseExpected=false, the packet is just consumed with a warning
     uint64_t time = brickStack->getRelativeTimeMs();
-    if (functions && functions->consumeCommand(time, p, *visualisationClient))
+    if (functions && functions->consumeCommand(time, p, *visualizationClient))
         return true;
 
     if (!responseExpected) {

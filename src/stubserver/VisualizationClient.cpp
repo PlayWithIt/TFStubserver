@@ -1,5 +1,5 @@
 /*
- * VisualisationClient.cpp
+ * VisualizationClient.cpp
  *
  * Copyright (C) 2015 Holger Grosenick
  *
@@ -20,33 +20,33 @@
 #include <stdexcept>
 #include <strings.h>
 
-#include "VisualisationClient.h"
+#include "VisualizationClient.h"
 
 namespace stubserver {
 
 
 VisibleDeviceState::~VisibleDeviceState() { }
 
-VisualisationClient::~VisualisationClient() { }
+VisualizationClient::~VisualizationClient() { }
 
 /**
  * Do nothing.
  */
-void VisualisationClient::notify(const VisibleDeviceState &hint) {
+void VisualizationClient::notify(const VisibleDeviceState &hint) {
 
 }
 
 /**
  * Default impl: return false.
  */
-bool VisualisationClient::useAsInputSource() const {
+bool VisualizationClient::useAsInputSource(unsigned sn) const {
     return false;
 }
 
 /**
  * Default impl.
  */
-int64_t VisualisationClient::getInputState() const {
+int64_t VisualizationClient::getInputState(unsigned sn) const {
     return 0;
 }
 

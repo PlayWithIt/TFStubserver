@@ -41,7 +41,7 @@ class SimulatedDevice
     BrickStack          *brickStack;
     utils::Properties   *properties;
     DeviceFunctions     *functions;
-    VisualisationClient *visualisationClient;   // is always set, maybe a dummy instance
+    VisualizationClient *visualizationClient;   // is always set, maybe a dummy instance
 
     // child devices e.g. of a MasterBrick: children are in the stack or at a port a..d
     std::vector<SimulatedDevice*> children;
@@ -125,14 +125,14 @@ public:
     }
 
     /**
-     * Set one VisualisationClient which must exist as long as it is registered here!
+     * Set one VisualizationClient which must exist as long as it is registered here!
      */
-    void setVisualisationClient(VisualisationClient &client) const;
+    void setVisualizationClient(VisualizationClient &client) const;
 
     /**
-     * Clear a VisualisationClient set before using {@link setVisualisationClient(VisualisationClient)}.
+     * Clear a VisualizationClient set before using {@link setVisualizationClient(VisualizationClient)}.
      */
-    void clearVisualisationClient() const;
+    void clearVisualizationClient() const;
 
     /**
      * Is this device connected to the given brick? This is true if the device is

@@ -43,7 +43,7 @@ DeviceLCD::DeviceLCD(unsigned _cols, unsigned _lines)
 /**
  *
  */
-bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &visualisationClient)
+bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -77,31 +77,31 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisati
             cursorY = l;
 
         changedLine = l;
-        notify(visualisationClient, TEXT_CHANGE);
+        notify(visualizationClient, TEXT_CHANGE);
         return true;
 
     case LCD_20X4_FUNCTION_CLEAR_DISPLAY:
         for (unsigned i = 0; i < lines; ++i) {
             text[i] = std::string(cols, ' ');
         }
-        notify(visualisationClient, CLEAR_SCREEN);
+        notify(visualizationClient, CLEAR_SCREEN);
         return true;
 
     case LCD_20X4_FUNCTION_BACKLIGHT_ON:
         backlightOn = true;
-        notify(visualisationClient, LIGHT_CHANGE);
+        notify(visualizationClient, LIGHT_CHANGE);
         return true;
 
     case LCD_20X4_FUNCTION_BACKLIGHT_OFF:
         backlightOn = false;
-        notify(visualisationClient, LIGHT_CHANGE);
+        notify(visualizationClient, LIGHT_CHANGE);
         return true;
 
     case LCD_20X4_FUNCTION_SET_CONFIG:
         cursorVisible = p.fullData.payload[0] != 0;
         blinking      = p.fullData.payload[1] != 0;
 
-        notify(visualisationClient, CURSOR_CHANGE);
+        notify(visualizationClient, CURSOR_CHANGE);
         return true;
 
     case LCD_20X4_FUNCTION_GET_CONFIG:
@@ -135,7 +135,7 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualisati
         }
         memcpy(customChar + (index * 8), p.fullData.payload + 1, 8);
         changedLine = index;
-        notify(visualisationClient, CUSTOM_CHAR);
+        notify(visualizationClient, CUSTOM_CHAR);
     }
         return true;
 
@@ -179,12 +179,12 @@ const uint8_t* DeviceLCD::getCustomerChar(unsigned index) const
  * Sets the default text if the counter has reached 0 or triggers some
  * button press/release events if those are active.
  */
-void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &visualisationClient)
+void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     unsigned newValue;
 
-    if (visualisationClient.useAsInputSource())
-        newValue = visualisationClient.getInputState();
+    if (visualizationClient.useAsInputSource())
+        newValue = visualizationClient.getInputState();
     else
         newValue = 0;
 
@@ -216,7 +216,7 @@ void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
             text[i] = defaultText[i];
         }
         changedLine = -1;
-        notify(visualisationClient, TEXT_CHANGE);
+        notify(visualizationClient, TEXT_CHANGE);
         counter = -1;
     }
     else if (counter > 0)

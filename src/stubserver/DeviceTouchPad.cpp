@@ -43,7 +43,7 @@ DeviceTouchPad::~DeviceTouchPad()
 /**
  * Check for known function codes.
  */
-bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualisationClient &)
+bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -84,7 +84,7 @@ bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visual
 /**
  * Check for monoflop callbacks.
  */
-void DeviceTouchPad::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualisationClient &vc)
+void DeviceTouchPad::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &vc)
 {
     unsigned newValue;
 
