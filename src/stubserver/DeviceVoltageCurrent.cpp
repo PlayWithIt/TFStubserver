@@ -30,124 +30,97 @@ using utils::LinearValueProvider;
 namespace stubserver {
 
 /**
- * Init with build-in value provider
+ * Init with build-in value provider: this is the default for MasterBrick current/voltage.
  */
 DeviceVoltageCurrent::DeviceVoltageCurrent(uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
                                            uint8_t _funcSetCallbackVoltage, uint8_t _funcSetCallbackCurrent,
                                            uint8_t _funcCallbackVoltage, uint8_t _funcCallbackCurrent)
-  : funcGetVoltage(_funcGetVoltage)
-  , funcGetCurrent(_funcGetCurrent)
-  , volts(new LinearValueProvider(11000, 12000, 56, 1200))
-  , amps(new LinearValueProvider(200, 500, 32, 500))
-  , voltsChangedCb(0, _funcSetCallbackVoltage, _funcCallbackVoltage, 0)
-  , ampsChangedCb(0, _funcSetCallbackCurrent, _funcCallbackCurrent, 0)
+  : DeviceSensor(_funcGetVoltage, _funcSetCallbackVoltage, _funcCallbackVoltage)
+  , amps(_funcGetCurrent, _funcSetCallbackCurrent, _funcCallbackCurrent)
   , powerChangedCb(0, 0, 0, 0)
   , hasPowerSensor(false)
 {
-}
-
-DeviceVoltageCurrent::DeviceVoltageCurrent()
-  : funcGetVoltage(VOLTAGE_CURRENT_FUNCTION_GET_VOLTAGE)
-  , funcGetCurrent(VOLTAGE_CURRENT_FUNCTION_GET_CURRENT)
-  , volts(new LinearValueProvider(11000, 12000, 56, 1200))
-  , amps(new LinearValueProvider(200, 500, 32, 500))
-  , voltsChangedCb(0, VOLTAGE_CURRENT_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, VOLTAGE_CURRENT_CALLBACK_VOLTAGE, 0)
-  , ampsChangedCb(0, VOLTAGE_CURRENT_FUNCTION_SET_CURRENT_CALLBACK_PERIOD, VOLTAGE_CURRENT_CALLBACK_CURRENT, 0)
-  , powerChangedCb(0, VOLTAGE_CURRENT_FUNCTION_SET_POWER_CALLBACK_PERIOD, VOLTAGE_CURRENT_CALLBACK_POWER, 0)
-  , hasPowerSensor(true)
-{
-}
-
-DeviceVoltageCurrent::DeviceVoltageCurrent(DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent)
-  : DeviceFunctions(_other)
-  , funcGetVoltage(_funcGetVoltage)
-  , funcGetCurrent(_funcGetCurrent)
-  , volts(new LinearValueProvider(11000, 12000, 56, 1200))
-  , amps(new LinearValueProvider(200, 500, 32, 500))
-  , voltsChangedCb(0, 0, 0, 0)
-  , ampsChangedCb(0, 0, 0, 0)
-  , powerChangedCb(0, 0, 0, 0)
-  , hasPowerSensor(false)
-{
-}
-
-
-DeviceVoltageCurrent::~DeviceVoltageCurrent()
-{
-    delete volts;
-    delete amps;
+    configureCurrentSensor();
 }
 
 /**
- * Change the value provider.
+ * Init for the 'real' voltage/current bricklets.
  */
-void DeviceVoltageCurrent::setVoltageValueProvider(ValueProvider *vp)
+DeviceVoltageCurrent::DeviceVoltageCurrent()
+  : DeviceSensor(VOLTAGE_CURRENT_FUNCTION_GET_VOLTAGE, VOLTAGE_CURRENT_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, VOLTAGE_CURRENT_CALLBACK_VOLTAGE)
+  , amps(VOLTAGE_CURRENT_FUNCTION_GET_CURRENT, VOLTAGE_CURRENT_FUNCTION_SET_CURRENT_CALLBACK_PERIOD, VOLTAGE_CURRENT_CALLBACK_CURRENT)
+  , powerChangedCb(0, VOLTAGE_CURRENT_FUNCTION_SET_POWER_CALLBACK_PERIOD, VOLTAGE_CURRENT_CALLBACK_POWER, 0)
+  , hasPowerSensor(true)
 {
-    delete volts;
-    volts = vp;
+    configureCurrentSensor();
+
+    setValueSize(4);
+    setRangeCallback(VOLTAGE_CURRENT_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD,
+                     VOLTAGE_CURRENT_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD,
+                     VOLTAGE_CURRENT_FUNCTION_SET_DEBOUNCE_PERIOD,
+                     VOLTAGE_CURRENT_FUNCTION_GET_DEBOUNCE_PERIOD,
+                     VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED);
+
+    amps.setValueSize(4);
+    amps.setMinMax(-20000, 20000);
+    amps.setRangeCallback(VOLTAGE_CURRENT_FUNCTION_SET_CURRENT_CALLBACK_THRESHOLD,
+                          VOLTAGE_CURRENT_FUNCTION_GET_CURRENT_CALLBACK_THRESHOLD,
+                          VOLTAGE_CURRENT_FUNCTION_SET_DEBOUNCE_PERIOD,
+                          VOLTAGE_CURRENT_FUNCTION_GET_DEBOUNCE_PERIOD,
+                          VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED);
 }
 
-void DeviceVoltageCurrent::setCurrentValueProvider(ValueProvider *vp)
+DeviceVoltageCurrent::DeviceVoltageCurrent(DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent)
+  : DeviceSensor(_funcGetVoltage, 0, 0)
+  , amps(_funcGetCurrent, 0, 0)
+  , powerChangedCb(0, 0, 0, 0)
+  , hasPowerSensor(false)
 {
-    delete amps;
-    amps = vp;
+    setOther(_other);
+    configureCurrentSensor();
+}
+
+
+void DeviceVoltageCurrent::configureCurrentSensor()
+{
+    setValueProvider(new LinearValueProvider(11000, 12000, 56, 1200));
+    setMinMax(0, 36000);
+
+    amps.setValueProvider(new LinearValueProvider(200, 500, 32, 500));
+    amps.setInternalSensorNo(1);
+    amps.setMinMax(0, 3000);
 }
 
 
 bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
+    if (DeviceSensor::consumeCommand(relativeTimeMs, p, visualizationClient))
+    {
+        // debounce period must be applied to both callbacks.
+        if (p.header.function_id == rangeCallback.setDebounceFunctionCode)
+            amps.consumeCommand(relativeTimeMs, p, visualizationClient);
+        return true;
+    }
+    if (amps.consumeCommand(relativeTimeMs, p, visualizationClient))
+        return true;
+
     uint8_t func = p.header.function_id;
     p.header.length = sizeof(p.header);
 
-    if (funcGetCurrent == func) {
-        p.header.length = sizeof(p.header) + 4;
-        p.uints.value1 = amps->getValue(relativeTimeMs);
-        return true;
-    }
-    if (funcGetVoltage == func) {
-        p.header.length = sizeof(p.header) + 4;
-        p.uints.value1 = volts->getValue(relativeTimeMs);
-        return true;
-    }
-    if (hasPowerSensor && VOLTAGE_CURRENT_FUNCTION_GET_POWER == func) {
-        p.header.length = sizeof(p.header) + 4;
-        p.uints.value1 = volts->getValue(relativeTimeMs) * amps->getValue(relativeTimeMs) / 1000;
-        return true;
-    }
-
-    if (ampsChangedCb.setPeriodFunc == func) {
-        ampsChangedCb.period = p.int32Value;
-        if (ampsChangedCb.period > 0) {
-            ampsChangedCb.relativeStartTime = relativeTimeMs;
-            ampsChangedCb.param1 = amps->getValue(relativeTimeMs);
-            ampsChangedCb.active = true;
-            Log::log("ADD current callback, period", static_cast<uint64_t>(ampsChangedCb.period));
-        }
-        else
-            ampsChangedCb.active = false;
-        return true;
-    }
-    if (voltsChangedCb.setPeriodFunc == func) {
-        voltsChangedCb.period = p.int32Value;
-        if (voltsChangedCb.period > 0) {
-            voltsChangedCb.relativeStartTime = relativeTimeMs;
-            voltsChangedCb.param1 = volts->getValue(relativeTimeMs);
-            voltsChangedCb.active = true;
-            Log::log("ADD voltage callback, period", static_cast<uint64_t>(voltsChangedCb.period));
-        }
-        else
-            voltsChangedCb.active = false;
-        return true;
-    }
-
     if (hasPowerSensor)
     {
+        if (VOLTAGE_CURRENT_FUNCTION_GET_POWER == func) {
+            p.header.length = sizeof(p.header) + 4;
+            p.uints.value1 = getValue(relativeTimeMs) * amps.getValue(relativeTimeMs) / 1000;
+            return true;
+        }
+
         if (powerChangedCb.setPeriodFunc == func) {
             powerChangedCb.period = p.int32Value;
             if (powerChangedCb.period > 0) {
                 powerChangedCb.relativeStartTime = relativeTimeMs;
 
-                int power = amps->getValue(relativeTimeMs) * volts->getValue(relativeTimeMs) / 1000;
+                int power = amps.getValue(relativeTimeMs) * getValue(relativeTimeMs) / 1000;
                 powerChangedCb.param1 = power;
                 powerChangedCb.active = true;
                 Log::log("ADD power callback, period", static_cast<uint64_t>(powerChangedCb.period));
@@ -161,15 +134,15 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
         // uint8_t averaging;        uint8_t voltage_conversion_time;      uint8_t current_conversion_time;
         if (VOLTAGE_CURRENT_FUNCTION_GET_CONFIGURATION == func) {
             p.header.length = sizeof(p.header) + 3;
-            p.fullData.payload[0] = 0;
-            p.fullData.payload[1] = 0;
-            p.fullData.payload[2] = 0;
+            p.fullData.payload[0] = 3;
+            p.fullData.payload[1] = 4;
+            p.fullData.payload[2] = 4;
             return true;
         }
         if (VOLTAGE_CURRENT_FUNCTION_GET_CALIBRATION == func) {
             p.header.length = sizeof(p.header) + 4;
-            p.shorts.value1 = 1000;
-            p.shorts.value2 = 1000;
+            p.shorts.value1 = 4474;
+            p.shorts.value2 = 4861;
             return true;
         }
         if (VOLTAGE_CURRENT_FUNCTION_SET_CONFIGURATION == func ||
@@ -187,24 +160,14 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
 
 void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    int value;
-    if (voltsChangedCb.mayExecute(relativeTimeMs) &&
-            (value = volts->getValue(relativeTimeMs)) != voltsChangedCb.param1)
-    {
-        triggerCallbackInt(relativeTimeMs, uid, brickStack, voltsChangedCb, value);
-        voltsChangedCb.param1 = value;
-    }
+    DeviceSensor::checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
+    amps.checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 
-    if (ampsChangedCb.mayExecute(relativeTimeMs) &&
-            (value = amps->getValue(relativeTimeMs)) != ampsChangedCb.param1)
-    {
-        triggerCallbackInt(relativeTimeMs, uid, brickStack, ampsChangedCb, value);
-        ampsChangedCb.param1 = value;
-    }
+    int value;
 
     if (powerChangedCb.mayExecute(relativeTimeMs))
     {
-        value = amps->getValue(relativeTimeMs) * volts->getValue(relativeTimeMs) / 1000;
+        value = amps.getValue(relativeTimeMs) * getValue(relativeTimeMs) / 1000;
         if (value != powerChangedCb.param1)
         {
             triggerCallbackInt(relativeTimeMs, uid, brickStack, powerChangedCb, value);

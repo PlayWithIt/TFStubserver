@@ -19,7 +19,7 @@
 #ifndef DEVICEVOLTAGECURRENT_H_
 #define DEVICEVOLTAGECURRENT_H_
 
-#include "DeviceFunctions.h"
+#include "DeviceSensor.h"
 
 namespace stubserver {
 
@@ -27,19 +27,13 @@ namespace stubserver {
  * A device sub-functionality that handles getCurrent() and getVoltage() requests
  * and handles periodical callbacks for current / voltage changes.
  */
-class DeviceVoltageCurrent : public DeviceFunctions
+class DeviceVoltageCurrent : public DeviceSensor
 {
-    const uint8_t funcGetVoltage;
-    const uint8_t funcGetCurrent;
-
-    ValueProvider *volts;
-    ValueProvider *amps;
-
-    BasicCallback voltsChangedCb;
-    BasicCallback ampsChangedCb;
+    DeviceSensor  amps;
     BasicCallback powerChangedCb;
     bool hasPowerSensor;
 
+    void configureCurrentSensor();
 
 public:
     DeviceVoltageCurrent();
@@ -47,14 +41,18 @@ public:
     DeviceVoltageCurrent(uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
                          uint8_t _funcSetCallbackVoltage, uint8_t _funcSetCallbackCurrent,
                          uint8_t _funcCallbackVoltage, uint8_t _funcCallbackCurrent);
-    ~DeviceVoltageCurrent();
 
     /**
      * Changes the value provider: must be non-null, the ownership is taken
      * into this object and released when the object is destroyed.
      */
-    void setVoltageValueProvider(ValueProvider *vp);
-    void setCurrentValueProvider(ValueProvider *vp);
+    void setVoltageValueProvider(ValueProvider *vp) {
+        setValueProvider(vp);
+    }
+
+    void setCurrentValueProvider(ValueProvider *vp) {
+        amps.setValueProvider(vp);
+    }
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

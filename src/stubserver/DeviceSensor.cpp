@@ -35,6 +35,7 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(0)
   , maxAnalogValue(4095)
+  , valueSize(2)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, 0, 0, 0)
@@ -46,6 +47,7 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, u
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
   , maxAnalogValue(4095)
+  , valueSize(2)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -58,6 +60,7 @@ DeviceSensor::DeviceSensor(ValueProvider *values,
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
   , maxAnalogValue(4095)
+  , valueSize(2)
   , values(values)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -81,13 +84,19 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
 
     uint8_t func = p.header.function_id;
     if (func == getValueFunc) {
-        p.header.length = sizeof(p.header) + 2;
-        p.int16Value = values->getValue(relativeTimeMs);
+        p.header.length = sizeof(p.header) + valueSize;
+        if (valueSize == 2)
+            p.int16Value = values->getValue(relativeTimeMs);
+        else
+            p.int32Value = values->getValue(relativeTimeMs);
         return true;
     }
     if (func == getValueAnalogFunc && getValueAnalogFunc > 0) {
-        p.header.length = sizeof(p.header) + 2;
-        p.int16Value = values->getValue(relativeTimeMs);
+        p.header.length = sizeof(p.header) + valueSize;
+        if (valueSize == 2)
+            p.int16Value = values->getValue(relativeTimeMs);
+        else
+            p.int32Value = values->getValue(relativeTimeMs);
         return true;
     }
 
@@ -143,7 +152,7 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
 {
     int currentValue;
 
-    if (visualizationClient.useAsInputSource()) {
+    if (visualizationClient.useAsInputSource(getInternalSensorNo())) {
         currentValue = visualizationClient.getInputState(getInternalSensorNo());
         if (currentValue != sensorValue)
             sensorValue = currentValue;
@@ -159,7 +168,10 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
 
     if (changedCb.mayExecute(relativeTimeMs) && currentValue != changedCb.param1)
     {
-        triggerCallbackShort(relativeTimeMs, uid, brickStack, changedCb, currentValue);
+        if (valueSize == 4)
+            triggerCallbackInt(relativeTimeMs, uid, brickStack, changedCb, currentValue);
+        else
+            triggerCallbackShort(relativeTimeMs, uid, brickStack, changedCb, currentValue);
         changedCb.param1 = currentValue;
     }
 
@@ -171,7 +183,10 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
         d = d / (values->getMax() - values->getMin()) * (double) v;
         v = d;
 
-        triggerCallbackShort(relativeTimeMs, uid, brickStack, changedAnalogCb, v);
+        if (valueSize == 4)
+            triggerCallbackInt(relativeTimeMs, uid, brickStack, changedAnalogCb, v);
+        else
+            triggerCallbackShort(relativeTimeMs, uid, brickStack, changedAnalogCb, v);
         changedAnalogCb.param1 = v;
     }
 
@@ -189,7 +204,11 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
       || (option == '>' && currentValue > rangeCallback.param1)
        )
     {
-        triggerCallbackShort(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);
+        rangeCallback.relativeStartTime = relativeTimeMs;
+        if (valueSize == 2)
+            triggerCallbackShort(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);
+        else
+            triggerCallbackInt(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);
     }
 }
 

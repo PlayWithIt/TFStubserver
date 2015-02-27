@@ -359,7 +359,7 @@ void GetSetRaw::changeTargetValue(const IOPacket &p)
  */
 void GetSetRaw::triggerCallback(unsigned int uid, BrickStack *brickStack)
 {
-    Log() << "EXECUTE callback " << getValueCb.callbackCode << " time: " <<  getValueCb.period << "ms";
+    Log() << "EXECUTE callback " << (unsigned) getValueCb.callbackCode << " time: " <<  getValueCb.period << "ms";
 
     IOPacket packet(uid, getValueCb.callbackCode, response.size);
     if (response.size > 0) {

@@ -71,6 +71,7 @@ struct BasicCallback
 class RangeCallback : public BasicCallback
 {
     char     option;                     // option: 'x', '<', '>', 'o', 'i'
+    uint8_t  paramSize;
 
 public:
     uint8_t  setFunctionCode;            // set the threshold callback
@@ -79,9 +80,13 @@ public:
     uint8_t  getDebounceFunctionCode;    // get debounce period
 
     /**
-     * Default init with period == 100.
+     * Default init with period == 100, and paramSize == 2.
      */
-    RangeCallback();
+    RangeCallback(uint8_t psize = 2);
+
+    void setParamSize(uint8_t psize) {
+        paramSize = psize == 2 ? 2 : 4;
+    }
 
     /**
      * Change the callback option, if the option is 'x' or invalid,

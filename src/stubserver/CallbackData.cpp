@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <cstring>
 
+#include <utils/Log.h>
 #include "CallbackData.h"
 
 namespace stubserver {
@@ -69,9 +70,10 @@ bool BasicCallback::mayExecute(uint64_t currentTimeMs) const
 /**
  * Init all attributes, default callback period is 100ms.
  */
-RangeCallback::RangeCallback()
+RangeCallback::RangeCallback(uint8_t psize)
   : BasicCallback(0, 0, 0, 0)
   , option('x')     // not active
+  , paramSize(psize)
   , setFunctionCode(0)
   , getFunctionCode(0)
   , setDebounceFunctionCode(0)
@@ -98,18 +100,37 @@ void RangeCallback::setFunctions(uint8_t _setFunctionCode, uint8_t _getFunctionC
 bool RangeCallback::consumeGetSetThreshold(IOPacket &p)
 {
     uint8_t func = p.header.function_id;
-    if (func  == getFunctionCode) {
-        p.header.length = sizeof(p.header) + sizeof(p.threshold);
-        p.threshold.option = getOption();
-        p.threshold.min    = param1;
-        p.threshold.max    = param2;
+    if (func == getFunctionCode)
+    {
+        if (paramSize == 2) {
+            p.header.length = sizeof(p.header) + sizeof(p.threshold);
+            p.threshold.option = getOption();
+            p.threshold.min    = param1;
+            p.threshold.max    = param2;
+        }
+        else {
+            p.header.length = sizeof(p.header) + sizeof(p.thresholdInt);
+            p.thresholdInt.option = getOption();
+            p.thresholdInt.min    = param1;
+            p.thresholdInt.max    = param2;
+        }
         return true;
     }
-    if (func == setFunctionCode) {
+
+    if (func == setFunctionCode)
+    {
         p.header.length = sizeof(p.header);
         setOption(p.threshold.option);
-        param1 = p.threshold.min;
-        param2 = p.threshold.max;
+
+        if (paramSize == 2) {
+            param1 = p.threshold.min;
+            param2 = p.threshold.max;
+        }
+        else {
+            param1 = p.thresholdInt.min;
+            param2 = p.thresholdInt.max;
+        }
+        utils::Log() << "Set callback #" << (int) callbackCode << " option '" << option << "'  min=" << param1 << " max=" << param2 << "  debounce=" << period;
         return true;
     }
     return false;

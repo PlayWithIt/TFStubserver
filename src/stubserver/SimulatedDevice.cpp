@@ -145,6 +145,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                   .addFunc(MASTER_FUNCTION_IS_RS485_PRESENT);
         functions = doNothing;
         isBrick = true;
+        label = "Voltage mV";
         break;
 
     case SERVO_DEVICE_IDENTIFIER:
@@ -174,6 +175,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         getSet = new GetSet<uint16_t>(getSet, SERVO_FUNCTION_GET_PERIOD, SERVO_FUNCTION_SET_PERIOD, 19500);
         functions = getSet;
         isBrick = true;
+        label = "Voltage mV";
         break;
 
     case DC_DEVICE_IDENTIFIER:
@@ -191,12 +193,14 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         getSet->enableCallback(DC_FUNCTION_GET_CURRENT_VELOCITY_PERIOD, DC_FUNCTION_SET_CURRENT_VELOCITY_PERIOD, DC_CALLBACK_CURRENT_VELOCITY);
         functions = getSet;
         isBrick = true;
+        label = "Voltage mV";
         break;
 
     //----------- Bricklets -------------------------------------------------------------------------------------------
 
     case BAROMETER_DEVICE_IDENTIFIER:
         functions = new DeviceBarometer(createValueProvider(getProperty("valueProvider")));
+        label = "mbar * 1000";
         break;
 
     case HALL_EFFECT_DEVICE_IDENTIFIER:
@@ -253,6 +257,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
         sensor->setMinMax(0, 9000);
         functions = sensor;
+        label = "mLux";
         break;
 
     case DISTANCE_IR_DEVICE_IDENTIFIER:
@@ -305,7 +310,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=650,step=5,interval=500")));
         sensor->setMinMax(0, 1000);
         functions = sensor;
-        label = "Humidity";  // default
+        label = "% rHum * 10";
         break;
 
     case LINE_DEVICE_IDENTIFIER:
@@ -366,11 +371,12 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
         sensor->setMinMax(-4000, 12500);
         functions = sensor;
+        label = "°C * 100";
         break;
 
-        // TODO all object functions are still missing
     case TEMPERATURE_IR_DEVICE_IDENTIFIER:
         // has no analog value
+        functions = new GetSet<uint16_t>(functions, TEMPERATURE_IR_FUNCTION_GET_EMISSIVITY, TEMPERATURE_IR_FUNCTION_SET_EMISSIVITY, 65535);
         sensor = new DeviceSensor(TEMPERATURE_IR_FUNCTION_GET_AMBIENT_TEMPERATURE,
                                   TEMPERATURE_IR_FUNCTION_SET_AMBIENT_TEMPERATURE_CALLBACK_PERIOD, TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE);
         sensor->setRangeCallback(TEMPERATURE_IR_FUNCTION_SET_AMBIENT_TEMPERATURE_CALLBACK_THRESHOLD,
@@ -380,6 +386,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProviderA", "linear min=-500,max=2800,step=5,interval=300")));
         sensor->setMinMax(-4000, 12500);
+        sensor->setOther(functions);
         sensor->setInternalSensorNo(1);
         functions = sensor;
 
@@ -394,6 +401,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setMinMax(-4000, 12500);
         sensor->setOther(functions);
         functions = sensor;
+        label = "Temperature IR\n°C * 100";
         break;
 
     case SOUND_INTENSITY_DEVICE_IDENTIFIER:
@@ -447,6 +455,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
             if (*vp)
                 vc->setCurrentValueProvider(createValueProvider(vp));
             functions  = vc;
+            label = "Voltage nmV";
         }
         break;
     }
@@ -594,8 +603,11 @@ void SimulatedDevice::setVisualizationClient(VisualizationClient &client) const 
 
     VisibleDeviceState *state = dynamic_cast<VisibleDeviceState*>(functions);
     if (state) {
-        Log() << "Device " << getDeviceTypeName() << " " << getUidStr() << " has base state";
+        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has base state";
         state->notify(client, VisibleDeviceState::CONNECTED);
+    }
+    else {
+        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has NO base state yet";
     }
 }
 

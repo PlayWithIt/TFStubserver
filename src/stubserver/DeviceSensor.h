@@ -35,8 +35,11 @@ class DeviceSensor : public DeviceFunctions, public SensorState
     uint8_t  getValueFunc;
     uint8_t  getValueAnalogFunc;
     unsigned maxAnalogValue;
+    unsigned valueSize;      // size in bytes: 1,2 or 4 bytes
 
     ValueProvider *values;
+
+protected:
     BasicCallback changedCb;
     BasicCallback changedAnalogCb;
     RangeCallback rangeCallback;
@@ -64,6 +67,23 @@ public:
         this->min = min;
         this->max = max;
     }
+
+    /**
+     * Get the actual value at the given relative time.
+     */
+    int getValue(uint64_t relativeTimeMs) {
+        return values->getValue(relativeTimeMs);
+    }
+
+    /**
+     * Sets the value size in bytes: 2 or 4
+     */
+    void setValueSize(unsigned s) {
+        valueSize = (s == 2 ? s : 4);
+        rangeCallback.setParamSize(valueSize);
+    }
+
+
 
     /**
      * When settings these functions the get/set functions for the range callbacks get active.

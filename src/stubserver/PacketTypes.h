@@ -116,6 +116,12 @@ typedef struct IOPacket
         } ATTRIBUTE_PACKED threshold;
 
         struct {
+            char option;
+            int  min;
+            int  max;
+        } ATTRIBUTE_PACKED thresholdInt;
+
+        struct {
             char morse[60];
             uint16_t frequency;
         } ATTRIBUTE_PACKED morseCode;
