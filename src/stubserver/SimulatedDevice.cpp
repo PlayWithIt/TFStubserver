@@ -48,6 +48,7 @@
 
 #include "BrickStack.h"
 #include "DeviceBarometer.h"
+#include "DeviceBrick.h"
 #include "DeviceInOut.h"
 #include "DeviceHallEffect.h"
 #include "DeviceLCD.h"
@@ -58,7 +59,6 @@
 #include "DeviceSensor.h"
 #include "DeviceTilt.h"
 #include "DeviceTouchPad.h"
-#include "DeviceVoltageCurrent.h"
 
 #include "SimulatedDevice.h"
 
@@ -132,9 +132,9 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     switch (deviceTypeId) {
     case MASTER_DEVICE_IDENTIFIER:
-        functions = new DeviceVoltageCurrent(MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
-                MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD,
-                MASTER_CALLBACK_STACK_VOLTAGE, MASTER_CALLBACK_STACK_CURRENT);
+        functions = new DeviceBrick(MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
+                                    MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD,
+                                    MASTER_CALLBACK_STACK_VOLTAGE, MASTER_CALLBACK_STACK_CURRENT);
         doNothing = new DoNothing(functions, MASTER_FUNCTION_REFRESH_WIFI_STATUS);
         doNothing->addFunc(MASTER_FUNCTION_RESET);
         doNothing = new DoNothing(doNothing, MASTER_FUNCTION_GET_WIFI_STATUS, 40);
@@ -163,7 +163,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
         functions = new EnableDisableBool(functions, SERVO_FUNCTION_ENABLE_POSITION_REACHED_CALLBACK, SERVO_FUNCTION_DISABLE_POSITION_REACHED_CALLBACK, SERVO_FUNCTION_IS_POSITION_REACHED_CALLBACK_ENABLED);
         functions = new EnableDisableBool(functions, SERVO_FUNCTION_ENABLE_VELOCITY_REACHED_CALLBACK, SERVO_FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK, SERVO_FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED);
-        functions = new DeviceVoltageCurrent(functions, SERVO_FUNCTION_GET_STACK_INPUT_VOLTAGE, SERVO_FUNCTION_GET_OVERALL_CURRENT);
+        functions = new DeviceBrick(functions, SERVO_FUNCTION_GET_STACK_INPUT_VOLTAGE, SERVO_FUNCTION_GET_OVERALL_CURRENT);
         doNothing = new DoNothing(functions, SERVO_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, 2, buildBytes(12340));
         doNothing = new DoNothing(doNothing, SERVO_FUNCTION_GET_SERVO_CURRENT, 2, buildBytes(241) );
         doNothing = new DoNothing(doNothing, SERVO_FUNCTION_RESET);
@@ -179,7 +179,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case DC_DEVICE_IDENTIFIER:
-        functions = new DeviceVoltageCurrent(NULL, DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, DC_FUNCTION_GET_CURRENT_CONSUMPTION);
+        functions = new DeviceBrick(NULL, DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, DC_FUNCTION_GET_CURRENT_CONSUMPTION);
         functions = new EnableDisableBool(functions, DC_FUNCTION_ENABLE, DC_FUNCTION_DISABLE, DC_FUNCTION_IS_ENABLED);
         doNothing = new DoNothing(functions, DC_FUNCTION_FULL_BRAKE);
         doNothing->addFunc(DC_FUNCTION_RESET);
@@ -455,7 +455,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
             if (*vp)
                 vc->setCurrentValueProvider(createValueProvider(vp));
             functions  = vc;
-            label = "Voltage nmV";
+            label = "Voltage mV";
         }
         break;
     }

@@ -54,6 +54,7 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizati
         l = p.fullData.payload[0];
         c = p.fullData.payload[1];
         if (l >= lines || c >= cols) {
+            utils::Log() << "LCD::write(l=" << l << ',' << "c=" << c << ") out of range";
             p.setErrorCode(IOPacket::INVALID_PARAMETER);
             return true;
         }

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -320,14 +320,14 @@ int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency);
  * Sets the type of the led driver chip. We currently support
  * the chips
  * 
- * * WS2801,
- * * WS2811 and
- * * WS2812.
+ * * WS2801 (``chip`` = 2801),
+ * * WS2811 (``chip`` = 2811) and
+ * * WS2812 (``chip`` = 2812).
  * 
  * The WS2812 is sometimes also called "NeoPixel", a name coined by
  * Adafruit.
  * 
- * The default value is WS2801 = 2801.
+ * The default value is WS2801 (``chip`` = 2801).
  * 
  * .. versionadded:: 2.0.2~(Plugin)
  */

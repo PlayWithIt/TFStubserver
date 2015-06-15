@@ -21,6 +21,8 @@
 #include <cstring>
 
 #include <utils/Log.h>
+#include <utils/utils.h>
+
 #include "CallbackData.h"
 
 namespace stubserver {
@@ -130,7 +132,8 @@ bool RangeCallback::consumeGetSetThreshold(IOPacket &p)
             param1 = p.thresholdInt.min;
             param2 = p.thresholdInt.max;
         }
-        utils::Log() << "Set callback #" << (int) callbackCode << " option '" << option << "'  min=" << param1 << " max=" << param2 << "  debounce=" << period;
+        utils::Log() << utils::base58Encode(p.header.uid) <<": set callback #" << (int) callbackCode << " option '" << option
+                     << "', min=" << param1 << " max=" << param2 << " debounce=" << period;
         return true;
     }
     return false;

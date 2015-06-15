@@ -26,16 +26,16 @@ namespace utils {
 
 // set SIGTERM + SIGINT signal handler which sets in internal flag so that 'doFinish()'
 // will return true afterwards.
-void initSignalHandlers() noexcept;
+void initSignalHandlers();
 
 // return a flag that is true after a signal handler is called.
-bool shouldFinish() noexcept;
+bool shouldFinish();
 
 // sleep 'ms' milliseconds
-void msleep(int ms) noexcept;
+void msleep(int ms);
 
 // sleep 'us' microseconds
-void usleep(int us) noexcept;
+void usleep(int us);
 
 /**
  * Convert an int into a base58 encoded string.

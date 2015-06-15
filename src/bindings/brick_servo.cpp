@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2015-06-14.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 
@@ -301,6 +301,23 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+} ATTRIBUTE_PACKED EnableStatusLED_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED DisableStatusLED_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED IsStatusLEDEnabled_;
+
+typedef struct {
+	PacketHeader header;
+	bool enabled;
+} ATTRIBUTE_PACKED IsStatusLEDEnabledResponse_;
+
+typedef struct {
+	PacketHeader header;
 	char port;
 } ATTRIBUTE_PACKED GetProtocol1BrickletName_;
 
@@ -429,6 +446,9 @@ void servo_create(Servo *servo, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[SERVO_FUNCTION_ENABLE_VELOCITY_REACHED_CALLBACK] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[SERVO_FUNCTION_ENABLE_STATUS_LED] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[SERVO_FUNCTION_DISABLE_STATUS_LED] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[SERVO_FUNCTION_IS_STATUS_LED_ENABLED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_GET_CHIP_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_RESET] = DEVICE_RESPONSE_EXPECTED_FALSE;
@@ -1152,6 +1172,67 @@ int servo_is_velocity_reached_callback_enabled(Servo *servo, uint8_t *ret_enable
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+	*ret_enabled = response.enabled;
+
+
+
+	return ret;
+}
+
+int servo_enable_status_led(Servo *servo) {
+	DevicePrivate *device_p = servo->p;
+	EnableStatusLED_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_ENABLE_STATUS_LED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int servo_disable_status_led(Servo *servo) {
+	DevicePrivate *device_p = servo->p;
+	DisableStatusLED_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_DISABLE_STATUS_LED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int servo_is_status_led_enabled(Servo *servo, bool *ret_enabled) {
+	DevicePrivate *device_p = servo->p;
+	IsStatusLEDEnabled_ request;
+	IsStatusLEDEnabledResponse_ response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_IS_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;

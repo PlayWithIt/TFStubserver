@@ -38,6 +38,40 @@ std::vector<std::string>& split(const std::string &s, char delim, std::vector<st
     return elems;
 }
 
+
+/**
+ * Replaces all occurrences of 'old' with the text 'newStr'
+ * @return in input string.
+ */
+std::string& replace(std::string& inOut, const char *old, const char *newStr)
+{
+    size_t pos;
+    size_t oldLen = strlen(old);
+
+    if ((pos = inOut.find(old)) != std::string::npos) {
+       inOut.replace(pos, oldLen, newStr);
+    }
+    return inOut;
+}
+
+
+/**
+ * Replaces all occurrences of 'old' with the text 'newStr'
+ * @return in input string.
+ */
+std::string& replaceAll(std::string& inOut, const char *old, const char *newStr)
+{
+    size_t pos = 0;
+    size_t oldLen = strlen(old);
+    size_t newLen = strlen(newStr);
+
+    while((pos = inOut.find(old, pos)) != std::string::npos) {
+       inOut.replace(pos, oldLen, newStr);
+       pos += newLen;
+    }
+    return inOut;
+}
+
 /**
  * Does a string start with the given prefix string?
  */

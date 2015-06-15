@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #if !defined __cplusplus && defined __GNUC__
 	#include <stdbool.h>
@@ -440,6 +441,25 @@ void ipcon_destroy(IPConnection *ipcon);
  * host and port.
  */
 int ipcon_connect(IPConnection *ipcon, const char *host, uint16_t port);
+
+/**
+ * \ingroup IPConnection
+ *
+ * Record each command packet into the given FILE. If the FILE is NULL,
+ * recording is switched off.
+ *
+ * The format of the recorded data looks like this (without header line):
+ *
+ * SEC.USEC          LEN UID    FUNC OPT  PAYLOAD DATA
+ * 1376724754.011230  0C 00009C4C 08 68 - F4 01 00 00
+ * 1376724754.011323  10 00009442 03 70 - 01 00 01 00 D0 07 00 00
+ * 1376724754.017937  0C 00009C4C 0A 88 - F4 01 00 00
+ * 1376724754.023898  09 DC332931 01 90 - 00
+ * 1376724754.023926  0B DC332931 07 A0 - 00 FF FF
+ * 1376724754.023946  0B DC332931 0A C0 - 00 FF FF
+ * 1376724754.023975  0D DC332931 10 D0 - 00 6C EE 94 11
+ */
+bool ipcon_recordTo(FILE* recordFile);
 
 /**
  * \ingroup IPConnection

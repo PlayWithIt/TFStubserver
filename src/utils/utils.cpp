@@ -17,11 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef _WIN32
+#include <stdint.h>
+#else
 #include <unistd.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 #include <signal.h>
 #include <string.h>
 #include <stdexcept>
 
+#include "Log.h"
 #include "utils.h"
 
 
@@ -114,31 +122,66 @@ unsigned int base58Decode(const char *str)
 
 
 // sleep some milliseconds
-void msleep(int ms) noexcept
+void msleep(int ms)
 {
     // This doesn't work yet on all systems: _GLIBCXX_USE_NANOSLEEP is missing
     // std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-
+#ifdef _WIN32
+    Sleep(ms);
+#else
     usleep(ms*1000);
+#endif
 }
 
 // sleep some microseconds
-void usleep(int us) noexcept
+void usleep(int us)
 {
+#ifdef _WIN32
+    // TODO
+    Sleep(us < 1000 ? 1 : us / 1000);
+#else
     ::usleep(us);
+#endif
 }
 
-
+#ifndef _WIN32
 // signal handler to terminate the loop
 static void sigTermHandler(int sig, siginfo_t *, void *)
 {
+    Log() << "sigTermHandler(" << sig << ") called => finish ...";
     finish = true;
 }
+
+static void sigKillHandler(int sig, siginfo_t *, void *)
+{
+    char buffer[128];
+    const char *sigName;
+    switch(sig) {
+    case SIGSEGV:
+        sigName = "SIGSEGV";
+        break;
+    case SIGPIPE:
+        sigName = "SIGPIPE";
+        break;
+    case SIGILL:
+        sigName = "SIGILL";
+        break;
+    case SIGBUS:
+        sigName = "SIGBUS";
+        break;
+    default:
+        sigName = "???";
+    }
+    sprintf(buffer, "CAUGHT CRITICAL SIGNAL: signal=%d (%s) => abort!", sig, sigName);
+    Log::error(buffer);
+    exit(4);
+}
+#endif
 
 /**
  * Should the application finish?
  */
-bool shouldFinish() noexcept
+bool shouldFinish()
 {
     return finish;
 }
@@ -146,8 +189,9 @@ bool shouldFinish() noexcept
 /**
  * Install the signal handler to terminate the process.
  */
-void initSignalHandlers() noexcept
+void initSignalHandlers()
 {
+#ifndef _WIN32
     struct sigaction act;
     memset(&act, 0, sizeof(act));
 
@@ -155,6 +199,21 @@ void initSignalHandlers() noexcept
     act.sa_flags     = SA_SIGINFO;
     sigaction(SIGTERM, &act, NULL);
     sigaction(SIGINT,  &act, NULL);
+
+    act.sa_sigaction = sigKillHandler;
+    sigaction(SIGSEGV, &act, NULL);
+    sigaction(SIGPIPE, &act, NULL);
+    sigaction(SIGBUS,  &act, NULL);
+    sigaction(SIGILL,  &act, NULL);
+
+    struct rlimit rlim;
+    getrlimit(RLIMIT_CORE, &rlim);
+    if (rlim.rlim_cur == 0) {
+        rlim.rlim_cur = 300000 * 1024;
+        if (setrlimit(RLIMIT_CORE, &rlim) != 0)
+            Log::perror("Failed to set RLIMIT_CORE");
+    }
+#endif
 }
 
 }

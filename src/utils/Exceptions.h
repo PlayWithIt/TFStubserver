@@ -23,6 +23,7 @@
 #include <string>
 #include <exception>
 
+#include "Compatability.h"
 
 namespace utils {
 
@@ -52,9 +53,9 @@ public:
     explicit Exception(const char *msg, int arg);
 
     // std::~exception is already virtual ...
-    virtual ~Exception() noexcept;
+    virtual ~Exception() NOEXCEPT;
 
-    const char *what() const noexcept;
+    const char *what() const NOEXCEPT;
 };
 
 
@@ -65,7 +66,7 @@ class ConnectionLostException : public Exception
 {
 public:
     explicit ConnectionLostException(const std::string &msg);
-    ~ConnectionLostException() noexcept;
+    ~ConnectionLostException() NOEXCEPT;
 };
 
 
@@ -80,7 +81,7 @@ class IOException : public Exception
 public:
     IOException(const std::string &func, const std::string &args);
     IOException(int _errno, const std::string &func, const std::string &args);
-    ~IOException() noexcept;
+    ~IOException() NOEXCEPT;
 };
 
 
@@ -102,7 +103,7 @@ public:
      * reading, otherwise for writing.
      */
     FileOpenError(bool read, const char *filename);
-    ~FileOpenError() noexcept;
+    ~FileOpenError() NOEXCEPT;
 };
 
 
@@ -115,7 +116,7 @@ public:
     explicit ValueFormatError(const std::string &msg);
     explicit ValueFormatError(const char *msg, int arg)
       : Exception(msg, arg) { }
-    ~ValueFormatError() noexcept;
+    ~ValueFormatError() NOEXCEPT;
 };
 
 /**
@@ -128,7 +129,7 @@ public:
     explicit RuntimeError(const char *msg);
     explicit RuntimeError(const std::string &msg);
     explicit RuntimeError(const char *msg, int _errno);
-    ~RuntimeError() noexcept;
+    ~RuntimeError() NOEXCEPT;
 };
 
 
@@ -140,7 +141,7 @@ class KeyNotFound : public Exception
 public:
     explicit KeyNotFound(const std::string &key);
     KeyNotFound(const std::string &messagePrefix, const std::string &key);
-    ~KeyNotFound() noexcept;
+    ~KeyNotFound() NOEXCEPT;
 };
 
 
@@ -157,7 +158,7 @@ public:
     OutOfRange(const std::string &hint, unsigned current, unsigned _max);
     OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max);
 
-    ~OutOfRange() noexcept;
+    ~OutOfRange() NOEXCEPT;
 };
 
 } /* namespace utils */

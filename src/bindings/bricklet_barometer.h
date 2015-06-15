@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2014-06-24.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.1                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *

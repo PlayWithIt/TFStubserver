@@ -12,7 +12,7 @@
 		#define _BSD_SOURCE // for usleep from unistd.h
 	#endif
 	#ifndef _GNU_SOURCE
-		#define _GNU_SOURCE
+		#define _GNU_SOURCE // for strnlen from string.h
 	#endif
 #endif
 
@@ -294,17 +294,21 @@ static void sha1_final(SHA1 *sha1, uint8_t digest[SHA1_DIGEST_LENGTH]) {
  *
  *****************************************************************************/
 
-static size_t string_length(const char *s, size_t max_length) {
+#ifdef __MINGW32__
+
+static size_t strnlen(const char *s, size_t maxlen) {
 	const char *p = s;
 	size_t n = 0;
 
-	while (*p != '\0' && n < max_length) {
+	while (*p != '\0' && n < maxlen) {
 		++p;
 		++n;
 	}
 
 	return n;
 }
+
+#endif
 
 #ifdef _MSC_VER
 
@@ -2003,6 +2007,22 @@ static void ipcon_disconnect_unlocked(IPConnectionPrivate *ipcon_p) {
 	ipcon_p->socket = NULL;
 }
 
+static FILE* recordTo;
+bool ipcon_recordTo(FILE *f)
+{
+    if (!recordTo) {
+        // recordTo == NULL && (f == NULL || f != NULL)
+        recordTo = f;
+        return true;
+    }
+
+    if (f && f != recordTo)
+        // recordTo != NULL && f != NULL: do to reassign to different file
+        return false;
+    recordTo = f;
+    return true;
+}
+
 static int ipcon_send_request(IPConnectionPrivate *ipcon_p, Packet *request) {
 	int ret = E_OK;
 
@@ -2020,6 +2040,29 @@ static int ipcon_send_request(IPConnectionPrivate *ipcon_p, Packet *request) {
 			ret = E_NOT_CONNECTED;
 		} else {
 			ipcon_p->disconnect_probe_flag = false;
+		}
+		if (recordTo) {
+		    struct timeval tv;
+		    gettimeofday(&tv, NULL);
+
+                    unsigned len = request->header.length;
+		    fprintf(recordTo, "%10ld.%06ld  %02X %08X %02X %02X -",
+		            tv.tv_sec, tv.tv_usec,
+		            len, request->header.uid,
+                            request->header.function_id, request->header.sequence_number_and_options);
+
+		    uint8_t *addData = request->payload;
+		    len -= sizeof(request->header);
+		    while (len > 0) {
+		        fprintf(recordTo, " %02X", *addData);
+		        ++addData;
+		        --len;
+		    }
+		    fputc('\n', recordTo);
+
+		    // at least flush every 16 requests.
+		    if ((request->header.sequence_number_and_options & 0xF0) == 0x70)
+		        fflush(recordTo);
 		}
 	}
 
@@ -2212,7 +2255,8 @@ int ipcon_authenticate(IPConnection *ipcon, const char secret[64]) {
 
 	nonces[1] = ipcon_p->next_authentication_nonce++;
 
-	hmac_sha1((uint8_t *)secret, string_length(secret, IPCON_MAX_SECRET_LENGTH),
+
+	hmac_sha1((uint8_t *)secret, strnlen(secret, IPCON_MAX_SECRET_LENGTH),
 	          (uint8_t *)nonces, sizeof(nonces), digest);
 
 	ret = brickd_authenticate(&ipcon_p->brickd, (uint8_t *)&nonces[1], digest);

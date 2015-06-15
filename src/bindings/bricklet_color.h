@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -460,7 +460,10 @@ int color_light_off(Color *color);
 /**
  * \ingroup BrickletColor
  *
- * Returns *true* if the backlight is on and *false* otherwise.
+ * Returns the state of the LED. Possible values are:
+ * 
+ * * 0: On
+ * * 1: Off
  */
 int color_is_light_on(Color *color, uint8_t *ret_light);
 

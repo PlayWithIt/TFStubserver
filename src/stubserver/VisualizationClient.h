@@ -222,11 +222,24 @@ public:
     SensorState();
     SensorState(int _min, int _max);
 
+    static const unsigned LED_CHANGE = 10;
+
     /**
      * Returns the current "sensor" value.
      */
     int getSensorValue() const {
         return sensorValue;
+    }
+
+    /**
+     * Changes the value of the status LED.
+     */
+    void setStatusLedOn(bool on) {
+        statusLedOn = on;
+    }
+
+    bool isStatusLedOn() const {
+        return statusLedOn;
     }
 
     /**
@@ -248,6 +261,7 @@ protected:
     int      sensorValue;
     unsigned counter;
     int      min, max;
+    bool     statusLedOn;
 };
 
 /**

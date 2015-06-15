@@ -127,20 +127,19 @@ bool AsyncTask::stop(int wait) noexcept
     if (!signalToStop())
         return false;
 
-    int ms = wait <= 0 ? 40 : wait;
+    int ms = wait <= 0 ? 60 : wait;
     while (isActive() && ms >= 0) {
         utils::msleep(10);
         ms -= 10;
     }
-    if (isActive())
-    {
-        utils::Log::log(std::string("WARNING: async-task '") + taskName + "' didn't end in time!");
-        int rc = pthread_kill(th->native_handle(), SIGTERM);
-        if (rc != 0)
-            utils::Log::log("pthread_kill returned", rc);
+
+    if (isActive()) {
+        utils::Log::log(std::string("WARNING: async-task '") + taskName + "' didn't end in time => memory leak!");
     }
-    th->join();
-    delete th;
+    else {
+        th->join();
+        delete th;
+    }
     th = NULL;
     setActive(false);
     finish = false;

@@ -36,7 +36,7 @@ TimerCommand::~TimerCommand() {
  * Check if the main function should be called.
  */
 bool TimerCommand::callOnCycle(unsigned int cycleCount, unsigned int delaySinceLastCall,
-                               const std::chrono::system_clock::time_point &now) noexcept
+                               const std::chrono::system_clock::time_point &now) NOEXCEPT
 {
     // count reached => no more execution
     if (remainingCalls == 0)

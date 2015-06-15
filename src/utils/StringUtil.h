@@ -49,6 +49,18 @@ namespace strings
     }
 
     /**
+     * Replaces the first occurrence of 'old' with the text 'newStr'
+     * @return in input string.
+     */
+    std::string& replace(std::string& inOut, const char *old, const char *newStr);
+
+    /**
+     * Replaces all occurrences of 'old' with the text 'newStr'
+     * @return in input string.
+     */
+    std::string& replaceAll(std::string& inOut, const char *old, const char *newStr);
+
+    /**
      * Does a string end with the given suffix string?
      */
     bool endsWith(const std::string &s, const std::string &suffix);

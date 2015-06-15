@@ -25,6 +25,7 @@
 #include <deque>
 #include <stdexcept>
 
+#include "Compatability.h"
 
 namespace utils {
 
@@ -40,7 +41,7 @@ public:
     explicit EmptyQueueException(const std::string &s) : msg(s) { }
     explicit EmptyQueueException(const char *s) : msg(s) { }
 
-    virtual const char* what() const noexcept {
+    virtual const char* what() const NOEXCEPT {
         return msg.c_str();
     }
 };
@@ -82,7 +83,7 @@ template <typename _Tp> class BlockingQueue
     }
 
 public:
-    BlockingQueue() : size(0), closing(false) {};
+    BlockingQueue() : size(0), closing() {};
     virtual ~BlockingQueue() {
         closeImmediate();
     }

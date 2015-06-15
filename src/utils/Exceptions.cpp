@@ -46,9 +46,9 @@ Exception::Exception(const char *m, int arg)
     msg = buffer;
 }
 
-Exception::~Exception() noexcept { }
+Exception::~Exception() NOEXCEPT { }
 
-const char *Exception::what() const noexcept
+const char *Exception::what() const NOEXCEPT
 {
     return msg.c_str();
 }
@@ -61,7 +61,7 @@ ConnectionLostException::ConnectionLostException(const std::string &m)
 : Exception(m)
 { }
 
-ConnectionLostException::~ConnectionLostException() noexcept { }
+ConnectionLostException::~ConnectionLostException() NOEXCEPT { }
 
 
 //--------------------------------------------------------------------------
@@ -75,7 +75,7 @@ FileOpenError::FileOpenError(bool read, const char *filename)
   : IOException(read ? "read" : "write", filename)
 { }
 
-FileOpenError::~FileOpenError() noexcept { }
+FileOpenError::~FileOpenError() NOEXCEPT { }
 
 
 //--------------------------------------------------------------------------
@@ -91,7 +91,7 @@ KeyNotFound::KeyNotFound(const std::string &messagePrefix, const std::string &ke
   : Exception(messagePrefix + std::string(" '") + key + not_found)
 { }
 
-KeyNotFound::~KeyNotFound() noexcept { }
+KeyNotFound::~KeyNotFound() NOEXCEPT { }
 
 
 //--------------------------------------------------------------------------
@@ -115,7 +115,7 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min,
     setMessage(hint + buffer);
 }
 
-OutOfRange::~OutOfRange() noexcept { }
+OutOfRange::~OutOfRange() NOEXCEPT { }
 
 //--------------------------------------------------------------------------
 // utils::RuntimeError
@@ -135,7 +135,7 @@ RuntimeError::RuntimeError(const char *msg, int _errno)
     setMessage(std::string(msg) + ": " + strings::strerror(_errno));
 }
 
-RuntimeError::~RuntimeError() noexcept { }
+RuntimeError::~RuntimeError() NOEXCEPT { }
 
 //--------------------------------------------------------------------------
 // utils::ValueFormatError
@@ -144,7 +144,7 @@ ValueFormatError::ValueFormatError(const std::string &m)
   : Exception(m)
 { }
 
-ValueFormatError::~ValueFormatError() noexcept { }
+ValueFormatError::~ValueFormatError() NOEXCEPT { }
 
 
 //--------------------------------------------------------------------------
@@ -159,7 +159,7 @@ IOException::IOException(int _errno, const std::string &func, const std::string 
 { }
 
 
-IOException::~IOException() noexcept { }
+IOException::~IOException() NOEXCEPT { }
 
 
 

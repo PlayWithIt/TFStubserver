@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -109,7 +109,7 @@ typedef Device LCD20x4;
  * Signature: \code void callback(uint8_t button, void *user_data) \endcode
  * 
  * This callback is triggered when a button is pressed. The parameter is
- * the number of the button (0 to 2 or 0 to 3 with hardware version >= 1.2).
+ * the number of the button (0 to 2 or 0 to 3 since hardware version 1.2).
  */
 #define LCD_20X4_CALLBACK_BUTTON_PRESSED 9
 
@@ -119,7 +119,7 @@ typedef Device LCD20x4;
  * Signature: \code void callback(uint8_t button, void *user_data) \endcode
  * 
  * This callback is triggered when a button is released. The parameter is
- * the number of the button (0 to 2 or 0 to 3 with hardware version >= 1.2).
+ * the number of the button (0 to 2 or 0 to 3 since hardware version 1.2).
  */
 #define LCD_20X4_CALLBACK_BUTTON_RELEASED 10
 
@@ -280,7 +280,7 @@ int lcd_20x4_get_config(LCD20x4 *lcd_20x4, bool *ret_cursor, bool *ret_blinking)
 /**
  * \ingroup BrickletLCD20x4
  *
- * Returns *true* if the button (0 to 2 or 0 to 3 with hardware version >= 1.2) 
+ * Returns *true* if the button (0 to 2 or 0 to 3 since hardware version 1.2)
  * is pressed. If you want to react
  * on button presses and releases it is recommended to use the
  * {@link LCD_20X4_CALLBACK_BUTTON_PRESSED} and {@link LCD_20X4_CALLBACK_BUTTON_RELEASED} callbacks.

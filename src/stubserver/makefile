@@ -22,12 +22,12 @@ LIB := $(LIB_DIR)/libstubserver.a
 
 HDR_DEPS := ../utils/*.h
 
-CC_USER_FLAGS  := -I../bindings
-NO_COMPILE_CPP := stubserver.cpp
+CC_USER_FLAGS  := -I../bindings -I../brickapi
+NO_COMPILE_CPP := main.cpp
 
-all:	$(LIB) $(EXE)
+all:	$(LIB) $(EXE) $(EXE2)
 
-$(EXE): $(OBJ_DIR)/stubserver.o $(LIB) $(LIB_DIR)/*.a
-	$(CC) $(DEBUG) $< -o $@ -L$(LIB_DIR) -lstubserver -lutils -lpthread -lasound -lpthread
+$(EXE): main.cpp $(LIB) $(LIB_DIR)/*.a
+	$(CC) $(DEBUG) $< $(CCFLAGS) -o $@ $(OBJECTS) -L$(LIB_DIR) -lstubserver -lutils -lasound -lpthread
 
 include ../../rules.mak

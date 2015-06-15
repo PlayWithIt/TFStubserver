@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <string>
+#include "Compatability.h"
 
 namespace utils {
 
@@ -55,7 +56,7 @@ public:
      * is called (only in this case).
      */
     virtual bool callOnCycle(unsigned int cycleCount, unsigned int delaySinceLastCall,
-                             const std::chrono::system_clock::time_point &now) noexcept;
+                             const std::chrono::system_clock::time_point &now) NOEXCEPT;
 
     /**
      * This method is called by the controlling thread if 'callOnCycle' returns true.

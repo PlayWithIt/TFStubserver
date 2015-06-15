@@ -53,7 +53,7 @@ TimerThread::TimerThread(unsigned delayMs)
 /**
  * Clean up timer.
  */
-TimerThread::~TimerThread() noexcept
+TimerThread::~TimerThread() NOEXCEPT
 {
     stop(2*delay+100);
 
@@ -90,7 +90,7 @@ void TimerThread::addCommand(TimerCommand *c)
 /**
  * Return the first command of the queue with the given name or NULL.
  */
-TimerCommand* TimerThread::getCommand(const char *name) const noexcept
+TimerCommand* TimerThread::getCommand(const char *name) const NOEXCEPT
 {
     MutexLock guard(taskMutex);
 

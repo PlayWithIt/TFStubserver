@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2015-06-14.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_AMBIENT_LIGHT_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletAmbientLight AmbientLight Bricklet
+ * \defgroup BrickletAmbientLight Ambient Light Bricklet
  */
 
 /**
  * \ingroup BrickletAmbientLight
  *
- * Device for sensing Ambient Light
+ * Measures ambient light up to 900lux
  */
 typedef Device AmbientLight;
 
@@ -178,13 +178,20 @@ typedef Device AmbientLight;
 /**
  * \ingroup BrickletAmbientLight
  *
- * This constant is used to identify a AmbientLight Bricklet.
+ * This constant is used to identify a Ambient Light Bricklet.
  *
  * The {@link ambient_light_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define AMBIENT_LIGHT_DEVICE_IDENTIFIER 21
+
+/**
+ * \ingroup BrickletAmbientLight
+ *
+ * This constant represents the display name of a Ambient Light Bricklet.
+ */
+#define AMBIENT_LIGHT_DEVICE_DISPLAY_NAME "Ambient Light Bricklet"
 
 /**
  * \ingroup BrickletAmbientLight

@@ -31,6 +31,7 @@
 #include "ChildProcess.h"
 #include "Exceptions.h"
 #include "File.h"
+#include "Log.h"
 #include "HandleStreambuf.h"
 #include "StringUtil.h"
 
@@ -221,7 +222,7 @@ ChildProcess::ChildProcess(const std::vector<std::string> &_programAndArgs)
 /**
  * Kill the child process if it is still active and cleanup the thread.
  */
-ChildProcess::~ChildProcess() noexcept
+ChildProcess::~ChildProcess()
 {
     if (th) {
         kill();
@@ -250,7 +251,14 @@ bool ChildProcess::kill(int signum)
     if (!isActive() || signum > 32)
         return false;
 
+    if (pid <= 0) {
+        Log::error("ChildProcess::kill called when pid is < 0");
+        return false;
+    }
+
     int signal = signum <= 0 ? SIGTERM : signum;
+
+    utils::Log() << "ChildProcess: send signal " << signal <<  " to pid " << pid;
     int rc = ::kill(pid, signal);
 
     return rc == 0;
@@ -371,6 +379,21 @@ void ChildProcess::start()
         redirect[2].closePipe();
     }
 
+    try {
+        tryToStart();
+    }
+    catch (...) {
+        active = false;
+        throw;
+    }
+}
+
+
+/**
+ * Start child process without taking care of the 'active' flag.
+ */
+void ChildProcess::tryToStart()
+{
     bool changeWorkDir = workDir.getFullname().compare(".") != 0;
     std::string exe = programAndArgs[0];
 
@@ -557,6 +580,7 @@ void ChildProcess::watchChild()
         rc = -200;
         errorMsg = std::string("waitpid() failed: ") + utils::strings::strerror(errno);
     }
+    active = false;
 
     if ( WIFEXITED(status) )
         rc = WEXITSTATUS(status);
@@ -571,7 +595,6 @@ void ChildProcess::watchChild()
         rc = -201;
         errorMsg = "Undefined exit() status of child-process";
     }
-    active = false;
     childEvent.notify_all();
 }
 

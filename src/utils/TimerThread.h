@@ -25,7 +25,6 @@
 #include "AsyncTask.h"
 #include "TimerCommand.h"
 
-
 namespace utils {
 
 /**
@@ -64,7 +63,7 @@ public:
     explicit TimerThread(unsigned delayMs);
 
     // stop the thread loop and releases resources
-    virtual ~TimerThread() noexcept;
+    virtual ~TimerThread() NOEXCEPT;
 
     /**
      * Add another command to the list of commands. This command is used
@@ -88,7 +87,7 @@ public:
     /**
      * Return the first command of the queue with the given name or NULL.
      */
-    TimerCommand* getCommand(const char *name) const noexcept;
+    TimerCommand* getCommand(const char *name) const NOEXCEPT;
 };
 
 } /* namespace utils */

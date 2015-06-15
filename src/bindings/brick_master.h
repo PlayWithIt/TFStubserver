@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2015-06-14.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICK_MASTER_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickMaster
  *
- * Device for controlling Stacks and four Bricklets
+ * Basis to build stacks and has 4 Bricklet ports
  */
 typedef Device Master;
 
@@ -381,6 +381,21 @@ typedef Device Master;
 /**
  * \ingroup BrickMaster
  */
+#define MASTER_FUNCTION_ENABLE_STATUS_LED 238
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_DISABLE_STATUS_LED 239
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_IS_STATUS_LED_ENABLED 240
+
+/**
+ * \ingroup BrickMaster
+ */
 #define MASTER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME 241
 
 /**
@@ -441,6 +456,8 @@ typedef Device Master;
  * 
  * {@link MASTER_CALLBACK_USB_VOLTAGE} is only triggered if the USB voltage has changed since the
  * last triggering.
+ * 
+ * Does not work with hardware version 2.1.
  * 
  * .. versionadded:: 2.0.5~(Firmware)
  */
@@ -740,6 +757,13 @@ typedef Device Master;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define MASTER_DEVICE_IDENTIFIER 13
+
+/**
+ * \ingroup BrickMaster
+ *
+ * This constant represents the display name of a Master Brick.
+ */
+#define MASTER_DEVICE_DISPLAY_NAME "Master Brick"
 
 /**
  * \ingroup BrickMaster
@@ -1197,7 +1221,7 @@ int master_get_wifi_configuration(Master *master, char ret_ssid[32], uint8_t *re
  * The values are stored in the EEPROM and only applied on startup. That means
  * you have to restart the Master Brick after configuration.
  * 
- * It is recommended to use the Brick Viewer to set the WIFI encryption.
+ * It is recommended to use the Brick Viewer to set the Wi-Fi encryption.
  */
 int master_set_wifi_encryption(Master *master, uint8_t encryption, const char key[50], uint8_t key_index, uint8_t eap_options, uint16_t ca_certificate_length, uint16_t client_certificate_length, uint16_t private_key_length);
 
@@ -1232,8 +1256,8 @@ int master_get_wifi_status(Master *master, uint8_t ret_mac_address[6], uint8_t r
 /**
  * \ingroup BrickMaster
  *
- * Refreshes the WIFI status (see {@link master_get_wifi_status}). To read the status
- * of the WIFI module, the Master Brick has to change from data mode to
+ * Refreshes the Wi-Fi status (see {@link master_get_wifi_status}). To read the status
+ * of the Wi-Fi module, the Master Brick has to change from data mode to
  * command mode and back. This transaction and the readout itself is
  * unfortunately time consuming. This means, that it might take some ms
  * until the stack with attached WIFI Extension reacts again after this
@@ -1298,7 +1322,7 @@ int master_get_wifi_power_mode(Master *master, uint8_t *ret_mode);
 /**
  * \ingroup BrickMaster
  *
- * Returns informations about the WIFI receive buffer. The WIFI
+ * Returns informations about the Wi-Fi receive buffer. The Wi-Fi
  * receive buffer has a max size of 1500 byte and if data is transfered
  * too fast, it might overflow.
  * 
@@ -1342,14 +1366,14 @@ int master_get_wifi_regulatory_domain(Master *master, uint8_t *ret_domain);
 /**
  * \ingroup BrickMaster
  *
- * Returns the USB voltage in mV.
+ * Returns the USB voltage in mV. Does not work with hardware version 2.1.
  */
 int master_get_usb_voltage(Master *master, uint16_t *ret_voltage);
 
 /**
  * \ingroup BrickMaster
  *
- * Sets a long WIFI key (up to 63 chars, at least 8 chars) for WPA encryption.
+ * Sets a long Wi-Fi key (up to 63 chars, at least 8 chars) for WPA encryption.
  * This key will be used
  * if the key in {@link master_set_wifi_encryption} is set to "-". In the old protocol,
  * a payload of size 63 was not possible, so the maximum key length was 50 chars.
@@ -1775,6 +1799,43 @@ int master_set_wifi_authentication_secret(Master *master, const char secret[64])
  * .. versionadded:: 2.2.0~(Firmware)
  */
 int master_get_wifi_authentication_secret(Master *master, char ret_secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Enables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.2~(Firmware)
+ */
+int master_enable_status_led(Master *master);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Disables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.2~(Firmware)
+ */
+int master_disable_status_led(Master *master);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns *true* if the status LED is enabled, *false* otherwise.
+ * 
+ * .. versionadded:: 2.3.2~(Firmware)
+ */
+int master_is_status_led_enabled(Master *master, bool *ret_enabled);
 
 /**
  * \ingroup BrickMaster

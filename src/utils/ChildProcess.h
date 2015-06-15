@@ -51,7 +51,7 @@ public:
     /**
      * This kills the child if it is still active.
      */
-    virtual ~ChildProcess() noexcept;
+    virtual ~ChildProcess();
 
     /**
      * Change the working directory of the child process, before the process is started.
@@ -203,6 +203,7 @@ private:
     void checkArgs();
     void watchChild();
     void validateRedirect();
+    void tryToStart();
 };
 
 } /* namespace utils */

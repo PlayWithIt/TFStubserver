@@ -57,6 +57,7 @@ SensorState::SensorState()
   , counter(0)
   , min(0)
   , max(4095)
+  , statusLedOn(false)
 {
 }
 
@@ -66,6 +67,7 @@ SensorState::SensorState(int _min, int _max)
   , counter(0)
   , min(_min)
   , max(_max)
+  , statusLedOn(false)
 {
 }
 

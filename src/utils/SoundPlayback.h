@@ -22,7 +22,8 @@
 
 #include <memory>
 #include <list>
-#include <utils/Mutexes.h>
+
+#include "Mutexes.h"
 
 // ALSA handle
 struct _snd_pcm;

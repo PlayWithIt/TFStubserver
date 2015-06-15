@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2015-06-14.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_ANALOG_IN_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletAnalogIn AnalogIn Bricklet
+ * \defgroup BrickletAnalogIn Analog In Bricklet
  */
 
 /**
  * \ingroup BrickletAnalogIn
  *
- * Device for sensing Voltages between 0 and 45V
+ * Measures DC voltage between 0V and 45V
  */
 typedef Device AnalogIn;
 
@@ -228,13 +228,20 @@ typedef Device AnalogIn;
 /**
  * \ingroup BrickletAnalogIn
  *
- * This constant is used to identify a AnalogIn Bricklet.
+ * This constant is used to identify a Analog In Bricklet.
  *
  * The {@link analog_in_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define ANALOG_IN_DEVICE_IDENTIFIER 219
+
+/**
+ * \ingroup BrickletAnalogIn
+ *
+ * This constant represents the display name of a Analog In Bricklet.
+ */
+#define ANALOG_IN_DEVICE_DISPLAY_NAME "Analog In Bricklet"
 
 /**
  * \ingroup BrickletAnalogIn

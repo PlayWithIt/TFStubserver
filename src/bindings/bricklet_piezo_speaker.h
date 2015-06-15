@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-08-11.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.1.4                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -67,6 +67,16 @@ typedef Device PiezoSpeaker;
  */
 #define PIEZO_SPEAKER_CALLBACK_MORSE_CODE_FINISHED 5
 
+
+/**
+ * \ingroup BrickletPiezoSpeaker
+ */
+#define PIEZO_SPEAKER_BEEP_DURATION_OFF 0
+
+/**
+ * \ingroup BrickletPiezoSpeaker
+ */
+#define PIEZO_SPEAKER_BEEP_DURATION_INFINITE 4294967295
 
 /**
  * \ingroup BrickletPiezoSpeaker
@@ -165,7 +175,11 @@ int piezo_speaker_get_api_version(PiezoSpeaker *piezo_speaker, uint8_t ret_api_v
  * the piezo buzzer will beep for one second with a frequency of
  * approximately 2 kHz.
  * 
- * *frequency* can be set between 585 and 7100.
+ * .. versionchanged:: 2.0.2~(Plugin)
+ *    A duration of 0 stops the current beep if any, the frequency parameter is
+ *    ignored. A duration of 4294967295 results in an infinite beep.
+ * 
+ * The *frequency* parameter can be set between 585 and 7100.
  * 
  * The Piezo Speaker Bricklet can only approximate the frequency, it will play
  * the best possible match by applying the calibration (see {@link piezo_speaker_calibrate}).
