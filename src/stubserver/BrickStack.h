@@ -56,6 +56,9 @@ class BrickStack
     std::list<BrickClient*> clients;
     std::queue<TQueueItem> packetQueue;
 
+    // the UIDs of the brick, index 0 is position '0'
+    std::string bricks[10];
+
     // current time as relative time in milliseconds
     system_clock::time_point startTime;
     uint64_t relativeTimeMs;
@@ -64,6 +67,7 @@ class BrickStack
     uint64_t callbackCycles;
 
     std::atomic_bool doReconnect;
+    std::atomic_int  doEnumerateWithType;
     std::atomic_uint reconnectCount;
 
     void enumerate(uint8_t enumType, const std::string &uid);
@@ -85,6 +89,21 @@ public:
 
     void consumeRequestQueue();
     void checkCallbacks();
+
+    /**
+     * Mark a stack position as used.
+     *
+     * @param position - position char '0'..'9'
+     * @param uid - brick's uid
+     */
+    void addBrick(char position, const std::string &uid);
+
+    /**
+     * Trigger an enumeration.
+     */
+    void initEnumerate(uint8_t enumType) {
+        doEnumerateWithType = enumType;
+    }
 
     /**
      * A method that should simulate a disconnect event of a brick (like USB unplug and plug again).

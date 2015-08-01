@@ -30,9 +30,12 @@ namespace stubserver {
  */
 class DeviceBrick : public DeviceVoltageCurrent
 {
+    unsigned deviceType;
+
 public:
-    DeviceBrick(DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent);
-    DeviceBrick(uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
+    DeviceBrick(unsigned type, DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent);
+    DeviceBrick(unsigned type,
+                uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
                 uint8_t _funcSetCallbackVoltage, uint8_t _funcSetCallbackCurrent,
                 uint8_t _funcCallbackVoltage, uint8_t _funcCallbackCurrent);
 

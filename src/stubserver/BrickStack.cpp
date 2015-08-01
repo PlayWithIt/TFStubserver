@@ -66,6 +66,7 @@ BrickStack::BrickStack(const char *filename)
   , packetsOut(0)
   , callbackCycles(0)
   , doReconnect(false)
+  , doEnumerateWithType(-1)
   , reconnectCount(0)
 {
     if (objectCount > 0)
@@ -91,6 +92,10 @@ BrickStack::BrickStack(const char *filename)
             SimulatedDevice *dev = new SimulatedDevice(this, it.c_str(), p);
             devices.push_back(dev);
         }
+
+        // make some consistency checks
+        if (bricks[0].length() == 0)
+            throw utils::Exception("There is no brick on position '0' of the stack - this is invalid!");
     }
     catch (const std::exception &e) {
         // if an exception happens here, the destructor is not called!
@@ -117,6 +122,27 @@ BrickStack::~BrickStack()
           << callbackCycles << " callback cycles ("
           << static_cast<double>(callbackCycles) / (delta / 1000.0) << " cyles/sec), "
           << packetsIn << " packets in, " << packetsOut << " packets out";
+}
+
+/**
+ * Mark a stack position as used.
+ *
+ * @param position - position char '0'..'9'
+ * @param uid - brick's uid
+ */
+void BrickStack::addBrick(char position, const std::string &uid)
+{
+    char msg[256];
+    if (position > '9' || position < '0') {
+        sprintf(msg, "ERROR: invalid position char '%c' (%d)", position, position);
+        throw utils::Exception(msg);
+    }
+    unsigned index = position - '0';
+    if (bricks[index].length() > 0) {
+        sprintf(msg, "ERROR: stack-position '%c' already used with uid %s", position, bricks[index].c_str());
+        throw utils::Exception(msg);
+    }
+    bricks[index] = uid;
 }
 
 /**
@@ -190,6 +216,14 @@ void BrickStack::checkCallbacks()
 
         Log::log(type == IPCON_ENUMERATION_TYPE_CONNECTED ? "Reconnect brick" : "Disconnect brick", uid.c_str());
         enumerate(type, uid);
+        return;
+    }
+
+    if (doEnumerateWithType >= 0 && doEnumerateWithType <= 2)
+    {
+        uint8_t t = doEnumerateWithType;
+        doEnumerateWithType = -1;
+        enumerate(t, "");
         return;
     }
 
@@ -314,7 +348,7 @@ void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
         ++enumerated;
     }
 
-    Log::log("Enumerated #devices =", enumerated);
+    Log() << "Enumerated " << enumerated << " devices, enum-type was " << (int) enumType;
 }
 
 /**

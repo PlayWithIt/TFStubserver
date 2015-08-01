@@ -25,17 +25,19 @@
 
 namespace stubserver {
 
-DeviceBrick::DeviceBrick(DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent)
+DeviceBrick::DeviceBrick(unsigned type, DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent)
    : DeviceVoltageCurrent(_other, _funcGetVoltage, _funcGetCurrent)
+   , deviceType(type)
 {
     setStatusLedOn(true);
 }
 
-DeviceBrick::DeviceBrick(uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
+DeviceBrick::DeviceBrick(unsigned type, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
             uint8_t _funcSetCallbackVoltage, uint8_t _funcSetCallbackCurrent,
             uint8_t _funcCallbackVoltage, uint8_t _funcCallbackCurrent)
    : DeviceVoltageCurrent(_funcGetVoltage, _funcGetCurrent, _funcSetCallbackVoltage,
                           _funcSetCallbackCurrent, _funcCallbackVoltage, _funcCallbackCurrent)
+   , deviceType(type)
 {
     setStatusLedOn(true);
 }
@@ -45,6 +47,34 @@ DeviceBrick::DeviceBrick(uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
  */
 bool DeviceBrick::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
+    if (deviceType == MASTER_DEVICE_IDENTIFIER)
+    {
+        // functions only valid for master brick
+        switch (p.header.function_id) {
+        case MASTER_FUNCTION_REFRESH_WIFI_STATUS:
+            return true;
+
+        case MASTER_FUNCTION_GET_WIFI_STATUS:
+            bzero(p.fullData.payload, sizeof(p.fullData.payload));
+            p.header.length = sizeof(p.header) + 35;
+            return true;
+
+        case MASTER_FUNCTION_GET_WIFI_BUFFER_INFO:
+            bzero(p.fullData.payload, sizeof(p.fullData.payload));
+            p.header.length = sizeof(p.header) + 8;
+            return true;
+
+        case MASTER_FUNCTION_IS_CHIBI_PRESENT:
+        case MASTER_FUNCTION_IS_WIFI_PRESENT:
+        case MASTER_FUNCTION_IS_ETHERNET_PRESENT:
+        case MASTER_FUNCTION_IS_RS485_PRESENT:
+            p.boolValue = false;
+            p.header.length = sizeof(p.header) + 1;
+            return true;
+        }
+    }
+
+    // functions valid for all types of brick
     switch (p.header.function_id) {
     case MASTER_FUNCTION_ENABLE_STATUS_LED:
         setStatusLedOn(true);
@@ -61,6 +91,9 @@ bool DeviceBrick::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
     case MASTER_FUNCTION_IS_STATUS_LED_ENABLED:
         p.boolValue = isStatusLedOn();
         p.header.length = sizeof(p.header) + 1;
+        return true;
+
+    case MASTER_FUNCTION_REFRESH_WIFI_STATUS:
         return true;
 
     default:

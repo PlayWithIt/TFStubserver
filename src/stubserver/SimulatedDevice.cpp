@@ -132,18 +132,9 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     switch (deviceTypeId) {
     case MASTER_DEVICE_IDENTIFIER:
-        functions = new DeviceBrick(MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
+        functions = new DeviceBrick(deviceTypeId, MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
                                     MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD,
                                     MASTER_CALLBACK_STACK_VOLTAGE, MASTER_CALLBACK_STACK_CURRENT);
-        doNothing = new DoNothing(functions, MASTER_FUNCTION_REFRESH_WIFI_STATUS);
-        doNothing->addFunc(MASTER_FUNCTION_RESET);
-        doNothing = new DoNothing(doNothing, MASTER_FUNCTION_GET_WIFI_STATUS, 40);
-        doNothing = new DoNothing(doNothing, MASTER_FUNCTION_GET_WIFI_BUFFER_INFO, 8);
-        doNothing = new DoNothing(doNothing, MASTER_FUNCTION_IS_CHIBI_PRESENT, 1);
-        doNothing->addFunc(MASTER_FUNCTION_IS_WIFI_PRESENT)
-                  .addFunc(MASTER_FUNCTION_IS_ETHERNET_PRESENT)
-                  .addFunc(MASTER_FUNCTION_IS_RS485_PRESENT);
-        functions = doNothing;
         isBrick = true;
         label = "Voltage mV";
         break;
@@ -163,12 +154,11 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
         functions = new EnableDisableBool(functions, SERVO_FUNCTION_ENABLE_POSITION_REACHED_CALLBACK, SERVO_FUNCTION_DISABLE_POSITION_REACHED_CALLBACK, SERVO_FUNCTION_IS_POSITION_REACHED_CALLBACK_ENABLED);
         functions = new EnableDisableBool(functions, SERVO_FUNCTION_ENABLE_VELOCITY_REACHED_CALLBACK, SERVO_FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK, SERVO_FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED);
-        functions = new DeviceBrick(functions, SERVO_FUNCTION_GET_STACK_INPUT_VOLTAGE, SERVO_FUNCTION_GET_OVERALL_CURRENT);
+        functions = new DeviceBrick(deviceTypeId, functions, SERVO_FUNCTION_GET_STACK_INPUT_VOLTAGE, SERVO_FUNCTION_GET_OVERALL_CURRENT);
         doNothing = new DoNothing(functions, SERVO_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, 2, buildBytes(12340));
         doNothing = new DoNothing(doNothing, SERVO_FUNCTION_GET_SERVO_CURRENT, 2, buildBytes(241) );
-        doNothing = new DoNothing(doNothing, SERVO_FUNCTION_RESET);
-        doNothing->addFunc(SERVO_FUNCTION_DISABLE_POSITION_REACHED_CALLBACK)
-                  .addFunc(SERVO_FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK);
+        doNothing = new DoNothing(doNothing, SERVO_FUNCTION_DISABLE_POSITION_REACHED_CALLBACK);
+        doNothing->addFunc(SERVO_FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK);
 
         getSet = new GetSet<uint16_t>(doNothing, SERVO_FUNCTION_GET_OUTPUT_VOLTAGE, SERVO_FUNCTION_SET_OUTPUT_VOLTAGE, 5800);
         getSet = new GetSet<uint16_t>(getSet, SERVO_FUNCTION_GET_MINIMUM_VOLTAGE, SERVO_FUNCTION_SET_MINIMUM_VOLTAGE, 5200);
@@ -179,10 +169,9 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case DC_DEVICE_IDENTIFIER:
-        functions = new DeviceBrick(NULL, DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, DC_FUNCTION_GET_CURRENT_CONSUMPTION);
+        functions = new DeviceBrick(deviceTypeId, NULL, DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, DC_FUNCTION_GET_CURRENT_CONSUMPTION);
         functions = new EnableDisableBool(functions, DC_FUNCTION_ENABLE, DC_FUNCTION_DISABLE, DC_FUNCTION_IS_ENABLED);
         doNothing = new DoNothing(functions, DC_FUNCTION_FULL_BRAKE);
-        doNothing->addFunc(DC_FUNCTION_RESET);
         doNothing = new DoNothing(doNothing, DC_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, 2, buildBytes(12340));
         getSet = new GetSet<uint8_t>(doNothing, DC_FUNCTION_GET_DRIVE_MODE, DC_FUNCTION_SET_DRIVE_MODE);
         getSet = new GetSet<uint16_t>(getSet, DC_FUNCTION_GET_PWM_FREQUENCY, DC_FUNCTION_SET_PWM_FREQUENCY, 19500);
@@ -549,8 +538,13 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     str = getProperty("position", 1);
 
     char p = str[0];
-    if ((p >= 'a' && p <= 'd') || (p >= '0' && p <= '7'))
+    if (p >= 'a' && p <= 'd') {
         position = str[0];
+    }
+    else if (p >= '0' && p <= '9') {
+        position = str[0];
+        brickStack->addBrick(p, uidStr);
+    }
     else {
         cleanup();
         sprintf(msg, "Invalid position char '%c' for uid %s", p, _uidStr);
@@ -603,7 +597,6 @@ void SimulatedDevice::setVisualizationClient(VisualizationClient &client) const 
 
     VisibleDeviceState *state = dynamic_cast<VisibleDeviceState*>(functions);
     if (state) {
-        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has base state";
         state->notify(client, VisibleDeviceState::CONNECTED);
     }
     else {
@@ -744,6 +737,14 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     if (functions && functions->consumeCommand(time, p, *visualizationClient))
         return true;
 
+    uint8_t func = p.header.function_id;
+    if (MASTER_FUNCTION_RESET == func && isBrick)
+    {
+        // enumerate all bricklets
+        brickStack->initEnumerate(IPCON_ENUMERATION_TYPE_AVAILABLE);
+        return true;
+    }
+
     if (!responseExpected) {
         Log() << "Consume not implemented function " << (int) p.header.function_id
               << " for device " << this->getUidStr() << " due to responseExpected=false";
@@ -753,7 +754,6 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     //--------------------------------------------------------------------
     //---- functions that are not used so often
     //--------------------------------------------------------------------
-    uint8_t func = p.header.function_id;
     if (MASTER_FUNCTION_GET_IDENTITY == func)
     {
         // GET_IDENTITY function
@@ -779,7 +779,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     }
     if (MASTER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME == func)
     {
-        // get protocol1 name
+        // get protocol name
         // simulate protocol 2 for all devices/ports: return zero-bytes
         p.header.length = sizeof(p.header) + sizeof(p.protocol1Response);
         bzero(&p.protocol1Response, sizeof(p.protocol1Response));

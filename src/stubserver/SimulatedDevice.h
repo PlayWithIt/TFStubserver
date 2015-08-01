@@ -118,6 +118,19 @@ public:
     }
 
     /**
+     * Returns the position in the stack, this is either a port code (a..d)
+     * for a bricklet connected to a brick or a number char (0..6) which
+     * indicates that the device is a brick.
+     */
+    char getPosition() const {
+        return position;
+    }
+
+    const std::string& getConnectedUidStr() const {
+        return connectedUidStr;
+    }
+
+    /**
      * Returns the device uid.
      */
     unsigned int getUid() const {
