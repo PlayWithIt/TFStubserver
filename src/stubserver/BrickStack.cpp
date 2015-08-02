@@ -125,23 +125,21 @@ BrickStack::~BrickStack()
 }
 
 /**
- * Mark a stack position as used.
+ * Mark a stack position as used, it is allowed to use a position twice: there maybe
+ * multiple stacks connected separately via USB -> multiple times position '0'
+ * is used. But gaps are not allowed.
  *
  * @param position - position char '0'..'9'
  * @param uid - brick's uid
  */
 void BrickStack::addBrick(char position, const std::string &uid)
 {
-    char msg[256];
     if (position > '9' || position < '0') {
+        char msg[256];
         sprintf(msg, "ERROR: invalid position char '%c' (%d)", position, position);
         throw utils::Exception(msg);
     }
     unsigned index = position - '0';
-    if (bricks[index].length() > 0) {
-        sprintf(msg, "ERROR: stack-position '%c' already used with uid %s", position, bricks[index].c_str());
-        throw utils::Exception(msg);
-    }
     bricks[index] = uid;
 }
 

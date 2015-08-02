@@ -23,7 +23,10 @@
 #include <brick_master.h>
 #include <brick_servo.h>
 #include <brick_dc.h>
+#include <bricklet_analog_in.h>
+#include <bricklet_analog_in_v2.h>
 #include <bricklet_ambient_light.h>
+#include <bricklet_ambient_light_v2.h>
 #include <bricklet_distance_ir.h>
 #include <bricklet_distance_us.h>
 #include <bricklet_dual_button.h>
@@ -230,6 +233,44 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DevicePotentiometer(true);
         break;
 
+    case ANALOG_IN_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(
+                ANALOG_IN_FUNCTION_GET_VOLTAGE,
+                ANALOG_IN_FUNCTION_GET_ANALOG_VALUE,
+                ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD,
+                ANALOG_IN_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD,
+                ANALOG_IN_CALLBACK_VOLTAGE,
+                ANALOG_IN_CALLBACK_ANALOG_VALUE);
+        sensor->setRangeCallback(ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD,
+                ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD,
+                ANALOG_IN_FUNCTION_SET_DEBOUNCE_PERIOD,
+                ANALOG_IN_FUNCTION_GET_DEBOUNCE_PERIOD,
+                ANALOG_IN_CALLBACK_VOLTAGE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3000,step=5,interval=300")));
+        functions = sensor;
+        label = "mV";
+        break;
+
+    case ANALOG_IN_V2_DEVICE_IDENTIFIER:
+        functions = new GetSet<uint8_t>(ANALOG_IN_V2_FUNCTION_GET_MOVING_AVERAGE, ANALOG_IN_V2_FUNCTION_SET_MOVING_AVERAGE, 50);
+        sensor = new DeviceSensor(
+                ANALOG_IN_V2_FUNCTION_GET_VOLTAGE,
+                ANALOG_IN_V2_FUNCTION_GET_ANALOG_VALUE,
+                ANALOG_IN_V2_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD,
+                ANALOG_IN_V2_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD,
+                ANALOG_IN_V2_CALLBACK_VOLTAGE,
+                ANALOG_IN_V2_CALLBACK_ANALOG_VALUE);
+        sensor->setRangeCallback(ANALOG_IN_V2_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD,
+                ANALOG_IN_V2_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD,
+                ANALOG_IN_V2_FUNCTION_SET_DEBOUNCE_PERIOD,
+                ANALOG_IN_V2_FUNCTION_GET_DEBOUNCE_PERIOD,
+                ANALOG_IN_V2_CALLBACK_VOLTAGE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3000,step=5,interval=300")));
+        sensor->setOther(functions);
+        functions = sensor;
+        label = "mV";
+        break;
+
     case AMBIENT_LIGHT_DEVICE_IDENTIFIER:
         sensor = new DeviceSensor(
                 AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE,
@@ -246,7 +287,26 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
         sensor->setMinMax(0, 9000);
         functions = sensor;
-        label = "mLux";
+        label = "Lux/10";
+        break;
+
+    case AMBIENT_LIGHT_V2_DEVICE_IDENTIFIER:
+        functions = new GetSet<uint16_t>(AMBIENT_LIGHT_V2_FUNCTION_GET_CONFIGURATION, AMBIENT_LIGHT_V2_FUNCTION_SET_CONFIGURATION, 0);
+        sensor = new DeviceSensor(
+                AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE,
+                AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD,
+                AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE);
+        sensor->setRangeCallback(AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_V2_FUNCTION_SET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_V2_FUNCTION_GET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED);
+        sensor->setValueSize(4);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=320000,step=80,interval=300")));
+        sensor->setMinMax(0, 640000);
+        sensor->setOther(functions);
+        functions = sensor;
+        label = "Lux/100";
         break;
 
     case DISTANCE_IR_DEVICE_IDENTIFIER:
@@ -496,7 +556,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     , position(0)
     , isBrick(false)
 {
-    char msg[128];
+    char msg[200];
 
     std::string key(uidStr + ".properties");
     const char *str = props.get(key);
@@ -574,6 +634,15 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     // 'new' was not assigned to 'functions'
     try {
         setupFunctions();
+
+        if (false == isBrick && (position < 'a' || position > 'd')) {
+            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICKLET %s (must be a..d)", position, position, uidStr.c_str());
+            throw utils::Exception(msg);
+        }
+        if (true == isBrick && (position < '0' || position > '9')) {
+            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICK %s (must be 0..9)", position, position, uidStr.c_str());
+            throw utils::Exception(msg);
+        }
     }
     catch (const std::exception &e) {
         cleanup();
