@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-06-14.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -493,7 +493,7 @@ int servo_get_output_voltage(Servo *servo, uint16_t *ret_voltage);
  * Sets the minimum and maximum pulse width of the specified servo in µs.
  * 
  * Usually, servos are controlled with a 
- * `PWM <http://en.wikipedia.org/wiki/Pulse-width_modulation>`__, whereby the
+ * `PWM <https://en.wikipedia.org/wiki/Pulse-width_modulation>`__, whereby the
  * length of the pulse controls the position of the servo. Every servo has
  * different minimum and maximum pulse widths, these can be specified with
  * this function.
@@ -568,7 +568,7 @@ int servo_get_degree(Servo *servo, uint8_t servo_num, int16_t *ret_min, int16_t 
  * Sets the period of the specified servo in µs.
  * 
  * Usually, servos are controlled with a 
- * `PWM <http://en.wikipedia.org/wiki/Pulse-width_modulation>`__. Different
+ * `PWM <https://en.wikipedia.org/wiki/Pulse-width_modulation>`__. Different
  * servos expect PWMs with different periods. Most servos run well with a 
  * period of about 20ms.
  * 
@@ -658,7 +658,7 @@ int servo_get_minimum_voltage(Servo *servo, uint16_t *ret_voltage);
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_enable_position_reached_callback(Servo *servo);
 
@@ -669,7 +669,7 @@ int servo_enable_position_reached_callback(Servo *servo);
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_disable_position_reached_callback(Servo *servo);
 
@@ -678,7 +678,7 @@ int servo_disable_position_reached_callback(Servo *servo);
  *
  * Returns *true* if {@link SERVO_CALLBACK_POSITION_REACHED} callback is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_is_position_reached_callback_enabled(Servo *servo, uint8_t *ret_enabled);
 
@@ -689,7 +689,7 @@ int servo_is_position_reached_callback_enabled(Servo *servo, uint8_t *ret_enable
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_enable_velocity_reached_callback(Servo *servo);
 
@@ -700,7 +700,7 @@ int servo_enable_velocity_reached_callback(Servo *servo);
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_disable_velocity_reached_callback(Servo *servo);
 
@@ -709,7 +709,7 @@ int servo_disable_velocity_reached_callback(Servo *servo);
  *
  * Returns *true* if {@link SERVO_CALLBACK_VELOCITY_REACHED} callback is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_is_velocity_reached_callback_enabled(Servo *servo, uint8_t *ret_enabled);
 
@@ -723,7 +723,7 @@ int servo_is_velocity_reached_callback_enabled(Servo *servo, uint8_t *ret_enable
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int servo_enable_status_led(Servo *servo);
 
@@ -737,7 +737,7 @@ int servo_enable_status_led(Servo *servo);
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int servo_disable_status_led(Servo *servo);
 
@@ -746,7 +746,7 @@ int servo_disable_status_led(Servo *servo);
  *
  * Returns *true* if the status LED is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int servo_is_status_led_enabled(Servo *servo, bool *ret_enabled);
 

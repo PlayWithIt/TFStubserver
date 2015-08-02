@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-06-24.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.1                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_VOLTAGE_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletVoltage
  *
- * Device for sensing Voltages between 0 and 50V
+ * Measures DC voltage between 0V and 50V
  */
 typedef Device Voltage;
 
@@ -185,6 +185,13 @@ typedef Device Voltage;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define VOLTAGE_DEVICE_IDENTIFIER 218
+
+/**
+ * \ingroup BrickletVoltage
+ *
+ * This constant represents the display name of a Voltage Bricklet.
+ */
+#define VOLTAGE_DEVICE_DISPLAY_NAME "Voltage Bricklet"
 
 /**
  * \ingroup BrickletVoltage

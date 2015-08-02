@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-06-24.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.1                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_DISTANCE_IR_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletDistanceIR DistanceIR Bricklet
+ * \defgroup BrickletDistanceIR Distance IR Bricklet
  */
 
 /**
  * \ingroup BrickletDistanceIR
  *
- * Device for sensing distance via infrared
+ * Measures distance up to 150cm with infrared light
  */
 typedef Device DistanceIR;
 
@@ -188,13 +188,20 @@ typedef Device DistanceIR;
 /**
  * \ingroup BrickletDistanceIR
  *
- * This constant is used to identify a DistanceIR Bricklet.
+ * This constant is used to identify a Distance IR Bricklet.
  *
  * The {@link distance_ir_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define DISTANCE_IR_DEVICE_IDENTIFIER 25
+
+/**
+ * \ingroup BrickletDistanceIR
+ *
+ * This constant represents the display name of a Distance IR Bricklet.
+ */
+#define DISTANCE_IR_DEVICE_DISPLAY_NAME "Distance IR Bricklet"
 
 /**
  * \ingroup BrickletDistanceIR

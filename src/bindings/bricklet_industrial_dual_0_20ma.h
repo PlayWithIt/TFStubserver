@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-06-24.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.1                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_INDUSTRIAL_DUAL_0_20MA_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletIndustrialDual020mA IndustrialDual020mA Bricklet
+ * \defgroup BrickletIndustrialDual020mA Industrial Dual 0-20mA Bricklet
  */
 
 /**
  * \ingroup BrickletIndustrialDual020mA
  *
- * Device for sensing two currents between 0 and 20mA (IEC 60381-1)
+ * Measures two DC currents between 0mA and 20mA (IEC 60381-1)
  */
 typedef Device IndustrialDual020mA;
 
@@ -155,13 +155,20 @@ typedef Device IndustrialDual020mA;
 /**
  * \ingroup BrickletIndustrialDual020mA
  *
- * This constant is used to identify a IndustrialDual020mA Bricklet.
+ * This constant is used to identify a Industrial Dual 0-20mA Bricklet.
  *
  * The {@link industrial_dual_0_20ma_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define INDUSTRIAL_DUAL_0_20MA_DEVICE_IDENTIFIER 228
+
+/**
+ * \ingroup BrickletIndustrialDual020mA
+ *
+ * This constant represents the display name of a Industrial Dual 0-20mA Bricklet.
+ */
+#define INDUSTRIAL_DUAL_0_20MA_DEVICE_DISPLAY_NAME "Industrial Dual 0-20mA Bricklet"
 
 /**
  * \ingroup BrickletIndustrialDual020mA

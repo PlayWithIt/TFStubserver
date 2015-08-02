@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_LCD_20X4_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletLCD20x4 LCD20x4 Bricklet
+ * \defgroup BrickletLCD20x4 LCD 20x4 Bricklet
  */
 
 /**
  * \ingroup BrickletLCD20x4
  *
- * Device for controlling a LCD with 4 lines a 20 characters
+ * 20x4 character alphanumeric display with blue backlight
  */
 typedef Device LCD20x4;
 
@@ -127,13 +127,20 @@ typedef Device LCD20x4;
 /**
  * \ingroup BrickletLCD20x4
  *
- * This constant is used to identify a LCD20x4 Bricklet.
+ * This constant is used to identify a LCD 20x4 Bricklet.
  *
  * The {@link lcd_20x4_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define LCD_20X4_DEVICE_IDENTIFIER 212
+
+/**
+ * \ingroup BrickletLCD20x4
+ *
+ * This constant represents the display name of a LCD 20x4 Bricklet.
+ */
+#define LCD_20X4_DEVICE_DISPLAY_NAME "LCD 20x4 Bricklet"
 
 /**
  * \ingroup BrickletLCD20x4
@@ -313,7 +320,7 @@ int lcd_20x4_is_button_pressed(LCD20x4 *lcd_20x4, uint8_t button, bool *ret_pres
  * Custom characters are stored by the LCD in RAM, so they have to be set
  * after each startup.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int lcd_20x4_set_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t character[8]);
 
@@ -323,7 +330,7 @@ int lcd_20x4_set_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t char
  * Returns the custom character for a given index, as set with
  * {@link lcd_20x4_set_custom_character}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int lcd_20x4_get_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t ret_character[8]);
 
@@ -336,7 +343,7 @@ int lcd_20x4_get_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t ret_
  * The default text is shown on the LCD, if the default text counter
  * expires, see {@link lcd_20x4_set_default_text_counter}.
  * 
- * .. versionadded:: 2.0.2~(Plugin)
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
 int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char text[20]);
 
@@ -346,7 +353,7 @@ int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char text[2
  * Returns the default text for a given line (0-3) as set by
  * {@link lcd_20x4_set_default_text}.
  * 
- * .. versionadded:: 2.0.2~(Plugin)
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
 int lcd_20x4_get_default_text(LCD20x4 *lcd_20x4, uint8_t line, char ret_text[20]);
 
@@ -369,7 +376,7 @@ int lcd_20x4_get_default_text(LCD20x4 *lcd_20x4, uint8_t line, char ret_text[20]
  * 
  * The default is -1.
  * 
- * .. versionadded:: 2.0.2~(Plugin)
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
 int lcd_20x4_set_default_text_counter(LCD20x4 *lcd_20x4, int32_t counter);
 
@@ -378,7 +385,7 @@ int lcd_20x4_set_default_text_counter(LCD20x4 *lcd_20x4, int32_t counter);
  *
  * Returns the current value of the default text counter.
  * 
- * .. versionadded:: 2.0.2~(Plugin)
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
 int lcd_20x4_get_default_text_counter(LCD20x4 *lcd_20x4, int32_t *ret_counter);
 

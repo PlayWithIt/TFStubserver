@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-06-24.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.1                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_GPS_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletGPS
  *
- * Device for receiving GPS position
+ * Determine position, velocity and altitude using GPS
  */
 typedef Device GPS;
 
@@ -236,6 +236,13 @@ typedef Device GPS;
 /**
  * \ingroup BrickletGPS
  *
+ * This constant represents the display name of a GPS Bricklet.
+ */
+#define GPS_DEVICE_DISPLAY_NAME "GPS Bricklet"
+
+/**
+ * \ingroup BrickletGPS
+ *
  * Creates the device object \c gps with the unique device ID \c uid and adds
  * it to the IPConnection \c ipcon.
  */
@@ -323,7 +330,7 @@ int gps_get_api_version(GPS *gps, uint8_t ret_api_version[3]);
  * PDOP, HDOP and VDOP are the dilution of precision (DOP) values. They specify
  * the additional multiplicative effect of GPS satellite geometry on GPS 
  * precision. See 
- * `here <http://en.wikipedia.org/wiki/Dilution_of_precision_(GPS)>`__
+ * `here <https://en.wikipedia.org/wiki/Dilution_of_precision_(GPS)>`__
  * for more information. The values are give in hundredths.
  * 
  * EPE is the "Estimated Position Error". The EPE is given in cm. This is not the

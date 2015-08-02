@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-06-24.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.1                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_ROTARY_ENCODER_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletRotaryEncoder RotaryEncoder Bricklet
+ * \defgroup BrickletRotaryEncoder Rotary Encoder Bricklet
  */
 
 /**
  * \ingroup BrickletRotaryEncoder
  *
- * Device for sensing Rotary Encoder input
+ * 360° rotary encoder with push-button
  */
 typedef Device RotaryEncoder;
 
@@ -148,13 +148,20 @@ typedef Device RotaryEncoder;
 /**
  * \ingroup BrickletRotaryEncoder
  *
- * This constant is used to identify a RotaryEncoder Bricklet.
+ * This constant is used to identify a Rotary Encoder Bricklet.
  *
  * The {@link rotary_encoder_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define ROTARY_ENCODER_DEVICE_IDENTIFIER 236
+
+/**
+ * \ingroup BrickletRotaryEncoder
+ *
+ * This constant represents the display name of a Rotary Encoder Bricklet.
+ */
+#define ROTARY_ENCODER_DEVICE_DISPLAY_NAME "Rotary Encoder Bricklet"
 
 /**
  * \ingroup BrickletRotaryEncoder

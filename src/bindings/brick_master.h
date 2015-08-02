@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-06-14.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -425,7 +425,7 @@ typedef Device Master;
  * {@link MASTER_CALLBACK_STACK_CURRENT} is only triggered if the current has changed since the
  * last triggering.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 #define MASTER_CALLBACK_STACK_CURRENT 59
 
@@ -441,7 +441,7 @@ typedef Device Master;
  * {@link MASTER_CALLBACK_STACK_VOLTAGE} is only triggered if the voltage has changed since the
  * last triggering.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 #define MASTER_CALLBACK_STACK_VOLTAGE 60
 
@@ -459,7 +459,7 @@ typedef Device Master;
  * 
  * Does not work with hardware version 2.1.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 #define MASTER_CALLBACK_USB_VOLTAGE 61
 
@@ -475,7 +475,7 @@ typedef Device Master;
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link master_set_debounce_period}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 #define MASTER_CALLBACK_STACK_CURRENT_REACHED 62
 
@@ -491,7 +491,7 @@ typedef Device Master;
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link master_set_debounce_period}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 #define MASTER_CALLBACK_STACK_VOLTAGE_REACHED 63
 
@@ -507,7 +507,7 @@ typedef Device Master;
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link master_set_debounce_period}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 #define MASTER_CALLBACK_USB_VOLTAGE_REACHED 64
 
@@ -1381,7 +1381,7 @@ int master_get_usb_voltage(Master *master, uint16_t *ret_voltage);
  * With the new protocol this is possible, since we didn't want to break API,
  * this function was added additionally.
  * 
- * .. versionadded:: 2.0.2~(Firmware)
+ * .. versionadded:: 2.0.2$nbsp;(Firmware)
  */
 int master_set_long_wifi_key(Master *master, const char key[64]);
 
@@ -1390,7 +1390,7 @@ int master_set_long_wifi_key(Master *master, const char key[64]);
  *
  * Returns the encryption key as set by {@link master_set_long_wifi_key}.
  * 
- * .. versionadded:: 2.0.2~(Firmware)
+ * .. versionadded:: 2.0.2$nbsp;(Firmware)
  */
 int master_get_long_wifi_key(Master *master, char ret_key[64]);
 
@@ -1402,7 +1402,7 @@ int master_get_long_wifi_key(Master *master, char ret_key[64]);
  * 
  * Setting an empty String will restore the default hostname.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_wifi_hostname(Master *master, const char hostname[16]);
 
@@ -1413,7 +1413,7 @@ int master_set_wifi_hostname(Master *master, const char hostname[16]);
  * 
  * An empty String means, that the default hostname is used.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_wifi_hostname(Master *master, char ret_hostname[16]);
 
@@ -1428,7 +1428,7 @@ int master_get_wifi_hostname(Master *master, char ret_hostname[16]);
  * 
  * The default value is 0.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_stack_current_callback_period(Master *master, uint32_t period);
 
@@ -1437,7 +1437,7 @@ int master_set_stack_current_callback_period(Master *master, uint32_t period);
  *
  * Returns the period as set by :func:`SetCurrentCallbackPeriod`.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_stack_current_callback_period(Master *master, uint32_t *ret_period);
 
@@ -1452,7 +1452,7 @@ int master_get_stack_current_callback_period(Master *master, uint32_t *ret_perio
  * 
  * The default value is 0.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_stack_voltage_callback_period(Master *master, uint32_t period);
 
@@ -1461,7 +1461,7 @@ int master_set_stack_voltage_callback_period(Master *master, uint32_t period);
  *
  * Returns the period as set by {@link master_set_stack_voltage_callback_period}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_stack_voltage_callback_period(Master *master, uint32_t *ret_period);
 
@@ -1476,7 +1476,7 @@ int master_get_stack_voltage_callback_period(Master *master, uint32_t *ret_perio
  * 
  * The default value is 0.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_usb_voltage_callback_period(Master *master, uint32_t period);
 
@@ -1485,7 +1485,7 @@ int master_set_usb_voltage_callback_period(Master *master, uint32_t period);
  *
  * Returns the period as set by {@link master_set_usb_voltage_callback_period}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_usb_voltage_callback_period(Master *master, uint32_t *ret_period);
 
@@ -1508,7 +1508,7 @@ int master_get_usb_voltage_callback_period(Master *master, uint32_t *ret_period)
  * 
  * The default value is ('x', 0, 0).
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_stack_current_callback_threshold(Master *master, char option, uint16_t min, uint16_t max);
 
@@ -1517,7 +1517,7 @@ int master_set_stack_current_callback_threshold(Master *master, char option, uin
  *
  * Returns the threshold as set by {@link master_set_stack_current_callback_threshold}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_stack_current_callback_threshold(Master *master, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
@@ -1540,7 +1540,7 @@ int master_get_stack_current_callback_threshold(Master *master, char *ret_option
  * 
  * The default value is ('x', 0, 0).
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_stack_voltage_callback_threshold(Master *master, char option, uint16_t min, uint16_t max);
 
@@ -1549,7 +1549,7 @@ int master_set_stack_voltage_callback_threshold(Master *master, char option, uin
  *
  * Returns the threshold as set by {@link master_set_stack_voltage_callback_threshold}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_stack_voltage_callback_threshold(Master *master, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
@@ -1572,7 +1572,7 @@ int master_get_stack_voltage_callback_threshold(Master *master, char *ret_option
  * 
  * The default value is ('x', 0, 0).
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_usb_voltage_callback_threshold(Master *master, char option, uint16_t min, uint16_t max);
 
@@ -1581,7 +1581,7 @@ int master_set_usb_voltage_callback_threshold(Master *master, char option, uint1
  *
  * Returns the threshold as set by {@link master_set_usb_voltage_callback_threshold}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_usb_voltage_callback_threshold(Master *master, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
@@ -1604,7 +1604,7 @@ int master_get_usb_voltage_callback_threshold(Master *master, char *ret_option, 
  * 
  * The default value is 100.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_debounce_period(Master *master, uint32_t debounce);
 
@@ -1613,7 +1613,7 @@ int master_set_debounce_period(Master *master, uint32_t debounce);
  *
  * Returns the debounce period as set by {@link master_set_debounce_period}.
  * 
- * .. versionadded:: 2.0.5~(Firmware)
+ * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_get_debounce_period(Master *master, uint32_t *ret_debounce);
 
@@ -1623,7 +1623,7 @@ int master_get_debounce_period(Master *master, uint32_t *ret_debounce);
  * Returns *true* if a Ethernet Extension is available to be used by the Master
  * Brick.
  * 
- * .. versionadded:: 2.1.0~(Firmware)
+ * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
 int master_is_ethernet_present(Master *master, bool *ret_present);
 
@@ -1654,7 +1654,7 @@ int master_is_ethernet_present(Master *master, bool *ret_present);
  * 
  * It is recommended to use the Brick Viewer to set the Ethernet configuration.
  * 
- * .. versionadded:: 2.1.0~(Firmware)
+ * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
 int master_set_ethernet_configuration(Master *master, uint8_t connection, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint16_t port);
 
@@ -1663,7 +1663,7 @@ int master_set_ethernet_configuration(Master *master, uint8_t connection, uint8_
  *
  * Returns the configuration as set by {@link master_set_ethernet_configuration}.
  * 
- * .. versionadded:: 2.1.0~(Firmware)
+ * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
 int master_get_ethernet_configuration(Master *master, uint8_t *ret_connection, uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint16_t *ret_port);
 
@@ -1680,7 +1680,7 @@ int master_get_ethernet_configuration(Master *master, uint8_t *ret_connection, u
  * 
  * ``hostname`` is the currently used hostname.
  * 
- * .. versionadded:: 2.1.0~(Firmware)
+ * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
 int master_get_ethernet_status(Master *master, uint8_t ret_mac_address[6], uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint32_t *ret_rx_count, uint32_t *ret_tx_count, char ret_hostname[32]);
 
@@ -1694,7 +1694,7 @@ int master_get_ethernet_status(Master *master, uint8_t ret_mac_address[6], uint8
  * 
  * The current hostname can be discovered with {@link master_get_ethernet_status}.
  * 
- * .. versionadded:: 2.1.0~(Firmware)
+ * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
 int master_set_ethernet_hostname(Master *master, const char hostname[32]);
 
@@ -1707,7 +1707,7 @@ int master_set_ethernet_hostname(Master *master, const char hostname[32]);
  * 
  * The MAC address can be read out again with {@link master_get_ethernet_status}.
  * 
- * .. versionadded:: 2.1.0~(Firmware)
+ * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
 int master_set_ethernet_mac_address(Master *master, uint8_t mac_address[6]);
 
@@ -1729,7 +1729,7 @@ int master_set_ethernet_mac_address(Master *master, uint8_t mac_address[6]);
  * 
  * The default values are 3 for the socket connections and 4280 for the port.
  * 
- * .. versionadded:: 2.2.0~(Firmware)
+ * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
 int master_set_ethernet_websocket_configuration(Master *master, uint8_t sockets, uint16_t port);
 
@@ -1738,7 +1738,7 @@ int master_set_ethernet_websocket_configuration(Master *master, uint8_t sockets,
  *
  * Returns the configuration as set by {@link master_set_ethernet_configuration}.
  * 
- * .. versionadded:: 2.2.0~(Firmware)
+ * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
 int master_get_ethernet_websocket_configuration(Master *master, uint8_t *ret_sockets, uint16_t *ret_port);
 
@@ -1758,7 +1758,7 @@ int master_get_ethernet_websocket_configuration(Master *master, uint8_t *ret_soc
  * 
  * The default value is an empty string (authentication disabled).
  * 
- * .. versionadded:: 2.2.0~(Firmware)
+ * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
 int master_set_ethernet_authentication_secret(Master *master, const char secret[64]);
 
@@ -1767,7 +1767,7 @@ int master_set_ethernet_authentication_secret(Master *master, const char secret[
  *
  * Returns the authentication secret as set by {@link master_set_ethernet_authentication_secret}.
  * 
- * .. versionadded:: 2.2.0~(Firmware)
+ * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
 int master_get_ethernet_authentication_secret(Master *master, char ret_secret[64]);
 
@@ -1787,7 +1787,7 @@ int master_get_ethernet_authentication_secret(Master *master, char ret_secret[64
  * 
  * The default value is an empty string (authentication disabled).
  * 
- * .. versionadded:: 2.2.0~(Firmware)
+ * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
 int master_set_wifi_authentication_secret(Master *master, const char secret[64]);
 
@@ -1796,7 +1796,7 @@ int master_set_wifi_authentication_secret(Master *master, const char secret[64])
  *
  * Returns the authentication secret as set by {@link master_set_wifi_authentication_secret}.
  * 
- * .. versionadded:: 2.2.0~(Firmware)
+ * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
 int master_get_wifi_authentication_secret(Master *master, char ret_secret[64]);
 
@@ -1810,7 +1810,7 @@ int master_get_wifi_authentication_secret(Master *master, char ret_secret[64]);
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.2~(Firmware)
+ * .. versionadded:: 2.3.2$nbsp;(Firmware)
  */
 int master_enable_status_led(Master *master);
 
@@ -1824,7 +1824,7 @@ int master_enable_status_led(Master *master);
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.2~(Firmware)
+ * .. versionadded:: 2.3.2$nbsp;(Firmware)
  */
 int master_disable_status_led(Master *master);
 
@@ -1833,7 +1833,7 @@ int master_disable_status_led(Master *master);
  *
  * Returns *true* if the status LED is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.3.2~(Firmware)
+ * .. versionadded:: 2.3.2$nbsp;(Firmware)
  */
 int master_is_status_led_enabled(Master *master, bool *ret_enabled);
 

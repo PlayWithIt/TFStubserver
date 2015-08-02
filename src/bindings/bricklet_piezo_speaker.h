@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_PIEZO_SPEAKER_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletPiezoSpeaker PiezoSpeaker Bricklet
+ * \defgroup BrickletPiezoSpeaker Piezo Speaker Bricklet
  */
 
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * Device for controlling a piezo buzzer with configurable frequencies
+ * Creates beep with configurable frequency
  */
 typedef Device PiezoSpeaker;
 
@@ -81,13 +81,20 @@ typedef Device PiezoSpeaker;
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * This constant is used to identify a PiezoSpeaker Bricklet.
+ * This constant is used to identify a Piezo Speaker Bricklet.
  *
  * The {@link piezo_speaker_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define PIEZO_SPEAKER_DEVICE_IDENTIFIER 242
+
+/**
+ * \ingroup BrickletPiezoSpeaker
+ *
+ * This constant represents the display name of a Piezo Speaker Bricklet.
+ */
+#define PIEZO_SPEAKER_DEVICE_DISPLAY_NAME "Piezo Speaker Bricklet"
 
 /**
  * \ingroup BrickletPiezoSpeaker

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-06-14.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -564,7 +564,7 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period);
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int dc_enable_status_led(DC *dc);
 
@@ -578,7 +578,7 @@ int dc_enable_status_led(DC *dc);
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int dc_disable_status_led(DC *dc);
 
@@ -587,7 +587,7 @@ int dc_disable_status_led(DC *dc);
  *
  * Returns *true* if the status LED is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int dc_is_status_led_enabled(DC *dc, bool *ret_enabled);
 

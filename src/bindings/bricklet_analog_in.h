@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-06-14.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -488,7 +488,7 @@ int analog_in_get_debounce_period(AnalogIn *analog_in, uint32_t *ret_debounce);
  * 
  * The default measurement range is 0.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int analog_in_set_range(AnalogIn *analog_in, uint8_t range);
 
@@ -497,7 +497,7 @@ int analog_in_set_range(AnalogIn *analog_in, uint8_t range);
  *
  * Returns the measurement range as set by {@link analog_in_set_range}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int analog_in_get_range(AnalogIn *analog_in, uint8_t *ret_range);
 
@@ -512,7 +512,7 @@ int analog_in_get_range(AnalogIn *analog_in, uint8_t *ret_range);
  * 
  * The default value is 50.
  * 
- * .. versionadded:: 2.0.3~(Plugin)
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int analog_in_set_averaging(AnalogIn *analog_in, uint8_t average);
 
@@ -521,7 +521,7 @@ int analog_in_set_averaging(AnalogIn *analog_in, uint8_t average);
  *
  * Returns the averaging configuration as set by {@link analog_in_set_averaging}.
  * 
- * .. versionadded:: 2.0.3~(Plugin)
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int analog_in_get_averaging(AnalogIn *analog_in, uint8_t *ret_average);
 

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-06-14.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -784,7 +784,7 @@ int stepper_get_minimum_voltage(Stepper *stepper, uint16_t *ret_voltage);
  * decay is used.
  * 
  * For an explanation of synchronous rectification see 
- * `here <http://en.wikipedia.org/wiki/Active_rectification>`__.
+ * `here <https://en.wikipedia.org/wiki/Active_rectification>`__.
  * 
  * \warning
  *  If you want to use high speeds (> 10000 steps/s) for a large 
@@ -860,7 +860,7 @@ int stepper_get_all_data_period(Stepper *stepper, uint32_t *ret_period);
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int stepper_enable_status_led(Stepper *stepper);
 
@@ -874,7 +874,7 @@ int stepper_enable_status_led(Stepper *stepper);
  * 
  * The default state is enabled.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int stepper_disable_status_led(Stepper *stepper);
 
@@ -883,7 +883,7 @@ int stepper_disable_status_led(Stepper *stepper);
  *
  * Returns *true* if the status LED is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.3.1~(Firmware)
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
  */
 int stepper_is_status_led_enabled(Stepper *stepper, bool *ret_enabled);
 

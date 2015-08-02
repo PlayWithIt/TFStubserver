@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-06-24.      *
+ * This file was automatically generated on 2015-07-28.      *
  *                                                           *
- * Bindings Version 2.1.1                                    *
+ * Bindings Version 2.1.7                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_ANALOG_OUT_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletAnalogOut AnalogOut Bricklet
+ * \defgroup BrickletAnalogOut Analog Out Bricklet
  */
 
 /**
  * \ingroup BrickletAnalogOut
  *
- * Device for output of voltage between 0 and 5V
+ * Generates configurable DC voltage between 0V and 5V
  */
 typedef Device AnalogOut;
 
@@ -77,13 +77,20 @@ typedef Device AnalogOut;
 /**
  * \ingroup BrickletAnalogOut
  *
- * This constant is used to identify a AnalogOut Bricklet.
+ * This constant is used to identify a Analog Out Bricklet.
  *
  * The {@link analog_out_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define ANALOG_OUT_DEVICE_IDENTIFIER 220
+
+/**
+ * \ingroup BrickletAnalogOut
+ *
+ * This constant represents the display name of a Analog Out Bricklet.
+ */
+#define ANALOG_OUT_DEVICE_DISPLAY_NAME "Analog Out Bricklet"
 
 /**
  * \ingroup BrickletAnalogOut
