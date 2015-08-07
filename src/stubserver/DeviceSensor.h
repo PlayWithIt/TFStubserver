@@ -69,11 +69,16 @@ public:
     }
 
     /**
-     * Get the actual value at the given relative time.
+     * Get the actual value of the sensor.
      */
-    int getValue(uint64_t relativeTimeMs) {
-        return values->getValue(relativeTimeMs);
+    int getValue() {
+        return sensorValue;
     }
+
+    /**
+     * Returns the analog value calculated (simulated) out of the current sensor value.
+     */
+    int calculateAnalogValue();
 
     /**
      * Sets the value size in bytes: 2 or 4

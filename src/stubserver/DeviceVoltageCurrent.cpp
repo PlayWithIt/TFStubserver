@@ -111,7 +111,7 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
     {
         if (VOLTAGE_CURRENT_FUNCTION_GET_POWER == func) {
             p.header.length = sizeof(p.header) + 4;
-            p.uints.value1 = getValue(relativeTimeMs) * amps.getValue(relativeTimeMs) / 1000;
+            p.uints.value1 = getValue() * amps.getValue() / 1000;
             return true;
         }
 
@@ -120,7 +120,7 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
             if (powerChangedCb.period > 0) {
                 powerChangedCb.relativeStartTime = relativeTimeMs;
 
-                int power = amps.getValue(relativeTimeMs) * getValue(relativeTimeMs) / 1000;
+                int power = amps.getValue() * getValue() / 1000;
                 powerChangedCb.param1 = power;
                 powerChangedCb.active = true;
                 Log::log("ADD power callback, period", static_cast<uint64_t>(powerChangedCb.period));
@@ -167,7 +167,7 @@ void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
 
     if (powerChangedCb.mayExecute(relativeTimeMs))
     {
-        value = amps.getValue(relativeTimeMs) * getValue(relativeTimeMs) / 1000;
+        value = amps.getValue() * getValue() / 1000;
         if (value != powerChangedCb.param1)
         {
             triggerCallbackInt(relativeTimeMs, uid, brickStack, powerChangedCb, value);

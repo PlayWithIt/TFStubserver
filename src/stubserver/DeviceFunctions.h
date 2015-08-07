@@ -213,6 +213,14 @@ public:
     GetSetRaw(const GetSetRaw& rhs);
     ~GetSetRaw();
 
+    int getInt() const {
+        return response.get<int>();
+    }
+
+    short getShort() const {
+        return response.get<short>();
+    }
+
     /**
      * Enables a callback that periodically triggers the current value back to the client
      */
@@ -295,12 +303,12 @@ protected:
 public:
     GetSet(DeviceFunctions *other, uint8_t getFunc, uint8_t setFunc, T value = 0)
        : GetSetRaw(other, getFunc, setFunc, sizeof(T), buildBytes(value))
-       , targetValue(0), fraction(0), targetReached(true), counter(0)
+       , targetValue(value), fraction(0), targetReached(true), counter(0)
     { }
 
     GetSet(uint8_t getFunc, uint8_t setFunc, T value = 0)
        : GetSetRaw(getFunc, setFunc, sizeof(T), buildBytes(value))
-       , targetValue(0), fraction(0), targetReached(true), counter(0)
+       , targetValue(value), fraction(0), targetReached(true), counter(0)
     { }
 
     /** create a deep copy of this device plus all child devices! */
@@ -308,13 +316,6 @@ public:
     {
         DeviceFunctions* result = new GetSet<T>(*this);
         return result;
-    }
-
-    /**
-     * Return the current value of the data field.
-     */
-    T getTargetValue() const {
-        return targetValue;
     }
 };
 

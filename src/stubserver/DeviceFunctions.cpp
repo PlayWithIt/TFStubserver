@@ -309,6 +309,7 @@ bool GetSetRaw::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizati
     }
 
     if (setFunction == p.header.function_id) {
+        // call is virtual, may also update intermediate value
         changeTargetValue(p);
         return true;
     }

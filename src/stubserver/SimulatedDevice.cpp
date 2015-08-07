@@ -25,6 +25,8 @@
 #include <brick_dc.h>
 #include <bricklet_analog_in.h>
 #include <bricklet_analog_in_v2.h>
+#include <bricklet_analog_out.h>
+#include <bricklet_analog_out_v2.h>
 #include <bricklet_ambient_light.h>
 #include <bricklet_ambient_light_v2.h>
 #include <bricklet_distance_ir.h>
@@ -268,6 +270,12 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3000,step=5,interval=300")));
         sensor->setOther(functions);
         functions = sensor;
+        label = "mV";
+        break;
+
+    case ANALOG_OUT_DEVICE_IDENTIFIER:
+        functions = new GetSet<uint8_t>(ANALOG_OUT_FUNCTION_GET_MODE, ANALOG_OUT_FUNCTION_SET_MODE, 1);
+        functions = new GetSet<uint16_t>(functions, ANALOG_OUT_FUNCTION_GET_VOLTAGE, ANALOG_OUT_FUNCTION_SET_VOLTAGE, 0);
         label = "mV";
         break;
 

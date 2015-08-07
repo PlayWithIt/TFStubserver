@@ -1,8 +1,20 @@
 /*
  * DeviceBarometer.cpp
  *
- *  Created on: 14.12.2013
- *      Author: holger
+ * Copyright (C) 2013 Holger Grosenick
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <bricklet_barometer.h>
@@ -42,7 +54,8 @@ DeviceBarometer::~DeviceBarometer()
 // calculate altitude (in cm) from pressure.
 int DeviceBarometer::getAltitude(int pressure) const
 {
-    return (getSetRefPressure->getTargetValue() - pressure);
+    int result = getSetRefPressure->getInt() - pressure;
+    return result;
 }
 
 
@@ -55,12 +68,12 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
     p.header.length = sizeof(p.header);
     if (func == BAROMETER_FUNCTION_GET_AIR_PRESSURE) {
         p.header.length += 4;
-        p.int32Value = values->getValue(relativeTimeMs);
+        p.int32Value = sensorValue;
         return true;
     }
     if (func == BAROMETER_FUNCTION_GET_ALTITUDE) {
         p.header.length += 4;
-        p.int32Value = getAltitude(values->getValue(relativeTimeMs));
+        p.int32Value = getAltitude(sensorValue);
         return true;
     }
 
@@ -79,7 +92,7 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
         changedPressureCb.period = p.int32Value;
         if (changedPressureCb.period > 0) {
             changedPressureCb.relativeStartTime = relativeTimeMs;
-            changedPressureCb.param1 = values->getValue(relativeTimeMs);
+            changedPressureCb.param1 = sensorValue;
             changedPressureCb.active = true;
         }
         else
@@ -90,7 +103,7 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
         changedHeightCb.period = p.int32Value;
         if (changedHeightCb.period > 0) {
             changedHeightCb.relativeStartTime = relativeTimeMs;
-            changedHeightCb.param1 = values->getValue(relativeTimeMs);
+            changedHeightCb.param1 = sensorValue;
             changedHeightCb.active = true;
         }
         else
