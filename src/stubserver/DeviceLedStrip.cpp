@@ -106,9 +106,10 @@ bool DeviceLedStrip::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visual
         if (last > numLeds || length > 16) {
             p.setErrorCode(IOPacket::INVALID_PARAMETER);
             if (length > 16)
-                utils::Log::error("SET_RGB_VALUES error, length = %d", length);
+                utils::Log::error("SET_RGB_VALUES error, length ", length);
             else
-                utils::Log::error("SET_RGB_VALUES error, last = %d", last);
+                utils::Log::error("SET_RGB_VALUES error, last ", last);
+            return true;
         }
         else {
             // copy data
