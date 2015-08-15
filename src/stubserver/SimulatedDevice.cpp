@@ -36,6 +36,7 @@
 #include <bricklet_industrial_digital_out_4.h>
 #include <bricklet_industrial_digital_in_4.h>
 #include <bricklet_industrial_quad_relay.h>
+#include <bricklet_industrial_dual_analog_in.h>
 #include <bricklet_io16.h>
 #include <bricklet_io4.h>
 #include <bricklet_line.h>
@@ -214,6 +215,9 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
         functions = new DeviceDigitalOut4();
         break;
+
+//    case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
+//        break;
 
     case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
         functions = new DeviceQuadRelay();
@@ -479,7 +483,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case LED_STRIP_DEVICE_IDENTIFIER:
-        functions = new DeviceLedStrip();
+        functions = new DeviceLedStrip(getProperty("numLeds"));
         break;
 
     case MOTION_DETECTOR_DEVICE_IDENTIFIER:
@@ -818,13 +822,14 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     if (MASTER_FUNCTION_RESET == func && isBrick)
     {
         // enumerate all bricklets
+        Log() << "Got a reset event for brick " << getUidStr();
         brickStack->initEnumerate(IPCON_ENUMERATION_TYPE_AVAILABLE);
         return true;
     }
 
     if (!responseExpected) {
         Log() << "Consume not implemented function " << (int) p.header.function_id
-              << " for device " << this->getUidStr() << " due to responseExpected=false";
+              << " for device " << getUidStr() << " due to responseExpected=false";
         return true;
     }
 

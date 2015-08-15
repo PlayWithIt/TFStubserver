@@ -21,27 +21,25 @@
 #define STUBSERVER_DEVICELEDSTRIP_H_
 
 #include "DeviceFunctions.h"
+#include "VisualizationClient.h"
 
 namespace stubserver {
 
 /**
- * A dummy device for the LED strip bricklet. This makes not very much, because it
- * just consumes the data, but it calls the callback.
+ * A stub-device for the LED strip bricklet. This makes not very much, because it
+ * just consumes the data, but it calls the callbacks. It assumes that the minimum
+ * frame duration is equals to the number of LEDs:<br>
+ * if there are 320 LEDs => min frame duration 320ms<br>
+ * if there are 100 LEDs => min frame duration 100ms<br>
  */
-class DeviceLedStrip : public DeviceFunctions
+class DeviceLedStrip : public DeviceFunctions, public LedStripState
 {
     unsigned chipType;
     unsigned frequency;
-    unsigned length;
     BasicCallback frameRenderedCb;
 
-    // pixel data
-    uint8_t r[320];
-    uint8_t g[320];
-    uint8_t b[320];
-
 public:
-    DeviceLedStrip();
+    DeviceLedStrip(const char* numLeds);
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

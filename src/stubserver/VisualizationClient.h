@@ -210,6 +210,53 @@ protected:
 };
 
 /**
+ * Virtual base class for LED strip state.
+ */
+class LedStripState : public VisibleDeviceState
+{
+public:
+    static const unsigned MAX_LEDS = 320;
+
+    LedStripState();
+
+    /**
+     * Returns the number of LEDs.
+     */
+    unsigned getNumLeds() const {
+        return numLeds;
+    }
+
+    /**
+     * Returns the number of LED changed in the last frame.
+     */
+    unsigned getFrameLength() const {
+        return frameLength;
+    }
+
+    /**
+     * Copies the actual frame data into the arguments and returns the frameLength which
+     * equals to the number of colors copied into the output.
+     */
+    unsigned getFrameData(uint8_t r[MAX_LEDS], uint8_t g[MAX_LEDS], uint8_t b[MAX_LEDS]) const;
+
+    /**
+     * Return the char definition of the given customer char as an array of
+     * 8 bytes. The index must be in the customer char range (0..7) otherwise
+     * NULL will be returned.
+     */
+    int getLedColor(unsigned index) const;
+
+protected:
+    unsigned numLeds;
+    unsigned frameLength;
+
+    // pixel data
+    uint8_t r[MAX_LEDS];
+    uint8_t g[MAX_LEDS];
+    uint8_t b[MAX_LEDS];
+};
+
+/**
  * A simple sensor with one value in the range 0 .. 4095 (typically), Potentiometers
  * can also be handled as sensors as they just return one value.
  */
