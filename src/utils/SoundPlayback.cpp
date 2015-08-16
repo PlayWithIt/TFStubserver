@@ -25,8 +25,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <alsa/asoundlib.h>
 #include <thread>
+
+#ifndef DONT_USE_ALSA
+#include <alsa/asoundlib.h>
+#else
+#define snd_pcm_close(x)
+#define snd_config_update_free_global()
+#endif
 
 #include <utils/utils.h>
 
@@ -326,6 +332,7 @@ int SoundPlayback::openSoundHandle() noexcept
         playbackHandle = NULL;
     }
 
+#ifndef DONT_USE_ALSA
     // Open the sound device
     int rc = snd_pcm_open (&playbackHandle, "default", SND_PCM_STREAM_PLAYBACK, 0);
     if (rc < 0) {
@@ -344,6 +351,8 @@ int SoundPlayback::openSoundHandle() noexcept
         playbackHandle = NULL;
         return -1;
     }
+#endif
+
     channels = hdr->numChannels;
     sampleRate = hdr->sampleRate;
     sampleSize = bytesPerSample;
@@ -376,9 +385,10 @@ start:
     const int PAKET_SIZE = 256;
     while (remain > 0 && !finish && !utils::shouldFinish())
     {
-        int err;
         int todo = remain > PAKET_SIZE ? PAKET_SIZE : remain;
 
+#ifndef DONT_USE_ALSA
+        int err;
         if ((err = snd_pcm_writei (playbackHandle, ptr, todo)) != todo) {
             if (err < 0) {
                 fprintf(stderr, "snd_pcm_writei() failed: %s\n", snd_strerror(err));
@@ -387,6 +397,7 @@ start:
             else
                 fprintf(stderr, "Expected to write %d packets, wrote %d\n", todo, err);
         }
+#endif
 
         {
             if (swapBuffer)

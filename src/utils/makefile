@@ -19,6 +19,10 @@ include ../../settings.mak
 
 LIB := $(LIB_DIR)/libutils.a
 
+ifneq "$(DONT_USE_ALSA)" ""
+CC_USER_FLAGS += -DDONT_USE_ALSA=1
+endif
+
 all:	$(LIB)
 
 include ../../rules.mak

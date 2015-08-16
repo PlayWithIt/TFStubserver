@@ -14,16 +14,18 @@ http://www.tinkerunity.org/wiki/index.php/DE/Projekte/Stackemulator_%28stubserve
 
 Requirements:
 -------------
-* Linux
+* Linux (also compiler on Tinkerforge's RED Brick)
 * g++ 4.6.3 or higher (as on Raspberry PI, OpenSuse 13.1)
 * clang++ 3.3 (llvm) or higher should work too
-* ALSA devel packages (libasound2-dev on Debian, alsa-devel on OpenSuse)
+* libz, binutils-devel packages
+* optional: ALSA devel packages (libasound2-dev on Debian, alsa-devel on OpenSuse)
 
 Compile:
 --------
 * run ``make`` or ``make -j4`` in the base directory for a debug-build
 * or run ``make CONFIG=Release`` for an optimized build
 * or run ``make USE_LLVM=1`` for a build with clang++
+* or run ``make DONT_USE_ALSA=1`` to exclude ALSA support if ALSA is not installed
 
 Example:
 --------
