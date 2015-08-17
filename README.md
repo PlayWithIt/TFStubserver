@@ -14,10 +14,9 @@ http://www.tinkerunity.org/wiki/index.php/DE/Projekte/Stackemulator_%28stubserve
 
 Requirements:
 -------------
-* Linux (also compiler on Tinkerforge's RED Brick)
+* Linux (also compiles on Tinkerforge's RED Brick)
 * g++ 4.6.3 or higher (as on Raspberry PI, OpenSuse 13.1)
 * clang++ 3.3 (llvm) or higher should work too
-* libz, binutils-devel packages
 * optional: ALSA devel packages (libasound2-dev on Debian, alsa-devel on OpenSuse)
 
 Compile:
@@ -30,6 +29,9 @@ Compile:
 Example:
 --------
 * example configurations are in ``src/stubserver``, look for ``*.properties``
-  (e.g. ``motion.properties``). The properties are used for device configuration
+  (e.g. ``motion.properties``). The properties are used for device
+  configuration
+* Sensors mostly use a 'ValueProvider' which calculates the values or reads
+  the value from a text file (when when value changes + value).
 * see ``stubserver -?`` for command-line options
 * ``src/stubserver/stub`` is an example to start the server on port 4225
