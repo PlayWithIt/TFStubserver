@@ -83,7 +83,8 @@ DeviceLedStrip::DeviceLedStrip(const char* _numLeds)
         numLeds = l;
         utils::Log() << "Update DeviceLedStrip to " << numLeds << " LEDS";
     }
-    utils::Log() << "DeviceLedStrip has " << numLeds << " LEDS";
+    else
+        utils::Log() << "DeviceLedStrip has " << numLeds << " LEDS";
 }
 
 /**

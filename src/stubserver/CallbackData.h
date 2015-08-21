@@ -67,6 +67,8 @@ struct BasicCallback
  * param1 / 2 are the min / max values and 'period' is the debounce period.
  * <p>
  * Only the option is private in order to guarantee correct contents.
+ * <P>
+ * BasicCallback.getPeriodFunc is used for GET_DEBOUNCE_PERIOD
  */
 class RangeCallback : public BasicCallback
 {
@@ -74,10 +76,8 @@ class RangeCallback : public BasicCallback
     uint8_t  paramSize;
 
 public:
-    uint8_t  setFunctionCode;            // set the threshold callback
-    uint8_t  getFunctionCode;            // get threshold callback data
-    uint8_t  setDebounceFunctionCode;    // set debounce period
-    uint8_t  getDebounceFunctionCode;    // get debounce period
+    uint8_t  setThresholdFunctionCode;   // set the threshold callback
+    uint8_t  getThresholdFunctionCode;   // get threshold callback data
 
     /**
      * Default init with period == 100, and paramSize == 2.
@@ -87,6 +87,11 @@ public:
     void setParamSize(uint8_t psize) {
         paramSize = psize == 2 ? 2 : 4;
     }
+
+    /**
+     * Print current state into log-file.
+     */
+    void logCallbackStatus(uint32_t uid) const;
 
     /**
      * Change the callback option, if the option is 'x' or invalid,
@@ -111,7 +116,7 @@ public:
     /**
      * Set all function codes at once.
      */
-    void setFunctions(uint8_t _setFunctionCode, uint8_t _getFunctionCode,
+    void setFunctions(uint8_t _setThresholdFunctionCode, uint8_t _getThresholdFunctionCode,
                       uint8_t _setDebounceFunctionCode, uint8_t _getDebounceFunctionCode,
                       uint8_t _callbackCode);
 };

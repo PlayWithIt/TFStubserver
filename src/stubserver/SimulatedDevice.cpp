@@ -60,6 +60,7 @@
 #include "DeviceLCD.h"
 #include "DeviceLedStrip.h"
 #include "DeviceMotionDetector.h"
+#include "DeviceMultiSensor.h"
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
 #include "DeviceSensor.h"
@@ -216,8 +217,9 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DeviceDigitalOut4();
         break;
 
-//    case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
-//        break;
+    case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
+        functions = new DeviceDualAnalogIn(createValueProvider(getProperty("valueProvider1")), createValueProvider(getProperty("valueProvider2")));
+        break;
 
     case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
         functions = new DeviceQuadRelay();
@@ -681,7 +683,7 @@ void SimulatedDevice::setVisualizationClient(VisualizationClient &client) const 
         state->notify(client, VisibleDeviceState::CONNECTED);
     }
     else {
-        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has NO base state yet";
+        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has NO base state yet, cannot use notify(CONNECTED)";
     }
 }
 

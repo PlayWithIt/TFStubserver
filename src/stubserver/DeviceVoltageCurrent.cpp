@@ -97,7 +97,7 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
     if (DeviceSensor::consumeCommand(relativeTimeMs, p, visualizationClient))
     {
         // debounce period must be applied to both callbacks.
-        if (p.header.function_id == rangeCallback.setDebounceFunctionCode)
+        if (p.header.function_id == rangeCallback.setPeriodFunc)
             amps.consumeCommand(relativeTimeMs, p, visualizationClient);
         return true;
     }

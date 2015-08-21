@@ -32,10 +32,10 @@ DeviceBarometer::DeviceBarometer(ValueProvider *vp)
   , changedHeightCb(0, BAROMETER_FUNCTION_SET_ALTITUDE_CALLBACK_PERIOD, BAROMETER_CALLBACK_ALTITUDE, 0)
 {
     rangeCallback.callbackCode = BAROMETER_CALLBACK_AIR_PRESSURE_REACHED;
-    rangeCallback.setFunctionCode = BAROMETER_FUNCTION_SET_AIR_PRESSURE_CALLBACK_THRESHOLD;
-    rangeCallback.getFunctionCode = BAROMETER_FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD;
-    rangeCallback.setDebounceFunctionCode = BAROMETER_FUNCTION_SET_DEBOUNCE_PERIOD;
-    rangeCallback.getDebounceFunctionCode = BAROMETER_FUNCTION_GET_DEBOUNCE_PERIOD;
+    rangeCallback.setThresholdFunctionCode = BAROMETER_FUNCTION_SET_AIR_PRESSURE_CALLBACK_THRESHOLD;
+    rangeCallback.getThresholdFunctionCode = BAROMETER_FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD;
+    rangeCallback.setPeriodFunc = BAROMETER_FUNCTION_SET_DEBOUNCE_PERIOD;
+    rangeCallback.getPeriodFunc = BAROMETER_FUNCTION_GET_DEBOUNCE_PERIOD;
 
     // TODO: still not all functions prepared
     getSet = new GetSetRaw(getSet, BAROMETER_FUNCTION_GET_AVERAGING, BAROMETER_FUNCTION_SET_AVERAGING, 3, averaging);
@@ -78,12 +78,12 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
     }
 
     // get/set debounce period
-    if (func == rangeCallback.getDebounceFunctionCode) {
+    if (func == rangeCallback.getPeriodFunc) {
         p.header.length += sizeof(uint32_t);
         p.uint32Value = rangeCallback.period;
         return true;
     }
-    if (func == rangeCallback.setDebounceFunctionCode) {
+    if (func == rangeCallback.setPeriodFunc) {
         rangeCallback.period = p.uint32Value;
         return true;
     }

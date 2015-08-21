@@ -76,23 +76,21 @@ RangeCallback::RangeCallback(uint8_t psize)
   : BasicCallback(0, 0, 0, 0)
   , option('x')     // not active
   , paramSize(psize)
-  , setFunctionCode(0)
-  , getFunctionCode(0)
-  , setDebounceFunctionCode(0)
-  , getDebounceFunctionCode(0)
+  , setThresholdFunctionCode(0)
+  , getThresholdFunctionCode(0)
 {
     period = 100;
 }
 
-void RangeCallback::setFunctions(uint8_t _setFunctionCode, uint8_t _getFunctionCode,
+void RangeCallback::setFunctions(uint8_t _setThresholdFunctionCode, uint8_t _getThresholdFunctionCode,
                                  uint8_t _setDebounceFunctionCode, uint8_t _getDebounceFunctionCode,
                                  uint8_t _callbackCode)
 {
     callbackCode = _callbackCode;
-    setFunctionCode = _setFunctionCode;
-    getFunctionCode = _getFunctionCode;
-    setDebounceFunctionCode = _setDebounceFunctionCode;
-    getDebounceFunctionCode = _getDebounceFunctionCode;
+    setThresholdFunctionCode = _setThresholdFunctionCode;
+    getThresholdFunctionCode = _getThresholdFunctionCode;
+    setPeriodFunc = _setDebounceFunctionCode;
+    getPeriodFunc = _getDebounceFunctionCode;
 }
 
 /**
@@ -102,7 +100,7 @@ void RangeCallback::setFunctions(uint8_t _setFunctionCode, uint8_t _getFunctionC
 bool RangeCallback::consumeGetSetThreshold(IOPacket &p)
 {
     uint8_t func = p.header.function_id;
-    if (func == getFunctionCode)
+    if (func == getThresholdFunctionCode)
     {
         if (paramSize == 2) {
             p.header.length = sizeof(p.header) + sizeof(p.threshold);
@@ -119,7 +117,7 @@ bool RangeCallback::consumeGetSetThreshold(IOPacket &p)
         return true;
     }
 
-    if (func == setFunctionCode)
+    if (func == setThresholdFunctionCode)
     {
         p.header.length = sizeof(p.header);
         setOption(p.threshold.option);
@@ -132,11 +130,19 @@ bool RangeCallback::consumeGetSetThreshold(IOPacket &p)
             param1 = p.thresholdInt.min;
             param2 = p.thresholdInt.max;
         }
-        utils::Log() << utils::base58Encode(p.header.uid) <<": set callback #" << (int) callbackCode << " option '" << option
-                     << "', min=" << param1 << " max=" << param2 << " debounce=" << period;
+        logCallbackStatus(p.header.uid);
         return true;
     }
     return false;
+}
+
+/**
+ * Print current state into log-file.
+ */
+void RangeCallback::logCallbackStatus(uint32_t uid) const
+{
+    utils::Log() << utils::base58Encode(uid) <<": set callback #" << (int) callbackCode << " option '" << option
+                 << "', min=" << param1 << " max=" << param2 << " debounce=" << period;
 }
 
 /**

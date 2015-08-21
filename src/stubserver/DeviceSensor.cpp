@@ -101,12 +101,12 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
     }
 
     // get/set debounce period
-    if (func == rangeCallback.getDebounceFunctionCode) {
+    if (func == rangeCallback.getPeriodFunc) {
         p.header.length = sizeof(p.header) + sizeof(uint32_t);
         p.uint32Value = rangeCallback.period;
         return true;
     }
-    if (func == rangeCallback.setDebounceFunctionCode) {
+    if (func == rangeCallback.setPeriodFunc) {
         rangeCallback.period = p.uint32Value;
         return true;
     }

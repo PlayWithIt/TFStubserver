@@ -92,6 +92,12 @@ typedef struct IOPacket
         } ATTRIBUTE_PACKED beepRequest;
 
         struct {
+            uint8_t  channel;
+            int32_t  value1;
+            int32_t  value2;
+        } ATTRIBUTE_PACKED channelRequest;
+
+        struct {
             bool     state;
             uint32_t time;
             uint32_t time_remaining;
@@ -120,6 +126,13 @@ typedef struct IOPacket
             int  min;
             int  max;
         } ATTRIBUTE_PACKED thresholdInt;
+
+        struct {
+            uint8_t channel;
+            char option;
+            int  min;
+            int  max;
+        } ATTRIBUTE_PACKED thresholdChannelInt;
 
         struct {
             char morse[60];

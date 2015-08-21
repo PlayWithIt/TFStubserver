@@ -98,10 +98,10 @@ public:
                           uint8_t _callbackCode)
     {
         rangeCallback.callbackCode = _callbackCode;
-        rangeCallback.setFunctionCode = _setFunctionCode;
-        rangeCallback.getFunctionCode = _getFunctionCode;
-        rangeCallback.setDebounceFunctionCode = _setDebounceFunctionCode;
-        rangeCallback.getDebounceFunctionCode = _getDebounceFunctionCode;
+        rangeCallback.setThresholdFunctionCode = _setFunctionCode;
+        rangeCallback.getThresholdFunctionCode = _getFunctionCode;
+        rangeCallback.setPeriodFunc = _setDebounceFunctionCode;
+        rangeCallback.getPeriodFunc = _getDebounceFunctionCode;
     }
 
     /**
