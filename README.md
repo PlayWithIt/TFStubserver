@@ -8,13 +8,21 @@ http://www.tinkerforge.com) on network protocol level. A client
 can connect as if it would connect to 'brickd'.
 
 
-See this page to get a list of supported Tinkerforge devices
-and a short introduction:
+The emulator fully supports callbacks and configurable sensor values. The 
+configurable sensor values are in some kind "predictable", which is useful
+for unit testing.
+In combination with a Qt based UI (see https://github.com/PlayWithIt/TFStubViz),
+you can manually override/control the sensor values using sliders or buttons
+(depending on the type). Doing this you can for example test some extreme or
+very specific combinations.
+
+
+See this page to get a list of supported Tinkerforge devices and a short introduction:
 http://www.tinkerunity.org/wiki/index.php/DE/Projekte/Stackemulator_%28stubserver%29
 
 Requirements:
 -------------
-* Linux (also compiles on Tinkerforge's RED Brick)
+* Linux (also compiles on Tinkerforge's RED Brick or RasPi)
 * g++ 4.6.3 or higher (as on Raspberry PI, OpenSuse 13.1)
 * clang++ 3.3 (llvm) or higher should work too
 * optional: ALSA devel packages (libasound2-dev on Debian, alsa-devel on OpenSuse)
@@ -35,3 +43,5 @@ Example:
   the value from a text file (when when value changes + value).
 * see ``stubserver -?`` for command-line options
 * ``src/stubserver/stub`` is an example to start the server on port 4225
+* your application or brickv can then connect to the emulated devices via
+  ``localhost:4225``
