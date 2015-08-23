@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdexcept>
 #include <memory.h>
 
 #include <utils/Log.h>
@@ -31,23 +30,31 @@ namespace stubserver {
 using utils::Log;
 
 
-ResponseData::ResponseData()
-  : size(0)
-{
-    bzero(bytes, sizeof(bytes));
-}
-
-ResponseData::ResponseData(unsigned _size, const uint8_t *_bytes)
-  : size(_size)
+ResponseData::ResponseData(unsigned _size, const uint8_t *initBytes)
+  : extData(NULL)
+  , size(_size)
 {
     bzero(bytes, sizeof(bytes));
     if (_size > 0)
     {
         if (_size > sizeof(bytes))
-            throw std::logic_error("size too large");
-        if (_bytes)
-            memcpy(bytes, _bytes, _size);
+            throw utils::OutOfRange("ResponseData::size too large", _size, sizeof(bytes));
+        if (initBytes)
+            memcpy(bytes, initBytes, _size);
     }
+}
+
+ResponseData::ResponseData(uint8_t *_extData, unsigned _size)
+  : extData(_extData)
+  , size(_size)
+{
+    bzero(bytes, sizeof(bytes));
+    if (_size <= 0)
+        throw utils::OutOfRange("ResponseData::size must be > 0");
+
+    // generally not supported to use more than 8 bytes
+    if (_size > sizeof(bytes))
+        throw utils::OutOfRange("ResponseData::size too large", _size, sizeof(bytes));
 }
 
 //-----------------------------------------------------------------------------

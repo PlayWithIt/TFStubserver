@@ -34,8 +34,13 @@ using utils::Log;
 DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint8_t _callbackCode)
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(0)
+  , getStatusLedFunc(0)
+  , setStatusLedOnFunc(0)
+  , setStatusLedOffFunc(0)
+  , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
+  , zeroPoint(0)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, 0, 0, 0)
@@ -46,8 +51,13 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, u
                            uint8_t _setCallbackFuncAnalog, uint8_t _callbackCode, uint8_t _callbackCodeAnalog)
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
+  , getStatusLedFunc(0)
+  , setStatusLedOnFunc(0)
+  , setStatusLedOffFunc(0)
+  , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
+  , zeroPoint(0)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -59,8 +69,13 @@ DeviceSensor::DeviceSensor(ValueProvider *values,
                            uint8_t _setCallbackFuncAnalog, uint8_t _callbackCode, uint8_t _callbackCodeAnalog)
   : getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
+  , getStatusLedFunc(0)
+  , setStatusLedOnFunc(0)
+  , setStatusLedOffFunc(0)
+  , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
+  , zeroPoint(0)
   , values(values)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -141,6 +156,34 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
         return true;
     }
 
+    // is the status LED functionality enabled (Bricks + LoadCell) ?
+    if (getStatusLedFunc > 0)
+    {
+        if (func == setStatusLedOnFunc) {
+            //utils::Log::log("Toggle status led ON");
+            setStatusLedOn(true);
+            notify(visualizationClient, LED_CHANGE);
+            return true;
+        }
+        if (func == setStatusLedOffFunc) {
+            //utils::Log::log("Toggle status led OFF");
+            setStatusLedOn(false);
+            notify(visualizationClient, LED_CHANGE);
+            return true;
+        }
+        if (func == getStatusLedFunc) {
+            p.boolValue = isStatusLedOn();
+            p.header.length = sizeof(p.header) + 1;
+            return true;
+        }
+    }
+    if (func == calibrateZeroFunc) {
+        zeroPoint = sensorValue;
+        sensorValue = 0;
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+    }
+
     if (other)
         return other->consumeCommand(relativeTimeMs, p, visualizationClient);
 
@@ -163,14 +206,14 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
     if (visualizationClient.useAsInputSource(getInternalSensorNo())) {
         currentValue = visualizationClient.getInputState(getInternalSensorNo());
         if (currentValue != sensorValue) {
-            sensorValue = currentValue;
+            sensorValue = currentValue - zeroPoint;
         }
     }
     else {
         currentValue = values->getValue(relativeTimeMs);
         if (currentValue != sensorValue)
         {
-            sensorValue = currentValue;
+            sensorValue = currentValue - zeroPoint;
             notify(visualizationClient, VALUE_CHANGE);
         }
     }
@@ -216,6 +259,17 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
         else
             triggerCallbackInt(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);
     }
+}
+
+/**
+ * Setting these function codes enables status LED functionality.
+ */
+void DeviceSensor::enableStatusLed(uint8_t _getStatusLedFunc, uint8_t _setStatusLedOnFunc, uint8_t _setStatusLedOffFunc)
+{
+    getStatusLedFunc = _getStatusLedFunc;
+    setStatusLedOnFunc = _setStatusLedOnFunc;
+    setStatusLedOffFunc = _setStatusLedOffFunc;
+    setStatusLedOn(true);
 }
 
 /**

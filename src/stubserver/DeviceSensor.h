@@ -34,8 +34,13 @@ class DeviceSensor : public DeviceFunctions, public SensorState
 {
     uint8_t  getValueFunc;
     uint8_t  getValueAnalogFunc;
+    uint8_t  getStatusLedFunc;
+    uint8_t  setStatusLedOnFunc;
+    uint8_t  setStatusLedOffFunc;
+    uint8_t  calibrateZeroFunc;
     unsigned maxAnalogValue;
     unsigned valueSize;      // size in bytes: 1,2 or 4 bytes
+    int      zeroPoint;      // defines an offset (0-value)
 
     ValueProvider *values;
 
@@ -43,6 +48,15 @@ protected:
     BasicCallback changedCb;
     BasicCallback changedAnalogCb;
     RangeCallback rangeCallback;
+
+    /**
+     * Sets the zero point which is 0 by default: if the normal sensor value is 100, but
+     * zeroPoint is 100 too, the resulting value is 0. This can be used for calibration
+     * which is supported for example by the LoadCell-Bricklet.
+     */
+    void setZeroPoint(int zp) {
+        zeroPoint = zp;
+    }
 
 public:
     DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint8_t _callbackFunc);
@@ -59,6 +73,11 @@ public:
     void setMaxAnalogValue(unsigned m) {
         maxAnalogValue = m;
     }
+
+    /**
+     * Setting these function codes enables status LED functionality.
+     */
+    void enableStatusLed(uint8_t _getStatusLedFunc, uint8_t _setStatusLedOnFunc, uint8_t _setStatusLedOffFunc);
 
     /**
      * Sets the sensor dependent min / max value.
@@ -88,6 +107,12 @@ public:
         rangeCallback.setParamSize(valueSize);
     }
 
+    /**
+     * Calibrate zero: the actual sensor value is used as zero-point.
+     */
+    void setCalibrateZeroFunc(uint8_t func) {
+        calibrateZeroFunc = func;
+    }
 
 
     /**

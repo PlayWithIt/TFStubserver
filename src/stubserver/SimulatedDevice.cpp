@@ -29,9 +29,11 @@
 #include <bricklet_analog_out_v2.h>
 #include <bricklet_ambient_light.h>
 #include <bricklet_ambient_light_v2.h>
+#include <bricklet_color.h>
 #include <bricklet_distance_ir.h>
 #include <bricklet_distance_us.h>
 #include <bricklet_dual_button.h>
+#include <bricklet_dust_detector.h>
 #include <bricklet_humidity.h>
 #include <bricklet_industrial_digital_out_4.h>
 #include <bricklet_industrial_digital_in_4.h>
@@ -40,6 +42,7 @@
 #include <bricklet_io16.h>
 #include <bricklet_io4.h>
 #include <bricklet_line.h>
+#include <bricklet_load_cell.h>
 #include <bricklet_moisture.h>
 #include <bricklet_humidity.h>
 #include <bricklet_ptc.h>
@@ -194,51 +197,42 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     //----------- Bricklets -------------------------------------------------------------------------------------------
 
-    case BAROMETER_DEVICE_IDENTIFIER:
-        functions = new DeviceBarometer(createValueProvider(getProperty("valueProvider")));
-        label = "mbar * 1000";
+    case AMBIENT_LIGHT_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(
+                AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE,
+                AMBIENT_LIGHT_FUNCTION_GET_ANALOG_VALUE,
+                AMBIENT_LIGHT_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD,
+                AMBIENT_LIGHT_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD,
+                AMBIENT_LIGHT_CALLBACK_ILLUMINANCE,
+                AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE);
+        sensor->setRangeCallback(AMBIENT_LIGHT_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
+        sensor->setMinMax(0, 9000);
+        functions = sensor;
+        label = "Lux/10";
         break;
 
-    case HALL_EFFECT_DEVICE_IDENTIFIER:
-        functions = new DeviceHallEffect(createValueProvider(getProperty("valueProvider")));
-        break;
-
-    case DUAL_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceDualRelay();
-        break;
-
-    case INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER:
-        functions = new DeviceDigitalIn(createValueProvider(getProperty("valueProvider")));
-        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
-        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
-        break;
-
-    case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
-        functions = new DeviceDigitalOut4();
-        break;
-
-    case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
-        functions = new DeviceDualAnalogIn(createValueProvider(getProperty("valueProvider1")), createValueProvider(getProperty("valueProvider2")));
-        break;
-
-    case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceQuadRelay();
-        break;
-
-    case IO16_DEVICE_IDENTIFIER:
-        functions = new DeviceInOut16(createValueProvider(getProperty("valueProviderA")), createValueProvider(getProperty("valueProviderB")));
-        break;
-
-    case IO4_DEVICE_IDENTIFIER:
-        functions = new DeviceInOut(createValueProvider(getProperty("valueProvider")));
-        break;
-
-    case ROTARY_POTI_DEVICE_IDENTIFIER:
-        functions = new DevicePotentiometer(false);
-        break;
-
-    case LINEAR_POTI_DEVICE_IDENTIFIER:
-        functions = new DevicePotentiometer(true);
+    case AMBIENT_LIGHT_V2_DEVICE_IDENTIFIER:
+        functions = new GetSet<uint16_t>(AMBIENT_LIGHT_V2_FUNCTION_GET_CONFIGURATION, AMBIENT_LIGHT_V2_FUNCTION_SET_CONFIGURATION, 0);
+        sensor = new DeviceSensor(
+                AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE,
+                AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD,
+                AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE);
+        sensor->setRangeCallback(AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_V2_FUNCTION_SET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_V2_FUNCTION_GET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED);
+        sensor->setValueSize(4);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3200000,step=800,interval=200")));
+        sensor->setMinMax(0, 6400000);
+        sensor->setOther(functions);
+        functions = sensor;
+        label = "Lux/100";
         break;
 
     case ANALOG_IN_DEVICE_IDENTIFIER:
@@ -285,39 +279,33 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         label = "mV";
         break;
 
-    case AMBIENT_LIGHT_DEVICE_IDENTIFIER:
-        sensor = new DeviceSensor(
-                AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE,
-                AMBIENT_LIGHT_FUNCTION_GET_ANALOG_VALUE,
-                AMBIENT_LIGHT_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD,
-                AMBIENT_LIGHT_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD,
-                AMBIENT_LIGHT_CALLBACK_ILLUMINANCE,
-                AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE);
-        sensor->setRangeCallback(AMBIENT_LIGHT_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD,
-                AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD,
-                AMBIENT_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD,
-                AMBIENT_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
-                AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
-        sensor->setMinMax(0, 9000);
-        functions = sensor;
-        label = "Lux/10";
+    case BAROMETER_DEVICE_IDENTIFIER:
+        functions = new DeviceBarometer(createValueProvider(getProperty("valueProvider")));
+        label = "mbar * 1000";
         break;
 
-    case AMBIENT_LIGHT_V2_DEVICE_IDENTIFIER:
-        functions = new GetSet<uint16_t>(AMBIENT_LIGHT_V2_FUNCTION_GET_CONFIGURATION, AMBIENT_LIGHT_V2_FUNCTION_SET_CONFIGURATION, 0);
-        sensor = new DeviceSensor(
-                AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE,
-                AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD,
-                AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE);
-        sensor->setRangeCallback(AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD,
-                AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD,
-                AMBIENT_LIGHT_V2_FUNCTION_SET_DEBOUNCE_PERIOD,
-                AMBIENT_LIGHT_V2_FUNCTION_GET_DEBOUNCE_PERIOD,
-                AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED);
+    case COLOR_DEVICE_IDENTIFIER:
+        functions = new GetSet<uint16_t>(COLOR_FUNCTION_GET_CONFIG, COLOR_FUNCTION_SET_CONFIG, 0x0303);
+        sensor = new DeviceSensor(COLOR_FUNCTION_GET_ILLUMINANCE, COLOR_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, COLOR_CALLBACK_ILLUMINANCE);
         sensor->setValueSize(4);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=320000,step=80,interval=300")));
-        sensor->setMinMax(0, 640000);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=100000,step=500,interval=250")));
+        sensor->setMinMax(0, 100000);
+        sensor->setOther(functions);
+        functions = sensor;
+
+        // TODO: this will not work ... there are 4 independent value, 16bit each
+        // -> need 4 valueProviders or other mechanism, also for the callback.
+        sensor = new DeviceSensor(COLOR_FUNCTION_GET_COLOR, COLOR_FUNCTION_SET_COLOR_CALLBACK_PERIOD, COLOR_CALLBACK_COLOR);
+        sensor->setRangeCallback(COLOR_FUNCTION_SET_COLOR_CALLBACK_THRESHOLD,
+                COLOR_FUNCTION_GET_COLOR_CALLBACK_THRESHOLD,
+                COLOR_FUNCTION_SET_DEBOUNCE_PERIOD,
+                COLOR_FUNCTION_GET_DEBOUNCE_PERIOD,
+                COLOR_CALLBACK_COLOR_REACHED);
+
+        sensor->enableStatusLed(COLOR_FUNCTION_IS_LIGHT_ON, COLOR_FUNCTION_LIGHT_ON, COLOR_FUNCTION_LIGHT_OFF);
+        sensor->setValueSize(8);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3200000,step=800,interval=200")));
+        sensor->setMinMax(0, 6400000);
         sensor->setOther(functions);
         functions = sensor;
         label = "Lux/100";
@@ -357,6 +345,32 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = sensor;
         break;
 
+    case DUST_DETECTOR_DEVICE_IDENTIFIER:
+        functions = new GetSet<uint8_t>(DUST_DETECTOR_FUNCTION_GET_MOVING_AVERAGE, DUST_DETECTOR_FUNCTION_SET_MOVING_AVERAGE, 100);
+        sensor = new DeviceSensor(
+                DUST_DETECTOR_FUNCTION_GET_DUST_DENSITY,
+                DUST_DETECTOR_FUNCTION_SET_DUST_DENSITY_CALLBACK_PERIOD,
+                DUST_DETECTOR_CALLBACK_DUST_DENSITY);
+        sensor->setRangeCallback(DUST_DETECTOR_FUNCTION_SET_DUST_DENSITY_CALLBACK_THRESHOLD,
+                DUST_DETECTOR_FUNCTION_GET_DUST_DENSITY_CALLBACK_THRESHOLD,
+                DUST_DETECTOR_FUNCTION_SET_DEBOUNCE_PERIOD,
+                DUST_DETECTOR_FUNCTION_GET_DEBOUNCE_PERIOD,
+                DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=500,step=1,interval=100")));
+        sensor->setMinMax(0, 500);
+        sensor->setOther(functions);
+        functions = sensor;
+        label ="µg/m³";
+        break;
+
+    case DUAL_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceDualRelay();
+        break;
+
+    case HALL_EFFECT_DEVICE_IDENTIFIER:
+        functions = new DeviceHallEffect(createValueProvider(getProperty("valueProvider")));
+        break;
+
     case HUMIDITY_DEVICE_IDENTIFIER:
         sensor = new DeviceSensor(
                 HUMIDITY_FUNCTION_GET_HUMIDITY,
@@ -376,6 +390,36 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         label = "% rHum * 10";
         break;
 
+    case INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER:
+        functions = new DeviceDigitalIn(createValueProvider(getProperty("valueProvider")));
+        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
+        functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
+        break;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
+        functions = new DeviceDigitalOut4();
+        break;
+
+    case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
+        functions = new DeviceDualAnalogIn(createValueProvider(getProperty("valueProvider1")), createValueProvider(getProperty("valueProvider2")));
+        break;
+
+    case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceQuadRelay();
+        break;
+
+    case IO16_DEVICE_IDENTIFIER:
+        functions = new DeviceInOut16(createValueProvider(getProperty("valueProviderA")), createValueProvider(getProperty("valueProviderB")));
+        break;
+
+    case IO4_DEVICE_IDENTIFIER:
+        functions = new DeviceInOut(createValueProvider(getProperty("valueProvider")));
+        break;
+
+    case LINEAR_POTI_DEVICE_IDENTIFIER:
+        functions = new DevicePotentiometer(true);
+        break;
+
     case LINE_DEVICE_IDENTIFIER:
         sensor = new DeviceSensor(
                 LINE_FUNCTION_GET_REFLECTIVITY,
@@ -389,6 +433,37 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=4000,step=5,interval=300")));
         functions = sensor;
         label = "Reflectivity";  // default
+        break;
+
+    case LCD_20X4_DEVICE_IDENTIFIER:
+        functions = new DeviceLCD(20, 4);
+        break;
+
+    case LED_STRIP_DEVICE_IDENTIFIER:
+        functions = new DeviceLedStrip(getProperty("numLeds"));
+        break;
+
+    case LOAD_CELL_DEVICE_IDENTIFIER:
+        functions = new DoNothing(LOAD_CELL_FUNCTION_CALIBRATE);
+        functions = new GetSet<uint8_t>(functions, LOAD_CELL_FUNCTION_GET_MOVING_AVERAGE, LOAD_CELL_FUNCTION_SET_MOVING_AVERAGE, 4);
+        functions = new GetSet<uint16_t>(functions, LOAD_CELL_FUNCTION_GET_CONFIGURATION, LOAD_CELL_FUNCTION_SET_CONFIGURATION, 0);
+        sensor = new DeviceSensor(
+                LOAD_CELL_FUNCTION_GET_WEIGHT,
+                LOAD_CELL_FUNCTION_SET_WEIGHT_CALLBACK_PERIOD,
+                LOAD_CELL_CALLBACK_WEIGHT);
+        sensor->setRangeCallback(LOAD_CELL_FUNCTION_SET_WEIGHT_CALLBACK_THRESHOLD,
+                LOAD_CELL_FUNCTION_GET_WEIGHT_CALLBACK_THRESHOLD,
+                LOAD_CELL_FUNCTION_SET_DEBOUNCE_PERIOD,
+                LOAD_CELL_FUNCTION_GET_DEBOUNCE_PERIOD,
+                LOAD_CELL_CALLBACK_WEIGHT_REACHED);
+        sensor->enableStatusLed(LOAD_CELL_FUNCTION_IS_LED_ON, LOAD_CELL_FUNCTION_LED_ON, LOAD_CELL_FUNCTION_LED_OFF);
+        sensor->setCalibrateZeroFunc(LOAD_CELL_FUNCTION_TARE);
+        sensor->setValueSize(4);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2000,step=10,interval=200")));
+        sensor->setMinMax(0, 5000);
+        sensor->setOther(functions);
+        functions = sensor;
+        label = "Gramm";
         break;
 
     case MOISTURE_DEVICE_IDENTIFIER:
@@ -406,8 +481,16 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = sensor;
         break;
 
-    case SOLID_STATE_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceSolidStateRelay();
+    case MOTION_DETECTOR_DEVICE_IDENTIFIER:
+        functions = new DeviceMotionDetector(createValueProvider(getProperty("valueProvider")));
+        break;
+
+    case MULTI_TOUCH_DEVICE_IDENTIFIER:
+        functions = new DeviceTouchPad(12, createValueProvider(getProperty("valueProvider")));
+        break;
+
+    case PIEZO_SPEAKER_DEVICE_IDENTIFIER:
+        functions = new DevicePiezoSpeaker();
         break;
 
     case PTC_DEVICE_IDENTIFIER:
@@ -419,6 +502,31 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  PTC_CALLBACK_TEMPERATURE_REACHED);
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
         sensor->setMinMax(-4000, 12500);
+        functions = sensor;
+        break;
+
+    case REMOTE_SWITCH_DEVICE_IDENTIFIER:
+        functions = new DeviceRemoteRelay();
+        break;
+
+    case ROTARY_POTI_DEVICE_IDENTIFIER:
+        functions = new DevicePotentiometer(false);
+        break;
+
+    case SOLID_STATE_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceSolidStateRelay();
+        break;
+
+    case SOUND_INTENSITY_DEVICE_IDENTIFIER:
+        // has no analog value
+        sensor = new DeviceSensor(SOUND_INTENSITY_FUNCTION_GET_INTENSITY,
+                                  SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_PERIOD, SOUND_INTENSITY_CALLBACK_INTENSITY);
+        sensor->setRangeCallback(SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_THRESHOLD,
+                                 SOUND_INTENSITY_FUNCTION_GET_INTENSITY_CALLBACK_THRESHOLD,
+                                 SOUND_INTENSITY_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 SOUND_INTENSITY_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2800,step=5,interval=300")));
         functions = sensor;
         break;
 
@@ -465,43 +573,6 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setOther(functions);
         functions = sensor;
         label = "Temperature IR\n°C * 100";
-        break;
-
-    case SOUND_INTENSITY_DEVICE_IDENTIFIER:
-        // has no analog value
-        sensor = new DeviceSensor(SOUND_INTENSITY_FUNCTION_GET_INTENSITY,
-                                  SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_PERIOD, SOUND_INTENSITY_CALLBACK_INTENSITY);
-        sensor->setRangeCallback(SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_THRESHOLD,
-                                 SOUND_INTENSITY_FUNCTION_GET_INTENSITY_CALLBACK_THRESHOLD,
-                                 SOUND_INTENSITY_FUNCTION_SET_DEBOUNCE_PERIOD,
-                                 SOUND_INTENSITY_FUNCTION_GET_DEBOUNCE_PERIOD,
-                                 SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2800,step=5,interval=300")));
-        functions = sensor;
-        break;
-
-    case LCD_20X4_DEVICE_IDENTIFIER:
-        functions = new DeviceLCD(20, 4);
-        break;
-
-    case LED_STRIP_DEVICE_IDENTIFIER:
-        functions = new DeviceLedStrip(getProperty("numLeds"));
-        break;
-
-    case MOTION_DETECTOR_DEVICE_IDENTIFIER:
-        functions = new DeviceMotionDetector(createValueProvider(getProperty("valueProvider")));
-        break;
-
-    case MULTI_TOUCH_DEVICE_IDENTIFIER:
-        functions = new DeviceTouchPad(12, createValueProvider(getProperty("valueProvider")));
-        break;
-
-    case PIEZO_SPEAKER_DEVICE_IDENTIFIER:
-        functions = new DevicePiezoSpeaker();
-        break;
-
-    case REMOTE_SWITCH_DEVICE_IDENTIFIER:
-        functions = new DeviceRemoteRelay();
         break;
 
     case TILT_DEVICE_IDENTIFIER:

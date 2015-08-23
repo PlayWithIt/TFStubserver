@@ -44,18 +44,26 @@ class GetSetRaw;
  */
 struct ResponseData
 {
-    uint8_t  bytes[64];
+    uint8_t  bytes[8];
+    uint8_t *extData;
     unsigned size;
 
-    ResponseData();
-    ResponseData(unsigned _size, const uint8_t *_bytes = 0);
+    /**
+     * Copy initBytes into buffer and use this for IO.
+     */
+    ResponseData(unsigned _size, const uint8_t *initBytes = 0);
+
+    /**
+     * Use external data storage for transferred data.
+     */
+    ResponseData(uint8_t *extData, unsigned _size);
 
     /**
      * Read out some binary data from the array, only the first bytes
      * are used, since T is something like int32_t or unit16_t.
      */
     template<class T> T get() const {
-        T* result = (T*) bytes;
+        T* result = (T*) (extData ? extData : bytes);
         return *result;
     }
 
@@ -63,7 +71,7 @@ struct ResponseData
      * Set some binary data from the array.
      */
     template<class T> void set(T n) {
-        T* result = (T*) bytes;
+        T* result = (T*) (extData ? extData : bytes);
         *result = n;
     }
 };

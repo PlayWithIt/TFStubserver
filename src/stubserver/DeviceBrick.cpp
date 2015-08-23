@@ -29,6 +29,7 @@ DeviceBrick::DeviceBrick(unsigned type, DeviceFunctions* _other, uint8_t _funcGe
    : DeviceVoltageCurrent(_other, _funcGetVoltage, _funcGetCurrent)
    , deviceType(type)
 {
+    enableStatusLed(MASTER_FUNCTION_IS_STATUS_LED_ENABLED, MASTER_FUNCTION_ENABLE_STATUS_LED, MASTER_FUNCTION_DISABLE_STATUS_LED);
     setStatusLedOn(true);
 }
 
@@ -39,7 +40,7 @@ DeviceBrick::DeviceBrick(unsigned type, uint8_t _funcGetVoltage, uint8_t _funcGe
                           _funcSetCallbackCurrent, _funcCallbackVoltage, _funcCallbackCurrent)
    , deviceType(type)
 {
-    setStatusLedOn(true);
+    enableStatusLed(MASTER_FUNCTION_IS_STATUS_LED_ENABLED, MASTER_FUNCTION_ENABLE_STATUS_LED, MASTER_FUNCTION_DISABLE_STATUS_LED);
 }
 
 /**
@@ -74,31 +75,7 @@ bool DeviceBrick::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         }
     }
 
-    // functions valid for all types of brick
-    switch (p.header.function_id) {
-    case MASTER_FUNCTION_ENABLE_STATUS_LED:
-        setStatusLedOn(true);
-        notify(visualizationClient, LED_CHANGE);
-        utils::Log::log("Toggle status led ON");
-        return true;
-
-    case MASTER_FUNCTION_DISABLE_STATUS_LED:
-        setStatusLedOn(false);
-        utils::Log::log("Toggle status led OFF");
-        notify(visualizationClient, LED_CHANGE);
-        return true;
-
-    case MASTER_FUNCTION_IS_STATUS_LED_ENABLED:
-        p.boolValue = isStatusLedOn();
-        p.header.length = sizeof(p.header) + 1;
-        return true;
-
-    case MASTER_FUNCTION_REFRESH_WIFI_STATUS:
-        return true;
-
-    default:
-        return DeviceVoltageCurrent::consumeCommand(relativeTimeMs, p, visualizationClient);
-    }
+    return DeviceVoltageCurrent::consumeCommand(relativeTimeMs, p, visualizationClient);
 }
 
 } /* namespace stubserver */
