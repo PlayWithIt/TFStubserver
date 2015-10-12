@@ -29,6 +29,11 @@ while [ ! -z "$1" ]; do
     shift
 done
 
+# Called from base directory?
+if [ src/stubserver ]; then
+    cd src/stubserver
+fi
+
 export LD_LIBRARY_PATH=../../lib/$CONFIG
 
 # echo $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
