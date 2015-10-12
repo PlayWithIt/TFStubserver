@@ -20,6 +20,10 @@ include ../../settings.mak
 EXE := $(BIN_DIR)/stubserver
 LIB := $(LIB_DIR)/libstubserver.a
 
+ifeq "$(DONT_USE_ALSA)" ""
+SOUND:=-lasound
+endif
+
 HDR_DEPS := ../utils/*.h
 
 CC_USER_FLAGS  := -I../bindings -I../brickapi
@@ -28,6 +32,6 @@ NO_COMPILE_CPP := main.cpp
 all:	$(LIB) $(EXE) $(EXE2)
 
 $(EXE): main.cpp $(LIB) $(LIB_DIR)/*.a
-	$(CC) $(DEBUG) $< $(CCFLAGS) -o $@ $(OBJECTS) -L$(LIB_DIR) -lstubserver -lutils -lasound -lpthread
+	$(CC) $(DEBUG) $< $(CCFLAGS) -o $@ $(OBJECTS) -L$(LIB_DIR) -lstubserver -lutils $(SOUND) -lpthread
 
 include ../../rules.mak

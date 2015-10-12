@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-CCFLAGS += -c $(DEBUG) -std=c++0x -Wall -Werror -I. -I../../src $(CC_USER_FLAGS)
+CCFLAGS += $(DEBUG) -std=c++0x -Wall -Werror -I. -I../../src $(CC_USER_FLAGS)
 
 ifneq "$(NO_COMPILE_CPP)" ""
 SRC := $(filter-out $(NO_COMPILE_CPP),$(SRC))
@@ -41,11 +41,11 @@ $(OBJ_DIR) $(BIN_DIR) $(LIB_DIR):
 objects:   print $(OBJ_DIR) $(BIN_DIR) $(OBJ) $(C_OBJ)
 
 $(OBJ_DIR)/%.o:	%.cpp $(HDR) $(HDR_DEPS)
-	$(CC) $(CCFLAGS) $(*F).cpp -o $@
+	$(CC) -c $(CCFLAGS) $(*F).cpp -o $@
 
 # Rule for bindings which have the extension '.c'
 $(OBJ_DIR)/%.o:	%.c *.h
-	$(CC) $(CCFLAGS) $(*F).c -o $@
+	$(CC) -c $(CCFLAGS) $(*F).c -o $@
 
 # optionally build a lib
 ifneq "$(LIB)" ""
