@@ -110,7 +110,7 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min,
   : Exception()
 {
     char buffer[256];
-    sprintf(buffer, "%s' %u' out of range, expected range is %u .. %u",
+    sprintf(buffer, "%s '%u' out of range, expected range is %u .. %u",
             hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _min, _max);
     setMessage(hint + buffer);
 }

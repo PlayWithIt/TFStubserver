@@ -115,7 +115,8 @@ public:
     typedef _vector_iterator< CyclicVector<_Tp>, _Tp&, _Tp*> iterator;
 
     /**
-     * Default init: given max size
+     * Default init: given max size; the vector will NOT grow but overwrite
+     * other existing elements.
      */
     CyclicVector(unsigned _size)
      : allocated(_size)
@@ -140,6 +141,7 @@ public:
         this->first     = 0;
         this->vectorStart = new _Tp[other.allocated];
 
+        // the []-operator will recalculate the source index
         for (unsigned i = 0; i < used; ++i)
             vectorStart[i] = other[i];
 
@@ -147,7 +149,7 @@ public:
     }
 
     /**
-     * Move constructor
+     * Move constructor: call move assignment.
      */
     CyclicVector(CyclicVector<_Tp> &&other)
     { (*this) = std::forward<CyclicVector<value_type>>(other); }
@@ -210,6 +212,13 @@ public:
      */
     bool empty() const {
         return 0 == used;
+    }
+
+    /**
+     * Is the vector full? If yes, the next push operation will overwrite.
+     */
+    bool full() const {
+        return used == allocated;
     }
 
     const_iterator rbegin() const {
@@ -289,25 +298,13 @@ public:
     }
 
     /**
-     * Add an item at the beginning of the vector.
-     */
-    void push_front(const_reference item)
-    {
-        if (first == 0)
-            first = allocated - 1;
-        else
-            --first;
-        if (used < allocated)
-            ++used;
-        vectorStart[first] = item;
-    }
-
-    /**
      * Add an item at the end of the vector.
+     * @return true if the vector was already full BEFORE adding an element and one value was overwritten
      */
-    void push_back(const_reference item)
+    bool push_back(const_reference item)
     {
-        if (used == allocated) {
+        bool isFull = full();
+        if (isFull) {
             ++first;
             if (first >= allocated)
                 first = 0;
@@ -315,6 +312,28 @@ public:
         else
             ++used;
         getAddr(used - 1) = item;
+        return isFull;
+    }
+
+    /**
+     * Add an item at the beginning of the vector.
+     * @return true if the vector was already full BEFORE adding an element and one value was overwritten
+     */
+    bool push_front(const_reference item)
+    {
+        if (first == 0)
+            first = allocated - 1;
+        else
+            --first;
+
+        if (full()) {
+            vectorStart[first] = item;
+            return true;
+        }
+        if (used < allocated)
+            ++used;
+        vectorStart[first] = item;
+        return false;
     }
 
     reference operator[](unsigned index) {

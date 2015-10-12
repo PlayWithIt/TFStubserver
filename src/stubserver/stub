@@ -30,7 +30,7 @@ while [ ! -z "$1" ]; do
 done
 
 # Called from base directory?
-if [ src/stubserver ]; then
+if [ -d src/stubserver ]; then
     cd src/stubserver
 fi
 
