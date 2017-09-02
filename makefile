@@ -1,5 +1,5 @@
 
-HAS_CPPUNIT:=$(wildcard test/include/cppunit/extensions/HelperM*.h)
+HAS_CPPUNIT:=$(wildcard /usr/include/cppunit/extensions/HelperM*.h)
 
 all:  directories
 	$(MAKE) -C src
