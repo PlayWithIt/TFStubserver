@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -99,11 +99,11 @@ typedef Device RotaryPoti;
  * Signature: \code void callback(int16_t position, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link rotary_poti_set_position_callback_period}. The parameter is the position of the
- * Rotary Potentiometer.
+ * {@link rotary_poti_set_position_callback_period}. The parameter is the position of
+ * the rotary potentiometer.
  * 
- * {@link ROTARY_POTI_CALLBACK_POSITION} is only triggered if the position has changed since the
- * last triggering.
+ * The {@link ROTARY_POTI_CALLBACK_POSITION} callback is only triggered if the position has changed since
+ * the last triggering.
  */
 #define ROTARY_POTI_CALLBACK_POSITION 13
 
@@ -113,11 +113,11 @@ typedef Device RotaryPoti;
  * Signature: \code void callback(uint16_t value, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link rotary_poti_set_analog_value_callback_period}. The parameter is the analog value of the
- * Rotary Potentiometer.
+ * {@link rotary_poti_set_analog_value_callback_period}. The parameter is the
+ * analog value of the rotary potentiometer.
  * 
- * {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE} is only triggered if the position has changed since the
- * last triggering.
+ * The {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE} callback is only triggered if the position has changed
+ * since the last triggering.
  */
 #define ROTARY_POTI_CALLBACK_ANALOG_VALUE 14
 
@@ -128,7 +128,7 @@ typedef Device RotaryPoti;
  * 
  * This callback is triggered when the threshold as set by
  * {@link rotary_poti_set_position_callback_threshold} is reached.
- * The parameter is the position of the Rotary Potentiometer.
+ * The parameter is the position of the rotary potentiometer.
  * 
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link rotary_poti_set_debounce_period}.
@@ -142,7 +142,7 @@ typedef Device RotaryPoti;
  * 
  * This callback is triggered when the threshold as set by
  * {@link rotary_poti_set_analog_value_callback_threshold} is reached.
- * The parameter is the analog value of the Rotary Potentiometer.
+ * The parameter is the analog value of the rotary potentiometer.
  * 
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link rotary_poti_set_debounce_period}.
@@ -236,8 +236,7 @@ int rotary_poti_get_response_expected(RotaryPoti *rotary_poti, uint8_t function_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -258,10 +257,10 @@ int rotary_poti_set_response_expected_all(RotaryPoti *rotary_poti, bool response
 /**
  * \ingroup BrickletRotaryPoti
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void rotary_poti_register_callback(RotaryPoti *rotary_poti, uint8_t id, void *callback, void *user_data);
+void rotary_poti_register_callback(RotaryPoti *rotary_poti, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletRotaryPoti
@@ -274,11 +273,11 @@ int rotary_poti_get_api_version(RotaryPoti *rotary_poti, uint8_t ret_api_version
 /**
  * \ingroup BrickletRotaryPoti
  *
- * Returns the position of the Rotary Potentiometer. The value is in degree 
+ * Returns the position of the rotary potentiometer. The value is in degree
  * and between -150° (turned left) and 150° (turned right).
  * 
  * If you want to get the position periodically, it is recommended to use the
- * callback {@link ROTARY_POTI_CALLBACK_POSITION} and set the period with 
+ * {@link ROTARY_POTI_CALLBACK_POSITION} callback and set the period with
  * {@link rotary_poti_set_position_callback_period}.
  */
 int rotary_poti_get_position(RotaryPoti *rotary_poti, int16_t *ret_position);
@@ -295,8 +294,8 @@ int rotary_poti_get_position(RotaryPoti *rotary_poti, int16_t *ret_position);
  *  unfiltered analog values. The only reason to use {@link rotary_poti_get_analog_value} is,
  *  if you need the full resolution of the analog-to-digital converter.
  * 
- * If you want the analog value periodically, it is recommended to use the 
- * callback {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE} and set the period with 
+ * If you want the analog value periodically, it is recommended to use the
+ * {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE} callback and set the period with
  * {@link rotary_poti_set_analog_value_callback_period}.
  */
 int rotary_poti_get_analog_value(RotaryPoti *rotary_poti, uint16_t *ret_value);
@@ -307,8 +306,8 @@ int rotary_poti_get_analog_value(RotaryPoti *rotary_poti, uint16_t *ret_value);
  * Sets the period in ms with which the {@link ROTARY_POTI_CALLBACK_POSITION} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link ROTARY_POTI_CALLBACK_POSITION} is only triggered if the position has changed since the
- * last triggering.
+ * The {@link ROTARY_POTI_CALLBACK_POSITION} callback is only triggered if the position has changed since
+ * the last triggering.
  * 
  * The default value is 0.
  */
@@ -327,8 +326,8 @@ int rotary_poti_get_position_callback_period(RotaryPoti *rotary_poti, uint32_t *
  * Sets the period in ms with which the {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE} is only triggered if the analog value has changed since the
- * last triggering.
+ * The {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -344,7 +343,7 @@ int rotary_poti_get_analog_value_callback_period(RotaryPoti *rotary_poti, uint32
 /**
  * \ingroup BrickletRotaryPoti
  *
- * Sets the thresholds for the {@link ROTARY_POTI_CALLBACK_POSITION_REACHED} callback. 
+ * Sets the thresholds for the {@link ROTARY_POTI_CALLBACK_POSITION_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -372,7 +371,7 @@ int rotary_poti_get_position_callback_threshold(RotaryPoti *rotary_poti, char *r
 /**
  * \ingroup BrickletRotaryPoti
  *
- * Sets the thresholds for the {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE_REACHED} callback. 
+ * Sets the thresholds for the {@link ROTARY_POTI_CALLBACK_ANALOG_VALUE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -426,7 +425,7 @@ int rotary_poti_get_debounce_period(RotaryPoti *rotary_poti, uint32_t *ret_debou
 /**
  * \ingroup BrickletRotaryPoti
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

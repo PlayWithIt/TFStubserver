@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-typedef void (*MotionDetectedCallbackFunction)(void *);
+typedef void (*MotionDetected_CallbackFunction)(void *user_data);
 
-typedef void (*DetectionCycleEndedCallbackFunction)(void *);
+typedef void (*DetectionCycleEnded_CallbackFunction)(void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -43,24 +43,38 @@ typedef void (*DetectionCycleEndedCallbackFunction)(void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMotionDetected_;
+} ATTRIBUTE_PACKED GetMotionDetected_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t motion;
-} ATTRIBUTE_PACKED GetMotionDetectedResponse_;
+} ATTRIBUTE_PACKED GetMotionDetected_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED MotionDetectedCallback_;
+} ATTRIBUTE_PACKED MotionDetected_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED DetectionCycleEndedCallback_;
+} ATTRIBUTE_PACKED DetectionCycleEnded_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+	uint8_t config;
+} ATTRIBUTE_PACKED SetStatusLEDConfig_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetStatusLEDConfig_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t config;
+} ATTRIBUTE_PACKED GetStatusLEDConfig_Response;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -70,7 +84,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -78,10 +92,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void motion_detector_callback_wrapper_motion_detected(DevicePrivate *device_p, Packet *packet) {
-	MotionDetectedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[MOTION_DETECTOR_CALLBACK_MOTION_DETECTED];
+	MotionDetected_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_CALLBACK_MOTION_DETECTED];
 	(void)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[MOTION_DETECTOR_CALLBACK_MOTION_DETECTED];
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_CALLBACK_MOTION_DETECTED];
 
 	if (callback_function == NULL) {
 		return;
@@ -91,10 +106,11 @@ static void motion_detector_callback_wrapper_motion_detected(DevicePrivate *devi
 }
 
 static void motion_detector_callback_wrapper_detection_cycle_ended(DevicePrivate *device_p, Packet *packet) {
-	DetectionCycleEndedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED];
+	DetectionCycleEnded_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED];
 	(void)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED];
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED];
 
 	if (callback_function == NULL) {
 		return;
@@ -111,12 +127,13 @@ void motion_detector_create(MotionDetector *motion_detector, const char *uid, IP
 	device_p = motion_detector->p;
 
 	device_p->response_expected[MOTION_DETECTOR_FUNCTION_GET_MOTION_DETECTED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[MOTION_DETECTOR_CALLBACK_MOTION_DETECTED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
+	device_p->response_expected[MOTION_DETECTOR_FUNCTION_SET_STATUS_LED_CONFIG] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MOTION_DETECTOR_FUNCTION_GET_STATUS_LED_CONFIG] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MOTION_DETECTOR_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[MOTION_DETECTOR_CALLBACK_MOTION_DETECTED] = motion_detector_callback_wrapper_motion_detected;
 	device_p->callback_wrappers[MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED] = motion_detector_callback_wrapper_detection_cycle_ended;
+
 }
 
 void motion_detector_destroy(MotionDetector *motion_detector) {
@@ -135,8 +152,8 @@ int motion_detector_set_response_expected_all(MotionDetector *motion_detector, b
 	return device_set_response_expected_all(motion_detector->p, response_expected);
 }
 
-void motion_detector_register_callback(MotionDetector *motion_detector, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(motion_detector->p, id, callback, user_data);
+void motion_detector_register_callback(MotionDetector *motion_detector, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(motion_detector->p, callback_id, function, user_data);
 }
 
 int motion_detector_get_api_version(MotionDetector *motion_detector, uint8_t ret_api_version[3]) {
@@ -145,8 +162,8 @@ int motion_detector_get_api_version(MotionDetector *motion_detector, uint8_t ret
 
 int motion_detector_get_motion_detected(MotionDetector *motion_detector, uint8_t *ret_motion) {
 	DevicePrivate *device_p = motion_detector->p;
-	GetMotionDetected_ request;
-	GetMotionDetectedResponse_ response;
+	GetMotionDetected_Request request;
+	GetMotionDetected_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_FUNCTION_GET_MOTION_DETECTED, device_p->ipcon_p, device_p);
@@ -155,23 +172,62 @@ int motion_detector_get_motion_detected(MotionDetector *motion_detector, uint8_t
 		return ret;
 	}
 
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_motion = response.motion;
+
+	return ret;
+}
+
+int motion_detector_set_status_led_config(MotionDetector *motion_detector, uint8_t config) {
+	DevicePrivate *device_p = motion_detector->p;
+	SetStatusLEDConfig_Request request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.config = config;
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+	return ret;
+}
+
+int motion_detector_get_status_led_config(MotionDetector *motion_detector, uint8_t *ret_config) {
+	DevicePrivate *device_p = motion_detector->p;
+	GetStatusLEDConfig_Request request;
+	GetStatusLEDConfig_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_motion = response.motion;
 
-
+	*ret_config = response.config;
 
 	return ret;
 }
 
 int motion_detector_get_identity(MotionDetector *motion_detector, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = motion_detector->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -180,20 +236,18 @@ int motion_detector_get_identity(MotionDetector *motion_detector, char ret_uid[8
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

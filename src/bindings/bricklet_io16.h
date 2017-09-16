@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -222,8 +222,7 @@ int io16_get_response_expected(IO16 *io16, uint8_t function_id, bool *ret_respon
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -244,10 +243,10 @@ int io16_set_response_expected_all(IO16 *io16, bool response_expected);
 /**
  * \ingroup BrickletIO16
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void io16_register_callback(IO16 *io16, uint8_t id, void *callback, void *user_data);
+void io16_register_callback(IO16 *io16, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletIO16
@@ -350,7 +349,7 @@ int io16_get_debounce_period(IO16 *io16, uint32_t *ret_debounce);
  * For example: ('a', 129) or ('a', 0b10000001) will enable the interrupt for
  * pins 0 and 7 of port a.
  * 
- * The interrupt is delivered with the callback {@link IO16_CALLBACK_INTERRUPT}.
+ * The interrupt is delivered with the {@link IO16_CALLBACK_INTERRUPT} callback.
  */
 int io16_set_port_interrupt(IO16 *io16, char port, uint8_t interrupt_mask);
 
@@ -401,7 +400,7 @@ int io16_get_port_monoflop(IO16 *io16, char port, uint8_t pin, uint8_t *ret_valu
 /**
  * \ingroup BrickletIO16
  *
- * Sets the output value (high or low) for a port ("a" or "b" with a bitmask, 
+ * Sets the output value (high or low) for a port ("a" or "b" with a bitmask,
  * according to the selection mask. The bitmask is 8 bit long and a 1 in the
  * bitmask means high and a 0 in the bitmask means low.
  * 
@@ -410,7 +409,7 @@ int io16_get_port_monoflop(IO16 *io16, char port, uint8_t pin, uint8_t *ret_valu
  * 
  * \note
  *  This function does nothing for pins that are configured as input.
- *  Pull-up resistors can be switched on with :func:`SetConfiguration`.
+ *  Pull-up resistors can be switched on with {@link io16_set_port_configuration}.
  */
 int io16_set_selected_values(IO16 *io16, char port, uint8_t selection_mask, uint8_t value_mask);
 
@@ -466,7 +465,7 @@ int io16_get_edge_count_config(IO16 *io16, uint8_t pin, uint8_t *ret_edge_type, 
 /**
  * \ingroup BrickletIO16
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

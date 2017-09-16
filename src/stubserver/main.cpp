@@ -60,6 +60,11 @@ int main(int argc, char *argv[])
         if (strcmp(arg, "-?") != 0)
             printf("\nUnknown option '%s' !\n", arg);
         printf("\nUsage: stubserver {-p port} {-l logName} {-rq} -d devices.properties\n"
+               "\nOptions:"
+               "\n-p port     change the port which is 4223 by default"
+               "\n-l logName  write log into this file instead of stdout"
+               "\n-rq         log request data"
+               "\n-d devs     properties config file with the TF devices to simulate"
                "\n");
         return 1;
     }

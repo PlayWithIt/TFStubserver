@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -221,8 +221,7 @@ int io4_get_response_expected(IO4 *io4, uint8_t function_id, bool *ret_response_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -243,10 +242,10 @@ int io4_set_response_expected_all(IO4 *io4, bool response_expected);
 /**
  * \ingroup BrickletIO4
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void io4_register_callback(IO4 *io4, uint8_t id, void *callback, void *user_data);
+void io4_register_callback(IO4 *io4, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletIO4
@@ -349,7 +348,7 @@ int io4_get_debounce_period(IO4 *io4, uint32_t *ret_debounce);
  * For example: An interrupt bitmask of 10 or 0b1010 will enable the interrupt for
  * pins 1 and 3.
  * 
- * The interrupt is delivered with the callback {@link IO4_CALLBACK_INTERRUPT}.
+ * The interrupt is delivered with the {@link IO4_CALLBACK_INTERRUPT} callback.
  */
 int io4_set_interrupt(IO4 *io4, uint8_t interrupt_mask);
 
@@ -400,7 +399,7 @@ int io4_get_monoflop(IO4 *io4, uint8_t pin, uint8_t *ret_value, uint32_t *ret_ti
  * \ingroup BrickletIO4
  *
  * Sets the output value (high or low) with a bitmask, according to
- * the selection mask. The bitmask is 4 bit long, *true* refers to high 
+ * the selection mask. The bitmask is 4 bit long, *true* refers to high
  * and *false* refers to low.
  * 
  * For example: The parameters (9, 4) or (0b0110, 0b0100) will turn
@@ -463,7 +462,7 @@ int io4_get_edge_count_config(IO4 *io4, uint8_t pin, uint8_t *ret_edge_type, uin
 /**
  * \ingroup BrickletIO4
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

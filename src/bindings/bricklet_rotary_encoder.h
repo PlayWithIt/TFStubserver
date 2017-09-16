@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -82,7 +82,7 @@ typedef Device RotaryEncoder;
  * {@link rotary_encoder_set_count_callback_period}. The parameter is the count of
  * the encoder.
  * 
- * {@link ROTARY_ENCODER_CALLBACK_COUNT} is only triggered if the count has changed since the
+ * The {@link ROTARY_ENCODER_CALLBACK_COUNT} callback is only triggered if the count has changed since the
  * last triggering.
  */
 #define ROTARY_ENCODER_CALLBACK_COUNT 8
@@ -206,8 +206,7 @@ int rotary_encoder_get_response_expected(RotaryEncoder *rotary_encoder, uint8_t 
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -228,10 +227,10 @@ int rotary_encoder_set_response_expected_all(RotaryEncoder *rotary_encoder, bool
 /**
  * \ingroup BrickletRotaryEncoder
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void rotary_encoder_register_callback(RotaryEncoder *rotary_encoder, uint8_t id, void *callback, void *user_data);
+void rotary_encoder_register_callback(RotaryEncoder *rotary_encoder, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletRotaryEncoder
@@ -261,7 +260,7 @@ int rotary_encoder_get_count(RotaryEncoder *rotary_encoder, bool reset, int32_t 
  * Sets the period in ms with which the {@link ROTARY_ENCODER_CALLBACK_COUNT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link ROTARY_ENCODER_CALLBACK_COUNT} is only triggered if the count has changed since the
+ * The {@link ROTARY_ENCODER_CALLBACK_COUNT} callback is only triggered if the count has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -278,7 +277,7 @@ int rotary_encoder_get_count_callback_period(RotaryEncoder *rotary_encoder, uint
 /**
  * \ingroup BrickletRotaryEncoder
  *
- * Sets the thresholds for the {@link ROTARY_ENCODER_CALLBACK_COUNT_REACHED} callback. 
+ * Sets the thresholds for the {@link ROTARY_ENCODER_CALLBACK_COUNT_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -340,7 +339,7 @@ int rotary_encoder_is_pressed(RotaryEncoder *rotary_encoder, bool *ret_pressed);
 /**
  * \ingroup BrickletRotaryEncoder
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

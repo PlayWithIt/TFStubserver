@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-typedef void (*WeightCallbackFunction)(int32_t, void *);
+typedef void (*Weight_CallbackFunction)(int32_t weight, void *user_data);
 
-typedef void (*WeightReachedCallbackFunction)(int32_t, void *);
+typedef void (*WeightReached_CallbackFunction)(int32_t weight, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -43,128 +43,128 @@ typedef void (*WeightReachedCallbackFunction)(int32_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetWeight_;
+} ATTRIBUTE_PACKED GetWeight_Request;
 
 typedef struct {
 	PacketHeader header;
 	int32_t weight;
-} ATTRIBUTE_PACKED GetWeightResponse_;
+} ATTRIBUTE_PACKED GetWeight_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetWeightCallbackPeriod_;
+} ATTRIBUTE_PACKED SetWeightCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetWeightCallbackPeriod_;
+} ATTRIBUTE_PACKED GetWeightCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetWeightCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetWeightCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED SetWeightCallbackThreshold_;
+} ATTRIBUTE_PACKED SetWeightCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetWeightCallbackThreshold_;
+} ATTRIBUTE_PACKED GetWeightCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED GetWeightCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetWeightCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t average;
-} ATTRIBUTE_PACKED SetMovingAverage_;
+} ATTRIBUTE_PACKED SetMovingAverage_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMovingAverage_;
+} ATTRIBUTE_PACKED GetMovingAverage_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t average;
-} ATTRIBUTE_PACKED GetMovingAverageResponse_;
+} ATTRIBUTE_PACKED GetMovingAverage_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED LEDOn_;
+} ATTRIBUTE_PACKED LEDOn_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED LEDOff_;
+} ATTRIBUTE_PACKED LEDOff_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED IsLEDOn_;
+} ATTRIBUTE_PACKED IsLEDOn_Request;
 
 typedef struct {
 	PacketHeader header;
-	uint8_t value;
-} ATTRIBUTE_PACKED IsLEDOnResponse_;
+	uint8_t on;
+} ATTRIBUTE_PACKED IsLEDOn_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t weight;
-} ATTRIBUTE_PACKED Calibrate_;
+} ATTRIBUTE_PACKED Calibrate_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED Tare_;
-
-typedef struct {
-	PacketHeader header;
-	uint8_t rate;
-	uint8_t gain;
-} ATTRIBUTE_PACKED SetConfiguration_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetConfiguration_;
+} ATTRIBUTE_PACKED Tare_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t rate;
 	uint8_t gain;
-} ATTRIBUTE_PACKED GetConfigurationResponse_;
+} ATTRIBUTE_PACKED SetConfiguration_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetConfiguration_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t rate;
+	uint8_t gain;
+} ATTRIBUTE_PACKED GetConfiguration_Response;
 
 typedef struct {
 	PacketHeader header;
 	int32_t weight;
-} ATTRIBUTE_PACKED WeightCallback_;
+} ATTRIBUTE_PACKED Weight_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int32_t weight;
-} ATTRIBUTE_PACKED WeightReachedCallback_;
+} ATTRIBUTE_PACKED WeightReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -174,7 +174,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -182,10 +182,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void load_cell_callback_wrapper_weight(DevicePrivate *device_p, Packet *packet) {
-	WeightCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[LOAD_CELL_CALLBACK_WEIGHT];
-	WeightCallback_ *callback = (WeightCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[LOAD_CELL_CALLBACK_WEIGHT];
+	Weight_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_CALLBACK_WEIGHT];
+	Weight_Callback *callback = (Weight_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_CALLBACK_WEIGHT];
 
 	if (callback_function == NULL) {
 		return;
@@ -197,10 +198,11 @@ static void load_cell_callback_wrapper_weight(DevicePrivate *device_p, Packet *p
 }
 
 static void load_cell_callback_wrapper_weight_reached(DevicePrivate *device_p, Packet *packet) {
-	WeightReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[LOAD_CELL_CALLBACK_WEIGHT_REACHED];
-	WeightReachedCallback_ *callback = (WeightReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[LOAD_CELL_CALLBACK_WEIGHT_REACHED];
+	WeightReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_CALLBACK_WEIGHT_REACHED];
+	WeightReached_Callback *callback = (WeightReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_CALLBACK_WEIGHT_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -234,12 +236,11 @@ void load_cell_create(LoadCell *load_cell, const char *uid, IPConnection *ipcon)
 	device_p->response_expected[LOAD_CELL_FUNCTION_TARE] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[LOAD_CELL_FUNCTION_SET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[LOAD_CELL_FUNCTION_GET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[LOAD_CELL_CALLBACK_WEIGHT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[LOAD_CELL_CALLBACK_WEIGHT_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[LOAD_CELL_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[LOAD_CELL_CALLBACK_WEIGHT] = load_cell_callback_wrapper_weight;
 	device_p->callback_wrappers[LOAD_CELL_CALLBACK_WEIGHT_REACHED] = load_cell_callback_wrapper_weight_reached;
+
 }
 
 void load_cell_destroy(LoadCell *load_cell) {
@@ -258,8 +259,8 @@ int load_cell_set_response_expected_all(LoadCell *load_cell, bool response_expec
 	return device_set_response_expected_all(load_cell->p, response_expected);
 }
 
-void load_cell_register_callback(LoadCell *load_cell, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(load_cell->p, id, callback, user_data);
+void load_cell_register_callback(LoadCell *load_cell, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(load_cell->p, callback_id, function, user_data);
 }
 
 int load_cell_get_api_version(LoadCell *load_cell, uint8_t ret_api_version[3]) {
@@ -268,8 +269,8 @@ int load_cell_get_api_version(LoadCell *load_cell, uint8_t ret_api_version[3]) {
 
 int load_cell_get_weight(LoadCell *load_cell, int32_t *ret_weight) {
 	DevicePrivate *device_p = load_cell->p;
-	GetWeight_ request;
-	GetWeightResponse_ response;
+	GetWeight_Request request;
+	GetWeight_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_GET_WEIGHT, device_p->ipcon_p, device_p);
@@ -278,22 +279,20 @@ int load_cell_get_weight(LoadCell *load_cell, int32_t *ret_weight) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_weight = leconvert_int32_from(response.weight);
-
-
 
 	return ret;
 }
 
 int load_cell_set_weight_callback_period(LoadCell *load_cell, uint32_t period) {
 	DevicePrivate *device_p = load_cell->p;
-	SetWeightCallbackPeriod_ request;
+	SetWeightCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_SET_WEIGHT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -306,14 +305,13 @@ int load_cell_set_weight_callback_period(LoadCell *load_cell, uint32_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int load_cell_get_weight_callback_period(LoadCell *load_cell, uint32_t *ret_period) {
 	DevicePrivate *device_p = load_cell->p;
-	GetWeightCallbackPeriod_ request;
-	GetWeightCallbackPeriodResponse_ response;
+	GetWeightCallbackPeriod_Request request;
+	GetWeightCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_GET_WEIGHT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -322,22 +320,20 @@ int load_cell_get_weight_callback_period(LoadCell *load_cell, uint32_t *ret_peri
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int load_cell_set_weight_callback_threshold(LoadCell *load_cell, char option, int32_t min, int32_t max) {
 	DevicePrivate *device_p = load_cell->p;
-	SetWeightCallbackThreshold_ request;
+	SetWeightCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_SET_WEIGHT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -352,14 +348,13 @@ int load_cell_set_weight_callback_threshold(LoadCell *load_cell, char option, in
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int load_cell_get_weight_callback_threshold(LoadCell *load_cell, char *ret_option, int32_t *ret_min, int32_t *ret_max) {
 	DevicePrivate *device_p = load_cell->p;
-	GetWeightCallbackThreshold_ request;
-	GetWeightCallbackThresholdResponse_ response;
+	GetWeightCallbackThreshold_Request request;
+	GetWeightCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_GET_WEIGHT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -368,24 +363,22 @@ int load_cell_get_weight_callback_threshold(LoadCell *load_cell, char *ret_optio
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int32_from(response.min);
 	*ret_max = leconvert_int32_from(response.max);
-
-
 
 	return ret;
 }
 
 int load_cell_set_debounce_period(LoadCell *load_cell, uint32_t debounce) {
 	DevicePrivate *device_p = load_cell->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -398,14 +391,13 @@ int load_cell_set_debounce_period(LoadCell *load_cell, uint32_t debounce) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int load_cell_get_debounce_period(LoadCell *load_cell, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = load_cell->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -414,22 +406,20 @@ int load_cell_get_debounce_period(LoadCell *load_cell, uint32_t *ret_debounce) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int load_cell_set_moving_average(LoadCell *load_cell, uint8_t average) {
 	DevicePrivate *device_p = load_cell->p;
-	SetMovingAverage_ request;
+	SetMovingAverage_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_SET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
@@ -442,14 +432,13 @@ int load_cell_set_moving_average(LoadCell *load_cell, uint8_t average) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int load_cell_get_moving_average(LoadCell *load_cell, uint8_t *ret_average) {
 	DevicePrivate *device_p = load_cell->p;
-	GetMovingAverage_ request;
-	GetMovingAverageResponse_ response;
+	GetMovingAverage_Request request;
+	GetMovingAverage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_GET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
@@ -458,22 +447,20 @@ int load_cell_get_moving_average(LoadCell *load_cell, uint8_t *ret_average) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_average = response.average;
-
-
 
 	return ret;
 }
 
 int load_cell_led_on(LoadCell *load_cell) {
 	DevicePrivate *device_p = load_cell->p;
-	LEDOn_ request;
+	LEDOn_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_LED_ON, device_p->ipcon_p, device_p);
@@ -482,16 +469,14 @@ int load_cell_led_on(LoadCell *load_cell) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int load_cell_led_off(LoadCell *load_cell) {
 	DevicePrivate *device_p = load_cell->p;
-	LEDOff_ request;
+	LEDOff_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_LED_OFF, device_p->ipcon_p, device_p);
@@ -500,17 +485,15 @@ int load_cell_led_off(LoadCell *load_cell) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
-int load_cell_is_led_on(LoadCell *load_cell, uint8_t *ret_value) {
+int load_cell_is_led_on(LoadCell *load_cell, bool *ret_on) {
 	DevicePrivate *device_p = load_cell->p;
-	IsLEDOn_ request;
-	IsLEDOnResponse_ response;
+	IsLEDOn_Request request;
+	IsLEDOn_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_IS_LED_ON, device_p->ipcon_p, device_p);
@@ -519,22 +502,20 @@ int load_cell_is_led_on(LoadCell *load_cell, uint8_t *ret_value) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_value = response.value;
 
-
+	*ret_on = response.on != 0;
 
 	return ret;
 }
 
 int load_cell_calibrate(LoadCell *load_cell, uint32_t weight) {
 	DevicePrivate *device_p = load_cell->p;
-	Calibrate_ request;
+	Calibrate_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_CALIBRATE, device_p->ipcon_p, device_p);
@@ -547,13 +528,12 @@ int load_cell_calibrate(LoadCell *load_cell, uint32_t weight) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int load_cell_tare(LoadCell *load_cell) {
 	DevicePrivate *device_p = load_cell->p;
-	Tare_ request;
+	Tare_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_TARE, device_p->ipcon_p, device_p);
@@ -562,16 +542,14 @@ int load_cell_tare(LoadCell *load_cell) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int load_cell_set_configuration(LoadCell *load_cell, uint8_t rate, uint8_t gain) {
 	DevicePrivate *device_p = load_cell->p;
-	SetConfiguration_ request;
+	SetConfiguration_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_SET_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -585,14 +563,13 @@ int load_cell_set_configuration(LoadCell *load_cell, uint8_t rate, uint8_t gain)
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int load_cell_get_configuration(LoadCell *load_cell, uint8_t *ret_rate, uint8_t *ret_gain) {
 	DevicePrivate *device_p = load_cell->p;
-	GetConfiguration_ request;
-	GetConfigurationResponse_ response;
+	GetConfiguration_Request request;
+	GetConfiguration_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_GET_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -601,24 +578,22 @@ int load_cell_get_configuration(LoadCell *load_cell, uint8_t *ret_rate, uint8_t 
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_rate = response.rate;
 	*ret_gain = response.gain;
-
-
 
 	return ret;
 }
 
 int load_cell_get_identity(LoadCell *load_cell, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = load_cell->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -627,20 +602,18 @@ int load_cell_get_identity(LoadCell *load_cell, char ret_uid[8], char ret_connec
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

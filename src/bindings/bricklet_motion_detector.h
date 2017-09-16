@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,6 +32,16 @@ typedef Device MotionDetector;
  * \ingroup BrickletMotionDetector
  */
 #define MOTION_DETECTOR_FUNCTION_GET_MOTION_DETECTED 1
+
+/**
+ * \ingroup BrickletMotionDetector
+ */
+#define MOTION_DETECTOR_FUNCTION_SET_STATUS_LED_CONFIG 4
+
+/**
+ * \ingroup BrickletMotionDetector
+ */
+#define MOTION_DETECTOR_FUNCTION_GET_STATUS_LED_CONFIG 5
 
 /**
  * \ingroup BrickletMotionDetector
@@ -68,6 +78,21 @@ typedef Device MotionDetector;
  * \ingroup BrickletMotionDetector
  */
 #define MOTION_DETECTOR_MOTION_DETECTED 1
+
+/**
+ * \ingroup BrickletMotionDetector
+ */
+#define MOTION_DETECTOR_STATUS_LED_CONFIG_OFF 0
+
+/**
+ * \ingroup BrickletMotionDetector
+ */
+#define MOTION_DETECTOR_STATUS_LED_CONFIG_ON 1
+
+/**
+ * \ingroup BrickletMotionDetector
+ */
+#define MOTION_DETECTOR_STATUS_LED_CONFIG_SHOW_STATUS 2
 
 /**
  * \ingroup BrickletMotionDetector
@@ -130,8 +155,7 @@ int motion_detector_get_response_expected(MotionDetector *motion_detector, uint8
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -152,10 +176,10 @@ int motion_detector_set_response_expected_all(MotionDetector *motion_detector, b
 /**
  * \ingroup BrickletMotionDetector
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void motion_detector_register_callback(MotionDetector *motion_detector, uint8_t id, void *callback, void *user_data);
+void motion_detector_register_callback(MotionDetector *motion_detector, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletMotionDetector
@@ -181,7 +205,30 @@ int motion_detector_get_motion_detected(MotionDetector *motion_detector, uint8_t
 /**
  * \ingroup BrickletMotionDetector
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Sets the status led configuration.
+ * 
+ * By default the status LED turns on if a motion is detected and off is no motion
+ * is detected.
+ * 
+ * You can also turn the LED permanently on/off.
+ * 
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
+ */
+int motion_detector_set_status_led_config(MotionDetector *motion_detector, uint8_t config);
+
+/**
+ * \ingroup BrickletMotionDetector
+ *
+ * Returns the configuration as set by {@link motion_detector_set_status_led_config}.
+ * 
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
+ */
+int motion_detector_get_status_led_config(MotionDetector *motion_detector, uint8_t *ret_config);
+
+/**
+ * \ingroup BrickletMotionDetector
+ *
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

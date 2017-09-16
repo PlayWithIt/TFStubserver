@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -185,8 +185,7 @@ int lcd_20x4_get_response_expected(LCD20x4 *lcd_20x4, uint8_t function_id, bool 
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -207,10 +206,10 @@ int lcd_20x4_set_response_expected_all(LCD20x4 *lcd_20x4, bool response_expected
 /**
  * \ingroup BrickletLCD20x4
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void lcd_20x4_register_callback(LCD20x4 *lcd_20x4, uint8_t id, void *callback, void *user_data);
+void lcd_20x4_register_callback(LCD20x4 *lcd_20x4, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletLCD20x4
@@ -223,7 +222,7 @@ int lcd_20x4_get_api_version(LCD20x4 *lcd_20x4, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletLCD20x4
  *
- * Writes text to a specific line (0 to 3) with a specific position 
+ * Writes text to a specific line (0 to 3) with a specific position
  * (0 to 19). The text can have a maximum of 20 characters.
  * 
  * For example: (0, 7, "Hello") will write *Hello* in the middle of the
@@ -270,7 +269,7 @@ int lcd_20x4_is_backlight_on(LCD20x4 *lcd_20x4, bool *ret_backlight);
  *
  * Configures if the cursor (shown as "_") should be visible and if it
  * should be blinking (shown as a blinking block). The cursor position
- * is one character behind the the last text written with 
+ * is one character behind the the last text written with
  * {@link lcd_20x4_write_line}.
  * 
  * The default is (*false*, *false*).
@@ -288,9 +287,10 @@ int lcd_20x4_get_config(LCD20x4 *lcd_20x4, bool *ret_cursor, bool *ret_blinking)
  * \ingroup BrickletLCD20x4
  *
  * Returns *true* if the button (0 to 2 or 0 to 3 since hardware version 1.2)
- * is pressed. If you want to react
- * on button presses and releases it is recommended to use the
- * {@link LCD_20X4_CALLBACK_BUTTON_PRESSED} and {@link LCD_20X4_CALLBACK_BUTTON_RELEASED} callbacks.
+ * is pressed.
+ * 
+ * If you want to react on button presses and releases it is recommended to use
+ * the {@link LCD_20X4_CALLBACK_BUTTON_PRESSED} and {@link LCD_20X4_CALLBACK_BUTTON_RELEASED} callbacks.
  */
 int lcd_20x4_is_button_pressed(LCD20x4 *lcd_20x4, uint8_t button, bool *ret_pressed);
 
@@ -392,7 +392,7 @@ int lcd_20x4_get_default_text_counter(LCD20x4 *lcd_20x4, int32_t *ret_counter);
 /**
  * \ingroup BrickletLCD20x4
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

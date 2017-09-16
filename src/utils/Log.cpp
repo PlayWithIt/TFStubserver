@@ -17,7 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _WIN32
 #include <cxxabi.h>
+#endif
 
 #include <iomanip>
 
@@ -39,7 +41,23 @@ namespace utils {
 
 Log::Log(unsigned precision, LogType t) : logType(t)
 {
-    os << std::setiosflags(std::_S_fixed) << std::setprecision(precision);
+    os << std::fixed << std::setprecision(precision);
+    if (t == LogType::ERROR)
+        os << "ERROR: ";
+    if (t == LogType::FATAL)
+        os << "FATAL: ";
+}
+
+/**
+ * Constructor for a temporary Log-record which prints the log data if
+ * a newline appears in the input.
+ */
+Log::Log(LogType t) : logType(t)
+{
+    if (t == LogType::ERROR)
+        os << "ERROR: ";
+    if (t == LogType::FATAL)
+        os << "FATAL: ";
 }
 
 Log::~Log()
@@ -194,22 +212,24 @@ void Log::error(const char* msg, const std::exception &ex)
     std::ostringstream os;
     printTime(&os);
 
+#ifdef _WIN32
+	os << "Exception of type '" << typeid(ex).name() << "'";
+#else
     int status = 0;
     char *realname = abi::__cxa_demangle(typeid(ex).name(), 0, 0, &status);
 
-    if (status == 0) {
+    if (status == 0 && realname) {
         // exception name is readable
         os << realname;
-    }
+	}
     else {
         os << "Exception of type '" << typeid(ex).name() << "'";
     }
 
+#endif
+
     os << " in " << msg << ": " << ex.what();
     saveAndPrintError(os);
-
-    if (realname && status == 0)
-        free(realname);
 }
 
 void Log::error(const std::string& msg, const std::exception &ex)

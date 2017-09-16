@@ -26,6 +26,10 @@
 #include <vector>
 #include <errno.h>
 
+// on VS 2015 'ERROR' seems to be a #define
+#ifdef ERROR
+#undef ERROR
+#endif
 
 namespace utils {
 
@@ -48,7 +52,7 @@ public:
      * Constructor for a temporary Log-record which prints the log data if
      * a newline appears in the input.
      */
-    Log(LogType t = INFO) : logType(t) { }
+    Log(LogType t = INFO);
 
     /**
      * Constructor for a temporary Log-record which prints the log data if

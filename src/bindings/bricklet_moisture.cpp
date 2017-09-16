@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-typedef void (*MoistureCallbackFunction)(uint16_t, void *);
+typedef void (*Moisture_CallbackFunction)(uint16_t moisture, void *user_data);
 
-typedef void (*MoistureReachedCallbackFunction)(uint16_t, void *);
+typedef void (*MoistureReached_CallbackFunction)(uint16_t moisture, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -43,86 +43,86 @@ typedef void (*MoistureReachedCallbackFunction)(uint16_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMoistureValue_;
+} ATTRIBUTE_PACKED GetMoistureValue_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t moisture;
-} ATTRIBUTE_PACKED GetMoistureValueResponse_;
+} ATTRIBUTE_PACKED GetMoistureValue_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetMoistureCallbackPeriod_;
+} ATTRIBUTE_PACKED SetMoistureCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMoistureCallbackPeriod_;
+} ATTRIBUTE_PACKED GetMoistureCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetMoistureCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetMoistureCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED SetMoistureCallbackThreshold_;
+} ATTRIBUTE_PACKED SetMoistureCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMoistureCallbackThreshold_;
+} ATTRIBUTE_PACKED GetMoistureCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED GetMoistureCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetMoistureCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t moisture;
-} ATTRIBUTE_PACKED MoistureCallback_;
+} ATTRIBUTE_PACKED Moisture_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t moisture;
-} ATTRIBUTE_PACKED MoistureReachedCallback_;
+} ATTRIBUTE_PACKED MoistureReached_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t average;
-} ATTRIBUTE_PACKED SetMovingAverage_;
+} ATTRIBUTE_PACKED SetMovingAverage_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMovingAverage_;
+} ATTRIBUTE_PACKED GetMovingAverage_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t average;
-} ATTRIBUTE_PACKED GetMovingAverageResponse_;
+} ATTRIBUTE_PACKED GetMovingAverage_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -132,7 +132,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -140,10 +140,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void moisture_callback_wrapper_moisture(DevicePrivate *device_p, Packet *packet) {
-	MoistureCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[MOISTURE_CALLBACK_MOISTURE];
-	MoistureCallback_ *callback = (MoistureCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[MOISTURE_CALLBACK_MOISTURE];
+	Moisture_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOISTURE_CALLBACK_MOISTURE];
+	Moisture_Callback *callback = (Moisture_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOISTURE_CALLBACK_MOISTURE];
 
 	if (callback_function == NULL) {
 		return;
@@ -155,10 +156,11 @@ static void moisture_callback_wrapper_moisture(DevicePrivate *device_p, Packet *
 }
 
 static void moisture_callback_wrapper_moisture_reached(DevicePrivate *device_p, Packet *packet) {
-	MoistureReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[MOISTURE_CALLBACK_MOISTURE_REACHED];
-	MoistureReachedCallback_ *callback = (MoistureReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[MOISTURE_CALLBACK_MOISTURE_REACHED];
+	MoistureReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOISTURE_CALLBACK_MOISTURE_REACHED];
+	MoistureReached_Callback *callback = (MoistureReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOISTURE_CALLBACK_MOISTURE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -183,14 +185,13 @@ void moisture_create(Moisture *moisture, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[MOISTURE_FUNCTION_GET_MOISTURE_CALLBACK_THRESHOLD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MOISTURE_FUNCTION_SET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[MOISTURE_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[MOISTURE_CALLBACK_MOISTURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[MOISTURE_CALLBACK_MOISTURE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[MOISTURE_FUNCTION_SET_MOVING_AVERAGE] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[MOISTURE_FUNCTION_GET_MOVING_AVERAGE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MOISTURE_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[MOISTURE_CALLBACK_MOISTURE] = moisture_callback_wrapper_moisture;
 	device_p->callback_wrappers[MOISTURE_CALLBACK_MOISTURE_REACHED] = moisture_callback_wrapper_moisture_reached;
+
 }
 
 void moisture_destroy(Moisture *moisture) {
@@ -209,8 +210,8 @@ int moisture_set_response_expected_all(Moisture *moisture, bool response_expecte
 	return device_set_response_expected_all(moisture->p, response_expected);
 }
 
-void moisture_register_callback(Moisture *moisture, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(moisture->p, id, callback, user_data);
+void moisture_register_callback(Moisture *moisture, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(moisture->p, callback_id, function, user_data);
 }
 
 int moisture_get_api_version(Moisture *moisture, uint8_t ret_api_version[3]) {
@@ -219,8 +220,8 @@ int moisture_get_api_version(Moisture *moisture, uint8_t ret_api_version[3]) {
 
 int moisture_get_moisture_value(Moisture *moisture, uint16_t *ret_moisture) {
 	DevicePrivate *device_p = moisture->p;
-	GetMoistureValue_ request;
-	GetMoistureValueResponse_ response;
+	GetMoistureValue_Request request;
+	GetMoistureValue_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_GET_MOISTURE_VALUE, device_p->ipcon_p, device_p);
@@ -229,22 +230,20 @@ int moisture_get_moisture_value(Moisture *moisture, uint16_t *ret_moisture) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_moisture = leconvert_uint16_from(response.moisture);
-
-
 
 	return ret;
 }
 
 int moisture_set_moisture_callback_period(Moisture *moisture, uint32_t period) {
 	DevicePrivate *device_p = moisture->p;
-	SetMoistureCallbackPeriod_ request;
+	SetMoistureCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_SET_MOISTURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -257,14 +256,13 @@ int moisture_set_moisture_callback_period(Moisture *moisture, uint32_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int moisture_get_moisture_callback_period(Moisture *moisture, uint32_t *ret_period) {
 	DevicePrivate *device_p = moisture->p;
-	GetMoistureCallbackPeriod_ request;
-	GetMoistureCallbackPeriodResponse_ response;
+	GetMoistureCallbackPeriod_Request request;
+	GetMoistureCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_GET_MOISTURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -273,22 +271,20 @@ int moisture_get_moisture_callback_period(Moisture *moisture, uint32_t *ret_peri
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int moisture_set_moisture_callback_threshold(Moisture *moisture, char option, uint16_t min, uint16_t max) {
 	DevicePrivate *device_p = moisture->p;
-	SetMoistureCallbackThreshold_ request;
+	SetMoistureCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_SET_MOISTURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -303,14 +299,13 @@ int moisture_set_moisture_callback_threshold(Moisture *moisture, char option, ui
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int moisture_get_moisture_callback_threshold(Moisture *moisture, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
 	DevicePrivate *device_p = moisture->p;
-	GetMoistureCallbackThreshold_ request;
-	GetMoistureCallbackThresholdResponse_ response;
+	GetMoistureCallbackThreshold_Request request;
+	GetMoistureCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_GET_MOISTURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -319,24 +314,22 @@ int moisture_get_moisture_callback_threshold(Moisture *moisture, char *ret_optio
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_uint16_from(response.min);
 	*ret_max = leconvert_uint16_from(response.max);
-
-
 
 	return ret;
 }
 
 int moisture_set_debounce_period(Moisture *moisture, uint32_t debounce) {
 	DevicePrivate *device_p = moisture->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -349,14 +342,13 @@ int moisture_set_debounce_period(Moisture *moisture, uint32_t debounce) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int moisture_get_debounce_period(Moisture *moisture, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = moisture->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -365,22 +357,20 @@ int moisture_get_debounce_period(Moisture *moisture, uint32_t *ret_debounce) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int moisture_set_moving_average(Moisture *moisture, uint8_t average) {
 	DevicePrivate *device_p = moisture->p;
-	SetMovingAverage_ request;
+	SetMovingAverage_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_SET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
@@ -393,14 +383,13 @@ int moisture_set_moving_average(Moisture *moisture, uint8_t average) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int moisture_get_moving_average(Moisture *moisture, uint8_t *ret_average) {
 	DevicePrivate *device_p = moisture->p;
-	GetMovingAverage_ request;
-	GetMovingAverageResponse_ response;
+	GetMovingAverage_Request request;
+	GetMovingAverage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_GET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
@@ -409,23 +398,21 @@ int moisture_get_moving_average(Moisture *moisture, uint8_t *ret_average) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_average = response.average;
-
-
 
 	return ret;
 }
 
 int moisture_get_identity(Moisture *moisture, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = moisture->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), MOISTURE_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -434,20 +421,18 @@ int moisture_get_identity(Moisture *moisture, char ret_uid[8], char ret_connecte
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

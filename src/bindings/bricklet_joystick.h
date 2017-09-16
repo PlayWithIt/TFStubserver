@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -112,7 +112,7 @@ typedef Device Joystick;
  * {@link joystick_set_position_callback_period}. The parameter is the position of the
  * Joystick.
  * 
- * {@link JOYSTICK_CALLBACK_POSITION} is only triggered if the position has changed since the
+ * The {@link JOYSTICK_CALLBACK_POSITION} callback is only triggered if the position has changed since the
  * last triggering.
  */
 #define JOYSTICK_CALLBACK_POSITION 15
@@ -123,11 +123,11 @@ typedef Device Joystick;
  * Signature: \code void callback(uint16_t x, uint16_t y, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link joystick_set_analog_value_callback_period}. The parameters are the analog values
- * of the Joystick.
+ * {@link joystick_set_analog_value_callback_period}. The parameters are the
+ * analog values of the Joystick.
  * 
- * {@link JOYSTICK_CALLBACK_ANALOG_VALUE} is only triggered if the values have changed since the
- * last triggering.
+ * The {@link JOYSTICK_CALLBACK_ANALOG_VALUE} callback is only triggered if the values have changed
+ * since the last triggering.
  */
 #define JOYSTICK_CALLBACK_ANALOG_VALUE 16
 
@@ -264,8 +264,7 @@ int joystick_get_response_expected(Joystick *joystick, uint8_t function_id, bool
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -286,10 +285,10 @@ int joystick_set_response_expected_all(Joystick *joystick, bool response_expecte
 /**
  * \ingroup BrickletJoystick
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void joystick_register_callback(Joystick *joystick, uint8_t id, void *callback, void *user_data);
+void joystick_register_callback(Joystick *joystick, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletJoystick
@@ -307,7 +306,7 @@ int joystick_get_api_version(Joystick *joystick, uint8_t ret_api_version[3]);
  * returned values are averaged and calibrated (see {@link joystick_calibrate}).
  * 
  * If you want to get the position periodically, it is recommended to use the
- * callback {@link JOYSTICK_CALLBACK_POSITION} and set the period with 
+ * {@link JOYSTICK_CALLBACK_POSITION} callback and set the period with
  * {@link joystick_set_position_callback_period}.
  */
 int joystick_get_position(Joystick *joystick, int16_t *ret_x, int16_t *ret_y);
@@ -334,8 +333,8 @@ int joystick_is_pressed(Joystick *joystick, bool *ret_pressed);
  *  unfiltered analog values. The only reason to use {@link joystick_get_analog_value} is,
  *  if you need the full resolution of the analog-to-digital converter.
  * 
- * If you want the analog values periodically, it is recommended to use the 
- * callback {@link JOYSTICK_CALLBACK_ANALOG_VALUE} and set the period with 
+ * If you want the analog values periodically, it is recommended to use the
+ * {@link JOYSTICK_CALLBACK_ANALOG_VALUE} callback and set the period with
  * {@link joystick_set_analog_value_callback_period}.
  */
 int joystick_get_analog_value(Joystick *joystick, uint16_t *ret_x, uint16_t *ret_y);
@@ -358,7 +357,7 @@ int joystick_calibrate(Joystick *joystick);
  * Sets the period in ms with which the {@link JOYSTICK_CALLBACK_POSITION} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link JOYSTICK_CALLBACK_POSITION} is only triggered if the position has changed since the
+ * The {@link JOYSTICK_CALLBACK_POSITION} callback is only triggered if the position has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -378,8 +377,8 @@ int joystick_get_position_callback_period(Joystick *joystick, uint32_t *ret_peri
  * Sets the period in ms with which the {@link JOYSTICK_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link JOYSTICK_CALLBACK_ANALOG_VALUE} is only triggered if the analog values have changed since the
- * last triggering.
+ * The {@link JOYSTICK_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog values have
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -395,7 +394,7 @@ int joystick_get_analog_value_callback_period(Joystick *joystick, uint32_t *ret_
 /**
  * \ingroup BrickletJoystick
  *
- * Sets the thresholds for the {@link JOYSTICK_CALLBACK_POSITION_REACHED} callback. 
+ * Sets the thresholds for the {@link JOYSTICK_CALLBACK_POSITION_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -423,7 +422,7 @@ int joystick_get_position_callback_threshold(Joystick *joystick, char *ret_optio
 /**
  * \ingroup BrickletJoystick
  *
- * Sets the thresholds for the {@link JOYSTICK_CALLBACK_ANALOG_VALUE_REACHED} callback. 
+ * Sets the thresholds for the {@link JOYSTICK_CALLBACK_ANALOG_VALUE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -477,7 +476,7 @@ int joystick_get_debounce_period(Joystick *joystick, uint32_t *ret_debounce);
 /**
  * \ingroup BrickletJoystick
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

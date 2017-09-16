@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-typedef void (*CurrentCallbackFunction)(uint8_t, int32_t, void *);
+typedef void (*Current_CallbackFunction)(uint8_t sensor, int32_t current, void *user_data);
 
-typedef void (*CurrentReachedCallbackFunction)(uint8_t, int32_t, void *);
+typedef void (*CurrentReached_CallbackFunction)(uint8_t sensor, int32_t current, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -44,28 +44,28 @@ typedef void (*CurrentReachedCallbackFunction)(uint8_t, int32_t, void *);
 typedef struct {
 	PacketHeader header;
 	uint8_t sensor;
-} ATTRIBUTE_PACKED GetCurrent_;
+} ATTRIBUTE_PACKED GetCurrent_Request;
 
 typedef struct {
 	PacketHeader header;
 	int32_t current;
-} ATTRIBUTE_PACKED GetCurrentResponse_;
+} ATTRIBUTE_PACKED GetCurrent_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t sensor;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetCurrentCallbackPeriod_;
+} ATTRIBUTE_PACKED SetCurrentCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t sensor;
-} ATTRIBUTE_PACKED GetCurrentCallbackPeriod_;
+} ATTRIBUTE_PACKED GetCurrentCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetCurrentCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetCurrentCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
@@ -73,63 +73,63 @@ typedef struct {
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED SetCurrentCallbackThreshold_;
+} ATTRIBUTE_PACKED SetCurrentCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t sensor;
-} ATTRIBUTE_PACKED GetCurrentCallbackThreshold_;
+} ATTRIBUTE_PACKED GetCurrentCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED GetCurrentCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetCurrentCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t rate;
-} ATTRIBUTE_PACKED SetSampleRate_;
+} ATTRIBUTE_PACKED SetSampleRate_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetSampleRate_;
+} ATTRIBUTE_PACKED GetSampleRate_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t rate;
-} ATTRIBUTE_PACKED GetSampleRateResponse_;
+} ATTRIBUTE_PACKED GetSampleRate_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t sensor;
 	int32_t current;
-} ATTRIBUTE_PACKED CurrentCallback_;
+} ATTRIBUTE_PACKED Current_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t sensor;
 	int32_t current;
-} ATTRIBUTE_PACKED CurrentReachedCallback_;
+} ATTRIBUTE_PACKED CurrentReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -139,7 +139,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -147,10 +147,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void industrial_dual_0_20ma_callback_wrapper_current(DevicePrivate *device_p, Packet *packet) {
-	CurrentCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
-	CurrentCallback_ *callback = (CurrentCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
+	Current_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
+	Current_Callback *callback = (Current_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
 
 	if (callback_function == NULL) {
 		return;
@@ -162,10 +163,11 @@ static void industrial_dual_0_20ma_callback_wrapper_current(DevicePrivate *devic
 }
 
 static void industrial_dual_0_20ma_callback_wrapper_current_reached(DevicePrivate *device_p, Packet *packet) {
-	CurrentReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
-	CurrentReachedCallback_ *callback = (CurrentReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
+	CurrentReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
+	CurrentReached_Callback *callback = (CurrentReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -192,12 +194,11 @@ void industrial_dual_0_20ma_create(IndustrialDual020mA *industrial_dual_0_20ma, 
 	device_p->response_expected[INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_SAMPLE_RATE] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_SAMPLE_RATE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT] = industrial_dual_0_20ma_callback_wrapper_current;
 	device_p->callback_wrappers[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED] = industrial_dual_0_20ma_callback_wrapper_current_reached;
+
 }
 
 void industrial_dual_0_20ma_destroy(IndustrialDual020mA *industrial_dual_0_20ma) {
@@ -216,8 +217,8 @@ int industrial_dual_0_20ma_set_response_expected_all(IndustrialDual020mA *indust
 	return device_set_response_expected_all(industrial_dual_0_20ma->p, response_expected);
 }
 
-void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(industrial_dual_0_20ma->p, id, callback, user_data);
+void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(industrial_dual_0_20ma->p, callback_id, function, user_data);
 }
 
 int industrial_dual_0_20ma_get_api_version(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t ret_api_version[3]) {
@@ -226,8 +227,8 @@ int industrial_dual_0_20ma_get_api_version(IndustrialDual020mA *industrial_dual_
 
 int industrial_dual_0_20ma_get_current(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, int32_t *ret_current) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	GetCurrent_ request;
-	GetCurrentResponse_ response;
+	GetCurrent_Request request;
+	GetCurrent_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_CURRENT, device_p->ipcon_p, device_p);
@@ -243,16 +244,15 @@ int industrial_dual_0_20ma_get_current(IndustrialDual020mA *industrial_dual_0_20
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_current = leconvert_int32_from(response.current);
-
-
 
 	return ret;
 }
 
 int industrial_dual_0_20ma_set_current_callback_period(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, uint32_t period) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	SetCurrentCallbackPeriod_ request;
+	SetCurrentCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -266,14 +266,13 @@ int industrial_dual_0_20ma_set_current_callback_period(IndustrialDual020mA *indu
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int industrial_dual_0_20ma_get_current_callback_period(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, uint32_t *ret_period) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	GetCurrentCallbackPeriod_ request;
-	GetCurrentCallbackPeriodResponse_ response;
+	GetCurrentCallbackPeriod_Request request;
+	GetCurrentCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -289,16 +288,15 @@ int industrial_dual_0_20ma_get_current_callback_period(IndustrialDual020mA *indu
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int industrial_dual_0_20ma_set_current_callback_threshold(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, char option, int32_t min, int32_t max) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	SetCurrentCallbackThreshold_ request;
+	SetCurrentCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -314,14 +312,13 @@ int industrial_dual_0_20ma_set_current_callback_threshold(IndustrialDual020mA *i
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int industrial_dual_0_20ma_get_current_callback_threshold(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, char *ret_option, int32_t *ret_min, int32_t *ret_max) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	GetCurrentCallbackThreshold_ request;
-	GetCurrentCallbackThresholdResponse_ response;
+	GetCurrentCallbackThreshold_Request request;
+	GetCurrentCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -337,18 +334,17 @@ int industrial_dual_0_20ma_get_current_callback_threshold(IndustrialDual020mA *i
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int32_from(response.min);
 	*ret_max = leconvert_int32_from(response.max);
-
-
 
 	return ret;
 }
 
 int industrial_dual_0_20ma_set_debounce_period(IndustrialDual020mA *industrial_dual_0_20ma, uint32_t debounce) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -361,14 +357,13 @@ int industrial_dual_0_20ma_set_debounce_period(IndustrialDual020mA *industrial_d
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int industrial_dual_0_20ma_get_debounce_period(IndustrialDual020mA *industrial_dual_0_20ma, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -377,22 +372,20 @@ int industrial_dual_0_20ma_get_debounce_period(IndustrialDual020mA *industrial_d
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int industrial_dual_0_20ma_set_sample_rate(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t rate) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	SetSampleRate_ request;
+	SetSampleRate_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_SAMPLE_RATE, device_p->ipcon_p, device_p);
@@ -405,14 +398,13 @@ int industrial_dual_0_20ma_set_sample_rate(IndustrialDual020mA *industrial_dual_
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int industrial_dual_0_20ma_get_sample_rate(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t *ret_rate) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	GetSampleRate_ request;
-	GetSampleRateResponse_ response;
+	GetSampleRate_Request request;
+	GetSampleRate_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_SAMPLE_RATE, device_p->ipcon_p, device_p);
@@ -421,23 +413,21 @@ int industrial_dual_0_20ma_get_sample_rate(IndustrialDual020mA *industrial_dual_
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_rate = response.rate;
-
-
 
 	return ret;
 }
 
 int industrial_dual_0_20ma_get_identity(IndustrialDual020mA *industrial_dual_0_20ma, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = industrial_dual_0_20ma->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -446,20 +436,18 @@ int industrial_dual_0_20ma_get_identity(IndustrialDual020mA *industrial_dual_0_2
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

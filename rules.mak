@@ -34,6 +34,7 @@ status:
 	@echo "OBJ:   $(OBJ)"
 	@echo "C_SRC: $(C_SRC)"
 	@echo "C_OBJ: $(C_OBJ)"
+	@echo "OBJ_DIR: $(OBJ_DIR)"
 
 $(OBJ_DIR) $(BIN_DIR) $(LIB_DIR):
 	mkdir $@

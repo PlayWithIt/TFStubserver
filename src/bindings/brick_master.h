@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -381,6 +381,206 @@ typedef Device Master;
 /**
  * \ingroup BrickMaster
  */
+#define MASTER_FUNCTION_GET_CONNECTION_TYPE 77
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_IS_WIFI2_PRESENT 78
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_START_WIFI2_BOOTLOADER 79
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_WRITE_WIFI2_SERIAL_PORT 80
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_READ_WIFI2_SERIAL_PORT 81
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_AUTHENTICATION_SECRET 82
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_AUTHENTICATION_SECRET 83
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_CONFIGURATION 84
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_CONFIGURATION 85
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_STATUS 86
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_CLIENT_CONFIGURATION 87
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_CLIENT_CONFIGURATION 88
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_CLIENT_HOSTNAME 89
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_CLIENT_HOSTNAME 90
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_CLIENT_PASSWORD 91
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_CLIENT_PASSWORD 92
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_AP_CONFIGURATION 93
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_AP_CONFIGURATION 94
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_AP_PASSWORD 95
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_AP_PASSWORD 96
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SAVE_WIFI2_CONFIGURATION 97
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_FIRMWARE_VERSION 98
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_ENABLE_WIFI2_STATUS_LED 99
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_DISABLE_WIFI2_STATUS_LED 100
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_IS_WIFI2_STATUS_LED_ENABLED 101
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_MESH_CONFIGURATION 102
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_MESH_CONFIGURATION 103
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_MESH_ROUTER_SSID 104
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_MESH_ROUTER_SSID 105
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI2_MESH_ROUTER_PASSWORD 106
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_MESH_ROUTER_PASSWORD 107
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_MESH_COMMON_STATUS 108
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_MESH_CLIENT_STATUS 109
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI2_MESH_AP_STATUS 110
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG 231
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG 232
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_SEND_TIMEOUT_COUNT 233
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_SPITFP_BAUDRATE 234
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_SPITFP_BAUDRATE 235
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_SPITFP_ERROR_COUNT 237
+
+/**
+ * \ingroup BrickMaster
+ */
 #define MASTER_FUNCTION_ENABLE_STATUS_LED 238
 
 /**
@@ -419,11 +619,11 @@ typedef Device Master;
  * Signature: \code void callback(uint16_t current, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link master_set_stack_current_callback_period}. The parameter is the current of the
- * sensor.
+ * {@link master_set_stack_current_callback_period}. The parameter is the current
+ * of the sensor.
  * 
- * {@link MASTER_CALLBACK_STACK_CURRENT} is only triggered if the current has changed since the
- * last triggering.
+ * The {@link MASTER_CALLBACK_STACK_CURRENT} callback is only triggered if the current has changed
+ * since the last triggering.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -435,11 +635,11 @@ typedef Device Master;
  * Signature: \code void callback(uint16_t voltage, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link master_set_stack_voltage_callback_period}. The parameter is the voltage of the
- * sensor.
+ * {@link master_set_stack_voltage_callback_period}. The parameter is the voltage
+ * of the sensor.
  * 
- * {@link MASTER_CALLBACK_STACK_VOLTAGE} is only triggered if the voltage has changed since the
- * last triggering.
+ * The {@link MASTER_CALLBACK_STACK_VOLTAGE} callback is only triggered if the voltage has changed
+ * since the last triggering.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -451,11 +651,11 @@ typedef Device Master;
  * Signature: \code void callback(uint16_t voltage, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link master_set_usb_voltage_callback_period}. The parameter is the USB voltage
- * in mV.
+ * {@link master_set_usb_voltage_callback_period}. The parameter is the USB
+ * voltage in mV.
  * 
- * {@link MASTER_CALLBACK_USB_VOLTAGE} is only triggered if the USB voltage has changed since the
- * last triggering.
+ * The {@link MASTER_CALLBACK_USB_VOLTAGE} callback is only triggered if the USB voltage has changed
+ * since the last triggering.
  * 
  * Does not work with hardware version 2.1.
  * 
@@ -531,6 +731,11 @@ typedef Device Master;
  * \ingroup BrickMaster
  */
 #define MASTER_EXTENSION_TYPE_ETHERNET 4
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_EXTENSION_TYPE_WIFI2 5
 
 /**
  * \ingroup BrickMaster
@@ -749,6 +954,201 @@ typedef Device Master;
 
 /**
  * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_NONE 0
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_USB 1
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_SPI_STACK 2
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_CHIBI 3
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_RS485 4
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_WIFI 5
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_ETHERNET 6
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_CONNECTION_TYPE_WIFI2 7
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_PHY_MODE_B 0
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_PHY_MODE_G 1
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_PHY_MODE_N 2
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_CLIENT_STATUS_IDLE 0
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_CLIENT_STATUS_CONNECTING 1
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_CLIENT_STATUS_WRONG_PASSWORD 2
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_CLIENT_STATUS_NO_AP_FOUND 3
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_CLIENT_STATUS_CONNECT_FAILED 4
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_CLIENT_STATUS_GOT_IP 5
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_CLIENT_STATUS_UNKNOWN 255
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_AP_ENCRYPTION_OPEN 0
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_AP_ENCRYPTION_WEP 1
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_AP_ENCRYPTION_WPA_PSK 2
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_AP_ENCRYPTION_WPA2_PSK 3
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_AP_ENCRYPTION_WPA_WPA2_PSK 4
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_DISABLED 0
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_WIFI_CONNECTING 1
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_GOT_IP 2
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_MESH_LOCAL 3
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_MESH_ONLINE 4
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_AP_AVAILABLE 5
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_AP_SETUP 6
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_WIFI2_MESH_STATUS_LEAF_AVAILABLE 7
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_NONE 0
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_USB 1
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_SPI_STACK 2
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_CHIBI 3
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_RS485 4
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_WIFI 5
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_ETHERNET 6
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_COMMUNICATION_METHOD_WIFI_V2 7
+
+/**
+ * \ingroup BrickMaster
  *
  * This constant is used to identify a Master Brick.
  *
@@ -808,8 +1208,7 @@ int master_get_response_expected(Master *master, uint8_t function_id, bool *ret_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -830,10 +1229,10 @@ int master_set_response_expected_all(Master *master, bool response_expected);
 /**
  * \ingroup BrickMaster
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void master_register_callback(Master *master, uint8_t id, void *callback, void *user_data);
+void master_register_callback(Master *master, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickMaster
@@ -847,7 +1246,7 @@ int master_get_api_version(Master *master, uint8_t ret_api_version[3]);
  * \ingroup BrickMaster
  *
  * Returns the stack voltage in mV. The stack voltage is the
- * voltage that is supplied via the stack, i.e. it is given by a 
+ * voltage that is supplied via the stack, i.e. it is given by a
  * Step-Down or Step-Up Power Supply.
  */
 int master_get_stack_voltage(Master *master, uint16_t *ret_voltage);
@@ -864,8 +1263,8 @@ int master_get_stack_current(Master *master, uint16_t *ret_current);
 /**
  * \ingroup BrickMaster
  *
- * Writes the extension type to the EEPROM of a specified extension. 
- * The extension is either 0 or 1 (0 is the on the bottom, 1 is the on on top, 
+ * Writes the extension type to the EEPROM of a specified extension.
+ * The extension is either 0 or 1 (0 is the on the bottom, 1 is the one on top,
  * if only one extension is present use 0).
  * 
  * Possible extension types:
@@ -877,9 +1276,10 @@ int master_get_stack_current(Master *master, uint16_t *ret_current);
  *  "2",    "RS485"
  *  "3",    "WIFI"
  *  "4",    "Ethernet"
+ *  "5",    "WIFI 2.0"
  * \endverbatim
  * 
- * The extension type is already set when bought and it can be set with the 
+ * The extension type is already set when bought and it can be set with the
  * Brick Viewer, it is unlikely that you need this function.
  */
 int master_set_extension_type(Master *master, uint8_t extension, uint32_t exttype);
@@ -903,7 +1303,7 @@ int master_is_chibi_present(Master *master, bool *ret_present);
  *
  * Sets the address (1-255) belonging to the Chibi Extension.
  * 
- * It is possible to set the address with the Brick Viewer and it will be 
+ * It is possible to set the address with the Brick Viewer and it will be
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
  */
@@ -922,7 +1322,7 @@ int master_get_chibi_address(Master *master, uint8_t *ret_address);
  * Sets the address (1-255) of the Chibi Master. This address is used if the
  * Chibi Extension is used as slave (i.e. it does not have a USB connection).
  * 
- * It is possible to set the address with the Brick Viewer and it will be 
+ * It is possible to set the address with the Brick Viewer and it will be
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
  */
@@ -996,7 +1396,7 @@ int master_get_chibi_error_log(Master *master, uint16_t *ret_underrun, uint16_t 
  *  "3",    "BPSK40 915MHz"
  * \endverbatim
  * 
- * It is possible to set the frequency with the Brick Viewer and it will be 
+ * It is possible to set the frequency with the Brick Viewer and it will be
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
  */
@@ -1024,7 +1424,7 @@ int master_get_chibi_frequency(Master *master, uint8_t *ret_frequency);
  *  "BPSK40 915MHz",         "1, 2, 3, 4, 5, 6, 7, 8, 9, 10"
  * \endverbatim
  * 
- * It is possible to set the channel with the Brick Viewer and it will be 
+ * It is possible to set the channel with the Brick Viewer and it will be
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
  */
@@ -1052,7 +1452,7 @@ int master_is_rs485_present(Master *master, bool *ret_present);
  * Set to 0 if the RS485 Extension should be the RS485 Master (i.e.
  * connected to a PC via USB).
  * 
- * It is possible to set the address with the Brick Viewer and it will be 
+ * It is possible to set the address with the Brick Viewer and it will be
  * saved in the EEPROM of the RS485 Extension, it does not
  * have to be set on every startup.
  */
@@ -1229,6 +1629,9 @@ int master_set_wifi_encryption(Master *master, uint8_t encryption, const char ke
  * \ingroup BrickMaster
  *
  * Returns the encryption as set by {@link master_set_wifi_encryption}.
+ * 
+ * \note
+ *  Since Master Brick Firmware version 2.4.4 the key is not returned anymore.
  */
 int master_get_wifi_encryption(Master *master, uint8_t *ret_encryption, char ret_key[50], uint8_t *ret_key_index, uint8_t *ret_eap_options, uint16_t *ret_ca_certificate_length, uint16_t *ret_client_certificate_length, uint16_t *ret_private_key_length);
 
@@ -1270,7 +1673,7 @@ int master_refresh_wifi_status(Master *master);
  *
  * This function is used to set the certificate as well as password and username
  * for WPA Enterprise. To set the username use index 0xFFFF,
- * to set the password use index 0xFFFE. The max length of username and 
+ * to set the password use index 0xFFFE. The max length of username and
  * password is 32.
  * 
  * The certificate is written in chunks of size 32 and the index is used as
@@ -1326,7 +1729,7 @@ int master_get_wifi_power_mode(Master *master, uint8_t *ret_mode);
  * receive buffer has a max size of 1500 byte and if data is transfered
  * too fast, it might overflow.
  * 
- * The return values are the number of overflows, the low watermark 
+ * The return values are the number of overflows, the low watermark
  * (i.e. the smallest number of bytes that were free in the buffer) and
  * the bytes that are currently used.
  * 
@@ -1390,6 +1793,9 @@ int master_set_long_wifi_key(Master *master, const char key[64]);
  *
  * Returns the encryption key as set by {@link master_set_long_wifi_key}.
  * 
+ * \note
+ *  Since Master Brick firmware version 2.4.4 the key is not returned anymore.
+ * 
  * .. versionadded:: 2.0.2$nbsp;(Firmware)
  */
 int master_get_long_wifi_key(Master *master, char ret_key[64]);
@@ -1397,7 +1803,7 @@ int master_get_long_wifi_key(Master *master, char ret_key[64]);
 /**
  * \ingroup BrickMaster
  *
- * Sets the hostname of the WIFI Extension. The hostname will be displayed 
+ * Sets the hostname of the WIFI Extension. The hostname will be displayed
  * by access points as the hostname in the DHCP clients table.
  * 
  * Setting an empty String will restore the default hostname.
@@ -1409,7 +1815,7 @@ int master_set_wifi_hostname(Master *master, const char hostname[16]);
 /**
  * \ingroup BrickMaster
  *
- * Returns the hostname as set by {@link master_get_wifi_hostname}.
+ * Returns the hostname as set by {@link master_set_wifi_hostname}.
  * 
  * An empty String means, that the default hostname is used.
  * 
@@ -1423,8 +1829,8 @@ int master_get_wifi_hostname(Master *master, char ret_hostname[16]);
  * Sets the period in ms with which the {@link MASTER_CALLBACK_STACK_CURRENT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link MASTER_CALLBACK_STACK_CURRENT} is only triggered if the current has changed since the
- * last triggering.
+ * The {@link MASTER_CALLBACK_STACK_CURRENT} callback is only triggered if the current has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  * 
@@ -1435,7 +1841,7 @@ int master_set_stack_current_callback_period(Master *master, uint32_t period);
 /**
  * \ingroup BrickMaster
  *
- * Returns the period as set by :func:`SetCurrentCallbackPeriod`.
+ * Returns the period as set by {@link master_set_stack_current_callback_period}.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -1447,8 +1853,8 @@ int master_get_stack_current_callback_period(Master *master, uint32_t *ret_perio
  * Sets the period in ms with which the {@link MASTER_CALLBACK_STACK_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link MASTER_CALLBACK_STACK_VOLTAGE} is only triggered if the voltage has changed since the
- * last triggering.
+ * The {@link MASTER_CALLBACK_STACK_VOLTAGE} callback is only triggered if the voltage has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  * 
@@ -1471,8 +1877,8 @@ int master_get_stack_voltage_callback_period(Master *master, uint32_t *ret_perio
  * Sets the period in ms with which the {@link MASTER_CALLBACK_USB_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link MASTER_CALLBACK_USB_VOLTAGE} is only triggered if the voltage has changed since the
- * last triggering.
+ * The {@link MASTER_CALLBACK_USB_VOLTAGE} callback is only triggered if the voltage has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  * 
@@ -1492,7 +1898,7 @@ int master_get_usb_voltage_callback_period(Master *master, uint32_t *ret_period)
 /**
  * \ingroup BrickMaster
  *
- * Sets the thresholds for the {@link MASTER_CALLBACK_STACK_CURRENT_REACHED} callback. 
+ * Sets the thresholds for the {@link MASTER_CALLBACK_STACK_CURRENT_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -1524,7 +1930,7 @@ int master_get_stack_current_callback_threshold(Master *master, char *ret_option
 /**
  * \ingroup BrickMaster
  *
- * Sets the thresholds for the :func:`StackStackVoltageReached` callback. 
+ * Sets the thresholds for the {@link MASTER_CALLBACK_STACK_VOLTAGE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -1556,7 +1962,7 @@ int master_get_stack_voltage_callback_threshold(Master *master, char *ret_option
 /**
  * \ingroup BrickMaster
  *
- * Sets the thresholds for the {@link MASTER_CALLBACK_USB_VOLTAGE_REACHED} callback. 
+ * Sets the thresholds for the {@link MASTER_CALLBACK_USB_VOLTAGE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -1687,7 +2093,7 @@ int master_get_ethernet_status(Master *master, uint8_t ret_mac_address[6], uint8
 /**
  * \ingroup BrickMaster
  *
- * Sets the hostname of the Ethernet Extension. The hostname will be displayed 
+ * Sets the hostname of the Ethernet Extension. The hostname will be displayed
  * by access points as the hostname in the DHCP clients table.
  * 
  * Setting an empty String will restore the default hostname.
@@ -1765,7 +2171,8 @@ int master_set_ethernet_authentication_secret(Master *master, const char secret[
 /**
  * \ingroup BrickMaster
  *
- * Returns the authentication secret as set by {@link master_set_ethernet_authentication_secret}.
+ * Returns the authentication secret as set by
+ * {@link master_set_ethernet_authentication_secret}.
  * 
  * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
@@ -1794,11 +2201,644 @@ int master_set_wifi_authentication_secret(Master *master, const char secret[64])
 /**
  * \ingroup BrickMaster
  *
- * Returns the authentication secret as set by {@link master_set_wifi_authentication_secret}.
+ * Returns the authentication secret as set by
+ * {@link master_set_wifi_authentication_secret}.
  * 
  * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
 int master_get_wifi_authentication_secret(Master *master, char ret_secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the type of the connection over which this function was called.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_connection_type(Master *master, uint8_t *ret_connection_type);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns *true* if a WIFI Extension 2.0 is available to be used by the Master
+ * Brick.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_is_wifi2_present(Master *master, bool *ret_present);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Starts the bootloader of the WIFI Extension 2.0. Returns 0 on success.
+ * Afterwards the {@link master_write_wifi2_serial_port} and {@link master_read_wifi2_serial_port}
+ * functions can be used to communicate with the bootloader to flash a new
+ * firmware.
+ * 
+ * The bootloader should only be started over a USB connection. It cannot be
+ * started over a WIFI2 connection, see the {@link master_get_connection_type} function.
+ * 
+ * It is recommended to use the Brick Viewer to update the firmware of the WIFI
+ * Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_start_wifi2_bootloader(Master *master, int8_t *ret_result);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Writes up to 60 bytes (number of bytes to be written specified by ``length``)
+ * to the serial port of the bootloader of the WIFI Extension 2.0. Returns 0 on
+ * success.
+ * 
+ * Before this function can be used the bootloader has to be started using the
+ * {@link master_start_wifi2_bootloader} function.
+ * 
+ * It is recommended to use the Brick Viewer to update the firmware of the WIFI
+ * Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_write_wifi2_serial_port(Master *master, uint8_t data[60], uint8_t length, int8_t *ret_result);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Reads up to 60 bytes (number of bytes to be read specified by ``length``)
+ * from the serial port of the bootloader of the WIFI Extension 2.0.
+ * Returns the number of actually read bytes.
+ * 
+ * Before this function can be used the bootloader has to be started using the
+ * {@link master_start_wifi2_bootloader} function.
+ * 
+ * It is recommended to use the Brick Viewer to update the firmware of the WIFI
+ * Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_read_wifi2_serial_port(Master *master, uint8_t length, uint8_t ret_data[60], uint8_t *ret_result);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the WIFI authentication secret. The secret can be a string of up to 64
+ * characters. An empty string disables the authentication. The default value is
+ * an empty string (authentication disabled).
+ * 
+ * See the :ref:`authentication tutorial <tutorial_authentication>` for more
+ * information.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_set_wifi2_authentication_secret(Master *master, const char secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the WIFI authentication secret as set by
+ * {@link master_set_wifi2_authentication_secret}.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_authentication_secret(Master *master, char ret_secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the general configuration of the WIFI Extension 2.0.
+ * 
+ * The ``port`` parameter sets the port number that your programm will connect
+ * to. The default value is 4223.
+ * 
+ * The ``websocket_port`` parameter sets the WebSocket port number that your
+ * JavaScript programm will connect to. The default value is 4280.
+ * 
+ * The ``website_port`` parameter sets the port number for the website of the
+ * WIFI Extension 2.0. The default value is 80.
+ * 
+ * The ``phy_mode`` parameter sets the specific wireless network mode to be used.
+ * Possible values are B, G and N. The default value is G.
+ * 
+ * The ``sleep_mode`` parameter is currently unused.
+ * 
+ * The ``website`` parameter is used to enable or disable the web interface of
+ * the WIFI Extension 2.0, which is available from firmware version 2.0.1. Note
+ * that, for firmware version 2.0.3 and older, to disable the the web interface
+ * the ``website_port`` parameter must be set to 1 and greater than 1 to enable
+ * the web interface. For firmware version 2.0.4 and later, setting this parameter
+ * to 1 will enable the web interface and setting it to 0 will disable the web
+ * interface.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_set_wifi2_configuration(Master *master, uint16_t port, uint16_t websocket_port, uint16_t website_port, uint8_t phy_mode, uint8_t sleep_mode, uint8_t website);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the general configuration as set by {@link master_set_wifi2_configuration}.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_configuration(Master *master, uint16_t *ret_port, uint16_t *ret_websocket_port, uint16_t *ret_website_port, uint8_t *ret_phy_mode, uint8_t *ret_sleep_mode, uint8_t *ret_website);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the client and access point status of the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_status(Master *master, bool *ret_client_enabled, uint8_t *ret_client_status, uint8_t ret_client_ip[4], uint8_t ret_client_subnet_mask[4], uint8_t ret_client_gateway[4], uint8_t ret_client_mac_address[6], uint32_t *ret_client_rx_count, uint32_t *ret_client_tx_count, int8_t *ret_client_rssi, bool *ret_ap_enabled, uint8_t ret_ap_ip[4], uint8_t ret_ap_subnet_mask[4], uint8_t ret_ap_gateway[4], uint8_t ret_ap_mac_address[6], uint32_t *ret_ap_rx_count, uint32_t *ret_ap_tx_count, uint8_t *ret_ap_connected_count);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the client specific configuration of the WIFI Extension 2.0.
+ * 
+ * The ``enable`` parameter enables or disables the client part of the
+ * WIFI Extension 2.0. The default value is *true*.
+ * 
+ * The ``ssid`` parameter sets the SSID (up to 32 characters) of the access point
+ * to connect to.
+ * 
+ * If the ``ip`` parameter is set to all zero then ``subnet_mask`` and ``gateway``
+ * parameters are also set to all zero and DHCP is used for IP address configuration.
+ * Otherwise those three parameters can be used to configure a static IP address.
+ * The default configuration is DHCP.
+ * 
+ * If the ``mac_address`` parameter is set to all zero then the factory MAC
+ * address is used. Otherwise this parameter can be used to set a custom MAC
+ * address.
+ * 
+ * If the ``bssid`` parameter is set to all zero then WIFI Extension 2.0 will
+ * connect to any access point that matches the configured SSID. Otherwise this
+ * parameter can be used to make the WIFI Extension 2.0 only connect to an
+ * access point if SSID and BSSID match.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_set_wifi2_client_configuration(Master *master, bool enable, const char ssid[32], uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t mac_address[6], uint8_t bssid[6]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the client configuration as set by {@link master_set_wifi2_client_configuration}.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_client_configuration(Master *master, bool *ret_enable, char ret_ssid[32], uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint8_t ret_mac_address[6], uint8_t ret_bssid[6]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the client hostname (up to 32 characters) of the WIFI Extension 2.0. The
+ * hostname will be displayed by access points as the hostname in the DHCP clients
+ * table.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_set_wifi2_client_hostname(Master *master, const char hostname[32]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the client hostname as set by {@link master_set_wifi2_client_hostname}.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_client_hostname(Master *master, char ret_hostname[32]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the client password (up to 63 chars) for WPA/WPA2 encryption.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_set_wifi2_client_password(Master *master, const char password[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the client password as set by {@link master_set_wifi2_client_password}.
+ * 
+ * \note
+ *  Since WIFI Extension 2.0 firmware version 2.1.3 the password is not
+ *  returned anymore.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_client_password(Master *master, char ret_password[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the access point specific configuration of the WIFI Extension 2.0.
+ * 
+ * The ``enable`` parameter enables or disables the access point part of the
+ * WIFI Extension 2.0. The default value is true.
+ * 
+ * The ``ssid`` parameter sets the SSID (up to 32 characters) of the access point.
+ * 
+ * If the ``ip`` parameter is set to all zero then ``subnet_mask`` and ``gateway``
+ * parameters are also set to all zero and DHCP is used for IP address configuration.
+ * Otherwise those three parameters can be used to configure a static IP address.
+ * The default configuration is DHCP.
+ * 
+ * The ``encryption`` parameter sets the encryption mode to be used. Possible
+ * values are Open (no encryption), WEP or WPA/WPA2 PSK. The default value is
+ * WPA/WPA2 PSK. Use the {@link master_set_wifi2_ap_password} function to set the encryption
+ * password.
+ * 
+ * The ``hidden`` parameter makes the access point hide or show its SSID.
+ * The default value is *false*.
+ * 
+ * The ``channel`` parameter sets the channel (1 to 13) of the access point.
+ * The default value is 1.
+ * 
+ * If the ``mac_address`` parameter is set to all zero then the factory MAC
+ * address is used. Otherwise this parameter can be used to set a custom MAC
+ * address.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_set_wifi2_ap_configuration(Master *master, bool enable, const char ssid[32], uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t encryption, bool hidden, uint8_t channel, uint8_t mac_address[6]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the access point configuration as set by {@link master_set_wifi2_ap_configuration}.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_ap_configuration(Master *master, bool *ret_enable, char ret_ssid[32], uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint8_t *ret_encryption, bool *ret_hidden, uint8_t *ret_channel, uint8_t ret_mac_address[6]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the access point password (up to 63 chars) for the configured encryption
+ * mode, see {@link master_set_wifi2_ap_configuration}.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_set_wifi2_ap_password(Master *master, const char password[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the access point password as set by {@link master_set_wifi2_ap_password}.
+ * 
+ * \note
+ *  Since WIFI Extension 2.0 firmware version 2.1.3 the password is not
+ *  returned anymore.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_ap_password(Master *master, char ret_password[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * All configuration functions for the WIFI Extension 2.0 do not change the
+ * values permanently. After configuration this function has to be called to
+ * permanently store the values.
+ * 
+ * The values are stored in the EEPROM and only applied on startup. That means
+ * you have to restart the Master Brick after configuration.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_save_wifi2_configuration(Master *master, uint8_t *ret_result);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the current version of the WIFI Extension 2.0 firmware (major, minor, revision).
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_get_wifi2_firmware_version(Master *master, uint8_t ret_firmware_version[3]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Turns the green status LED of the WIFI Extension 2.0 on.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_enable_wifi2_status_led(Master *master);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Turns the green status LED of the WIFI Extension 2.0 off.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_disable_wifi2_status_led(Master *master);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns *true* if the green status LED of the WIFI Extension 2.0 is turned on.
+ * 
+ * .. versionadded:: 2.4.0$nbsp;(Firmware)
+ */
+int master_is_wifi2_status_led_enabled(Master *master, bool *ret_enabled);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Sets the mesh specific configuration of the WIFI Extension 2.0.
+ * 
+ * The ``enable`` parameter enables or disables the mesh part of the
+ * WIFI Extension 2.0. The default value is *false*. The mesh part cannot be
+ * enabled together with the client and access-point part.
+ * 
+ * If the ``root_ip`` parameter is set to all zero then ``root_subnet_mask``
+ * and ``root_gateway`` parameters are also set to all zero and DHCP is used for
+ * IP address configuration. Otherwise those three parameters can be used to
+ * configure a static IP address. The default configuration is DHCP.
+ * 
+ * If the ``router_bssid`` parameter is set to all zero then the information is
+ * taken from Wi-Fi scan when connecting the SSID as set by
+ * {@link master_set_wifi2_mesh_router_ssid}. This only works if the the SSID is not hidden.
+ * In case the router has hidden SSID this parameter must be specified, otherwise
+ * the node will not be able to reach the mesh router.
+ * 
+ * The ``group_id`` and the ``group_ssid_prefix`` parameters identifies a
+ * particular mesh network and nodes configured with same ``group_id`` and the
+ * ``group_ssid_prefix`` are considered to be in the same mesh network.
+ * 
+ * The ``gateway_ip`` and the ``gateway_port`` parameters specifies the location
+ * of the brickd that supports mesh feature.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t root_ip[4], uint8_t root_subnet_mask[4], uint8_t root_gateway[4], uint8_t router_bssid[6], uint8_t group_id[6], const char group_ssid_prefix[16], uint8_t gateway_ip[4], uint16_t gateway_port);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Returns the mesh configuration as set by {@link master_set_wifi2_mesh_configuration}.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_get_wifi2_mesh_configuration(Master *master, bool *ret_enable, uint8_t ret_root_ip[4], uint8_t ret_root_subnet_mask[4], uint8_t ret_root_gateway[4], uint8_t ret_router_bssid[6], uint8_t ret_group_id[6], char ret_group_ssid_prefix[16], uint8_t ret_gateway_ip[4], uint16_t *ret_gateway_port);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Sets the mesh router SSID of the WIFI Extension 2.0.
+ * It is used to specify the mesh router to connect to.
+ * 
+ * Note that even though in the argument of this function a 32 characters long SSID
+ * is allowed, in practice valid SSID should have a maximum of 31 characters. This
+ * is due to a bug in the mesh library that we use in the firmware of the extension.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_set_wifi2_mesh_router_ssid(Master *master, const char ssid[32]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Returns the mesh router SSID as set by {@link master_set_wifi2_mesh_router_ssid}.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_get_wifi2_mesh_router_ssid(Master *master, char ret_ssid[32]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Sets the mesh router password (up to 64 characters) for WPA/WPA2 encryption.
+ * The password will be used to connect to the mesh router.
+ * 
+ * To apply configuration changes to the WIFI Extension 2.0 the
+ * {@link master_save_wifi2_configuration} function has to be called and the Master Brick
+ * has to be restarted afterwards.
+ * 
+ * It is recommended to use the Brick Viewer to configure the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_set_wifi2_mesh_router_password(Master *master, const char password[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Returns the mesh router password as set by {@link master_set_wifi2_mesh_router_password}.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_get_wifi2_mesh_router_password(Master *master, char ret_password[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Returns the common mesh status of the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_get_wifi2_mesh_common_status(Master *master, uint8_t *ret_status, bool *ret_root_node, bool *ret_root_candidate, uint16_t *ret_connected_nodes, uint32_t *ret_rx_count, uint32_t *ret_tx_count);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Returns the mesh client status of the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_get_wifi2_mesh_client_status(Master *master, char ret_hostname[32], uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint8_t ret_mac_address[6]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Requires WIFI Extension 2.0 firmware 2.1.0.
+ * 
+ * Returns the mesh AP status of the WIFI Extension 2.0.
+ * 
+ * .. versionadded:: 2.4.2$nbsp;(Firmware)
+ */
+int master_get_wifi2_mesh_ap_status(Master *master, char ret_ssid[32], uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint8_t ret_mac_address[6]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * The SPITF protocol can be used with a dynamic baudrate. If the dynamic baudrate is
+ * enabled, the Brick will try to adapt the baudrate for the communication
+ * between Bricks and Bricklets according to the amount of data that is transferred.
+ * 
+ * The baudrate will be increased exponetially if lots of data is send/receieved and
+ * decreased linearly if little data is send/received.
+ * 
+ * This lowers the baudrate in applications where little data is transferred (e.g.
+ * a weather station) and increases the robustness. If there is lots of data to transfer
+ * (e.g. Thermal Imaging Bricklet) it automatically increases the baudrate as needed.
+ * 
+ * In cases where some data has to transferred as fast as possible every few seconds
+ * (e.g. RS485 Bricklet with a high baudrate but small payload) you may want to turn
+ * the dynamic baudrate off to get the highest possible performance.
+ * 
+ * The maximum value of the baudrate can be set per port with the function 
+ * {@link master_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
+ * as set by {@link master_set_spitfp_baudrate} will be used statically.
+ * 
+ * The minimum dynamic baudrate has a value range of 400000 to 2000000 baud.
+ * 
+ * By default dynamic baudrate is enabled and the minimum dynamic baudrate is 400000.
+ * 
+ * .. versionadded:: 2.4.6$nbsp;(Firmware)
+ */
+int master_set_spitfp_baudrate_config(Master *master, bool enable_dynamic_baudrate, uint32_t minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the baudrate config, see {@link master_set_spitfp_baudrate_config}.
+ * 
+ * .. versionadded:: 2.4.6$nbsp;(Firmware)
+ */
+int master_get_spitfp_baudrate_config(Master *master, bool *ret_enable_dynamic_baudrate, uint32_t *ret_minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the timeout count for the different communication methods.
+ * 
+ * The methods 0-2 are available for all Bricks, 3-7 only for Master Bricks.
+ * 
+ * This function is mostly used for debugging during development, in normal operation
+ * the counters should nearly always stay at 0.
+ * 
+ * .. versionadded:: 2.4.3$nbsp;(Firmware)
+ */
+int master_get_send_timeout_count(Master *master, uint8_t communication_method, uint32_t *ret_timeout_count);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the baudrate for a specific Bricklet port ('a' - 'd'). The
+ * baudrate can be in the range 400000 to 2000000.
+ * 
+ * If you want to increase the throughput of Bricklets you can increase
+ * the baudrate. If you get a high error count because of high
+ * interference (see {@link master_get_spitfp_error_count}) you can decrease the
+ * baudrate.
+ * 
+ * If the dynamic baudrate feature is enabled, the baudrate set by this
+ * function corresponds to the maximum baudrate (see {@link master_set_spitfp_baudrate_config}).
+ * 
+ * Regulatory testing is done with the default baudrate. If CE compatability
+ * or similar is necessary in you applications we recommend to not change
+ * the baudrate.
+ * 
+ * The default baudrate for all ports is 1400000.
+ * 
+ * .. versionadded:: 2.4.3$nbsp;(Firmware)
+ */
+int master_set_spitfp_baudrate(Master *master, char bricklet_port, uint32_t baudrate);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the baudrate for a given Bricklet port, see {@link master_set_spitfp_baudrate}.
+ * 
+ * .. versionadded:: 2.4.3$nbsp;(Firmware)
+ */
+int master_get_spitfp_baudrate(Master *master, char bricklet_port, uint32_t *ret_baudrate);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the error count for the communication between Brick and Bricklet.
+ * 
+ * The errors are divided into
+ * 
+ * * ACK checksum errors,
+ * * message checksum errors,
+ * * frameing errors and
+ * * overflow errors.
+ * 
+ * The errors counts are for errors that occur on the Brick side. All
+ * Bricklets have a similar function that returns the errors on the Bricklet side.
+ * 
+ * .. versionadded:: 2.4.3$nbsp;(Firmware)
+ */
+int master_get_spitfp_error_count(Master *master, char bricklet_port, uint32_t *ret_error_count_ack_checksum, uint32_t *ret_error_count_message_checksum, uint32_t *ret_error_count_frame, uint32_t *ret_error_count_overflow);
 
 /**
  * \ingroup BrickMaster
@@ -1875,7 +2915,7 @@ int master_reset(Master *master);
 /**
  * \ingroup BrickMaster
  *
- * Returns the UID, the UID where the Brick is connected to, 
+ * Returns the UID, the UID where the Brick is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

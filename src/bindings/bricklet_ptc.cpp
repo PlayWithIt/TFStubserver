@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,13 +21,13 @@ extern "C" {
 
 
 
-typedef void (*TemperatureCallbackFunction)(int32_t, void *);
+typedef void (*Temperature_CallbackFunction)(int32_t temperature, void *user_data);
 
-typedef void (*TemperatureReachedCallbackFunction)(int32_t, void *);
+typedef void (*TemperatureReached_CallbackFunction)(int32_t temperature, void *user_data);
 
-typedef void (*ResistanceCallbackFunction)(uint16_t, void *);
+typedef void (*Resistance_CallbackFunction)(int32_t resistance, void *user_data);
 
-typedef void (*ResistanceReachedCallbackFunction)(uint16_t, void *);
+typedef void (*ResistanceReached_CallbackFunction)(int32_t resistance, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -47,160 +47,160 @@ typedef void (*ResistanceReachedCallbackFunction)(uint16_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetTemperature_;
+} ATTRIBUTE_PACKED GetTemperature_Request;
 
 typedef struct {
 	PacketHeader header;
 	int32_t temperature;
-} ATTRIBUTE_PACKED GetTemperatureResponse_;
+} ATTRIBUTE_PACKED GetTemperature_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetResistance_;
+} ATTRIBUTE_PACKED GetResistance_Request;
 
 typedef struct {
 	PacketHeader header;
-	uint16_t resistance;
-} ATTRIBUTE_PACKED GetResistanceResponse_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED SetTemperatureCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetTemperatureCallbackPeriod_;
+	int32_t resistance;
+} ATTRIBUTE_PACKED GetResistance_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetTemperatureCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED SetTemperatureCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetTemperatureCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetResistanceCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetResistanceCallbackPeriod_;
+} ATTRIBUTE_PACKED GetTemperatureCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetResistanceCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED SetResistanceCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetResistanceCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t period;
+} ATTRIBUTE_PACKED GetResistanceCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED SetTemperatureCallbackThreshold_;
+} ATTRIBUTE_PACKED SetTemperatureCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetTemperatureCallbackThreshold_;
+} ATTRIBUTE_PACKED GetTemperatureCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED GetTemperatureCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetTemperatureCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
-	uint16_t min;
-	uint16_t max;
-} ATTRIBUTE_PACKED SetResistanceCallbackThreshold_;
+	int32_t min;
+	int32_t max;
+} ATTRIBUTE_PACKED SetResistanceCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetResistanceCallbackThreshold_;
+} ATTRIBUTE_PACKED GetResistanceCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
-	uint16_t min;
-	uint16_t max;
-} ATTRIBUTE_PACKED GetResistanceCallbackThresholdResponse_;
+	int32_t min;
+	int32_t max;
+} ATTRIBUTE_PACKED GetResistanceCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	int32_t temperature;
-} ATTRIBUTE_PACKED TemperatureCallback_;
+} ATTRIBUTE_PACKED Temperature_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int32_t temperature;
-} ATTRIBUTE_PACKED TemperatureReachedCallback_;
+} ATTRIBUTE_PACKED TemperatureReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-	uint16_t resistance;
-} ATTRIBUTE_PACKED ResistanceCallback_;
+	int32_t resistance;
+} ATTRIBUTE_PACKED Resistance_Callback;
 
 typedef struct {
 	PacketHeader header;
-	uint16_t resistance;
-} ATTRIBUTE_PACKED ResistanceReachedCallback_;
-
-typedef struct {
-	PacketHeader header;
-	uint8_t filter;
-} ATTRIBUTE_PACKED SetNoiseRejectionFilter_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetNoiseRejectionFilter_;
+	int32_t resistance;
+} ATTRIBUTE_PACKED ResistanceReached_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t filter;
-} ATTRIBUTE_PACKED GetNoiseRejectionFilterResponse_;
+} ATTRIBUTE_PACKED SetNoiseRejectionFilter_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED IsSensorConnected_;
+} ATTRIBUTE_PACKED GetNoiseRejectionFilter_Request;
 
 typedef struct {
 	PacketHeader header;
-	bool connected;
-} ATTRIBUTE_PACKED IsSensorConnectedResponse_;
+	uint8_t filter;
+} ATTRIBUTE_PACKED GetNoiseRejectionFilter_Response;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED IsSensorConnected_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t connected;
+} ATTRIBUTE_PACKED IsSensorConnected_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED SetWireMode_;
+} ATTRIBUTE_PACKED SetWireMode_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetWireMode_;
+} ATTRIBUTE_PACKED GetWireMode_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED GetWireModeResponse_;
+} ATTRIBUTE_PACKED GetWireMode_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -210,7 +210,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -218,10 +218,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void ptc_callback_wrapper_temperature(DevicePrivate *device_p, Packet *packet) {
-	TemperatureCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[PTC_CALLBACK_TEMPERATURE];
-	TemperatureCallback_ *callback = (TemperatureCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[PTC_CALLBACK_TEMPERATURE];
+	Temperature_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_TEMPERATURE];
+	Temperature_Callback *callback = (Temperature_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_TEMPERATURE];
 
 	if (callback_function == NULL) {
 		return;
@@ -233,10 +234,11 @@ static void ptc_callback_wrapper_temperature(DevicePrivate *device_p, Packet *pa
 }
 
 static void ptc_callback_wrapper_temperature_reached(DevicePrivate *device_p, Packet *packet) {
-	TemperatureReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[PTC_CALLBACK_TEMPERATURE_REACHED];
-	TemperatureReachedCallback_ *callback = (TemperatureReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[PTC_CALLBACK_TEMPERATURE_REACHED];
+	TemperatureReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_TEMPERATURE_REACHED];
+	TemperatureReached_Callback *callback = (TemperatureReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_TEMPERATURE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -248,31 +250,33 @@ static void ptc_callback_wrapper_temperature_reached(DevicePrivate *device_p, Pa
 }
 
 static void ptc_callback_wrapper_resistance(DevicePrivate *device_p, Packet *packet) {
-	ResistanceCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[PTC_CALLBACK_RESISTANCE];
-	ResistanceCallback_ *callback = (ResistanceCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[PTC_CALLBACK_RESISTANCE];
+	Resistance_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_RESISTANCE];
+	Resistance_Callback *callback = (Resistance_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_RESISTANCE];
 
 	if (callback_function == NULL) {
 		return;
 	}
 
-	callback->resistance = leconvert_uint16_from(callback->resistance);
+	callback->resistance = leconvert_int32_from(callback->resistance);
 
 	callback_function(callback->resistance, user_data);
 }
 
 static void ptc_callback_wrapper_resistance_reached(DevicePrivate *device_p, Packet *packet) {
-	ResistanceReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[PTC_CALLBACK_RESISTANCE_REACHED];
-	ResistanceReachedCallback_ *callback = (ResistanceReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[PTC_CALLBACK_RESISTANCE_REACHED];
+	ResistanceReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_RESISTANCE_REACHED];
+	ResistanceReached_Callback *callback = (ResistanceReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_RESISTANCE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
 	}
 
-	callback->resistance = leconvert_uint16_from(callback->resistance);
+	callback->resistance = leconvert_int32_from(callback->resistance);
 
 	callback_function(callback->resistance, user_data);
 }
@@ -296,10 +300,6 @@ void ptc_create(PTC *ptc, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[PTC_FUNCTION_GET_RESISTANCE_CALLBACK_THRESHOLD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[PTC_FUNCTION_SET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[PTC_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[PTC_CALLBACK_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[PTC_CALLBACK_TEMPERATURE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[PTC_CALLBACK_RESISTANCE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[PTC_CALLBACK_RESISTANCE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[PTC_FUNCTION_SET_NOISE_REJECTION_FILTER] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[PTC_FUNCTION_GET_NOISE_REJECTION_FILTER] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[PTC_FUNCTION_IS_SENSOR_CONNECTED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
@@ -311,6 +311,7 @@ void ptc_create(PTC *ptc, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[PTC_CALLBACK_TEMPERATURE_REACHED] = ptc_callback_wrapper_temperature_reached;
 	device_p->callback_wrappers[PTC_CALLBACK_RESISTANCE] = ptc_callback_wrapper_resistance;
 	device_p->callback_wrappers[PTC_CALLBACK_RESISTANCE_REACHED] = ptc_callback_wrapper_resistance_reached;
+
 }
 
 void ptc_destroy(PTC *ptc) {
@@ -329,8 +330,8 @@ int ptc_set_response_expected_all(PTC *ptc, bool response_expected) {
 	return device_set_response_expected_all(ptc->p, response_expected);
 }
 
-void ptc_register_callback(PTC *ptc, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(ptc->p, id, callback, user_data);
+void ptc_register_callback(PTC *ptc, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(ptc->p, callback_id, function, user_data);
 }
 
 int ptc_get_api_version(PTC *ptc, uint8_t ret_api_version[3]) {
@@ -339,8 +340,8 @@ int ptc_get_api_version(PTC *ptc, uint8_t ret_api_version[3]) {
 
 int ptc_get_temperature(PTC *ptc, int32_t *ret_temperature) {
 	DevicePrivate *device_p = ptc->p;
-	GetTemperature_ request;
-	GetTemperatureResponse_ response;
+	GetTemperature_Request request;
+	GetTemperature_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_TEMPERATURE, device_p->ipcon_p, device_p);
@@ -349,23 +350,21 @@ int ptc_get_temperature(PTC *ptc, int32_t *ret_temperature) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_temperature = leconvert_int32_from(response.temperature);
-
-
 
 	return ret;
 }
 
-int ptc_get_resistance(PTC *ptc, uint16_t *ret_resistance) {
+int ptc_get_resistance(PTC *ptc, int32_t *ret_resistance) {
 	DevicePrivate *device_p = ptc->p;
-	GetResistance_ request;
-	GetResistanceResponse_ response;
+	GetResistance_Request request;
+	GetResistance_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_RESISTANCE, device_p->ipcon_p, device_p);
@@ -374,22 +373,20 @@ int ptc_get_resistance(PTC *ptc, uint16_t *ret_resistance) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_resistance = leconvert_uint16_from(response.resistance);
 
-
+	*ret_resistance = leconvert_int32_from(response.resistance);
 
 	return ret;
 }
 
 int ptc_set_temperature_callback_period(PTC *ptc, uint32_t period) {
 	DevicePrivate *device_p = ptc->p;
-	SetTemperatureCallbackPeriod_ request;
+	SetTemperatureCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -402,14 +399,13 @@ int ptc_set_temperature_callback_period(PTC *ptc, uint32_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ptc_get_temperature_callback_period(PTC *ptc, uint32_t *ret_period) {
 	DevicePrivate *device_p = ptc->p;
-	GetTemperatureCallbackPeriod_ request;
-	GetTemperatureCallbackPeriodResponse_ response;
+	GetTemperatureCallbackPeriod_Request request;
+	GetTemperatureCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -418,22 +414,20 @@ int ptc_get_temperature_callback_period(PTC *ptc, uint32_t *ret_period) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int ptc_set_resistance_callback_period(PTC *ptc, uint32_t period) {
 	DevicePrivate *device_p = ptc->p;
-	SetResistanceCallbackPeriod_ request;
+	SetResistanceCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_RESISTANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -446,14 +440,13 @@ int ptc_set_resistance_callback_period(PTC *ptc, uint32_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ptc_get_resistance_callback_period(PTC *ptc, uint32_t *ret_period) {
 	DevicePrivate *device_p = ptc->p;
-	GetResistanceCallbackPeriod_ request;
-	GetResistanceCallbackPeriodResponse_ response;
+	GetResistanceCallbackPeriod_Request request;
+	GetResistanceCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_RESISTANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -462,22 +455,20 @@ int ptc_get_resistance_callback_period(PTC *ptc, uint32_t *ret_period) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int ptc_set_temperature_callback_threshold(PTC *ptc, char option, int32_t min, int32_t max) {
 	DevicePrivate *device_p = ptc->p;
-	SetTemperatureCallbackThreshold_ request;
+	SetTemperatureCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -492,14 +483,13 @@ int ptc_set_temperature_callback_threshold(PTC *ptc, char option, int32_t min, i
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ptc_get_temperature_callback_threshold(PTC *ptc, char *ret_option, int32_t *ret_min, int32_t *ret_max) {
 	DevicePrivate *device_p = ptc->p;
-	GetTemperatureCallbackThreshold_ request;
-	GetTemperatureCallbackThresholdResponse_ response;
+	GetTemperatureCallbackThreshold_Request request;
+	GetTemperatureCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -508,24 +498,22 @@ int ptc_get_temperature_callback_threshold(PTC *ptc, char *ret_option, int32_t *
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int32_from(response.min);
 	*ret_max = leconvert_int32_from(response.max);
 
-
-
 	return ret;
 }
 
-int ptc_set_resistance_callback_threshold(PTC *ptc, char option, uint16_t min, uint16_t max) {
+int ptc_set_resistance_callback_threshold(PTC *ptc, char option, int32_t min, int32_t max) {
 	DevicePrivate *device_p = ptc->p;
-	SetResistanceCallbackThreshold_ request;
+	SetResistanceCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_RESISTANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -535,19 +523,18 @@ int ptc_set_resistance_callback_threshold(PTC *ptc, char option, uint16_t min, u
 	}
 
 	request.option = option;
-	request.min = leconvert_uint16_to(min);
-	request.max = leconvert_uint16_to(max);
+	request.min = leconvert_int32_to(min);
+	request.max = leconvert_int32_to(max);
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
-int ptc_get_resistance_callback_threshold(PTC *ptc, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
+int ptc_get_resistance_callback_threshold(PTC *ptc, char *ret_option, int32_t *ret_min, int32_t *ret_max) {
 	DevicePrivate *device_p = ptc->p;
-	GetResistanceCallbackThreshold_ request;
-	GetResistanceCallbackThresholdResponse_ response;
+	GetResistanceCallbackThreshold_Request request;
+	GetResistanceCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_RESISTANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -556,24 +543,22 @@ int ptc_get_resistance_callback_threshold(PTC *ptc, char *ret_option, uint16_t *
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
-	*ret_min = leconvert_uint16_from(response.min);
-	*ret_max = leconvert_uint16_from(response.max);
-
-
+	*ret_min = leconvert_int32_from(response.min);
+	*ret_max = leconvert_int32_from(response.max);
 
 	return ret;
 }
 
 int ptc_set_debounce_period(PTC *ptc, uint32_t debounce) {
 	DevicePrivate *device_p = ptc->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -586,14 +571,13 @@ int ptc_set_debounce_period(PTC *ptc, uint32_t debounce) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ptc_get_debounce_period(PTC *ptc, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = ptc->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -602,22 +586,20 @@ int ptc_get_debounce_period(PTC *ptc, uint32_t *ret_debounce) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int ptc_set_noise_rejection_filter(PTC *ptc, uint8_t filter) {
 	DevicePrivate *device_p = ptc->p;
-	SetNoiseRejectionFilter_ request;
+	SetNoiseRejectionFilter_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_NOISE_REJECTION_FILTER, device_p->ipcon_p, device_p);
@@ -630,14 +612,13 @@ int ptc_set_noise_rejection_filter(PTC *ptc, uint8_t filter) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ptc_get_noise_rejection_filter(PTC *ptc, uint8_t *ret_filter) {
 	DevicePrivate *device_p = ptc->p;
-	GetNoiseRejectionFilter_ request;
-	GetNoiseRejectionFilterResponse_ response;
+	GetNoiseRejectionFilter_Request request;
+	GetNoiseRejectionFilter_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_NOISE_REJECTION_FILTER, device_p->ipcon_p, device_p);
@@ -646,23 +627,21 @@ int ptc_get_noise_rejection_filter(PTC *ptc, uint8_t *ret_filter) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_filter = response.filter;
-
-
 
 	return ret;
 }
 
 int ptc_is_sensor_connected(PTC *ptc, bool *ret_connected) {
 	DevicePrivate *device_p = ptc->p;
-	IsSensorConnected_ request;
-	IsSensorConnectedResponse_ response;
+	IsSensorConnected_Request request;
+	IsSensorConnected_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_IS_SENSOR_CONNECTED, device_p->ipcon_p, device_p);
@@ -671,22 +650,20 @@ int ptc_is_sensor_connected(PTC *ptc, bool *ret_connected) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_connected = response.connected;
 
-
+	*ret_connected = response.connected != 0;
 
 	return ret;
 }
 
 int ptc_set_wire_mode(PTC *ptc, uint8_t mode) {
 	DevicePrivate *device_p = ptc->p;
-	SetWireMode_ request;
+	SetWireMode_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_WIRE_MODE, device_p->ipcon_p, device_p);
@@ -699,14 +676,13 @@ int ptc_set_wire_mode(PTC *ptc, uint8_t mode) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ptc_get_wire_mode(PTC *ptc, uint8_t *ret_mode) {
 	DevicePrivate *device_p = ptc->p;
-	GetWireMode_ request;
-	GetWireModeResponse_ response;
+	GetWireMode_Request request;
+	GetWireMode_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_WIRE_MODE, device_p->ipcon_p, device_p);
@@ -715,23 +691,21 @@ int ptc_get_wire_mode(PTC *ptc, uint8_t *ret_mode) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_mode = response.mode;
-
-
 
 	return ret;
 }
 
 int ptc_get_identity(PTC *ptc, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = ptc->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -740,20 +714,18 @@ int ptc_get_identity(PTC *ptc, char ret_uid[8], char ret_connected_uid[8], char 
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

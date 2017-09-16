@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -76,6 +76,41 @@ typedef Device LEDStrip;
 /**
  * \ingroup BrickletLEDStrip
  */
+#define LED_STRIP_FUNCTION_SET_RGBW_VALUES 11
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_FUNCTION_GET_RGBW_VALUES 12
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_FUNCTION_SET_CHANNEL_MAPPING 13
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_FUNCTION_GET_CHANNEL_MAPPING 14
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_FUNCTION_ENABLE_FRAME_RENDERED_CALLBACK 15
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_FUNCTION_DISABLE_FRAME_RENDERED_CALLBACK 16
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_FUNCTION_IS_FRAME_RENDERED_CALLBACK_ENABLED 17
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
 #define LED_STRIP_FUNCTION_GET_IDENTITY 255
 
 /**
@@ -83,7 +118,8 @@ typedef Device LEDStrip;
  *
  * Signature: \code void callback(uint16_t length, void *user_data) \endcode
  * 
- * This callback is triggered directly after a new frame is rendered.
+ * This callback is triggered directly after a new frame is rendered. The
+ * parameter is the number of LEDs in that frame.
  * 
  * You should send the data for the next frame directly after this callback
  * was triggered.
@@ -107,6 +143,166 @@ typedef Device LEDStrip;
  * \ingroup BrickletLEDStrip
  */
 #define LED_STRIP_CHIP_TYPE_WS2812 2812
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHIP_TYPE_LPD8806 8806
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHIP_TYPE_APA102 102
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RGB 6
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RBG 9
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BRG 33
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BGR 36
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GRB 18
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GBR 24
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RGBW 27
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RGWB 30
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RBGW 39
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RBWG 45
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RWGB 54
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_RWBG 57
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GRWB 78
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GRBW 75
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GBWR 108
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GBRW 99
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GWBR 120
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_GWRB 114
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BRGW 135
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BRWG 141
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BGRW 147
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BGWR 156
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BWRG 177
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_BWGR 180
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_WRBG 201
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_WRGB 198
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_WGBR 216
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_WGRB 210
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_WBGR 228
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHANNEL_MAPPING_WBRG 225
 
 /**
  * \ingroup BrickletLEDStrip
@@ -169,8 +365,7 @@ int led_strip_get_response_expected(LEDStrip *led_strip, uint8_t function_id, bo
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -191,10 +386,10 @@ int led_strip_set_response_expected_all(LEDStrip *led_strip, bool response_expec
 /**
  * \ingroup BrickletLEDStrip
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void led_strip_register_callback(LEDStrip *led_strip, uint8_t id, void *callback, void *user_data);
+void led_strip_register_callback(LEDStrip *led_strip, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletLEDStrip
@@ -207,8 +402,12 @@ int led_strip_get_api_version(LEDStrip *led_strip, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Sets the *rgb* values for the LEDs with the given *length* starting 
+ * Sets the RGB values for the LEDs with the given *length* starting
  * from *index*.
+ * 
+ * To make the colors show correctly you need to configure the chip type
+ * ({@link led_strip_set_chip_type}) and a 3-channel channel mapping ({@link led_strip_set_channel_mapping})
+ * according to the connected LEDs.
  * 
  * The maximum length is 16, the index goes from 0 to 319 and the rgb values
  * have 8 bits each.
@@ -228,10 +427,10 @@ int led_strip_get_api_version(LEDStrip *led_strip, uint8_t ret_api_version[3]);
  * The colors will be transfered to actual LEDs when the next
  * frame duration ends, see {@link led_strip_set_frame_duration}.
  * 
- * Generic approach: 
+ * Generic approach:
  * 
  * * Set the frame duration to a value that represents
- *   the number of frames per second you want to achieve. 
+ *   the number of frames per second you want to achieve.
  * * Set all of the LED colors for one frame.
  * * Wait for the {@link LED_STRIP_CALLBACK_FRAME_RENDERED} callback.
  * * Set all of the LED colors for next frame.
@@ -251,7 +450,7 @@ int led_strip_set_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns the rgb with the given *length* starting from the
+ * Returns RGB value with the given *length* starting from the
  * given *index*.
  * 
  * The values are the last values that were set by {@link led_strip_set_rgb_values}.
@@ -264,7 +463,7 @@ int led_strip_get_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
  * Sets the frame duration in ms.
  * 
  * Example: If you want to achieve 20 frames per second, you should
- * set the frame duration to 50ms (50ms * 20 = 1 second). 
+ * set the frame duration to 50ms (50ms * 20 = 1 second).
  * 
  * For an explanation of the general approach see {@link led_strip_set_rgb_values}.
  * 
@@ -275,7 +474,7 @@ int led_strip_set_frame_duration(LEDStrip *led_strip, uint16_t duration);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns the frame duration as set by {@link led_strip_set_frame_duration}.
+ * Returns the frame duration in ms as set by {@link led_strip_set_frame_duration}.
  */
 int led_strip_get_frame_duration(LEDStrip *led_strip, uint16_t *ret_duration);
 
@@ -324,17 +523,16 @@ int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Sets the type of the led driver chip. We currently support
- * the chips
+ * Sets the type of the LED driver chip. We currently support the chips
  * 
- * * WS2801 (``chip`` = 2801),
- * * WS2811 (``chip`` = 2811) and
- * * WS2812 (``chip`` = 2812).
+ * * WS2801,
+ * * WS2811,
+ * * WS2812 / SK6812 / NeoPixel RGB,
+ * * SK6812RGBW / NeoPixel RGBW (Chip Type = WS2812),
+ * * LPD8806 and
+ * * APA102 / DotStar.
  * 
- * The WS2812 is sometimes also called "NeoPixel", a name coined by
- * Adafruit.
- * 
- * The default value is WS2801 (``chip`` = 2801).
+ * The default value is WS2801 (2801).
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -352,7 +550,149 @@ int led_strip_get_chip_type(LEDStrip *led_strip, uint16_t *ret_chip);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Sets the RGBW values for the LEDs with the given *length* starting
+ * from *index*.
+ * 
+ * To make the colors show correctly you need to configure the chip type
+ * ({@link led_strip_set_chip_type}) and a 4-channel channel mapping ({@link led_strip_set_channel_mapping})
+ * according to the connected LEDs.
+ * 
+ * The maximum length is 12, the index goes from 0 to 239 and the rgbw values
+ * have 8 bits each.
+ * 
+ * Example: If you set
+ * 
+ * * index to 5,
+ * * length to 4,
+ * * r to [255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ * * g to [0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ * * b to [0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0] and
+ * * w to [0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ * 
+ * the LED with index 5 will be red, 6 will be green, 7 will be blue and 8 will be white.
+ * 
+ * \note Depending on the LED circuitry colors can be permuted.
+ * 
+ * The colors will be transfered to actual LEDs when the next
+ * frame duration ends, see {@link led_strip_set_frame_duration}.
+ * 
+ * Generic approach:
+ * 
+ * * Set the frame duration to a value that represents
+ *   the number of frames per second you want to achieve.
+ * * Set all of the LED colors for one frame.
+ * * Wait for the {@link LED_STRIP_CALLBACK_FRAME_RENDERED} callback.
+ * * Set all of the LED colors for next frame.
+ * * Wait for the {@link LED_STRIP_CALLBACK_FRAME_RENDERED} callback.
+ * * and so on.
+ * 
+ * This approach ensures that you can change the LED colors with
+ * a fixed frame rate.
+ * 
+ * The actual number of controllable LEDs depends on the number of free
+ * Bricklet ports. See :ref:`here <led_strip_bricklet_ram_constraints>` for more
+ * information. A call of {@link led_strip_set_rgbw_values} with index + length above the
+ * bounds is ignored completely.
+ * 
+ * The LPD8806 LED driver chips have 7-bit channels for RGB. Internally the LED
+ * Strip Bricklets divides the 8-bit values set using this function by 2 to make
+ * them 7-bit. Therefore, you can just use the normal value range (0-255) for
+ * LPD8806 LEDs.
+ * 
+ * The brightness channel of the APA102 LED driver chips has 5-bit. Internally the
+ * LED Strip Bricklets divides the 8-bit values set using this function by 8 to make
+ * them 5-bit. Therefore, you can just use the normal value range (0-255) for
+ * the brightness channel of APA102 LEDs.
+ * 
+ * .. versionadded:: 2.0.6$nbsp;(Plugin)
+ */
+int led_strip_set_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t length, uint8_t r[12], uint8_t g[12], uint8_t b[12], uint8_t w[12]);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Returns RGBW values with the given *length* starting from the
+ * given *index*.
+ * 
+ * The values are the last values that were set by {@link led_strip_set_rgbw_values}.
+ * 
+ * .. versionadded:: 2.0.6$nbsp;(Plugin)
+ */
+int led_strip_get_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t length, uint8_t ret_r[12], uint8_t ret_g[12], uint8_t ret_b[12], uint8_t ret_w[12]);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Sets the channel mapping for the connected LEDs.
+ * 
+ * {@link led_strip_set_rgb_values} and {@link led_strip_set_rgbw_values} take the data in RGB(W) order.
+ * But the connected LED driver chips might have their 3 or 4 channels in a
+ * different order. For example, the WS2801 chips typically use BGR order, the
+ * WS2812 chips typically use GRB order and the APA102 chips typically use WBGR
+ * order.
+ * 
+ * The APA102 chips are special. They have three 8-bit channels for RGB
+ * and an additional 5-bit channel for the overall brightness of the RGB LED
+ * making them 4-channel chips. Internally the brightness channel is the first
+ * channel, therefore one of the Wxyz channel mappings should be used. Then
+ * the W channel controls the brightness.
+ * 
+ * If a 3-channel mapping is selected then {@link led_strip_set_rgb_values} has to be used.
+ * Calling {@link led_strip_set_rgbw_values} with a 3-channel mapping will produce incorrect
+ * results. Vice-versa if a 4-channel mapping is selected then
+ * {@link led_strip_set_rgbw_values} has to be used. Calling {@link led_strip_set_rgb_values} with a
+ * 4-channel mapping will produce incorrect results.
+ * 
+ * The default value is BGR (36).
+ * 
+ * .. versionadded:: 2.0.6$nbsp;(Plugin)
+ */
+int led_strip_set_channel_mapping(LEDStrip *led_strip, uint8_t mapping);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Returns the currently used channel mapping as set by {@link led_strip_set_channel_mapping}.
+ * 
+ * .. versionadded:: 2.0.6$nbsp;(Plugin)
+ */
+int led_strip_get_channel_mapping(LEDStrip *led_strip, uint8_t *ret_mapping);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Enables the {@link LED_STRIP_CALLBACK_FRAME_RENDERED} callback.
+ * 
+ * By default the callback is enabled.
+ * 
+ * .. versionadded:: 2.0.6$nbsp;(Plugin)
+ */
+int led_strip_enable_frame_rendered_callback(LEDStrip *led_strip);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Disables the {@link LED_STRIP_CALLBACK_FRAME_RENDERED} callback.
+ * 
+ * By default the callback is enabled.
+ * 
+ * .. versionadded:: 2.0.6$nbsp;(Plugin)
+ */
+int led_strip_disable_frame_rendered_callback(LEDStrip *led_strip);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Returns *true* if the {@link LED_STRIP_CALLBACK_FRAME_RENDERED} callback is enabled, *false* otherwise.
+ * 
+ * .. versionadded:: 2.0.6$nbsp;(Plugin)
+ */
+int led_strip_is_frame_rendered_callback_enabled(LEDStrip *led_strip, bool *ret_enabled);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

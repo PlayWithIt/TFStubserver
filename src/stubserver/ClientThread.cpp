@@ -133,10 +133,13 @@ void ClientThread::run()
         // Just for testing ...
         if (logRequests)
         {
-            char msg[256];
-            sprintf(msg, "Request in for uid=%-6s, func-id %3d, msg-size %d",
-                    utils::base58Encode(packet.header.uid).c_str(),
-                    packet.header.function_id, packet.header.length);
+            char msg[1024];
+            int len = sprintf(msg, "Request for uid=%-6s, func-id %3d, msg-size %2d -",
+                              utils::base58Encode(packet.header.uid).c_str(),
+                              packet.header.function_id, packet.header.length);
+            for (unsigned i = 8; i < packet.header.length; ++i) {
+                len += sprintf(msg + len, " %02X", packet.fullData.payload[i-8]);
+            }
             Log::log(msg);
         }
         brickStack.enqueueRequest(this, packet);

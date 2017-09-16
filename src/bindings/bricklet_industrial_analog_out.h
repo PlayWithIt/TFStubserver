@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -165,8 +165,7 @@ int industrial_analog_out_get_response_expected(IndustrialAnalogOut *industrial_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -260,11 +259,11 @@ int industrial_analog_out_get_current(IndustrialAnalogOut *industrial_analog_out
  * Possible voltage ranges are:
  * 
  * * 0V to 5V
- * * 0V to 10V
+ * * 0V to 10V (default)
  * 
  * Possible current ranges are:
  * 
- * * 4mA to 20mA
+ * * 4mA to 20mA (default)
  * * 0mA to 20mA
  * * 0mA to 24mA
  * 
@@ -283,7 +282,7 @@ int industrial_analog_out_get_configuration(IndustrialAnalogOut *industrial_anal
 /**
  * \ingroup BrickletIndustrialAnalogOut
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,17 +21,17 @@ extern "C" {
 
 
 
-typedef void (*CurrentCallbackFunction)(int32_t, void *);
+typedef void (*Current_CallbackFunction)(int32_t current, void *user_data);
 
-typedef void (*VoltageCallbackFunction)(int32_t, void *);
+typedef void (*Voltage_CallbackFunction)(int32_t voltage, void *user_data);
 
-typedef void (*PowerCallbackFunction)(int32_t, void *);
+typedef void (*Power_CallbackFunction)(int32_t power, void *user_data);
 
-typedef void (*CurrentReachedCallbackFunction)(int32_t, void *);
+typedef void (*CurrentReached_CallbackFunction)(int32_t current, void *user_data);
 
-typedef void (*VoltageReachedCallbackFunction)(int32_t, void *);
+typedef void (*VoltageReached_CallbackFunction)(int32_t voltage, void *user_data);
 
-typedef void (*PowerReachedCallbackFunction)(int32_t, void *);
+typedef void (*PowerReached_CallbackFunction)(int32_t power, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -51,208 +51,208 @@ typedef void (*PowerReachedCallbackFunction)(int32_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetCurrent_;
+} ATTRIBUTE_PACKED GetCurrent_Request;
 
 typedef struct {
 	PacketHeader header;
 	int32_t current;
-} ATTRIBUTE_PACKED GetCurrentResponse_;
+} ATTRIBUTE_PACKED GetCurrent_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVoltage_;
+} ATTRIBUTE_PACKED GetVoltage_Request;
 
 typedef struct {
 	PacketHeader header;
 	int32_t voltage;
-} ATTRIBUTE_PACKED GetVoltageResponse_;
+} ATTRIBUTE_PACKED GetVoltage_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetPower_;
+} ATTRIBUTE_PACKED GetPower_Request;
 
 typedef struct {
 	PacketHeader header;
 	int32_t power;
-} ATTRIBUTE_PACKED GetPowerResponse_;
+} ATTRIBUTE_PACKED GetPower_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t averaging;
 	uint8_t voltage_conversion_time;
 	uint8_t current_conversion_time;
-} ATTRIBUTE_PACKED SetConfiguration_;
+} ATTRIBUTE_PACKED SetConfiguration_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetConfiguration_;
+} ATTRIBUTE_PACKED GetConfiguration_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t averaging;
 	uint8_t voltage_conversion_time;
 	uint8_t current_conversion_time;
-} ATTRIBUTE_PACKED GetConfigurationResponse_;
+} ATTRIBUTE_PACKED GetConfiguration_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t gain_multiplier;
 	uint16_t gain_divisor;
-} ATTRIBUTE_PACKED SetCalibration_;
+} ATTRIBUTE_PACKED SetCalibration_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetCalibration_;
+} ATTRIBUTE_PACKED GetCalibration_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t gain_multiplier;
 	uint16_t gain_divisor;
-} ATTRIBUTE_PACKED GetCalibrationResponse_;
+} ATTRIBUTE_PACKED GetCalibration_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetCurrentCallbackPeriod_;
+} ATTRIBUTE_PACKED SetCurrentCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetCurrentCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED GetCurrentCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetCurrentCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetVoltageCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetVoltageCallbackPeriod_;
+} ATTRIBUTE_PACKED GetCurrentCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetVoltageCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED SetVoltageCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetVoltageCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetPowerCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetPowerCallbackPeriod_;
+} ATTRIBUTE_PACKED GetVoltageCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetPowerCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED SetPowerCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetPowerCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t period;
+} ATTRIBUTE_PACKED GetPowerCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED SetCurrentCallbackThreshold_;
+} ATTRIBUTE_PACKED SetCurrentCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetCurrentCallbackThreshold_;
-
-typedef struct {
-	PacketHeader header;
-	char option;
-	int32_t min;
-	int32_t max;
-} ATTRIBUTE_PACKED GetCurrentCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetCurrentCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED SetVoltageCallbackThreshold_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetVoltageCallbackThreshold_;
+} ATTRIBUTE_PACKED GetCurrentCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED GetVoltageCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED SetVoltageCallbackThreshold_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetVoltageCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED SetPowerCallbackThreshold_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetPowerCallbackThreshold_;
+} ATTRIBUTE_PACKED GetVoltageCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int32_t min;
 	int32_t max;
-} ATTRIBUTE_PACKED GetPowerCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED SetPowerCallbackThreshold_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetPowerCallbackThreshold_Request;
+
+typedef struct {
+	PacketHeader header;
+	char option;
+	int32_t min;
+	int32_t max;
+} ATTRIBUTE_PACKED GetPowerCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	int32_t current;
-} ATTRIBUTE_PACKED CurrentCallback_;
+} ATTRIBUTE_PACKED Current_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int32_t voltage;
-} ATTRIBUTE_PACKED VoltageCallback_;
+} ATTRIBUTE_PACKED Voltage_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int32_t power;
-} ATTRIBUTE_PACKED PowerCallback_;
+} ATTRIBUTE_PACKED Power_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int32_t current;
-} ATTRIBUTE_PACKED CurrentReachedCallback_;
+} ATTRIBUTE_PACKED CurrentReached_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int32_t voltage;
-} ATTRIBUTE_PACKED VoltageReachedCallback_;
+} ATTRIBUTE_PACKED VoltageReached_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int32_t power;
-} ATTRIBUTE_PACKED PowerReachedCallback_;
+} ATTRIBUTE_PACKED PowerReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -262,7 +262,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -270,10 +270,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void voltage_current_callback_wrapper_current(DevicePrivate *device_p, Packet *packet) {
-	CurrentCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[VOLTAGE_CURRENT_CALLBACK_CURRENT];
-	CurrentCallback_ *callback = (CurrentCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[VOLTAGE_CURRENT_CALLBACK_CURRENT];
+	Current_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_CURRENT];
+	Current_Callback *callback = (Current_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_CURRENT];
 
 	if (callback_function == NULL) {
 		return;
@@ -285,10 +286,11 @@ static void voltage_current_callback_wrapper_current(DevicePrivate *device_p, Pa
 }
 
 static void voltage_current_callback_wrapper_voltage(DevicePrivate *device_p, Packet *packet) {
-	VoltageCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[VOLTAGE_CURRENT_CALLBACK_VOLTAGE];
-	VoltageCallback_ *callback = (VoltageCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[VOLTAGE_CURRENT_CALLBACK_VOLTAGE];
+	Voltage_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_VOLTAGE];
+	Voltage_Callback *callback = (Voltage_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_VOLTAGE];
 
 	if (callback_function == NULL) {
 		return;
@@ -300,10 +302,11 @@ static void voltage_current_callback_wrapper_voltage(DevicePrivate *device_p, Pa
 }
 
 static void voltage_current_callback_wrapper_power(DevicePrivate *device_p, Packet *packet) {
-	PowerCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[VOLTAGE_CURRENT_CALLBACK_POWER];
-	PowerCallback_ *callback = (PowerCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[VOLTAGE_CURRENT_CALLBACK_POWER];
+	Power_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_POWER];
+	Power_Callback *callback = (Power_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_POWER];
 
 	if (callback_function == NULL) {
 		return;
@@ -315,10 +318,11 @@ static void voltage_current_callback_wrapper_power(DevicePrivate *device_p, Pack
 }
 
 static void voltage_current_callback_wrapper_current_reached(DevicePrivate *device_p, Packet *packet) {
-	CurrentReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED];
-	CurrentReachedCallback_ *callback = (CurrentReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED];
+	CurrentReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED];
+	CurrentReached_Callback *callback = (CurrentReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -330,10 +334,11 @@ static void voltage_current_callback_wrapper_current_reached(DevicePrivate *devi
 }
 
 static void voltage_current_callback_wrapper_voltage_reached(DevicePrivate *device_p, Packet *packet) {
-	VoltageReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED];
-	VoltageReachedCallback_ *callback = (VoltageReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED];
+	VoltageReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED];
+	VoltageReached_Callback *callback = (VoltageReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -345,10 +350,11 @@ static void voltage_current_callback_wrapper_voltage_reached(DevicePrivate *devi
 }
 
 static void voltage_current_callback_wrapper_power_reached(DevicePrivate *device_p, Packet *packet) {
-	PowerReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[VOLTAGE_CURRENT_CALLBACK_POWER_REACHED];
-	PowerReachedCallback_ *callback = (PowerReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[VOLTAGE_CURRENT_CALLBACK_POWER_REACHED];
+	PowerReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_POWER_REACHED];
+	PowerReached_Callback *callback = (PowerReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CURRENT_CALLBACK_POWER_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -387,12 +393,6 @@ void voltage_current_create(VoltageCurrent *voltage_current, const char *uid, IP
 	device_p->response_expected[VOLTAGE_CURRENT_FUNCTION_GET_POWER_CALLBACK_THRESHOLD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[VOLTAGE_CURRENT_FUNCTION_SET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[VOLTAGE_CURRENT_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[VOLTAGE_CURRENT_CALLBACK_CURRENT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[VOLTAGE_CURRENT_CALLBACK_VOLTAGE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[VOLTAGE_CURRENT_CALLBACK_POWER] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[VOLTAGE_CURRENT_CALLBACK_POWER_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[VOLTAGE_CURRENT_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[VOLTAGE_CURRENT_CALLBACK_CURRENT] = voltage_current_callback_wrapper_current;
@@ -401,6 +401,7 @@ void voltage_current_create(VoltageCurrent *voltage_current, const char *uid, IP
 	device_p->callback_wrappers[VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED] = voltage_current_callback_wrapper_current_reached;
 	device_p->callback_wrappers[VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED] = voltage_current_callback_wrapper_voltage_reached;
 	device_p->callback_wrappers[VOLTAGE_CURRENT_CALLBACK_POWER_REACHED] = voltage_current_callback_wrapper_power_reached;
+
 }
 
 void voltage_current_destroy(VoltageCurrent *voltage_current) {
@@ -419,8 +420,8 @@ int voltage_current_set_response_expected_all(VoltageCurrent *voltage_current, b
 	return device_set_response_expected_all(voltage_current->p, response_expected);
 }
 
-void voltage_current_register_callback(VoltageCurrent *voltage_current, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(voltage_current->p, id, callback, user_data);
+void voltage_current_register_callback(VoltageCurrent *voltage_current, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(voltage_current->p, callback_id, function, user_data);
 }
 
 int voltage_current_get_api_version(VoltageCurrent *voltage_current, uint8_t ret_api_version[3]) {
@@ -429,8 +430,8 @@ int voltage_current_get_api_version(VoltageCurrent *voltage_current, uint8_t ret
 
 int voltage_current_get_current(VoltageCurrent *voltage_current, int32_t *ret_current) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetCurrent_ request;
-	GetCurrentResponse_ response;
+	GetCurrent_Request request;
+	GetCurrent_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_CURRENT, device_p->ipcon_p, device_p);
@@ -439,23 +440,21 @@ int voltage_current_get_current(VoltageCurrent *voltage_current, int32_t *ret_cu
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_current = leconvert_int32_from(response.current);
-
-
 
 	return ret;
 }
 
 int voltage_current_get_voltage(VoltageCurrent *voltage_current, int32_t *ret_voltage) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetVoltage_ request;
-	GetVoltageResponse_ response;
+	GetVoltage_Request request;
+	GetVoltage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_VOLTAGE, device_p->ipcon_p, device_p);
@@ -464,23 +463,21 @@ int voltage_current_get_voltage(VoltageCurrent *voltage_current, int32_t *ret_vo
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_voltage = leconvert_int32_from(response.voltage);
-
-
 
 	return ret;
 }
 
 int voltage_current_get_power(VoltageCurrent *voltage_current, int32_t *ret_power) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetPower_ request;
-	GetPowerResponse_ response;
+	GetPower_Request request;
+	GetPower_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_POWER, device_p->ipcon_p, device_p);
@@ -489,22 +486,20 @@ int voltage_current_get_power(VoltageCurrent *voltage_current, int32_t *ret_powe
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_power = leconvert_int32_from(response.power);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_configuration(VoltageCurrent *voltage_current, uint8_t averaging, uint8_t voltage_conversion_time, uint8_t current_conversion_time) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetConfiguration_ request;
+	SetConfiguration_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -519,14 +514,13 @@ int voltage_current_set_configuration(VoltageCurrent *voltage_current, uint8_t a
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_configuration(VoltageCurrent *voltage_current, uint8_t *ret_averaging, uint8_t *ret_voltage_conversion_time, uint8_t *ret_current_conversion_time) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetConfiguration_ request;
-	GetConfigurationResponse_ response;
+	GetConfiguration_Request request;
+	GetConfiguration_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -535,24 +529,22 @@ int voltage_current_get_configuration(VoltageCurrent *voltage_current, uint8_t *
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_averaging = response.averaging;
 	*ret_voltage_conversion_time = response.voltage_conversion_time;
 	*ret_current_conversion_time = response.current_conversion_time;
-
-
 
 	return ret;
 }
 
 int voltage_current_set_calibration(VoltageCurrent *voltage_current, uint16_t gain_multiplier, uint16_t gain_divisor) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetCalibration_ request;
+	SetCalibration_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_CALIBRATION, device_p->ipcon_p, device_p);
@@ -566,14 +558,13 @@ int voltage_current_set_calibration(VoltageCurrent *voltage_current, uint16_t ga
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_calibration(VoltageCurrent *voltage_current, uint16_t *ret_gain_multiplier, uint16_t *ret_gain_divisor) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetCalibration_ request;
-	GetCalibrationResponse_ response;
+	GetCalibration_Request request;
+	GetCalibration_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_CALIBRATION, device_p->ipcon_p, device_p);
@@ -582,23 +573,21 @@ int voltage_current_get_calibration(VoltageCurrent *voltage_current, uint16_t *r
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_gain_multiplier = leconvert_uint16_from(response.gain_multiplier);
 	*ret_gain_divisor = leconvert_uint16_from(response.gain_divisor);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_current_callback_period(VoltageCurrent *voltage_current, uint32_t period) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetCurrentCallbackPeriod_ request;
+	SetCurrentCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -611,14 +600,13 @@ int voltage_current_set_current_callback_period(VoltageCurrent *voltage_current,
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_current_callback_period(VoltageCurrent *voltage_current, uint32_t *ret_period) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetCurrentCallbackPeriod_ request;
-	GetCurrentCallbackPeriodResponse_ response;
+	GetCurrentCallbackPeriod_Request request;
+	GetCurrentCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -627,22 +615,20 @@ int voltage_current_get_current_callback_period(VoltageCurrent *voltage_current,
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_voltage_callback_period(VoltageCurrent *voltage_current, uint32_t period) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetVoltageCallbackPeriod_ request;
+	SetVoltageCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -655,14 +641,13 @@ int voltage_current_set_voltage_callback_period(VoltageCurrent *voltage_current,
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_voltage_callback_period(VoltageCurrent *voltage_current, uint32_t *ret_period) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetVoltageCallbackPeriod_ request;
-	GetVoltageCallbackPeriodResponse_ response;
+	GetVoltageCallbackPeriod_Request request;
+	GetVoltageCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -671,22 +656,20 @@ int voltage_current_get_voltage_callback_period(VoltageCurrent *voltage_current,
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_power_callback_period(VoltageCurrent *voltage_current, uint32_t period) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetPowerCallbackPeriod_ request;
+	SetPowerCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_POWER_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -699,14 +682,13 @@ int voltage_current_set_power_callback_period(VoltageCurrent *voltage_current, u
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_power_callback_period(VoltageCurrent *voltage_current, uint32_t *ret_period) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetPowerCallbackPeriod_ request;
-	GetPowerCallbackPeriodResponse_ response;
+	GetPowerCallbackPeriod_Request request;
+	GetPowerCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_POWER_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -715,22 +697,20 @@ int voltage_current_get_power_callback_period(VoltageCurrent *voltage_current, u
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_current_callback_threshold(VoltageCurrent *voltage_current, char option, int32_t min, int32_t max) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetCurrentCallbackThreshold_ request;
+	SetCurrentCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -745,14 +725,13 @@ int voltage_current_set_current_callback_threshold(VoltageCurrent *voltage_curre
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_current_callback_threshold(VoltageCurrent *voltage_current, char *ret_option, int32_t *ret_min, int32_t *ret_max) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetCurrentCallbackThreshold_ request;
-	GetCurrentCallbackThresholdResponse_ response;
+	GetCurrentCallbackThreshold_Request request;
+	GetCurrentCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -761,24 +740,22 @@ int voltage_current_get_current_callback_threshold(VoltageCurrent *voltage_curre
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int32_from(response.min);
 	*ret_max = leconvert_int32_from(response.max);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_voltage_callback_threshold(VoltageCurrent *voltage_current, char option, int32_t min, int32_t max) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetVoltageCallbackThreshold_ request;
+	SetVoltageCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -793,14 +770,13 @@ int voltage_current_set_voltage_callback_threshold(VoltageCurrent *voltage_curre
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_voltage_callback_threshold(VoltageCurrent *voltage_current, char *ret_option, int32_t *ret_min, int32_t *ret_max) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetVoltageCallbackThreshold_ request;
-	GetVoltageCallbackThresholdResponse_ response;
+	GetVoltageCallbackThreshold_Request request;
+	GetVoltageCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -809,24 +785,22 @@ int voltage_current_get_voltage_callback_threshold(VoltageCurrent *voltage_curre
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int32_from(response.min);
 	*ret_max = leconvert_int32_from(response.max);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_power_callback_threshold(VoltageCurrent *voltage_current, char option, int32_t min, int32_t max) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetPowerCallbackThreshold_ request;
+	SetPowerCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_POWER_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -841,14 +815,13 @@ int voltage_current_set_power_callback_threshold(VoltageCurrent *voltage_current
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_power_callback_threshold(VoltageCurrent *voltage_current, char *ret_option, int32_t *ret_min, int32_t *ret_max) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetPowerCallbackThreshold_ request;
-	GetPowerCallbackThresholdResponse_ response;
+	GetPowerCallbackThreshold_Request request;
+	GetPowerCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_POWER_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -857,24 +830,22 @@ int voltage_current_get_power_callback_threshold(VoltageCurrent *voltage_current
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int32_from(response.min);
 	*ret_max = leconvert_int32_from(response.max);
-
-
 
 	return ret;
 }
 
 int voltage_current_set_debounce_period(VoltageCurrent *voltage_current, uint32_t debounce) {
 	DevicePrivate *device_p = voltage_current->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -887,14 +858,13 @@ int voltage_current_set_debounce_period(VoltageCurrent *voltage_current, uint32_
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int voltage_current_get_debounce_period(VoltageCurrent *voltage_current, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -903,23 +873,21 @@ int voltage_current_get_debounce_period(VoltageCurrent *voltage_current, uint32_
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int voltage_current_get_identity(VoltageCurrent *voltage_current, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = voltage_current->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_CURRENT_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -928,20 +896,18 @@ int voltage_current_get_identity(VoltageCurrent *voltage_current, char ret_uid[8
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

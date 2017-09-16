@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#if !defined __cplusplus && defined __GNUC__
+#if (!defined __cplusplus && defined __GNUC__) || (defined _MSC_VER && _MSC_VER >= 1600)
 	#include <stdbool.h>
 #endif
 
@@ -52,8 +52,15 @@ enum {
 	E_NOT_CONNECTED = -8,
 	E_INVALID_PARAMETER = -9, // error response from device
 	E_NOT_SUPPORTED = -10, // error response from device
-	E_UNKNOWN_ERROR_CODE = -11 // error response from device
+	E_UNKNOWN_ERROR_CODE = -11, // error response from device
+	E_STREAM_OUT_OF_SYNC = -12
 };
+
+#ifdef IPCON_EXPOSE_MILLISLEEP
+
+void millisleep(uint32_t msec);
+
+#endif // IPCON_EXPOSE_MILLISLEEP
 
 #ifdef IPCON_EXPOSE_INTERNALS
 
@@ -145,7 +152,7 @@ typedef struct {
 #endif
 
 typedef struct {
-	uint32_t uid;
+	uint32_t uid; // always little endian
 	uint8_t length;
 	uint8_t function_id;
 	uint8_t sequence_number_and_options;
@@ -173,6 +180,16 @@ typedef struct _DevicePrivate DevicePrivate;
 #ifdef IPCON_EXPOSE_INTERNALS
 
 typedef struct _CallbackContext CallbackContext;
+typedef struct _HighLevelCallback HighLevelCallback;
+
+/**
+ * \internal
+ */
+struct _HighLevelCallback {
+	bool exists;
+	void *data;
+	size_t length;
+};
 
 #endif
 
@@ -212,7 +229,7 @@ struct _Device {
 struct _DevicePrivate {
 	int ref_count;
 
-	uint32_t uid;
+	uint32_t uid; // always host endian
 
 	IPConnectionPrivate *ipcon_p;
 
@@ -227,9 +244,12 @@ struct _DevicePrivate {
 	Event response_event;
 	int response_expected[DEVICE_NUM_FUNCTION_IDS];
 
-	void *registered_callbacks[DEVICE_NUM_FUNCTION_IDS];
-	void *registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS];
+	Mutex stream_mutex;
+
+	void *registered_callbacks[DEVICE_NUM_FUNCTION_IDS * 2];
+	void *registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS * 2];
 	CallbackWrapperFunction callback_wrappers[DEVICE_NUM_FUNCTION_IDS];
+	HighLevelCallback high_level_callbacks[DEVICE_NUM_FUNCTION_IDS];
 };
 
 /**
@@ -238,7 +258,6 @@ struct _DevicePrivate {
 enum {
 	DEVICE_RESPONSE_EXPECTED_INVALID_FUNCTION_ID = 0,
 	DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE, // getter
-	DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE, // callback
 	DEVICE_RESPONSE_EXPECTED_TRUE, // setter
 	DEVICE_RESPONSE_EXPECTED_FALSE // setter, default
 };
@@ -275,8 +294,8 @@ int device_set_response_expected_all(DevicePrivate *device_p, bool response_expe
 /**
  * \internal
  */
-void device_register_callback(DevicePrivate *device_p, uint8_t id, void *callback,
-                              void *user_data);
+void device_register_callback(DevicePrivate *device_p, int16_t callback_id,
+                              void *function, void *user_data);
 
 /**
  * \internal
@@ -567,10 +586,11 @@ void ipcon_unwait(IPConnection *ipcon);
 /**
  * \ingroup IPConnection
  *
- * Registers a callback for a given ID.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void ipcon_register_callback(IPConnection *ipcon, uint8_t id,
-                             void *callback, void *user_data);
+void ipcon_register_callback(IPConnection *ipcon, int16_t callback_id,
+                             void *function, void *user_data);
 
 #ifdef IPCON_EXPOSE_INTERNALS
 

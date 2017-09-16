@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2014 Matthias Bolte <matthias@tinkerforge.com>
+ * Copyright (C) 2012-2016 Matthias Bolte <matthias@tinkerforge.com>
  * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
  *
  * Redistribution and use in source and binary forms of this file,
@@ -12,7 +12,7 @@
 		#define _BSD_SOURCE // for usleep from unistd.h
 	#endif
 	#ifndef _GNU_SOURCE
-		#define _GNU_SOURCE // for strnlen from string.h
+		#define _GNU_SOURCE
 	#endif
 #endif
 
@@ -25,6 +25,7 @@
 
 #ifdef _WIN32
 	#include <winsock2.h>
+	#include <ws2tcpip.h>
 	#include <wincrypt.h>
 	#include <process.h>
 #else
@@ -42,11 +43,15 @@
 #ifdef _MSC_VER
 	// replace getpid with GetCurrentProcessId
 	#define getpid GetCurrentProcessId
+
+	// avoid warning from MSVC about deprecated POSIX name
+	#define strdup _strdup
 #else
 	#include <sys/time.h> // gettimeofday
 #endif
 
 #define IPCON_EXPOSE_INTERNALS
+#define IPCON_EXPOSE_MILLISLEEP
 
 #include "ip_connection.h"
 
@@ -128,6 +133,20 @@ typedef struct {
 	STATIC_ASSERT(sizeof(GetAuthenticationNonceResponse) == 12, "GetAuthenticationNonceResponse has invalid size");
 	STATIC_ASSERT(sizeof(Authenticate) == 32, "Authenticate has invalid size");
 #endif
+
+void millisleep(uint32_t msec) {
+#ifdef _WIN32
+	Sleep(msec);
+#else
+	if (msec >= 1000) {
+		sleep(msec / 1000);
+
+		msec %= 1000;
+	}
+
+	usleep(msec * 1000);
+#endif
+}
 
 /*****************************************************************************
  *
@@ -235,7 +254,7 @@ static void sha1_update(SHA1 *sha1, const uint8_t *data, size_t length) {
 	size_t i, j;
 
 	j = (size_t)((sha1->count >> 3) & 63);
-	sha1->count += (length << 3);
+	sha1->count += (uint64_t)length << 3;
 
 	if ((j + length) > 63) {
 		i = 64 - j;
@@ -294,21 +313,17 @@ static void sha1_final(SHA1 *sha1, uint8_t digest[SHA1_DIGEST_LENGTH]) {
  *
  *****************************************************************************/
 
-#ifdef __MINGW32__
-
-static size_t strnlen(const char *s, size_t maxlen) {
+static int string_length(const char *s, int max_length) {
 	const char *p = s;
-	size_t n = 0;
+	int n = 0;
 
-	while (*p != '\0' && n < maxlen) {
+	while (*p != '\0' && n < max_length) {
 		++p;
 		++n;
 	}
 
 	return n;
 }
-
-#endif
 
 #ifdef _MSC_VER
 
@@ -326,9 +341,12 @@ static int gettimeofday(struct timeval *tv, struct timezone *tz) {
 	(void)tz;
 
 	if (tv != NULL) {
+#pragma warning(push)
+#pragma warning(disable: 4191) // stop MSVC from warning about casting FARPROC
 		ptr_GetSystemTimePreciseAsFileTime =
 		  (GETSYSTEMTIMEPRECISEASFILETIME)GetProcAddress(GetModuleHandleA("kernel32"),
 		                                                 "GetSystemTimePreciseAsFileTime");
+#pragma warning(pop)
 
 		if (ptr_GetSystemTimePreciseAsFileTime != NULL) {
 			ptr_GetSystemTimePreciseAsFileTime(&ft);
@@ -358,7 +376,7 @@ static int read_uint32_non_blocking(const char *filename, uint32_t *value) {
 		return -1;
 	}
 
-	rc = read(fd, value, sizeof(uint32_t));
+	rc = (int)read(fd, value, sizeof(uint32_t));
 
 	close(fd);
 
@@ -407,7 +425,7 @@ fallback:
 		seconds = (uint32_t)time(NULL);
 		microseconds = 0;
 	} else {
-		seconds = tv.tv_sec;
+		seconds = (uint32_t)tv.tv_sec;
 		microseconds = tv.tv_usec;
 	}
 
@@ -575,8 +593,8 @@ static void socket_destroy(Socket *socket) {
 	closesocket(socket->handle);
 }
 
-static int socket_connect(Socket *socket, struct sockaddr_in *address, int length) {
-	return connect(socket->handle, (struct sockaddr *)address, length) == SOCKET_ERROR ? -1 : 0;
+static int socket_connect(Socket *socket, struct sockaddr *address, int length) {
+	return connect(socket->handle, address, length) == SOCKET_ERROR ? -1 : 0;
 }
 
 static void socket_shutdown(Socket *socket) {
@@ -599,7 +617,7 @@ static int socket_receive(Socket *socket, void *buffer, int length) {
 	return length;
 }
 
-static int socket_send(Socket *socket, void *buffer, int length) {
+static int socket_send(Socket *socket, const void *buffer, int length) {
 	mutex_lock(&socket->send_mutex);
 
 	length = send(socket->handle, (const char *)buffer, length, 0);
@@ -642,8 +660,8 @@ static void socket_destroy(Socket *socket) {
 	close(socket->handle);
 }
 
-static int socket_connect(Socket *socket, struct sockaddr_in *address, int length) {
-	return connect(socket->handle, (struct sockaddr *)address, length);
+static int socket_connect(Socket *socket, struct sockaddr *address, int length) {
+	return connect(socket->handle, address, length);
 }
 
 static void socket_shutdown(Socket *socket) {
@@ -651,15 +669,15 @@ static void socket_shutdown(Socket *socket) {
 }
 
 static int socket_receive(Socket *socket, void *buffer, int length) {
-	return recv(socket->handle, buffer, length, 0);
+	return (int)recv(socket->handle, buffer, length, 0);
 }
 
-static int socket_send(Socket *socket, void *buffer, int length) {
+static int socket_send(Socket *socket, const void *buffer, int length) {
 	int rc;
 
 	mutex_lock(&socket->send_mutex);
 
-	rc = send(socket->handle, buffer, length, 0);
+	rc = (int)send(socket->handle, buffer, length, 0);
 
 	mutex_unlock(&socket->send_mutex);
 
@@ -904,10 +922,6 @@ static void thread_join(Thread *thread) {
 	WaitForSingleObject(thread->handle, INFINITE);
 }
 
-static void thread_sleep(int msec) {
-	Sleep(msec);
-}
-
 #else
 
 static void *thread_wrapper(void *opaque) {
@@ -935,10 +949,6 @@ static bool thread_is_current(Thread *thread) {
 
 static void thread_join(Thread *thread) {
 	pthread_join(thread->handle, NULL);
-}
-
-static void thread_sleep(int msec) {
-	usleep(msec * 1000);
 }
 
 #endif
@@ -1045,6 +1055,7 @@ static void *table_get(Table *table, uint32_t key) {
 
 enum {
 	QUEUE_KIND_EXIT = 0,
+	QUEUE_KIND_DESTROY_AND_EXIT,
 	QUEUE_KIND_META,
 	QUEUE_KIND_PACKET
 };
@@ -1149,7 +1160,15 @@ static int ipcon_send_request(IPConnectionPrivate *ipcon_p, Packet *request);
 
 // NOTE: assumes device_p->ref_count == 0
 static void device_destroy(DevicePrivate *device_p) {
+	int i;
+
 	table_remove(&device_p->ipcon_p->devices, device_p->uid);
+
+	for (i = 0; i < DEVICE_NUM_FUNCTION_IDS; i++) {
+		free(device_p->high_level_callbacks[i].data);
+	}
+
+	mutex_destroy(&device_p->stream_mutex);
 
 	event_destroy(&device_p->response_event);
 
@@ -1213,14 +1232,20 @@ void device_create(Device *device, const char *uid_str,
 		device_p->response_expected[i] = DEVICE_RESPONSE_EXPECTED_INVALID_FUNCTION_ID;
 	}
 
-	device_p->response_expected[IPCON_FUNCTION_ENUMERATE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[IPCON_CALLBACK_ENUMERATE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
+	// stream
+	mutex_create(&device_p->stream_mutex);
 
 	// callbacks
-	for (i = 0; i < DEVICE_NUM_FUNCTION_IDS; i++) {
+	for (i = 0; i < DEVICE_NUM_FUNCTION_IDS * 2; i++) {
 		device_p->registered_callbacks[i] = NULL;
 		device_p->registered_callback_user_data[i] = NULL;
+	}
+
+	for (i = 0; i < DEVICE_NUM_FUNCTION_IDS; i++) {
 		device_p->callback_wrappers[i] = NULL;
+		device_p->high_level_callbacks[i].exists = false;
+		device_p->high_level_callbacks[i].data = NULL;
+		device_p->high_level_callbacks[i].length = 0;
 	}
 
 	// add to IPConnection
@@ -1290,10 +1315,14 @@ int device_set_response_expected_all(DevicePrivate *device_p, bool response_expe
 	return E_OK;
 }
 
-void device_register_callback(DevicePrivate *device_p, uint8_t id, void *callback,
-                              void *user_data) {
-	device_p->registered_callbacks[id] = callback;
-	device_p->registered_callback_user_data[id] = user_data;
+void device_register_callback(DevicePrivate *device_p, int16_t callback_id,
+                              void *function, void *user_data) {
+	if (callback_id <= -DEVICE_NUM_FUNCTION_IDS || callback_id >= DEVICE_NUM_FUNCTION_IDS) {
+		return;
+	}
+
+	device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + callback_id] = function;
+	device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + callback_id] = user_data;
 }
 
 int device_get_api_version(DevicePrivate *device_p, uint8_t ret_api_version[3]) {
@@ -1447,8 +1476,8 @@ static int brickd_authenticate(BrickDaemon *brickd, uint8_t client_nonce[4], uin
 struct _CallbackContext {
 	IPConnectionPrivate *ipcon_p;
 	Queue queue;
-	Thread thread;
 	Mutex mutex;
+	Thread thread;
 	bool packet_dispatch_allowed;
 };
 
@@ -1511,7 +1540,7 @@ static void ipcon_dispatch_meta(IPConnectionPrivate *ipcon_p, Meta *meta) {
 		// FIXME: wait a moment here, otherwise the next connect
 		// attempt will succeed, even if there is no open server
 		// socket. the first receive will then fail directly
-		thread_sleep(100);
+		millisleep(100);
 
 		if (ipcon_p->registered_callbacks[IPCON_CALLBACK_DISCONNECTED] != NULL) {
 			*(void **)(&disconnected_callback_function) = ipcon_p->registered_callbacks[IPCON_CALLBACK_DISCONNECTED];
@@ -1545,7 +1574,7 @@ static void ipcon_dispatch_meta(IPConnectionPrivate *ipcon_p, Meta *meta) {
 				if (retry) {
 					// wait a moment to give another thread a chance to
 					// interrupt the auto-reconnect
-					thread_sleep(100);
+					millisleep(100);
 				}
 			}
 		}
@@ -1595,6 +1624,26 @@ static void ipcon_dispatch_packet(IPConnectionPrivate *ipcon_p, Packet *packet) 
 	}
 }
 
+static void ipcon_destroy_callback_context(CallbackContext *callback) {
+	thread_destroy(&callback->thread);
+	mutex_destroy(&callback->mutex);
+	queue_destroy(&callback->queue);
+
+	free(callback);
+}
+
+static void ipcon_exit_callback_thread(CallbackContext *callback) {
+	if (!thread_is_current(&callback->thread)) {
+		queue_put(&callback->queue, QUEUE_KIND_EXIT, NULL);
+
+		thread_join(&callback->thread);
+
+		ipcon_destroy_callback_context(callback);
+	} else {
+		queue_put(&callback->queue, QUEUE_KIND_DESTROY_AND_EXIT, NULL);
+	}
+}
+
 static void ipcon_callback_loop(void *opaque) {
 	CallbackContext *callback = (CallbackContext *)opaque;
 	int kind;
@@ -1606,14 +1655,18 @@ static void ipcon_callback_loop(void *opaque) {
 			break;
 		}
 
+		if (kind == QUEUE_KIND_EXIT) {
+			break;
+		} else if (kind == QUEUE_KIND_DESTROY_AND_EXIT) {
+			ipcon_destroy_callback_context(callback);
+			break;
+		}
+
 		// FIXME: cannot lock callback mutex here because this can
 		//        deadlock due to an ordering problem with the socket mutex
 		//mutex_lock(&callback->mutex);
 
-		if (kind == QUEUE_KIND_EXIT) {
-			//mutex_unlock(&callback->mutex);
-			break;
-		} else if (kind == QUEUE_KIND_META) {
+		if (kind == QUEUE_KIND_META) {
 			ipcon_dispatch_meta(callback->ipcon_p, (Meta *)data);
 		} else if (kind == QUEUE_KIND_PACKET) {
 			// don't dispatch callbacks when the receive thread isn't running
@@ -1626,13 +1679,6 @@ static void ipcon_callback_loop(void *opaque) {
 
 		free(data);
 	}
-
-	// cleanup
-	mutex_destroy(&callback->mutex);
-	queue_destroy(&callback->queue);
-	thread_destroy(&callback->thread);
-
-	free(callback);
 }
 
 // NOTE: assumes that socket_mutex is locked if disconnect_immediately is true
@@ -1718,7 +1764,8 @@ static void ipcon_handle_response(IPConnectionPrivate *ipcon_p, Packet *response
 	}
 
 	if (sequence_number == 0) {
-		if (device_p->registered_callbacks[response->header.function_id] != NULL) {
+		if (device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + response->header.function_id] != NULL ||
+		    device_p->high_level_callbacks[response->header.function_id].exists) {
 			callback = (Packet *)malloc(response->header.length);
 
 			memcpy(callback, response, response->header.length);
@@ -1784,7 +1831,7 @@ static void ipcon_receive_loop(void *opaque) {
 		pending_length += length;
 
 		while (ipcon_p->receive_flag) {
-			if (pending_length < 8) {
+			if (pending_length < (int)sizeof(PacketHeader)) {
 				// wait for complete header
 				break;
 			}
@@ -1805,10 +1852,12 @@ static void ipcon_receive_loop(void *opaque) {
 	}
 }
 
-// NOTE: assumes that socket_mutex is locked
+// NOTE: assumes that socket is NULL and socket_mutex is locked
 static int ipcon_connect_unlocked(IPConnectionPrivate *ipcon_p, bool is_auto_reconnect) {
-	struct hostent *entity;
-	struct sockaddr_in address;
+	char service[32];
+	struct addrinfo hints;
+	struct addrinfo *resolved = NULL;
+	Socket *tmp;
 	uint8_t connect_reason;
 	Meta *meta;
 
@@ -1835,70 +1884,59 @@ static int ipcon_connect_unlocked(IPConnectionPrivate *ipcon_p, bool is_auto_rec
 	}
 
 	// create and connect socket
-	entity = gethostbyname(ipcon_p->host);
+	snprintf(service, sizeof(service), "%u", ipcon_p->port);
 
-	if (entity == NULL) {
+	memset(&hints, 0, sizeof(hints));
+
+	hints.ai_flags = AI_PASSIVE;
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+
+	if (getaddrinfo(ipcon_p->host, service, &hints, &resolved) != 0) {
 		// destroy callback thread
 		if (!is_auto_reconnect) {
-			queue_put(&ipcon_p->callback->queue, QUEUE_KIND_EXIT, NULL);
-
-			if (!thread_is_current(&ipcon_p->callback->thread)) {
-				thread_join(&ipcon_p->callback->thread);
-			}
-
+			ipcon_exit_callback_thread(ipcon_p->callback);
 			ipcon_p->callback = NULL;
 		}
 
 		return E_HOSTNAME_INVALID;
 	}
 
-	memset(&address, 0, sizeof(struct sockaddr_in));
-	memcpy(&address.sin_addr, entity->h_addr_list[0], entity->h_length);
+	tmp = (Socket *)malloc(sizeof(Socket));
 
-	address.sin_family = AF_INET;
-	address.sin_port = htons(ipcon_p->port);
-
-	ipcon_p->socket = (Socket *)malloc(sizeof(Socket));
-
-	if (socket_create(ipcon_p->socket, AF_INET, SOCK_STREAM, 0) < 0) {
+	if (socket_create(tmp, resolved->ai_family, resolved->ai_socktype,
+	                  resolved->ai_protocol) < 0) {
 		// destroy callback thread
 		if (!is_auto_reconnect) {
-			queue_put(&ipcon_p->callback->queue, QUEUE_KIND_EXIT, NULL);
-
-			if (!thread_is_current(&ipcon_p->callback->thread)) {
-				thread_join(&ipcon_p->callback->thread);
-			}
-
+			ipcon_exit_callback_thread(ipcon_p->callback);
 			ipcon_p->callback = NULL;
 		}
 
 		// destroy socket
-		free(ipcon_p->socket);
-		ipcon_p->socket = NULL;
+		free(tmp);
+		freeaddrinfo(resolved);
 
 		return E_NO_STREAM_SOCKET;
 	}
 
-	if (socket_connect(ipcon_p->socket, &address, sizeof(address)) < 0) {
+	if (socket_connect(tmp, resolved->ai_addr, resolved->ai_addrlen) < 0) {
 		// destroy callback thread
 		if (!is_auto_reconnect) {
-			queue_put(&ipcon_p->callback->queue, QUEUE_KIND_EXIT, NULL);
-
-			if (!thread_is_current(&ipcon_p->callback->thread)) {
-				thread_join(&ipcon_p->callback->thread);
-			}
-
+			ipcon_exit_callback_thread(ipcon_p->callback);
 			ipcon_p->callback = NULL;
 		}
 
 		// destroy socket
-		socket_destroy(ipcon_p->socket);
-		free(ipcon_p->socket);
-		ipcon_p->socket = NULL;
+		socket_destroy(tmp);
+		free(tmp);
+		freeaddrinfo(resolved);
 
 		return E_NO_CONNECT;
 	}
 
+	freeaddrinfo(resolved);
+
+	ipcon_p->socket = tmp;
 	++ipcon_p->socket_id;
 
 	// create disconnect probe thread
@@ -1910,12 +1948,7 @@ static int ipcon_connect_unlocked(IPConnectionPrivate *ipcon_p, bool is_auto_rec
 	                  ipcon_disconnect_probe_loop, ipcon_p) < 0) {
 		// destroy callback thread
 		if (!is_auto_reconnect) {
-			queue_put(&ipcon_p->callback->queue, QUEUE_KIND_EXIT, NULL);
-
-			if (!thread_is_current(&ipcon_p->callback->thread)) {
-				thread_join(&ipcon_p->callback->thread);
-			}
-
+			ipcon_exit_callback_thread(ipcon_p->callback);
 			ipcon_p->callback = NULL;
 		}
 
@@ -1937,12 +1970,7 @@ static int ipcon_connect_unlocked(IPConnectionPrivate *ipcon_p, bool is_auto_rec
 
 		// destroy callback thread
 		if (!is_auto_reconnect) {
-			queue_put(&ipcon_p->callback->queue, QUEUE_KIND_EXIT, NULL);
-
-			if (!thread_is_current(&ipcon_p->callback->thread)) {
-				thread_join(&ipcon_p->callback->thread);
-			}
-
+			ipcon_exit_callback_thread(ipcon_p->callback);
 			ipcon_p->callback = NULL;
 		}
 
@@ -1969,7 +1997,7 @@ static int ipcon_connect_unlocked(IPConnectionPrivate *ipcon_p, bool is_auto_rec
 	return E_OK;
 }
 
-// NOTE: assumes that socket_mutex is locked
+// NOTE: assumes that socket is not NULL and socket_mutex is locked
 static void ipcon_disconnect_unlocked(IPConnectionPrivate *ipcon_p) {
 	// destroy disconnect probe thread
 	event_set(&ipcon_p->disconnect_probe_event);
@@ -2045,11 +2073,11 @@ static int ipcon_send_request(IPConnectionPrivate *ipcon_p, Packet *request) {
 		    struct timeval tv;
 		    gettimeofday(&tv, NULL);
 
-                    unsigned len = request->header.length;
+		    unsigned len = request->header.length;
 		    fprintf(recordTo, "%10ld.%06ld  %02X %08X %02X %02X -",
 		            tv.tv_sec, tv.tv_usec,
 		            len, request->header.uid,
-                            request->header.function_id, request->header.sequence_number_and_options);
+		            request->header.function_id, request->header.sequence_number_and_options);
 
 		    uint8_t *addData = request->payload;
 		    len -= sizeof(request->header);
@@ -2064,7 +2092,7 @@ static int ipcon_send_request(IPConnectionPrivate *ipcon_p, Packet *request) {
 		    if ((request->header.sequence_number_and_options & 0xF0) == 0x70)
 		        fflush(recordTo);
 		}
-	}
+        }
 
 	mutex_unlock(&ipcon_p->socket_mutex);
 
@@ -2221,14 +2249,8 @@ int ipcon_disconnect(IPConnection *ipcon) {
 	meta->socket_id = 0;
 
 	queue_put(&callback->queue, QUEUE_KIND_META, meta);
-	queue_put(&callback->queue, QUEUE_KIND_EXIT, NULL);
 
-	if (!thread_is_current(&callback->thread)) {
-		thread_join(&callback->thread);
-	}
-
-	// NOTE: no further cleanup of the callback queue and thread here, the
-	// callback thread is doing this on exit
+	ipcon_exit_callback_thread(callback);
 
 	return E_OK;
 }
@@ -2255,8 +2277,7 @@ int ipcon_authenticate(IPConnection *ipcon, const char secret[64]) {
 
 	nonces[1] = ipcon_p->next_authentication_nonce++;
 
-
-	hmac_sha1((uint8_t *)secret, strnlen(secret, IPCON_MAX_SECRET_LENGTH),
+	hmac_sha1((uint8_t *)secret, string_length(secret, IPCON_MAX_SECRET_LENGTH),
 	          (uint8_t *)nonces, sizeof(nonces), digest);
 
 	ret = brickd_authenticate(&ipcon_p->brickd, (uint8_t *)&nonces[1], digest);
@@ -2330,12 +2351,16 @@ void ipcon_unwait(IPConnection *ipcon) {
 	semaphore_release(&ipcon->p->wait);
 }
 
-void ipcon_register_callback(IPConnection *ipcon, uint8_t id, void *callback,
-                             void *user_data) {
+void ipcon_register_callback(IPConnection *ipcon, int16_t callback_id,
+                             void *function, void *user_data) {
 	IPConnectionPrivate *ipcon_p = ipcon->p;
 
-	ipcon_p->registered_callbacks[id] = callback;
-	ipcon_p->registered_callback_user_data[id] = user_data;
+	if (callback_id <= -1 || callback_id >= IPCON_NUM_CALLBACK_IDS) {
+		return;
+	}
+
+	ipcon_p->registered_callbacks[callback_id] = function;
+	ipcon_p->registered_callback_user_data[callback_id] = user_data;
 }
 
 int packet_header_create(PacketHeader *header, uint8_t length,

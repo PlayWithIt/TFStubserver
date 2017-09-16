@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -216,6 +216,36 @@ typedef Device Stepper;
 /**
  * \ingroup BrickStepper
  */
+#define STEPPER_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG 231
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG 232
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_FUNCTION_GET_SEND_TIMEOUT_COUNT 233
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_FUNCTION_SET_SPITFP_BAUDRATE 234
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_FUNCTION_GET_SPITFP_BAUDRATE 235
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_FUNCTION_GET_SPITFP_ERROR_COUNT 237
+
+/**
+ * \ingroup BrickStepper
+ */
 #define STEPPER_FUNCTION_ENABLE_STATUS_LED 238
 
 /**
@@ -292,17 +322,8 @@ typedef Device Stepper;
  *
  * Signature: \code void callback(uint8_t state_new, uint8_t state_previous, void *user_data) \endcode
  * 
- * This callback is triggered whenever the Stepper Brick enters a new state. 
+ * This callback is triggered whenever the Stepper Brick enters a new state.
  * It returns the new state as well as the previous state.
- * 
- * Possible states are:
- * 
- * * 1 = Stop
- * * 2 = Acceleration
- * * 3 = Run
- * * 4 = Deacceleration
- * * 5 = Direction change to forward
- * * 6 = Direction change to backward
  */
 #define STEPPER_CALLBACK_NEW_STATE 41
 
@@ -356,6 +377,46 @@ typedef Device Stepper;
  * \ingroup BrickStepper
  */
 #define STEPPER_STATE_DIRECTION_CHANGE_TO_BACKWARD 6
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_NONE 0
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_USB 1
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_SPI_STACK 2
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_CHIBI 3
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_RS485 4
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_WIFI 5
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_ETHERNET 6
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_COMMUNICATION_METHOD_WIFI_V2 7
 
 /**
  * \ingroup BrickStepper
@@ -418,8 +479,7 @@ int stepper_get_response_expected(Stepper *stepper, uint8_t function_id, bool *r
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -440,10 +500,10 @@ int stepper_set_response_expected_all(Stepper *stepper, bool response_expected);
 /**
  * \ingroup BrickStepper
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void stepper_register_callback(Stepper *stepper, uint8_t id, void *callback, void *user_data);
+void stepper_register_callback(Stepper *stepper, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickStepper
@@ -499,7 +559,7 @@ int stepper_set_speed_ramping(Stepper *stepper, uint16_t acceleration, uint16_t 
 /**
  * \ingroup BrickStepper
  *
- * Returns the acceleration and deacceleration as set by 
+ * Returns the acceleration and deacceleration as set by
  * {@link stepper_set_speed_ramping}.
  */
 int stepper_get_speed_ramping(Stepper *stepper, uint16_t *ret_acceleration, uint16_t *ret_deacceleration);
@@ -507,8 +567,8 @@ int stepper_get_speed_ramping(Stepper *stepper, uint16_t *ret_acceleration, uint
 /**
  * \ingroup BrickStepper
  *
- * Executes an active full brake. 
- *  
+ * Executes an active full brake.
+ * 
  * \warning
  *  This function is for emergency purposes,
  *  where an immediate brake is necessary. Depending on the current velocity and
@@ -548,7 +608,7 @@ int stepper_get_current_position(Stepper *stepper, int32_t *ret_position);
  * {@link stepper_set_max_velocity} and {@link stepper_set_speed_ramping}.
  * 
  * A call of {@link stepper_set_target_position} with the parameter *x* is equivalent to
- * a call of {@link stepper_set_steps} with the parameter 
+ * a call of {@link stepper_set_steps} with the parameter
  * (*x* - {@link stepper_get_current_position}).
  */
 int stepper_set_target_position(Stepper *stepper, int32_t position);
@@ -564,7 +624,7 @@ int stepper_get_target_position(Stepper *stepper, int32_t *ret_position);
  * \ingroup BrickStepper
  *
  * Sets the number of steps the stepper motor should run. Positive values
- * will drive the motor forward and negative values backward. 
+ * will drive the motor forward and negative values backward.
  * The velocity, acceleration and deacceleration as set by
  * {@link stepper_set_max_velocity} and {@link stepper_set_speed_ramping} will be used.
  */
@@ -581,7 +641,7 @@ int stepper_get_steps(Stepper *stepper, int32_t *ret_steps);
  * \ingroup BrickStepper
  *
  * Returns the remaining steps of the last call of {@link stepper_set_steps}.
- * For example, if {@link stepper_set_steps} is called with 2000 and 
+ * For example, if {@link stepper_set_steps} is called with 2000 and
  * {@link stepper_get_remaining_steps} is called after the motor has run for 500 steps,
  * it will return 1500.
  */
@@ -615,7 +675,7 @@ int stepper_get_step_mode(Stepper *stepper, uint8_t *ret_mode);
  * \ingroup BrickStepper
  *
  * Drives the stepper motor forward until {@link stepper_drive_backward} or
- * {@link stepper_stop} is called. The velocity, acceleration and deacceleration as 
+ * {@link stepper_stop} is called. The velocity, acceleration and deacceleration as
  * set by {@link stepper_set_max_velocity} and {@link stepper_set_speed_ramping} will be used.
  */
 int stepper_drive_forward(Stepper *stepper);
@@ -632,7 +692,7 @@ int stepper_drive_backward(Stepper *stepper);
 /**
  * \ingroup BrickStepper
  *
- * Stops the stepper motor with the deacceleration as set by 
+ * Stops the stepper motor with the deacceleration as set by
  * {@link stepper_set_speed_ramping}.
  */
 int stepper_stop(Stepper *stepper);
@@ -641,7 +701,7 @@ int stepper_stop(Stepper *stepper);
  * \ingroup BrickStepper
  *
  * Returns the stack input voltage in mV. The stack input voltage is the
- * voltage that is supplied via the stack, i.e. it is given by a 
+ * voltage that is supplied via the stack, i.e. it is given by a
  * Step-Down or Step-Up Power Supply.
  */
 int stepper_get_stack_input_voltage(Stepper *stepper, uint16_t *ret_voltage);
@@ -650,10 +710,10 @@ int stepper_get_stack_input_voltage(Stepper *stepper, uint16_t *ret_voltage);
  * \ingroup BrickStepper
  *
  * Returns the external input voltage in mV. The external input voltage is
- * given via the black power input connector on the Stepper Brick. 
- *  
+ * given via the black power input connector on the Stepper Brick.
+ * 
  * If there is an external input voltage and a stack input voltage, the motor
- * will be driven by the external input voltage. If there is only a stack 
+ * will be driven by the external input voltage. If there is only a stack
  * voltage present, the motor will be driven by this voltage.
  * 
  * \warning
@@ -675,7 +735,7 @@ int stepper_get_current_consumption(Stepper *stepper, uint16_t *ret_current);
  * \ingroup BrickStepper
  *
  * Sets the current in mA with which the motor will be driven.
- * The minimum value is 100mA, the maximum value 2291mA and the 
+ * The minimum value is 100mA, the maximum value 2291mA and the
  * default value is 800mA.
  * 
  * \warning
@@ -725,13 +785,13 @@ int stepper_is_enabled(Stepper *stepper, bool *ret_enabled);
  * Changing the decay mode is only possible if synchronous rectification
  * is enabled (see {@link stepper_set_sync_rect}).
  * 
- * For a good explanation of the different decay modes see 
+ * For a good explanation of the different decay modes see
  * `this <http://ebldc.com/?p=86/>`__ blog post by Avayan.
  * 
  * A good decay mode is unfortunately different for every motor. The best
  * way to work out a good decay mode for your stepper motor, if you can't
  * measure the current with an oscilloscope, is to listen to the sound of
- * the motor. If the value is too low, you often hear a high pitched 
+ * the motor. If the value is too low, you often hear a high pitched
  * sound and if it is too high you can often hear a humming sound.
  * 
  * Generally, fast decay mode (small value) will be noisier but also
@@ -760,7 +820,7 @@ int stepper_get_decay(Stepper *stepper, uint16_t *ret_decay);
  * Sets the minimum voltage in mV, below which the {@link STEPPER_CALLBACK_UNDER_VOLTAGE} callback
  * is triggered. The minimum possible value that works with the Stepper Brick is 8V.
  * You can use this function to detect the discharge of a battery that is used
- * to drive the stepper motor. If you have a fixed power supply, you likely do 
+ * to drive the stepper motor. If you have a fixed power supply, you likely do
  * not need this functionality.
  * 
  * The default value is 8V.
@@ -783,11 +843,11 @@ int stepper_get_minimum_voltage(Stepper *stepper, uint16_t *ret_voltage);
  * (see {@link stepper_set_decay}). Without synchronous rectification fast
  * decay is used.
  * 
- * For an explanation of synchronous rectification see 
+ * For an explanation of synchronous rectification see
  * `here <https://en.wikipedia.org/wiki/Active_rectification>`__.
  * 
  * \warning
- *  If you want to use high speeds (> 10000 steps/s) for a large 
+ *  If you want to use high speeds (> 10000 steps/s) for a large
  *  stepper motor with a large inductivity we strongly
  *  suggest that you disable synchronous rectification. Otherwise the
  *  Brick may not be able to cope with the load and overheat.
@@ -809,8 +869,8 @@ int stepper_is_sync_rect(Stepper *stepper, bool *ret_sync_rect);
  * Sets the time base of the velocity and the acceleration of the stepper brick
  * (in seconds).
  * 
- * For example, if you want to make one step every 1.5 seconds, you can set 
- * the time base to 15 and the velocity to 10. Now the velocity is 
+ * For example, if you want to make one step every 1.5 seconds, you can set
+ * the time base to 15 and the velocity to 10. Now the velocity is
  * 10steps/15s = 1steps/1.5s.
  * 
  * The default value is 1.
@@ -831,7 +891,7 @@ int stepper_get_time_base(Stepper *stepper, uint32_t *ret_time_base);
  * the current position, the remaining steps, the stack voltage, the external
  * voltage and the current consumption of the stepper motor.
  * 
- * There is also a callback for this function, see {@link STEPPER_CALLBACK_ALL_DATA}.
+ * There is also a callback for this function, see {@link STEPPER_CALLBACK_ALL_DATA} callback.
  */
 int stepper_get_all_data(Stepper *stepper, uint16_t *ret_current_velocity, int32_t *ret_current_position, int32_t *ret_remaining_steps, uint16_t *ret_stack_voltage, uint16_t *ret_external_voltage, uint16_t *ret_current_consumption);
 
@@ -849,6 +909,111 @@ int stepper_set_all_data_period(Stepper *stepper, uint32_t period);
  * Returns the period as set by {@link stepper_set_all_data_period}.
  */
 int stepper_get_all_data_period(Stepper *stepper, uint32_t *ret_period);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * The SPITF protocol can be used with a dynamic baudrate. If the dynamic baudrate is
+ * enabled, the Brick will try to adapt the baudrate for the communication
+ * between Bricks and Bricklets according to the amount of data that is transferred.
+ * 
+ * The baudrate will be increased exponetially if lots of data is send/receieved and
+ * decreased linearly if little data is send/received.
+ * 
+ * This lowers the baudrate in applications where little data is transferred (e.g.
+ * a weather station) and increases the robustness. If there is lots of data to transfer
+ * (e.g. Thermal Imaging Bricklet) it automatically increases the baudrate as needed.
+ * 
+ * In cases where some data has to transferred as fast as possible every few seconds
+ * (e.g. RS485 Bricklet with a high baudrate but small payload) you may want to turn
+ * the dynamic baudrate off to get the highest possible performance.
+ * 
+ * The maximum value of the baudrate can be set per port with the function 
+ * {@link stepper_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
+ * as set by {@link stepper_set_spitfp_baudrate} will be used statically.
+ * 
+ * The minimum dynamic baudrate has a value range of 400000 to 2000000 baud.
+ * 
+ * By default dynamic baudrate is enabled and the minimum dynamic baudrate is 400000.
+ * 
+ * .. versionadded:: 2.3.6$nbsp;(Firmware)
+ */
+int stepper_set_spitfp_baudrate_config(Stepper *stepper, bool enable_dynamic_baudrate, uint32_t minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Returns the baudrate config, see {@link stepper_set_spitfp_baudrate_config}.
+ * 
+ * .. versionadded:: 2.3.6$nbsp;(Firmware)
+ */
+int stepper_get_spitfp_baudrate_config(Stepper *stepper, bool *ret_enable_dynamic_baudrate, uint32_t *ret_minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Returns the timeout count for the different communication methods.
+ * 
+ * The methods 0-2 are available for all Bricks, 3-7 only for Master Bricks.
+ * 
+ * This function is mostly used for debugging during development, in normal operation
+ * the counters should nearly always stay at 0.
+ * 
+ * .. versionadded:: 2.3.4$nbsp;(Firmware)
+ */
+int stepper_get_send_timeout_count(Stepper *stepper, uint8_t communication_method, uint32_t *ret_timeout_count);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Sets the baudrate for a specific Bricklet port ('a' - 'd'). The
+ * baudrate can be in the range 400000 to 2000000.
+ * 
+ * If you want to increase the throughput of Bricklets you can increase
+ * the baudrate. If you get a high error count because of high
+ * interference (see {@link stepper_get_spitfp_error_count}) you can decrease the
+ * baudrate.
+ * 
+ * If the dynamic baudrate feature is enabled, the baudrate set by this
+ * function corresponds to the maximum baudrate (see {@link stepper_set_spitfp_baudrate_config}).
+ * 
+ * Regulatory testing is done with the default baudrate. If CE compatability
+ * or similar is necessary in you applications we recommend to not change
+ * the baudrate.
+ * 
+ * The default baudrate for all ports is 1400000.
+ * 
+ * .. versionadded:: 2.3.3$nbsp;(Firmware)
+ */
+int stepper_set_spitfp_baudrate(Stepper *stepper, char bricklet_port, uint32_t baudrate);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Returns the baudrate for a given Bricklet port, see {@link stepper_set_spitfp_baudrate}.
+ * 
+ * .. versionadded:: 2.3.3$nbsp;(Firmware)
+ */
+int stepper_get_spitfp_baudrate(Stepper *stepper, char bricklet_port, uint32_t *ret_baudrate);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Returns the error count for the communication between Brick and Bricklet.
+ * 
+ * The errors are divided into
+ * 
+ * * ACK checksum errors,
+ * * message checksum errors,
+ * * frameing errors and
+ * * overflow errors.
+ * 
+ * The errors counts are for errors that occur on the Brick side. All
+ * Bricklets have a similar function that returns the errors on the Bricklet side.
+ * 
+ * .. versionadded:: 2.3.3$nbsp;(Firmware)
+ */
+int stepper_get_spitfp_error_count(Stepper *stepper, char bricklet_port, uint32_t *ret_error_count_ack_checksum, uint32_t *ret_error_count_message_checksum, uint32_t *ret_error_count_frame, uint32_t *ret_error_count_overflow);
 
 /**
  * \ingroup BrickStepper
@@ -925,7 +1090,7 @@ int stepper_reset(Stepper *stepper);
 /**
  * \ingroup BrickStepper
  *
- * Returns the UID, the UID where the Brick is connected to, 
+ * Returns the UID, the UID where the Brick is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

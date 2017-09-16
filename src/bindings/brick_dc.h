@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -131,6 +131,36 @@ typedef Device DC;
 /**
  * \ingroup BrickDC
  */
+#define DC_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG 231
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG 232
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_GET_SEND_TIMEOUT_COUNT 233
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_SET_SPITFP_BAUDRATE 234
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_GET_SPITFP_BAUDRATE 235
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_GET_SPITFP_ERROR_COUNT 237
+
+/**
+ * \ingroup BrickDC
+ */
 #define DC_FUNCTION_ENABLE_STATUS_LED 238
 
 /**
@@ -203,8 +233,8 @@ typedef Device DC;
  * 
  * This callback is triggered whenever a set velocity is reached. For example:
  * If a velocity of 0 is present, acceleration is set to 5000 and velocity
- * to 10000, {@link DC_CALLBACK_VELOCITY_REACHED} will be triggered after about 2 seconds, when
- * the set velocity is actually reached.
+ * to 10000, the {@link DC_CALLBACK_VELOCITY_REACHED} callback will be triggered after about
+ * 2 seconds, when the set velocity is actually reached.
  * 
  * \note
  *  Since we can't get any feedback from the DC motor, this only works if the
@@ -220,11 +250,11 @@ typedef Device DC;
  * Signature: \code void callback(int16_t velocity, void *user_data) \endcode
  * 
  * This callback is triggered with the period that is set by
- * {@link dc_set_current_velocity_period}. The parameter is the *current* velocity
- * used by the motor.
+ * {@link dc_set_current_velocity_period}. The parameter is the *current*
+ * velocity used by the motor.
  * 
- * {@link DC_CALLBACK_CURRENT_VELOCITY} is only triggered after the set period if there is
- * a change in the velocity.
+ * The {@link DC_CALLBACK_CURRENT_VELOCITY} callback is only triggered after the set period
+ * if there is a change in the velocity.
  */
 #define DC_CALLBACK_CURRENT_VELOCITY 24
 
@@ -238,6 +268,46 @@ typedef Device DC;
  * \ingroup BrickDC
  */
 #define DC_DRIVE_MODE_DRIVE_COAST 1
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_NONE 0
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_USB 1
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_SPI_STACK 2
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_CHIBI 3
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_RS485 4
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_WIFI 5
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_ETHERNET 6
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_COMMUNICATION_METHOD_WIFI_V2 7
 
 /**
  * \ingroup BrickDC
@@ -300,8 +370,7 @@ int dc_get_response_expected(DC *dc, uint8_t function_id, bool *ret_response_exp
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -322,10 +391,10 @@ int dc_set_response_expected_all(DC *dc, bool response_expected);
 /**
  * \ingroup BrickDC
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void dc_register_callback(DC *dc, uint8_t id, void *callback, void *user_data);
+void dc_register_callback(DC *dc, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickDC
@@ -557,6 +626,111 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period);
 /**
  * \ingroup BrickDC
  *
+ * The SPITF protocol can be used with a dynamic baudrate. If the dynamic baudrate is
+ * enabled, the Brick will try to adapt the baudrate for the communication
+ * between Bricks and Bricklets according to the amount of data that is transferred.
+ * 
+ * The baudrate will be increased exponetially if lots of data is send/receieved and
+ * decreased linearly if little data is send/received.
+ * 
+ * This lowers the baudrate in applications where little data is transferred (e.g.
+ * a weather station) and increases the robustness. If there is lots of data to transfer
+ * (e.g. Thermal Imaging Bricklet) it automatically increases the baudrate as needed.
+ * 
+ * In cases where some data has to transferred as fast as possible every few seconds
+ * (e.g. RS485 Bricklet with a high baudrate but small payload) you may want to turn
+ * the dynamic baudrate off to get the highest possible performance.
+ * 
+ * The maximum value of the baudrate can be set per port with the function 
+ * {@link dc_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
+ * as set by {@link dc_set_spitfp_baudrate} will be used statically.
+ * 
+ * The minimum dynamic baudrate has a value range of 400000 to 2000000 baud.
+ * 
+ * By default dynamic baudrate is enabled and the minimum dynamic baudrate is 400000.
+ * 
+ * .. versionadded:: 2.3.5$nbsp;(Firmware)
+ */
+int dc_set_spitfp_baudrate_config(DC *dc, bool enable_dynamic_baudrate, uint32_t minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Returns the baudrate config, see {@link dc_set_spitfp_baudrate_config}.
+ * 
+ * .. versionadded:: 2.3.5$nbsp;(Firmware)
+ */
+int dc_get_spitfp_baudrate_config(DC *dc, bool *ret_enable_dynamic_baudrate, uint32_t *ret_minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Returns the timeout count for the different communication methods.
+ * 
+ * The methods 0-2 are available for all Bricks, 3-7 only for Master Bricks.
+ * 
+ * This function is mostly used for debugging during development, in normal operation
+ * the counters should nearly always stay at 0.
+ * 
+ * .. versionadded:: 2.3.3$nbsp;(Firmware)
+ */
+int dc_get_send_timeout_count(DC *dc, uint8_t communication_method, uint32_t *ret_timeout_count);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Sets the baudrate for a specific Bricklet port ('a' - 'd'). The
+ * baudrate can be in the range 400000 to 2000000.
+ * 
+ * If you want to increase the throughput of Bricklets you can increase
+ * the baudrate. If you get a high error count because of high
+ * interference (see {@link dc_get_spitfp_error_count}) you can decrease the
+ * baudrate.
+ * 
+ * If the dynamic baudrate feature is enabled, the baudrate set by this
+ * function corresponds to the maximum baudrate (see {@link dc_set_spitfp_baudrate_config}).
+ * 
+ * Regulatory testing is done with the default baudrate. If CE compatability
+ * or similar is necessary in you applications we recommend to not change
+ * the baudrate.
+ * 
+ * The default baudrate for all ports is 1400000.
+ * 
+ * .. versionadded:: 2.3.3$nbsp;(Firmware)
+ */
+int dc_set_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t baudrate);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Returns the baudrate for a given Bricklet port, see {@link dc_set_spitfp_baudrate}.
+ * 
+ * .. versionadded:: 2.3.3$nbsp;(Firmware)
+ */
+int dc_get_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t *ret_baudrate);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Returns the error count for the communication between Brick and Bricklet.
+ * 
+ * The errors are divided into
+ * 
+ * * ACK checksum errors,
+ * * message checksum errors,
+ * * frameing errors and
+ * * overflow errors.
+ * 
+ * The errors counts are for errors that occur on the Brick side. All
+ * Bricklets have a similar function that returns the errors on the Bricklet side.
+ * 
+ * .. versionadded:: 2.3.3$nbsp;(Firmware)
+ */
+int dc_get_spitfp_error_count(DC *dc, char bricklet_port, uint32_t *ret_error_count_ack_checksum, uint32_t *ret_error_count_message_checksum, uint32_t *ret_error_count_frame, uint32_t *ret_error_count_overflow);
+
+/**
+ * \ingroup BrickDC
+ *
  * Enables the status LED.
  * 
  * The status LED is the blue LED next to the USB connector. If enabled is is
@@ -629,7 +803,7 @@ int dc_reset(DC *dc);
 /**
  * \ingroup BrickDC
  *
- * Returns the UID, the UID where the Brick is connected to, 
+ * Returns the UID, the UID where the Brick is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

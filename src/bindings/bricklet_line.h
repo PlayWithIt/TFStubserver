@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -74,11 +74,11 @@ typedef Device Line;
  * Signature: \code void callback(uint16_t reflectivity, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link line_set_reflectivity_callback_period}. The parameter is the reflectivity
- * of the sensor.
+ * {@link line_set_reflectivity_callback_period}. The parameter is the
+ * reflectivity of the sensor.
  * 
- * {@link LINE_CALLBACK_REFLECTIVITY} is only triggered if the reflectivity has changed since the
- * last triggering.
+ * The {@link LINE_CALLBACK_REFLECTIVITY} callback is only triggered if the reflectivity has
+ * changed since the last triggering.
  */
 #define LINE_CALLBACK_REFLECTIVITY 8
 
@@ -183,8 +183,7 @@ int line_get_response_expected(Line *line, uint8_t function_id, bool *ret_respon
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -205,10 +204,10 @@ int line_set_response_expected_all(Line *line, bool response_expected);
 /**
  * \ingroup BrickletLine
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void line_register_callback(Line *line, uint8_t id, void *callback, void *user_data);
+void line_register_callback(Line *line, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletLine
@@ -227,8 +226,8 @@ int line_get_api_version(Line *line, uint8_t ret_api_version[3]);
  * Usually black has a low reflectivity while white has a high
  * reflectivity.
  * 
- * If you want to get the reflectivity periodically, it is recommended 
- * to use the callback {@link LINE_CALLBACK_REFLECTIVITY} and set the period with 
+ * If you want to get the reflectivity periodically, it is recommended
+ * to use the {@link LINE_CALLBACK_REFLECTIVITY} callback and set the period with
  * {@link line_set_reflectivity_callback_period}.
  */
 int line_get_reflectivity(Line *line, uint16_t *ret_reflectivity);
@@ -239,8 +238,8 @@ int line_get_reflectivity(Line *line, uint16_t *ret_reflectivity);
  * Sets the period in ms with which the {@link LINE_CALLBACK_REFLECTIVITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link LINE_CALLBACK_REFLECTIVITY} is only triggered if the reflectivity has changed since the
- * last triggering.
+ * The {@link LINE_CALLBACK_REFLECTIVITY} callback is only triggered if the reflectivity has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -256,7 +255,7 @@ int line_get_reflectivity_callback_period(Line *line, uint32_t *ret_period);
 /**
  * \ingroup BrickletLine
  *
- * Sets the thresholds for the {@link LINE_CALLBACK_REFLECTIVITY_REACHED} callback. 
+ * Sets the thresholds for the {@link LINE_CALLBACK_REFLECTIVITY_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -308,7 +307,7 @@ int line_get_debounce_period(Line *line, uint32_t *ret_debounce);
 /**
  * \ingroup BrickletLine
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

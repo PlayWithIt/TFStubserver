@@ -250,18 +250,21 @@ void BrickStack::consumeRequestQueue()
         IOPacket& packet = std::get<1>(item);
         unsigned uid = packet.header.uid;
 
+        // numeric 0 -> UID=1 as a base58 encoded literal
         if (uid == 0)
         {
             // stack commands, returned to all clients
-            if (packet.header.function_id == 254)
+            if (packet.header.function_id == FUNCTION_ENUMERATE)
                 enumerate(IPCON_ENUMERATION_TYPE_AVAILABLE, "");
+
+            // DISCONNECT_PROBE also goes into this branch
         }
         else {
             // brick / bricklet command
             SimulatedDevice* dev = getDevice(uid);
             if (dev == NULL) {
                 std::string uidStr = utils::base58Encode(uid);
-                Log() << "ERROR: Cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
+                Log(Log::ERROR) << "cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
             }
             else {
                 try {
@@ -271,7 +274,8 @@ void BrickStack::consumeRequestQueue()
                     if (!done)
                     {
                         // not yet implemented
-                        Log(Log::ERROR) << "ERROR: function " << (int) packet.header.function_id << " for device "
+                        Log(Log::ERROR) << "function " << (int) packet.header.function_id
+                                << " (len=" << (int) packet.header.length << ") for device "
                                 << dev->getDeviceTypeName() << " with id "
                                 << dev->getUidStr() << '(' << packet.header.uid << ") NOT CONSUMED!";
                         packet.setErrorCode(IOPacket::ErrorCode::NOT_SUPPORTED);
@@ -321,7 +325,7 @@ void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
         bzero(&packet, sizeof(packet));
         bzero(&response, sizeof(response));
 
-        packet.header.function_id = 255;  // get identity
+        packet.header.function_id = FUNCTION_GET_IDENTITY;  // get identity
         bool ok = it->consumePacket(packet, true);
         if (!ok) {
             Log::log("Enumeration error !");

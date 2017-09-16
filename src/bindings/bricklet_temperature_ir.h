@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -109,11 +109,11 @@ typedef Device TemperatureIR;
  * Signature: \code void callback(int16_t temperature, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link temperature_ir_set_ambient_temperature_callback_period}. The parameter is the ambient
- * temperature of the sensor.
+ * {@link temperature_ir_set_ambient_temperature_callback_period}. The parameter is the
+ * ambient temperature of the sensor.
  * 
- * {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} is only triggered if the ambient temperature
- * has changed since the last triggering.
+ * The {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback is only triggered if the ambient
+ * temperature has changed since the last triggering.
  */
 #define TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE 15
 
@@ -123,11 +123,11 @@ typedef Device TemperatureIR;
  * Signature: \code void callback(int16_t temperature, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link temperature_ir_set_object_temperature_callback_period}. The parameter is the object
- * temperature of the sensor.
+ * {@link temperature_ir_set_object_temperature_callback_period}. The parameter is the
+ * object temperature of the sensor.
  * 
- * {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} is only triggered if the object temperature
- * has changed since the last triggering.
+ * The {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback is only triggered if the object
+ * temperature has changed since the last triggering.
  */
 #define TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE 16
 
@@ -246,8 +246,7 @@ int temperature_ir_get_response_expected(TemperatureIR *temperature_ir, uint8_t 
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -268,10 +267,10 @@ int temperature_ir_set_response_expected_all(TemperatureIR *temperature_ir, bool
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void temperature_ir_register_callback(TemperatureIR *temperature_ir, uint8_t id, void *callback, void *user_data);
+void temperature_ir_register_callback(TemperatureIR *temperature_ir, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletTemperatureIR
@@ -286,11 +285,11 @@ int temperature_ir_get_api_version(TemperatureIR *temperature_ir, uint8_t ret_ap
  *
  * Returns the ambient temperature of the sensor. The value
  * has a range of -400 to 1250 and is given in °C/10,
- * e.g. a value of 423 means that an ambient temperature of 42.3 °C is 
+ * e.g. a value of 423 means that an ambient temperature of 42.3 °C is
  * measured.
  * 
- * If you want to get the ambient temperature periodically, it is recommended 
- * to use the callback {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} and set the period with 
+ * If you want to get the ambient temperature periodically, it is recommended
+ * to use the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback and set the period with
  * {@link temperature_ir_set_ambient_temperature_callback_period}.
  */
 int temperature_ir_get_ambient_temperature(TemperatureIR *temperature_ir, int16_t *ret_temperature);
@@ -304,12 +303,12 @@ int temperature_ir_get_ambient_temperature(TemperatureIR *temperature_ir, int16_
  * e.g. a value of 3001 means that a temperature of 300.1 °C is measured
  * on the surface of the object.
  * 
- * The temperature of different materials is dependent on their `emissivity 
+ * The temperature of different materials is dependent on their `emissivity
  * <https://en.wikipedia.org/wiki/Emissivity>`__. The emissivity of the material
  * can be set with {@link temperature_ir_set_emissivity}.
  * 
- * If you want to get the object temperature periodically, it is recommended 
- * to use the callback {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} and set the period with 
+ * If you want to get the object temperature periodically, it is recommended
+ * to use the {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback and set the period with
  * {@link temperature_ir_set_object_temperature_callback_period}.
  */
 int temperature_ir_get_object_temperature(TemperatureIR *temperature_ir, int16_t *ret_temperature);
@@ -318,11 +317,11 @@ int temperature_ir_get_object_temperature(TemperatureIR *temperature_ir, int16_t
  * \ingroup BrickletTemperatureIR
  *
  * Sets the `emissivity <https://en.wikipedia.org/wiki/Emissivity>`__ that is
- * used to calculate the surface temperature as returned by 
- * {@link temperature_ir_get_object_temperature}. 
+ * used to calculate the surface temperature as returned by
+ * {@link temperature_ir_get_object_temperature}.
  * 
  * The emissivity is usually given as a value between 0.0 and 1.0. A list of
- * emissivities of different materials can be found 
+ * emissivities of different materials can be found
  * `here <http://www.infrared-thermography.com/material.htm>`__.
  * 
  * The parameter of {@link temperature_ir_set_emissivity} has to be given with a factor of
@@ -348,11 +347,11 @@ int temperature_ir_get_emissivity(TemperatureIR *temperature_ir, uint16_t *ret_e
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the period in ms with which the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback is triggered
- * periodically. A value of 0 turns the callback off.
+ * Sets the period in ms with which the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback is
+ * triggered periodically. A value of 0 turns the callback off.
  * 
- * {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} is only triggered if the temperature has changed since the
- * last triggering.
+ * The {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback is only triggered if the temperature has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -368,11 +367,11 @@ int temperature_ir_get_ambient_temperature_callback_period(TemperatureIR *temper
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the period in ms with which the {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback is triggered
- * periodically. A value of 0 turns the callback off.
+ * Sets the period in ms with which the {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback is
+ * triggered periodically. A value of 0 turns the callback off.
  * 
- * {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} is only triggered if the temperature has changed since the
- * last triggering.
+ * The {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback is only triggered if the temperature
+ * has changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -388,7 +387,7 @@ int temperature_ir_get_object_temperature_callback_period(TemperatureIR *tempera
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the thresholds for the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED} callback. 
+ * Sets the thresholds for the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -416,7 +415,7 @@ int temperature_ir_get_ambient_temperature_callback_threshold(TemperatureIR *tem
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the thresholds for the {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED} callback. 
+ * Sets the thresholds for the {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -470,7 +469,7 @@ int temperature_ir_get_debounce_period(TemperatureIR *temperature_ir, uint32_t *
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

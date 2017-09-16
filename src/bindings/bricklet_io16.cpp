@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-typedef void (*InterruptCallbackFunction)(char, uint8_t, uint8_t, void *);
+typedef void (*Interrupt_CallbackFunction)(char port, uint8_t interrupt_mask, uint8_t value_mask, void *user_data);
 
-typedef void (*MonoflopDoneCallbackFunction)(char, uint8_t, uint8_t, void *);
+typedef void (*MonoflopDone_CallbackFunction)(char port, uint8_t selection_mask, uint8_t value_mask, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -45,73 +45,73 @@ typedef struct {
 	PacketHeader header;
 	char port;
 	uint8_t value_mask;
-} ATTRIBUTE_PACKED SetPort_;
+} ATTRIBUTE_PACKED SetPort_Request;
 
 typedef struct {
 	PacketHeader header;
 	char port;
-} ATTRIBUTE_PACKED GetPort_;
+} ATTRIBUTE_PACKED GetPort_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t value_mask;
-} ATTRIBUTE_PACKED GetPortResponse_;
+} ATTRIBUTE_PACKED GetPort_Response;
 
 typedef struct {
 	PacketHeader header;
 	char port;
 	uint8_t selection_mask;
 	char direction;
-	bool value;
-} ATTRIBUTE_PACKED SetPortConfiguration_;
+	uint8_t value;
+} ATTRIBUTE_PACKED SetPortConfiguration_Request;
 
 typedef struct {
 	PacketHeader header;
 	char port;
-} ATTRIBUTE_PACKED GetPortConfiguration_;
+} ATTRIBUTE_PACKED GetPortConfiguration_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t direction_mask;
 	uint8_t value_mask;
-} ATTRIBUTE_PACKED GetPortConfigurationResponse_;
+} ATTRIBUTE_PACKED GetPortConfiguration_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char port;
 	uint8_t interrupt_mask;
-} ATTRIBUTE_PACKED SetPortInterrupt_;
+} ATTRIBUTE_PACKED SetPortInterrupt_Request;
 
 typedef struct {
 	PacketHeader header;
 	char port;
-} ATTRIBUTE_PACKED GetPortInterrupt_;
+} ATTRIBUTE_PACKED GetPortInterrupt_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t interrupt_mask;
-} ATTRIBUTE_PACKED GetPortInterruptResponse_;
+} ATTRIBUTE_PACKED GetPortInterrupt_Response;
 
 typedef struct {
 	PacketHeader header;
 	char port;
 	uint8_t interrupt_mask;
 	uint8_t value_mask;
-} ATTRIBUTE_PACKED InterruptCallback_;
+} ATTRIBUTE_PACKED Interrupt_Callback;
 
 typedef struct {
 	PacketHeader header;
@@ -119,67 +119,67 @@ typedef struct {
 	uint8_t selection_mask;
 	uint8_t value_mask;
 	uint32_t time;
-} ATTRIBUTE_PACKED SetPortMonoflop_;
+} ATTRIBUTE_PACKED SetPortMonoflop_Request;
 
 typedef struct {
 	PacketHeader header;
 	char port;
 	uint8_t pin;
-} ATTRIBUTE_PACKED GetPortMonoflop_;
+} ATTRIBUTE_PACKED GetPortMonoflop_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t value;
 	uint32_t time;
 	uint32_t time_remaining;
-} ATTRIBUTE_PACKED GetPortMonoflopResponse_;
+} ATTRIBUTE_PACKED GetPortMonoflop_Response;
 
 typedef struct {
 	PacketHeader header;
 	char port;
 	uint8_t selection_mask;
 	uint8_t value_mask;
-} ATTRIBUTE_PACKED MonoflopDoneCallback_;
+} ATTRIBUTE_PACKED MonoflopDone_Callback;
 
 typedef struct {
 	PacketHeader header;
 	char port;
 	uint8_t selection_mask;
 	uint8_t value_mask;
-} ATTRIBUTE_PACKED SetSelectedValues_;
+} ATTRIBUTE_PACKED SetSelectedValues_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t pin;
-	bool reset_counter;
-} ATTRIBUTE_PACKED GetEdgeCount_;
+	uint8_t reset_counter;
+} ATTRIBUTE_PACKED GetEdgeCount_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t count;
-} ATTRIBUTE_PACKED GetEdgeCountResponse_;
+} ATTRIBUTE_PACKED GetEdgeCount_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t pin;
 	uint8_t edge_type;
 	uint8_t debounce;
-} ATTRIBUTE_PACKED SetEdgeCountConfig_;
+} ATTRIBUTE_PACKED SetEdgeCountConfig_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t pin;
-} ATTRIBUTE_PACKED GetEdgeCountConfig_;
+} ATTRIBUTE_PACKED GetEdgeCountConfig_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t edge_type;
 	uint8_t debounce;
-} ATTRIBUTE_PACKED GetEdgeCountConfigResponse_;
+} ATTRIBUTE_PACKED GetEdgeCountConfig_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -189,7 +189,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -197,10 +197,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void io16_callback_wrapper_interrupt(DevicePrivate *device_p, Packet *packet) {
-	InterruptCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[IO16_CALLBACK_INTERRUPT];
-	InterruptCallback_ *callback = (InterruptCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[IO16_CALLBACK_INTERRUPT];
+	Interrupt_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + IO16_CALLBACK_INTERRUPT];
+	Interrupt_Callback *callback = (Interrupt_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + IO16_CALLBACK_INTERRUPT];
 
 	if (callback_function == NULL) {
 		return;
@@ -210,10 +211,11 @@ static void io16_callback_wrapper_interrupt(DevicePrivate *device_p, Packet *pac
 }
 
 static void io16_callback_wrapper_monoflop_done(DevicePrivate *device_p, Packet *packet) {
-	MonoflopDoneCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[IO16_CALLBACK_MONOFLOP_DONE];
-	MonoflopDoneCallback_ *callback = (MonoflopDoneCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[IO16_CALLBACK_MONOFLOP_DONE];
+	MonoflopDone_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + IO16_CALLBACK_MONOFLOP_DONE];
+	MonoflopDone_Callback *callback = (MonoflopDone_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + IO16_CALLBACK_MONOFLOP_DONE];
 
 	if (callback_function == NULL) {
 		return;
@@ -237,10 +239,8 @@ void io16_create(IO16 *io16, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[IO16_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[IO16_FUNCTION_SET_PORT_INTERRUPT] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[IO16_FUNCTION_GET_PORT_INTERRUPT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[IO16_CALLBACK_INTERRUPT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[IO16_FUNCTION_SET_PORT_MONOFLOP] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[IO16_FUNCTION_GET_PORT_MONOFLOP] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[IO16_CALLBACK_MONOFLOP_DONE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[IO16_FUNCTION_SET_SELECTED_VALUES] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[IO16_FUNCTION_GET_EDGE_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[IO16_FUNCTION_SET_EDGE_COUNT_CONFIG] = DEVICE_RESPONSE_EXPECTED_FALSE;
@@ -249,6 +249,7 @@ void io16_create(IO16 *io16, const char *uid, IPConnection *ipcon) {
 
 	device_p->callback_wrappers[IO16_CALLBACK_INTERRUPT] = io16_callback_wrapper_interrupt;
 	device_p->callback_wrappers[IO16_CALLBACK_MONOFLOP_DONE] = io16_callback_wrapper_monoflop_done;
+
 }
 
 void io16_destroy(IO16 *io16) {
@@ -267,8 +268,8 @@ int io16_set_response_expected_all(IO16 *io16, bool response_expected) {
 	return device_set_response_expected_all(io16->p, response_expected);
 }
 
-void io16_register_callback(IO16 *io16, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(io16->p, id, callback, user_data);
+void io16_register_callback(IO16 *io16, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(io16->p, callback_id, function, user_data);
 }
 
 int io16_get_api_version(IO16 *io16, uint8_t ret_api_version[3]) {
@@ -277,7 +278,7 @@ int io16_get_api_version(IO16 *io16, uint8_t ret_api_version[3]) {
 
 int io16_set_port(IO16 *io16, char port, uint8_t value_mask) {
 	DevicePrivate *device_p = io16->p;
-	SetPort_ request;
+	SetPort_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_SET_PORT, device_p->ipcon_p, device_p);
@@ -291,14 +292,13 @@ int io16_set_port(IO16 *io16, char port, uint8_t value_mask) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int io16_get_port(IO16 *io16, char port, uint8_t *ret_value_mask) {
 	DevicePrivate *device_p = io16->p;
-	GetPort_ request;
-	GetPortResponse_ response;
+	GetPort_Request request;
+	GetPort_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_PORT, device_p->ipcon_p, device_p);
@@ -314,16 +314,15 @@ int io16_get_port(IO16 *io16, char port, uint8_t *ret_value_mask) {
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_value_mask = response.value_mask;
-
-
 
 	return ret;
 }
 
 int io16_set_port_configuration(IO16 *io16, char port, uint8_t selection_mask, char direction, bool value) {
 	DevicePrivate *device_p = io16->p;
-	SetPortConfiguration_ request;
+	SetPortConfiguration_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_SET_PORT_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -335,18 +334,17 @@ int io16_set_port_configuration(IO16 *io16, char port, uint8_t selection_mask, c
 	request.port = port;
 	request.selection_mask = selection_mask;
 	request.direction = direction;
-	request.value = value;
+	request.value = value ? 1 : 0;
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int io16_get_port_configuration(IO16 *io16, char port, uint8_t *ret_direction_mask, uint8_t *ret_value_mask) {
 	DevicePrivate *device_p = io16->p;
-	GetPortConfiguration_ request;
-	GetPortConfigurationResponse_ response;
+	GetPortConfiguration_Request request;
+	GetPortConfiguration_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_PORT_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -362,17 +360,16 @@ int io16_get_port_configuration(IO16 *io16, char port, uint8_t *ret_direction_ma
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_direction_mask = response.direction_mask;
 	*ret_value_mask = response.value_mask;
-
-
 
 	return ret;
 }
 
 int io16_set_debounce_period(IO16 *io16, uint32_t debounce) {
 	DevicePrivate *device_p = io16->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -385,14 +382,13 @@ int io16_set_debounce_period(IO16 *io16, uint32_t debounce) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int io16_get_debounce_period(IO16 *io16, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = io16->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -401,22 +397,20 @@ int io16_get_debounce_period(IO16 *io16, uint32_t *ret_debounce) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int io16_set_port_interrupt(IO16 *io16, char port, uint8_t interrupt_mask) {
 	DevicePrivate *device_p = io16->p;
-	SetPortInterrupt_ request;
+	SetPortInterrupt_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_SET_PORT_INTERRUPT, device_p->ipcon_p, device_p);
@@ -430,14 +424,13 @@ int io16_set_port_interrupt(IO16 *io16, char port, uint8_t interrupt_mask) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int io16_get_port_interrupt(IO16 *io16, char port, uint8_t *ret_interrupt_mask) {
 	DevicePrivate *device_p = io16->p;
-	GetPortInterrupt_ request;
-	GetPortInterruptResponse_ response;
+	GetPortInterrupt_Request request;
+	GetPortInterrupt_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_PORT_INTERRUPT, device_p->ipcon_p, device_p);
@@ -453,16 +446,15 @@ int io16_get_port_interrupt(IO16 *io16, char port, uint8_t *ret_interrupt_mask) 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_interrupt_mask = response.interrupt_mask;
-
-
 
 	return ret;
 }
 
 int io16_set_port_monoflop(IO16 *io16, char port, uint8_t selection_mask, uint8_t value_mask, uint32_t time) {
 	DevicePrivate *device_p = io16->p;
-	SetPortMonoflop_ request;
+	SetPortMonoflop_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_SET_PORT_MONOFLOP, device_p->ipcon_p, device_p);
@@ -478,14 +470,13 @@ int io16_set_port_monoflop(IO16 *io16, char port, uint8_t selection_mask, uint8_
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int io16_get_port_monoflop(IO16 *io16, char port, uint8_t pin, uint8_t *ret_value, uint32_t *ret_time, uint32_t *ret_time_remaining) {
 	DevicePrivate *device_p = io16->p;
-	GetPortMonoflop_ request;
-	GetPortMonoflopResponse_ response;
+	GetPortMonoflop_Request request;
+	GetPortMonoflop_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_PORT_MONOFLOP, device_p->ipcon_p, device_p);
@@ -502,18 +493,17 @@ int io16_get_port_monoflop(IO16 *io16, char port, uint8_t pin, uint8_t *ret_valu
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_value = response.value;
 	*ret_time = leconvert_uint32_from(response.time);
 	*ret_time_remaining = leconvert_uint32_from(response.time_remaining);
-
-
 
 	return ret;
 }
 
 int io16_set_selected_values(IO16 *io16, char port, uint8_t selection_mask, uint8_t value_mask) {
 	DevicePrivate *device_p = io16->p;
-	SetSelectedValues_ request;
+	SetSelectedValues_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_SET_SELECTED_VALUES, device_p->ipcon_p, device_p);
@@ -528,14 +518,13 @@ int io16_set_selected_values(IO16 *io16, char port, uint8_t selection_mask, uint
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int io16_get_edge_count(IO16 *io16, uint8_t pin, bool reset_counter, uint32_t *ret_count) {
 	DevicePrivate *device_p = io16->p;
-	GetEdgeCount_ request;
-	GetEdgeCountResponse_ response;
+	GetEdgeCount_Request request;
+	GetEdgeCount_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_EDGE_COUNT, device_p->ipcon_p, device_p);
@@ -545,23 +534,22 @@ int io16_get_edge_count(IO16 *io16, uint8_t pin, bool reset_counter, uint32_t *r
 	}
 
 	request.pin = pin;
-	request.reset_counter = reset_counter;
+	request.reset_counter = reset_counter ? 1 : 0;
 
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_count = leconvert_uint32_from(response.count);
-
-
 
 	return ret;
 }
 
 int io16_set_edge_count_config(IO16 *io16, uint8_t pin, uint8_t edge_type, uint8_t debounce) {
 	DevicePrivate *device_p = io16->p;
-	SetEdgeCountConfig_ request;
+	SetEdgeCountConfig_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_SET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
@@ -576,14 +564,13 @@ int io16_set_edge_count_config(IO16 *io16, uint8_t pin, uint8_t edge_type, uint8
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int io16_get_edge_count_config(IO16 *io16, uint8_t pin, uint8_t *ret_edge_type, uint8_t *ret_debounce) {
 	DevicePrivate *device_p = io16->p;
-	GetEdgeCountConfig_ request;
-	GetEdgeCountConfigResponse_ response;
+	GetEdgeCountConfig_Request request;
+	GetEdgeCountConfig_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
@@ -599,18 +586,17 @@ int io16_get_edge_count_config(IO16 *io16, uint8_t pin, uint8_t *ret_edge_type, 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_edge_type = response.edge_type;
 	*ret_debounce = response.debounce;
-
-
 
 	return ret;
 }
 
 int io16_get_identity(IO16 *io16, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = io16->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), IO16_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -619,20 +605,18 @@ int io16_get_identity(IO16 *io16, char ret_uid[8], char ret_connected_uid[8], ch
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-typedef void (*IlluminanceCallbackFunction)(uint32_t, void *);
+typedef void (*Illuminance_CallbackFunction)(uint32_t illuminance, void *user_data);
 
-typedef void (*IlluminanceReachedCallbackFunction)(uint32_t, void *);
+typedef void (*IlluminanceReached_CallbackFunction)(uint32_t illuminance, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -43,88 +43,88 @@ typedef void (*IlluminanceReachedCallbackFunction)(uint32_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIlluminance_;
+} ATTRIBUTE_PACKED GetIlluminance_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t illuminance;
-} ATTRIBUTE_PACKED GetIlluminanceResponse_;
+} ATTRIBUTE_PACKED GetIlluminance_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetIlluminanceCallbackPeriod_;
+} ATTRIBUTE_PACKED SetIlluminanceCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriod_;
+} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint32_t min;
 	uint32_t max;
-} ATTRIBUTE_PACKED SetIlluminanceCallbackThreshold_;
+} ATTRIBUTE_PACKED SetIlluminanceCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIlluminanceCallbackThreshold_;
+} ATTRIBUTE_PACKED GetIlluminanceCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint32_t min;
 	uint32_t max;
-} ATTRIBUTE_PACKED GetIlluminanceCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetIlluminanceCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t illuminance_range;
 	uint8_t integration_time;
-} ATTRIBUTE_PACKED SetConfiguration_;
+} ATTRIBUTE_PACKED SetConfiguration_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetConfiguration_;
+} ATTRIBUTE_PACKED GetConfiguration_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t illuminance_range;
 	uint8_t integration_time;
-} ATTRIBUTE_PACKED GetConfigurationResponse_;
+} ATTRIBUTE_PACKED GetConfiguration_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t illuminance;
-} ATTRIBUTE_PACKED IlluminanceCallback_;
+} ATTRIBUTE_PACKED Illuminance_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t illuminance;
-} ATTRIBUTE_PACKED IlluminanceReachedCallback_;
+} ATTRIBUTE_PACKED IlluminanceReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -134,7 +134,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -142,10 +142,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void ambient_light_v2_callback_wrapper_illuminance(DevicePrivate *device_p, Packet *packet) {
-	IlluminanceCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
-	IlluminanceCallback_ *callback = (IlluminanceCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
+	Illuminance_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
+	Illuminance_Callback *callback = (Illuminance_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
 
 	if (callback_function == NULL) {
 		return;
@@ -157,10 +158,11 @@ static void ambient_light_v2_callback_wrapper_illuminance(DevicePrivate *device_
 }
 
 static void ambient_light_v2_callback_wrapper_illuminance_reached(DevicePrivate *device_p, Packet *packet) {
-	IlluminanceReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
-	IlluminanceReachedCallback_ *callback = (IlluminanceReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
+	IlluminanceReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
+	IlluminanceReached_Callback *callback = (IlluminanceReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -174,7 +176,7 @@ static void ambient_light_v2_callback_wrapper_illuminance_reached(DevicePrivate 
 void ambient_light_v2_create(AmbientLightV2 *ambient_light_v2, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(ambient_light_v2, uid, ipcon->p, 2, 0, 0);
+	device_create(ambient_light_v2, uid, ipcon->p, 2, 0, 1);
 
 	device_p = ambient_light_v2->p;
 
@@ -187,12 +189,11 @@ void ambient_light_v2_create(AmbientLightV2 *ambient_light_v2, const char *uid, 
 	device_p->response_expected[AMBIENT_LIGHT_V2_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[AMBIENT_LIGHT_V2_FUNCTION_SET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[AMBIENT_LIGHT_V2_FUNCTION_GET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[AMBIENT_LIGHT_V2_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE] = ambient_light_v2_callback_wrapper_illuminance;
 	device_p->callback_wrappers[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED] = ambient_light_v2_callback_wrapper_illuminance_reached;
+
 }
 
 void ambient_light_v2_destroy(AmbientLightV2 *ambient_light_v2) {
@@ -211,8 +212,8 @@ int ambient_light_v2_set_response_expected_all(AmbientLightV2 *ambient_light_v2,
 	return device_set_response_expected_all(ambient_light_v2->p, response_expected);
 }
 
-void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(ambient_light_v2->p, id, callback, user_data);
+void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(ambient_light_v2->p, callback_id, function, user_data);
 }
 
 int ambient_light_v2_get_api_version(AmbientLightV2 *ambient_light_v2, uint8_t ret_api_version[3]) {
@@ -221,8 +222,8 @@ int ambient_light_v2_get_api_version(AmbientLightV2 *ambient_light_v2, uint8_t r
 
 int ambient_light_v2_get_illuminance(AmbientLightV2 *ambient_light_v2, uint32_t *ret_illuminance) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	GetIlluminance_ request;
-	GetIlluminanceResponse_ response;
+	GetIlluminance_Request request;
+	GetIlluminance_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE, device_p->ipcon_p, device_p);
@@ -231,22 +232,20 @@ int ambient_light_v2_get_illuminance(AmbientLightV2 *ambient_light_v2, uint32_t 
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_illuminance = leconvert_uint32_from(response.illuminance);
-
-
 
 	return ret;
 }
 
 int ambient_light_v2_set_illuminance_callback_period(AmbientLightV2 *ambient_light_v2, uint32_t period) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	SetIlluminanceCallbackPeriod_ request;
+	SetIlluminanceCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -259,14 +258,13 @@ int ambient_light_v2_set_illuminance_callback_period(AmbientLightV2 *ambient_lig
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ambient_light_v2_get_illuminance_callback_period(AmbientLightV2 *ambient_light_v2, uint32_t *ret_period) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	GetIlluminanceCallbackPeriod_ request;
-	GetIlluminanceCallbackPeriodResponse_ response;
+	GetIlluminanceCallbackPeriod_Request request;
+	GetIlluminanceCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -275,22 +273,20 @@ int ambient_light_v2_get_illuminance_callback_period(AmbientLightV2 *ambient_lig
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int ambient_light_v2_set_illuminance_callback_threshold(AmbientLightV2 *ambient_light_v2, char option, uint32_t min, uint32_t max) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	SetIlluminanceCallbackThreshold_ request;
+	SetIlluminanceCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -305,14 +301,13 @@ int ambient_light_v2_set_illuminance_callback_threshold(AmbientLightV2 *ambient_
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ambient_light_v2_get_illuminance_callback_threshold(AmbientLightV2 *ambient_light_v2, char *ret_option, uint32_t *ret_min, uint32_t *ret_max) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	GetIlluminanceCallbackThreshold_ request;
-	GetIlluminanceCallbackThresholdResponse_ response;
+	GetIlluminanceCallbackThreshold_Request request;
+	GetIlluminanceCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -321,24 +316,22 @@ int ambient_light_v2_get_illuminance_callback_threshold(AmbientLightV2 *ambient_
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_uint32_from(response.min);
 	*ret_max = leconvert_uint32_from(response.max);
-
-
 
 	return ret;
 }
 
 int ambient_light_v2_set_debounce_period(AmbientLightV2 *ambient_light_v2, uint32_t debounce) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -351,14 +344,13 @@ int ambient_light_v2_set_debounce_period(AmbientLightV2 *ambient_light_v2, uint3
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ambient_light_v2_get_debounce_period(AmbientLightV2 *ambient_light_v2, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -367,22 +359,20 @@ int ambient_light_v2_get_debounce_period(AmbientLightV2 *ambient_light_v2, uint3
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int ambient_light_v2_set_configuration(AmbientLightV2 *ambient_light_v2, uint8_t illuminance_range, uint8_t integration_time) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	SetConfiguration_ request;
+	SetConfiguration_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -396,14 +386,13 @@ int ambient_light_v2_set_configuration(AmbientLightV2 *ambient_light_v2, uint8_t
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int ambient_light_v2_get_configuration(AmbientLightV2 *ambient_light_v2, uint8_t *ret_illuminance_range, uint8_t *ret_integration_time) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	GetConfiguration_ request;
-	GetConfigurationResponse_ response;
+	GetConfiguration_Request request;
+	GetConfiguration_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_CONFIGURATION, device_p->ipcon_p, device_p);
@@ -412,24 +401,22 @@ int ambient_light_v2_get_configuration(AmbientLightV2 *ambient_light_v2, uint8_t
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_illuminance_range = response.illuminance_range;
 	*ret_integration_time = response.integration_time;
-
-
 
 	return ret;
 }
 
 int ambient_light_v2_get_identity(AmbientLightV2 *ambient_light_v2, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = ambient_light_v2->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -438,20 +425,18 @@ int ambient_light_v2_get_identity(AmbientLightV2 *ambient_light_v2, char ret_uid
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

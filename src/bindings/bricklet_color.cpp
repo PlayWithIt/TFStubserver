@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,13 +21,13 @@ extern "C" {
 
 
 
-typedef void (*ColorCallbackFunction)(uint16_t, uint16_t, uint16_t, uint16_t, void *);
+typedef void (*Color_CallbackFunction)(uint16_t r, uint16_t g, uint16_t b, uint16_t c, void *user_data);
 
-typedef void (*ColorReachedCallbackFunction)(uint16_t, uint16_t, uint16_t, uint16_t, void *);
+typedef void (*ColorReached_CallbackFunction)(uint16_t r, uint16_t g, uint16_t b, uint16_t c, void *user_data);
 
-typedef void (*IlluminanceCallbackFunction)(uint32_t, void *);
+typedef void (*Illuminance_CallbackFunction)(uint32_t illuminance, void *user_data);
 
-typedef void (*ColorTemperatureCallbackFunction)(uint16_t, void *);
+typedef void (*ColorTemperature_CallbackFunction)(uint16_t color_temperature, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -47,7 +47,7 @@ typedef void (*ColorTemperatureCallbackFunction)(uint16_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetColor_;
+} ATTRIBUTE_PACKED GetColor_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -55,21 +55,21 @@ typedef struct {
 	uint16_t g;
 	uint16_t b;
 	uint16_t c;
-} ATTRIBUTE_PACKED GetColorResponse_;
+} ATTRIBUTE_PACKED GetColor_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetColorCallbackPeriod_;
+} ATTRIBUTE_PACKED SetColorCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetColorCallbackPeriod_;
+} ATTRIBUTE_PACKED GetColorCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetColorCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetColorCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
@@ -82,11 +82,11 @@ typedef struct {
 	uint16_t max_b;
 	uint16_t min_c;
 	uint16_t max_c;
-} ATTRIBUTE_PACKED SetColorCallbackThreshold_;
+} ATTRIBUTE_PACKED SetColorCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetColorCallbackThreshold_;
+} ATTRIBUTE_PACKED GetColorCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -99,21 +99,21 @@ typedef struct {
 	uint16_t max_b;
 	uint16_t min_c;
 	uint16_t max_c;
-} ATTRIBUTE_PACKED GetColorCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetColorCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
@@ -121,7 +121,7 @@ typedef struct {
 	uint16_t g;
 	uint16_t b;
 	uint16_t c;
-} ATTRIBUTE_PACKED ColorCallback_;
+} ATTRIBUTE_PACKED Color_Callback;
 
 typedef struct {
 	PacketHeader header;
@@ -129,100 +129,100 @@ typedef struct {
 	uint16_t g;
 	uint16_t b;
 	uint16_t c;
-} ATTRIBUTE_PACKED ColorReachedCallback_;
+} ATTRIBUTE_PACKED ColorReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED LightOn_;
+} ATTRIBUTE_PACKED LightOn_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED LightOff_;
+} ATTRIBUTE_PACKED LightOff_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED IsLightOn_;
+} ATTRIBUTE_PACKED IsLightOn_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t light;
-} ATTRIBUTE_PACKED IsLightOnResponse_;
+} ATTRIBUTE_PACKED IsLightOn_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t gain;
 	uint8_t integration_time;
-} ATTRIBUTE_PACKED SetConfig_;
+} ATTRIBUTE_PACKED SetConfig_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetConfig_;
+} ATTRIBUTE_PACKED GetConfig_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t gain;
 	uint8_t integration_time;
-} ATTRIBUTE_PACKED GetConfigResponse_;
+} ATTRIBUTE_PACKED GetConfig_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIlluminance_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t illuminance;
-} ATTRIBUTE_PACKED GetIlluminanceResponse_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetColorTemperature_;
-
-typedef struct {
-	PacketHeader header;
-	uint16_t color_temperature;
-} ATTRIBUTE_PACKED GetColorTemperatureResponse_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED SetIlluminanceCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriodResponse_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED SetColorTemperatureCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetColorTemperatureCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED GetColorTemperatureCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetIlluminance_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t illuminance;
-} ATTRIBUTE_PACKED IlluminanceCallback_;
+} ATTRIBUTE_PACKED GetIlluminance_Response;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetColorTemperature_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t color_temperature;
-} ATTRIBUTE_PACKED ColorTemperatureCallback_;
+} ATTRIBUTE_PACKED GetColorTemperature_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+	uint32_t period;
+} ATTRIBUTE_PACKED SetIlluminanceCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t period;
+} ATTRIBUTE_PACKED GetIlluminanceCallbackPeriod_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t period;
+} ATTRIBUTE_PACKED SetColorTemperatureCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetColorTemperatureCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t period;
+} ATTRIBUTE_PACKED GetColorTemperatureCallbackPeriod_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t illuminance;
+} ATTRIBUTE_PACKED Illuminance_Callback;
+
+typedef struct {
+	PacketHeader header;
+	uint16_t color_temperature;
+} ATTRIBUTE_PACKED ColorTemperature_Callback;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -232,7 +232,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -240,10 +240,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void color_callback_wrapper_color(DevicePrivate *device_p, Packet *packet) {
-	ColorCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[COLOR_CALLBACK_COLOR];
-	ColorCallback_ *callback = (ColorCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[COLOR_CALLBACK_COLOR];
+	Color_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR];
+	Color_Callback *callback = (Color_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR];
 
 	if (callback_function == NULL) {
 		return;
@@ -258,10 +259,11 @@ static void color_callback_wrapper_color(DevicePrivate *device_p, Packet *packet
 }
 
 static void color_callback_wrapper_color_reached(DevicePrivate *device_p, Packet *packet) {
-	ColorReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[COLOR_CALLBACK_COLOR_REACHED];
-	ColorReachedCallback_ *callback = (ColorReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[COLOR_CALLBACK_COLOR_REACHED];
+	ColorReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_REACHED];
+	ColorReached_Callback *callback = (ColorReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -276,10 +278,11 @@ static void color_callback_wrapper_color_reached(DevicePrivate *device_p, Packet
 }
 
 static void color_callback_wrapper_illuminance(DevicePrivate *device_p, Packet *packet) {
-	IlluminanceCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[COLOR_CALLBACK_ILLUMINANCE];
-	IlluminanceCallback_ *callback = (IlluminanceCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[COLOR_CALLBACK_ILLUMINANCE];
+	Illuminance_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_ILLUMINANCE];
+	Illuminance_Callback *callback = (Illuminance_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_ILLUMINANCE];
 
 	if (callback_function == NULL) {
 		return;
@@ -291,10 +294,11 @@ static void color_callback_wrapper_illuminance(DevicePrivate *device_p, Packet *
 }
 
 static void color_callback_wrapper_color_temperature(DevicePrivate *device_p, Packet *packet) {
-	ColorTemperatureCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[COLOR_CALLBACK_COLOR_TEMPERATURE];
-	ColorTemperatureCallback_ *callback = (ColorTemperatureCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[COLOR_CALLBACK_COLOR_TEMPERATURE];
+	ColorTemperature_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_TEMPERATURE];
+	ColorTemperature_Callback *callback = (ColorTemperature_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_TEMPERATURE];
 
 	if (callback_function == NULL) {
 		return;
@@ -319,8 +323,6 @@ void color_create(Color *color, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[COLOR_FUNCTION_GET_COLOR_CALLBACK_THRESHOLD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[COLOR_FUNCTION_SET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[COLOR_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[COLOR_CALLBACK_COLOR] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[COLOR_CALLBACK_COLOR_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[COLOR_FUNCTION_LIGHT_ON] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[COLOR_FUNCTION_LIGHT_OFF] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[COLOR_FUNCTION_IS_LIGHT_ON] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
@@ -332,14 +334,13 @@ void color_create(Color *color, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[COLOR_FUNCTION_GET_ILLUMINANCE_CALLBACK_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[COLOR_FUNCTION_SET_COLOR_TEMPERATURE_CALLBACK_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[COLOR_FUNCTION_GET_COLOR_TEMPERATURE_CALLBACK_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[COLOR_CALLBACK_ILLUMINANCE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[COLOR_CALLBACK_COLOR_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[COLOR_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[COLOR_CALLBACK_COLOR] = color_callback_wrapper_color;
 	device_p->callback_wrappers[COLOR_CALLBACK_COLOR_REACHED] = color_callback_wrapper_color_reached;
 	device_p->callback_wrappers[COLOR_CALLBACK_ILLUMINANCE] = color_callback_wrapper_illuminance;
 	device_p->callback_wrappers[COLOR_CALLBACK_COLOR_TEMPERATURE] = color_callback_wrapper_color_temperature;
+
 }
 
 void color_destroy(Color *color) {
@@ -358,8 +359,8 @@ int color_set_response_expected_all(Color *color, bool response_expected) {
 	return device_set_response_expected_all(color->p, response_expected);
 }
 
-void color_register_callback(Color *color, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(color->p, id, callback, user_data);
+void color_register_callback(Color *color, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(color->p, callback_id, function, user_data);
 }
 
 int color_get_api_version(Color *color, uint8_t ret_api_version[3]) {
@@ -368,8 +369,8 @@ int color_get_api_version(Color *color, uint8_t ret_api_version[3]) {
 
 int color_get_color(Color *color, uint16_t *ret_r, uint16_t *ret_g, uint16_t *ret_b, uint16_t *ret_c) {
 	DevicePrivate *device_p = color->p;
-	GetColor_ request;
-	GetColorResponse_ response;
+	GetColor_Request request;
+	GetColor_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR, device_p->ipcon_p, device_p);
@@ -378,25 +379,23 @@ int color_get_color(Color *color, uint16_t *ret_r, uint16_t *ret_g, uint16_t *re
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_r = leconvert_uint16_from(response.r);
 	*ret_g = leconvert_uint16_from(response.g);
 	*ret_b = leconvert_uint16_from(response.b);
 	*ret_c = leconvert_uint16_from(response.c);
-
-
 
 	return ret;
 }
 
 int color_set_color_callback_period(Color *color, uint32_t period) {
 	DevicePrivate *device_p = color->p;
-	SetColorCallbackPeriod_ request;
+	SetColorCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_COLOR_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -409,14 +408,13 @@ int color_set_color_callback_period(Color *color, uint32_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int color_get_color_callback_period(Color *color, uint32_t *ret_period) {
 	DevicePrivate *device_p = color->p;
-	GetColorCallbackPeriod_ request;
-	GetColorCallbackPeriodResponse_ response;
+	GetColorCallbackPeriod_Request request;
+	GetColorCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -425,22 +423,20 @@ int color_get_color_callback_period(Color *color, uint32_t *ret_period) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int color_set_color_callback_threshold(Color *color, char option, uint16_t min_r, uint16_t max_r, uint16_t min_g, uint16_t max_g, uint16_t min_b, uint16_t max_b, uint16_t min_c, uint16_t max_c) {
 	DevicePrivate *device_p = color->p;
-	SetColorCallbackThreshold_ request;
+	SetColorCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_COLOR_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -461,14 +457,13 @@ int color_set_color_callback_threshold(Color *color, char option, uint16_t min_r
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int color_get_color_callback_threshold(Color *color, char *ret_option, uint16_t *ret_min_r, uint16_t *ret_max_r, uint16_t *ret_min_g, uint16_t *ret_max_g, uint16_t *ret_min_b, uint16_t *ret_max_b, uint16_t *ret_min_c, uint16_t *ret_max_c) {
 	DevicePrivate *device_p = color->p;
-	GetColorCallbackThreshold_ request;
-	GetColorCallbackThresholdResponse_ response;
+	GetColorCallbackThreshold_Request request;
+	GetColorCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -477,12 +472,12 @@ int color_get_color_callback_threshold(Color *color, char *ret_option, uint16_t 
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min_r = leconvert_uint16_from(response.min_r);
 	*ret_max_r = leconvert_uint16_from(response.max_r);
@@ -493,14 +488,12 @@ int color_get_color_callback_threshold(Color *color, char *ret_option, uint16_t 
 	*ret_min_c = leconvert_uint16_from(response.min_c);
 	*ret_max_c = leconvert_uint16_from(response.max_c);
 
-
-
 	return ret;
 }
 
 int color_set_debounce_period(Color *color, uint32_t debounce) {
 	DevicePrivate *device_p = color->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -513,14 +506,13 @@ int color_set_debounce_period(Color *color, uint32_t debounce) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int color_get_debounce_period(Color *color, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = color->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -529,22 +521,20 @@ int color_get_debounce_period(Color *color, uint32_t *ret_debounce) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int color_light_on(Color *color) {
 	DevicePrivate *device_p = color->p;
-	LightOn_ request;
+	LightOn_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_LIGHT_ON, device_p->ipcon_p, device_p);
@@ -553,16 +543,14 @@ int color_light_on(Color *color) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int color_light_off(Color *color) {
 	DevicePrivate *device_p = color->p;
-	LightOff_ request;
+	LightOff_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_LIGHT_OFF, device_p->ipcon_p, device_p);
@@ -571,17 +559,15 @@ int color_light_off(Color *color) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int color_is_light_on(Color *color, uint8_t *ret_light) {
 	DevicePrivate *device_p = color->p;
-	IsLightOn_ request;
-	IsLightOnResponse_ response;
+	IsLightOn_Request request;
+	IsLightOn_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_IS_LIGHT_ON, device_p->ipcon_p, device_p);
@@ -590,22 +576,20 @@ int color_is_light_on(Color *color, uint8_t *ret_light) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_light = response.light;
-
-
 
 	return ret;
 }
 
 int color_set_config(Color *color, uint8_t gain, uint8_t integration_time) {
 	DevicePrivate *device_p = color->p;
-	SetConfig_ request;
+	SetConfig_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_CONFIG, device_p->ipcon_p, device_p);
@@ -619,14 +603,13 @@ int color_set_config(Color *color, uint8_t gain, uint8_t integration_time) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int color_get_config(Color *color, uint8_t *ret_gain, uint8_t *ret_integration_time) {
 	DevicePrivate *device_p = color->p;
-	GetConfig_ request;
-	GetConfigResponse_ response;
+	GetConfig_Request request;
+	GetConfig_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_CONFIG, device_p->ipcon_p, device_p);
@@ -635,24 +618,22 @@ int color_get_config(Color *color, uint8_t *ret_gain, uint8_t *ret_integration_t
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_gain = response.gain;
 	*ret_integration_time = response.integration_time;
-
-
 
 	return ret;
 }
 
 int color_get_illuminance(Color *color, uint32_t *ret_illuminance) {
 	DevicePrivate *device_p = color->p;
-	GetIlluminance_ request;
-	GetIlluminanceResponse_ response;
+	GetIlluminance_Request request;
+	GetIlluminance_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_ILLUMINANCE, device_p->ipcon_p, device_p);
@@ -661,23 +642,21 @@ int color_get_illuminance(Color *color, uint32_t *ret_illuminance) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_illuminance = leconvert_uint32_from(response.illuminance);
-
-
 
 	return ret;
 }
 
 int color_get_color_temperature(Color *color, uint16_t *ret_color_temperature) {
 	DevicePrivate *device_p = color->p;
-	GetColorTemperature_ request;
-	GetColorTemperatureResponse_ response;
+	GetColorTemperature_Request request;
+	GetColorTemperature_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_TEMPERATURE, device_p->ipcon_p, device_p);
@@ -686,22 +665,20 @@ int color_get_color_temperature(Color *color, uint16_t *ret_color_temperature) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_color_temperature = leconvert_uint16_from(response.color_temperature);
-
-
 
 	return ret;
 }
 
 int color_set_illuminance_callback_period(Color *color, uint32_t period) {
 	DevicePrivate *device_p = color->p;
-	SetIlluminanceCallbackPeriod_ request;
+	SetIlluminanceCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -714,14 +691,13 @@ int color_set_illuminance_callback_period(Color *color, uint32_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int color_get_illuminance_callback_period(Color *color, uint32_t *ret_period) {
 	DevicePrivate *device_p = color->p;
-	GetIlluminanceCallbackPeriod_ request;
-	GetIlluminanceCallbackPeriodResponse_ response;
+	GetIlluminanceCallbackPeriod_Request request;
+	GetIlluminanceCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -730,22 +706,20 @@ int color_get_illuminance_callback_period(Color *color, uint32_t *ret_period) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int color_set_color_temperature_callback_period(Color *color, uint32_t period) {
 	DevicePrivate *device_p = color->p;
-	SetColorTemperatureCallbackPeriod_ request;
+	SetColorTemperatureCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_COLOR_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -758,14 +732,13 @@ int color_set_color_temperature_callback_period(Color *color, uint32_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int color_get_color_temperature_callback_period(Color *color, uint32_t *ret_period) {
 	DevicePrivate *device_p = color->p;
-	GetColorTemperatureCallbackPeriod_ request;
-	GetColorTemperatureCallbackPeriodResponse_ response;
+	GetColorTemperatureCallbackPeriod_Request request;
+	GetColorTemperatureCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -774,23 +747,21 @@ int color_get_color_temperature_callback_period(Color *color, uint32_t *ret_peri
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int color_get_identity(Color *color, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = color->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -799,20 +770,18 @@ int color_get_identity(Color *color, char ret_uid[8], char ret_connected_uid[8],
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -146,8 +146,7 @@ int industrial_quad_relay_get_response_expected(IndustrialQuadRelay *industrial_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -168,10 +167,10 @@ int industrial_quad_relay_set_response_expected_all(IndustrialQuadRelay *industr
 /**
  * \ingroup BrickletIndustrialQuadRelay
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_quad_relay_register_callback(IndustrialQuadRelay *industrial_quad_relay, uint8_t id, void *callback, void *user_data);
+void industrial_quad_relay_register_callback(IndustrialQuadRelay *industrial_quad_relay, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletIndustrialQuadRelay
@@ -281,8 +280,8 @@ int industrial_quad_relay_get_available_for_group(IndustrialQuadRelay *industria
 /**
  * \ingroup BrickletIndustrialQuadRelay
  *
- * Sets the output value with a bitmask, according to the selection mask. 
- * The bitmask is 16 bit long, *true* refers to a closed relay and 
+ * Sets the output value with a bitmask, according to the selection mask.
+ * The bitmask is 16 bit long, *true* refers to a closed relay and
  * *false* refers to an open relay.
  * 
  * For example: The values (3, 1) or (0b0011, 0b0001) will close the relay of
@@ -300,7 +299,7 @@ int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_qu
 /**
  * \ingroup BrickletIndustrialQuadRelay
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

@@ -899,6 +899,28 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         brickStack->initEnumerate(IPCON_ENUMERATION_TYPE_AVAILABLE);
         return true;
     }
+    if (FUNCTION_WRITE_BRICKLET_UID == func)
+    {
+        // Called for a brick and byte 9 is the port number of the requested bricklet
+        p.header.length = sizeof(p.header);
+        char    port = p.group[0];
+        unsigned uid = p.channelRequest.value1;
+        std::string uidStr = utils::base58Encode(uid);
+
+        for (SimulatedDevice* child : children) {
+            if (child->position == port) {
+                child->uid = uid;
+                child->uidStr = uidStr;
+
+                Log() << "Update bricklet UID on port " << port << " to " << uidStr;
+                return true;
+            }
+        }
+
+        Log(Log::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
+        p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
+        return true;
+    }
 
     if (!responseExpected) {
         Log() << "Consume not implemented function " << (int) p.header.function_id
@@ -907,7 +929,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     }
 
     //--------------------------------------------------------------------
-    //---- functions that are not used so often
+    //---- functions that are not used so often - WITH response data
     //--------------------------------------------------------------------
     if (MASTER_FUNCTION_GET_IDENTITY == func)
     {
@@ -938,6 +960,26 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         // simulate protocol 2 for all devices/ports: return zero-bytes
         p.header.length = sizeof(p.header) + sizeof(p.protocol1Response);
         bzero(&p.protocol1Response, sizeof(p.protocol1Response));
+        return true;
+    }
+    if (FUNCTION_READ_BRICKLET_UID == func && isBrick)
+    {
+        // Called for a brick and byte 9 is the port number of the requested bricklet
+        p.header.length = sizeof(p.header) + sizeof(int32_t);
+        char port = p.group[0];
+
+        // clear return value AFTER port was read from packet
+        p.int32Value = 0;
+
+        for (SimulatedDevice* child : children) {
+            if (child->position == port) {
+                p.int32Value = child->uid;
+                return true;
+            }
+        }
+
+        Log(Log::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
+        p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
     }
 

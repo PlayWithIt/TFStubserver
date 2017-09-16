@@ -28,6 +28,8 @@ namespace stubserver {
 DeviceBrick::DeviceBrick(unsigned type, DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent)
    : DeviceVoltageCurrent(_other, _funcGetVoltage, _funcGetCurrent)
    , deviceType(type)
+   , extenstionType0(0)
+   , extenstionType1(0)
 {
     enableStatusLed(MASTER_FUNCTION_IS_STATUS_LED_ENABLED, MASTER_FUNCTION_ENABLE_STATUS_LED, MASTER_FUNCTION_DISABLE_STATUS_LED);
     setStatusLedOn(true);
@@ -39,6 +41,8 @@ DeviceBrick::DeviceBrick(unsigned type, uint8_t _funcGetVoltage, uint8_t _funcGe
    : DeviceVoltageCurrent(_funcGetVoltage, _funcGetCurrent, _funcSetCallbackVoltage,
                           _funcSetCallbackCurrent, _funcCallbackVoltage, _funcCallbackCurrent)
    , deviceType(type)
+   , extenstionType0(0)
+   , extenstionType1(0)
 {
     enableStatusLed(MASTER_FUNCTION_IS_STATUS_LED_ENABLED, MASTER_FUNCTION_ENABLE_STATUS_LED, MASTER_FUNCTION_DISABLE_STATUS_LED);
 }
@@ -53,6 +57,22 @@ bool DeviceBrick::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         // functions only valid for master brick
         switch (p.header.function_id) {
         case MASTER_FUNCTION_REFRESH_WIFI_STATUS:
+        case MASTER_FUNCTION_SET_WIFI_CERTIFICATE:
+        case FUNCTION_WRITE_BRICKLET_PLUGIN:
+            return true;
+
+        case MASTER_FUNCTION_GET_EXTENSION_TYPE:
+            p.header.length = sizeof(p.header) + 4;
+            p.uint32Value = p.group[0] == 0 ? extenstionType0 : extenstionType1;
+            utils::Log() << "Return extension type " << p.uint32Value << " for position " << (p.group[0] == 0 ? '0' : '1');
+            return true;
+
+        case MASTER_FUNCTION_SET_EXTENSION_TYPE:
+            if (p.group[0] == 0)
+                extenstionType0 = p.group[1];
+            else
+                extenstionType1 = p.group[1];
+            utils::Log() << "Set extension type " << (int) p.group[1] << " for position " << (p.group[0] == 0 ? '0' : '1');
             return true;
 
         case MASTER_FUNCTION_GET_WIFI_STATUS:
@@ -67,6 +87,7 @@ bool DeviceBrick::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
 
         case MASTER_FUNCTION_IS_CHIBI_PRESENT:
         case MASTER_FUNCTION_IS_WIFI_PRESENT:
+        case MASTER_FUNCTION_IS_WIFI2_PRESENT:
         case MASTER_FUNCTION_IS_ETHERNET_PRESENT:
         case MASTER_FUNCTION_IS_RS485_PRESENT:
             p.boolValue = false;

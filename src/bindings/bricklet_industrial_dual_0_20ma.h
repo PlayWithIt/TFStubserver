@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -87,7 +87,7 @@ typedef Device IndustrialDual020mA;
  * {@link industrial_dual_0_20ma_set_current_callback_period}. The parameter is the current of the
  * sensor.
  * 
- * {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} is only triggered if the current has changed since the
+ * The {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} callback is only triggered if the current has changed since the
  * last triggering.
  */
 #define INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT 10
@@ -213,8 +213,7 @@ int industrial_dual_0_20ma_get_response_expected(IndustrialDual020mA *industrial
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -235,10 +234,10 @@ int industrial_dual_0_20ma_set_response_expected_all(IndustrialDual020mA *indust
 /**
  * \ingroup BrickletIndustrialDual020mA
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t id, void *callback, void *user_data);
+void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletIndustrialDual020mA
@@ -262,7 +261,7 @@ int industrial_dual_0_20ma_get_api_version(IndustrialDual020mA *industrial_dual_
  * be a short circuit or the sensor may be defect.
  * 
  * If you want to get the current periodically, it is recommended to use the
- * callback {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} and set the period with 
+ * {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} callback and set the period with
  * {@link industrial_dual_0_20ma_set_current_callback_period}.
  */
 int industrial_dual_0_20ma_get_current(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, int32_t *ret_current);
@@ -273,7 +272,7 @@ int industrial_dual_0_20ma_get_current(IndustrialDual020mA *industrial_dual_0_20
  * Sets the period in ms with which the {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} callback is triggered
  * periodically for the given sensor. A value of 0 turns the callback off.
  * 
- * {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} is only triggered if the current has changed since the
+ * The {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} callback is only triggered if the current has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -355,7 +354,7 @@ int industrial_dual_0_20ma_get_debounce_period(IndustrialDual020mA *industrial_d
  *  "3",    "4 samples per second, 18 bit resolution"
  * \endverbatim
  * 
- * The default value is 3: 4 samples per second with 18 bit resolution.
+ * The default value is 3 (4 samples per second with 18 bit resolution).
  */
 int industrial_dual_0_20ma_set_sample_rate(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t rate);
 
@@ -369,7 +368,7 @@ int industrial_dual_0_20ma_get_sample_rate(IndustrialDual020mA *industrial_dual_
 /**
  * \ingroup BrickletIndustrialDual020mA
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

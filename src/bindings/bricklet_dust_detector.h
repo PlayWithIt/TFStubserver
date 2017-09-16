@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -84,11 +84,11 @@ typedef Device DustDetector;
  * Signature: \code void callback(uint16_t dust_density, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link dust_detector_set_dust_density_callback_period}. The parameter is the 
+ * {@link dust_detector_set_dust_density_callback_period}. The parameter is the
  * dust density of the sensor.
  * 
- * {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} is only triggered if the dust density value has changed since the
- * last triggering.
+ * Der {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback is only triggered if the dust density value has
+ * changed since the last triggering.
  */
 #define DUST_DETECTOR_CALLBACK_DUST_DENSITY 8
 
@@ -193,8 +193,7 @@ int dust_detector_get_response_expected(DustDetector *dust_detector, uint8_t fun
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -215,10 +214,10 @@ int dust_detector_set_response_expected_all(DustDetector *dust_detector, bool re
 /**
  * \ingroup BrickletDustDetector
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void dust_detector_register_callback(DustDetector *dust_detector, uint8_t id, void *callback, void *user_data);
+void dust_detector_register_callback(DustDetector *dust_detector, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletDustDetector
@@ -233,8 +232,8 @@ int dust_detector_get_api_version(DustDetector *dust_detector, uint8_t ret_api_v
  *
  * Returns the dust density in µg/m³.
  * 
- * If you want to get the dust density periodically, it is recommended 
- * to use the callback {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} and set the period with 
+ * If you want to get the dust density periodically, it is recommended
+ * to use the {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback and set the period with
  * {@link dust_detector_set_dust_density_callback_period}.
  */
 int dust_detector_get_dust_density(DustDetector *dust_detector, uint16_t *ret_dust_density);
@@ -245,8 +244,8 @@ int dust_detector_get_dust_density(DustDetector *dust_detector, uint16_t *ret_du
  * Sets the period in ms with which the {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} is only triggered if the dust density has changed since the
- * last triggering.
+ * The {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback is only triggered if the dust density has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -262,7 +261,7 @@ int dust_detector_get_dust_density_callback_period(DustDetector *dust_detector, 
 /**
  * \ingroup BrickletDustDetector
  *
- * Sets the thresholds for the {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED} callback. 
+ * Sets the thresholds for the {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -336,7 +335,7 @@ int dust_detector_get_moving_average(DustDetector *dust_detector, uint8_t *ret_a
 /**
  * \ingroup BrickletDustDetector
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

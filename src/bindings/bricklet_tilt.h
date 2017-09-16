@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -142,8 +142,7 @@ int tilt_get_response_expected(Tilt *tilt, uint8_t function_id, bool *ret_respon
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -164,10 +163,10 @@ int tilt_set_response_expected_all(Tilt *tilt, bool response_expected);
 /**
  * \ingroup BrickletTilt
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void tilt_register_callback(Tilt *tilt, uint8_t id, void *callback, void *user_data);
+void tilt_register_callback(Tilt *tilt, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletTilt
@@ -218,7 +217,7 @@ int tilt_is_tilt_state_callback_enabled(Tilt *tilt, bool *ret_enabled);
 /**
  * \ingroup BrickletTilt
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

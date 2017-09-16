@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -102,7 +102,7 @@ typedef Device IndustrialDualAnalogIn;
  * {@link industrial_dual_analog_in_set_voltage_callback_period}. The parameter is the voltage of the
  * channel.
  * 
- * {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} is only triggered if the voltage has changed since the
+ * The {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since the
  * last triggering.
  */
 #define INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE 13
@@ -248,8 +248,7 @@ int industrial_dual_analog_in_get_response_expected(IndustrialDualAnalogIn *indu
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -270,10 +269,10 @@ int industrial_dual_analog_in_set_response_expected_all(IndustrialDualAnalogIn *
 /**
  * \ingroup BrickletIndustrialDualAnalogIn
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_dual_analog_in_register_callback(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t id, void *callback, void *user_data);
+void industrial_dual_analog_in_register_callback(IndustrialDualAnalogIn *industrial_dual_analog_in, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletIndustrialDualAnalogIn
@@ -289,7 +288,7 @@ int industrial_dual_analog_in_get_api_version(IndustrialDualAnalogIn *industrial
  * Returns the voltage for the given channel in mV.
  * 
  * If you want to get the voltage periodically, it is recommended to use the
- * callback {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} and set the period with 
+ * {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback and set the period with
  * {@link industrial_dual_analog_in_set_voltage_callback_period}.
  */
 int industrial_dual_analog_in_get_voltage(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t channel, int32_t *ret_voltage);
@@ -300,7 +299,7 @@ int industrial_dual_analog_in_get_voltage(IndustrialDualAnalogIn *industrial_dua
  * Sets the period in ms with which the {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback is triggered
  * periodically for the given channel. A value of 0 turns the callback off.
  * 
- * {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} is only triggered if the voltage has changed since the
+ * The {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -373,6 +372,8 @@ int industrial_dual_analog_in_get_debounce_period(IndustrialDualAnalogIn *indust
  * Sets the sample rate. The sample rate can be between 1 sample per second
  * and 976 samples per second. Decreasing the sample rate will also decrease the
  * noise on the data.
+ * 
+ * The default value is 6 (2 samples per second).
  */
 int industrial_dual_analog_in_set_sample_rate(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t rate);
 
@@ -412,7 +413,7 @@ int industrial_dual_analog_in_get_adc_values(IndustrialDualAnalogIn *industrial_
 /**
  * \ingroup BrickletIndustrialDualAnalogIn
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

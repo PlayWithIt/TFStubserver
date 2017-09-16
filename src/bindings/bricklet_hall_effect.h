@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -85,10 +85,11 @@ typedef Device HallEffect;
  * 
  * This callback is triggered periodically with the period that is set by
  * {@link hall_effect_set_edge_count_callback_period}. The parameters are the
- * current count and the current value (see {@link hall_effect_get_value} and {@link hall_effect_get_edge_count}).
+ * current count and the current value (see {@link hall_effect_get_value} and
+ * {@link hall_effect_get_edge_count}).
  * 
- * {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} is only triggered if the count or value changed since the
- * last triggering.
+ * The {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} callback is only triggered if the count or value changed
+ * since the last triggering.
  */
 #define HALL_EFFECT_CALLBACK_EDGE_COUNT 10
 
@@ -169,8 +170,7 @@ int hall_effect_get_response_expected(HallEffect *hall_effect, uint8_t function_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -191,10 +191,10 @@ int hall_effect_set_response_expected_all(HallEffect *hall_effect, bool response
 /**
  * \ingroup BrickletHallEffect
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void hall_effect_register_callback(HallEffect *hall_effect, uint8_t id, void *callback, void *user_data);
+void hall_effect_register_callback(HallEffect *hall_effect, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletHallEffect
@@ -226,7 +226,7 @@ int hall_effect_get_edge_count(HallEffect *hall_effect, bool reset_counter, uint
 /**
  * \ingroup BrickletHallEffect
  *
- * The edge type parameter configures if rising edges, falling edges or 
+ * The edge type parameter configures if rising edges, falling edges or
  * both are counted. Possible edge types are:
  * 
  * * 0 = rising (default)
@@ -283,8 +283,8 @@ int hall_effect_get_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_edges)
  * Sets the period in ms with which the {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} is only triggered if the edge count has changed since the
- * last triggering.
+ * The {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} callback is only triggered if the edge count has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -302,14 +302,15 @@ int hall_effect_get_edge_count_callback_period(HallEffect *hall_effect, uint32_t
  *
  * This callback is triggered every n-th count, as configured with
  * {@link hall_effect_set_edge_interrupt}. The parameters are the
- * current count and the current value (see {@link hall_effect_get_value} and {@link hall_effect_get_edge_count}).
+ * current count and the current value (see {@link hall_effect_get_value} and
+ * {@link hall_effect_get_edge_count}).
  */
 int hall_effect_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_count, bool *ret_value);
 
 /**
  * \ingroup BrickletHallEffect
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

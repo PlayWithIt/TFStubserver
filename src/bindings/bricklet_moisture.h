@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -84,11 +84,11 @@ typedef Device Moisture;
  * Signature: \code void callback(uint16_t moisture, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link moisture_set_moisture_callback_period}. The parameter is the moisture value
- * of the sensor.
+ * {@link moisture_set_moisture_callback_period}. The parameter is the
+ * moisture value of the sensor.
  * 
- * {@link MOISTURE_CALLBACK_MOISTURE} is only triggered if the moisture value has changed since the
- * last triggering.
+ * The {@link MOISTURE_CALLBACK_MOISTURE} callback is only triggered if the moisture value has changed
+ * since the last triggering.
  */
 #define MOISTURE_CALLBACK_MOISTURE 8
 
@@ -193,8 +193,7 @@ int moisture_get_response_expected(Moisture *moisture, uint8_t function_id, bool
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -215,10 +214,10 @@ int moisture_set_response_expected_all(Moisture *moisture, bool response_expecte
 /**
  * \ingroup BrickletMoisture
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void moisture_register_callback(Moisture *moisture, uint8_t id, void *callback, void *user_data);
+void moisture_register_callback(Moisture *moisture, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletMoisture
@@ -235,8 +234,8 @@ int moisture_get_api_version(Moisture *moisture, uint8_t ret_api_version[3]);
  * 0 to 4095. A small value corresponds to little moisture, a big
  * value corresponds to much moisture.
  * 
- * If you want to get the moisture value periodically, it is recommended 
- * to use the callback {@link MOISTURE_CALLBACK_MOISTURE} and set the period with 
+ * If you want to get the moisture value periodically, it is recommended
+ * to use the {@link MOISTURE_CALLBACK_MOISTURE} callback and set the period with
  * {@link moisture_set_moisture_callback_period}.
  */
 int moisture_get_moisture_value(Moisture *moisture, uint16_t *ret_moisture);
@@ -247,8 +246,8 @@ int moisture_get_moisture_value(Moisture *moisture, uint16_t *ret_moisture);
  * Sets the period in ms with which the {@link MOISTURE_CALLBACK_MOISTURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link MOISTURE_CALLBACK_MOISTURE} is only triggered if the moisture value has changed since the
- * last triggering.
+ * The {@link MOISTURE_CALLBACK_MOISTURE} callback is only triggered if the moisture value has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -264,7 +263,7 @@ int moisture_get_moisture_callback_period(Moisture *moisture, uint32_t *ret_peri
 /**
  * \ingroup BrickletMoisture
  *
- * Sets the thresholds for the {@link MOISTURE_CALLBACK_MOISTURE_REACHED} callback. 
+ * Sets the thresholds for the {@link MOISTURE_CALLBACK_MOISTURE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -338,7 +337,7 @@ int moisture_get_moving_average(Moisture *moisture, uint8_t *ret_average);
 /**
  * \ingroup BrickletMoisture
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

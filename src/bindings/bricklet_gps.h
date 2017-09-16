@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -122,8 +122,8 @@ typedef Device GPS;
  * {@link gps_set_coordinates_callback_period}. The parameters are the same
  * as for {@link gps_get_coordinates}.
  * 
- * {@link GPS_CALLBACK_COORDINATES} is only triggered if the coordinates changed since the
- * last triggering and if there is currently a fix as indicated by
+ * The {@link GPS_CALLBACK_COORDINATES} callback is only triggered if the coordinates changed
+ * since the last triggering and if there is currently a fix as indicated by
  * {@link gps_get_status}.
  */
 #define GPS_CALLBACK_COORDINATES 17
@@ -137,7 +137,7 @@ typedef Device GPS;
  * {@link gps_set_status_callback_period}. The parameters are the same
  * as for {@link gps_get_status}.
  * 
- * {@link GPS_CALLBACK_STATUS} is only triggered if the status changed since the
+ * The {@link GPS_CALLBACK_STATUS} callback is only triggered if the status changed since the
  * last triggering.
  */
 #define GPS_CALLBACK_STATUS 18
@@ -145,14 +145,14 @@ typedef Device GPS;
 /**
  * \ingroup BrickletGPS
  *
- * Signature: \code void callback(uint32_t altitude, uint32_t geoidal_separation, void *user_data) \endcode
+ * Signature: \code void callback(int32_t altitude, int32_t geoidal_separation, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
  * {@link gps_set_altitude_callback_period}. The parameters are the same
  * as for {@link gps_get_altitude}.
  * 
- * {@link GPS_CALLBACK_ALTITUDE} is only triggered if the altitude changed since the
- * last triggering and if there is currently a fix as indicated by
+ * The {@link GPS_CALLBACK_ALTITUDE} callback is only triggered if the altitude changed since
+ * the last triggering and if there is currently a fix as indicated by
  * {@link gps_get_status}.
  */
 #define GPS_CALLBACK_ALTITUDE 19
@@ -166,7 +166,7 @@ typedef Device GPS;
  * {@link gps_set_motion_callback_period}. The parameters are the same
  * as for {@link gps_get_motion}.
  * 
- * {@link GPS_CALLBACK_MOTION} is only triggered if the motion changed since the
+ * The {@link GPS_CALLBACK_MOTION} callback is only triggered if the motion changed since the
  * last triggering and if there is currently a fix as indicated by
  * {@link gps_get_status}.
  */
@@ -181,8 +181,8 @@ typedef Device GPS;
  * {@link gps_set_date_time_callback_period}. The parameters are the same
  * as for {@link gps_get_date_time}.
  * 
- * {@link GPS_CALLBACK_DATE_TIME} is only triggered if the date or time changed since the
- * last triggering.
+ * The {@link GPS_CALLBACK_DATE_TIME} callback is only triggered if the date or time changed
+ * since the last triggering.
  */
 #define GPS_CALLBACK_DATE_TIME 21
 
@@ -283,8 +283,7 @@ int gps_get_response_expected(GPS *gps, uint8_t function_id, bool *ret_response_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -305,10 +304,10 @@ int gps_set_response_expected_all(GPS *gps, bool response_expected);
 /**
  * \ingroup BrickletGPS
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void gps_register_callback(GPS *gps, uint8_t id, void *callback, void *user_data);
+void gps_register_callback(GPS *gps, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletGPS
@@ -328,14 +327,14 @@ int gps_get_api_version(GPS *gps, uint8_t ret_api_version[3]);
  * and 'W' (north, south, east and west).
  * 
  * PDOP, HDOP and VDOP are the dilution of precision (DOP) values. They specify
- * the additional multiplicative effect of GPS satellite geometry on GPS 
- * precision. See 
+ * the additional multiplicative effect of GPS satellite geometry on GPS
+ * precision. See
  * `here <https://en.wikipedia.org/wiki/Dilution_of_precision_(GPS)>`__
  * for more information. The values are give in hundredths.
  * 
  * EPE is the "Estimated Position Error". The EPE is given in cm. This is not the
  * absolute maximum error, it is the error with a specific confidence. See
- * `here <http://www.nps.gov/gis/gps/WhatisEPE.html>`__ for more information.
+ * `here <https://www.nps.gov/gis/gps/WhatisEPE.html>`__ for more information.
  * 
  * This data is only valid if there is currently a fix as indicated by
  * {@link gps_get_status}.
@@ -353,9 +352,9 @@ int gps_get_coordinates(GPS *gps, uint32_t *ret_latitude, char *ret_ns, uint32_t
  * \verbatim
  *  "Value", "Description"
  * 
- *  "1", "No Fix, {@link gps_get_coordinates} and {@link gps_get_altitude} return invalid data"
- *  "2", "2D Fix, only {@link gps_get_coordinates} returns valid data"
- *  "3", "3D Fix, {@link gps_get_coordinates} and {@link gps_get_altitude} return valid data"
+ *  "1", "No Fix, {@link gps_get_coordinates}, {@link gps_get_altitude} and {@link gps_get_motion} return invalid data"
+ *  "2", "2D Fix, only {@link gps_get_coordinates} and {@link gps_get_motion} return valid data"
+ *  "3", "3D Fix, {@link gps_get_coordinates}, {@link gps_get_altitude} and {@link gps_get_motion} return valid data"
  * \endverbatim
  * 
  * There is also a :ref:`blue LED <gps_bricklet_fix_led>` on the Bricklet that
@@ -373,7 +372,7 @@ int gps_get_status(GPS *gps, uint8_t *ret_fix, uint8_t *ret_satellites_view, uin
  * This data is only valid if there is currently a fix as indicated by
  * {@link gps_get_status}.
  */
-int gps_get_altitude(GPS *gps, uint32_t *ret_altitude, uint32_t *ret_geoidal_separation);
+int gps_get_altitude(GPS *gps, int32_t *ret_altitude, int32_t *ret_geoidal_separation);
 
 /**
  * \ingroup BrickletGPS
@@ -422,8 +421,8 @@ int gps_restart(GPS *gps, uint8_t restart_type);
  * Sets the period in ms with which the {@link GPS_CALLBACK_COORDINATES} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link GPS_CALLBACK_COORDINATES} is only triggered if the coordinates changed since the
- * last triggering.
+ * The {@link GPS_CALLBACK_COORDINATES} callback is only triggered if the coordinates changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -442,7 +441,7 @@ int gps_get_coordinates_callback_period(GPS *gps, uint32_t *ret_period);
  * Sets the period in ms with which the {@link GPS_CALLBACK_STATUS} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link GPS_CALLBACK_STATUS} is only triggered if the status changed since the
+ * The {@link GPS_CALLBACK_STATUS} callback is only triggered if the status changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -462,8 +461,8 @@ int gps_get_status_callback_period(GPS *gps, uint32_t *ret_period);
  * Sets the period in ms with which the {@link GPS_CALLBACK_ALTITUDE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link GPS_CALLBACK_ALTITUDE} is only triggered if the altitude changed since the
- * last triggering.
+ * The {@link GPS_CALLBACK_ALTITUDE} callback is only triggered if the altitude changed since
+ * the last triggering.
  * 
  * The default value is 0.
  */
@@ -482,7 +481,7 @@ int gps_get_altitude_callback_period(GPS *gps, uint32_t *ret_period);
  * Sets the period in ms with which the {@link GPS_CALLBACK_MOTION} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link GPS_CALLBACK_MOTION} is only triggered if the motion changed since the
+ * The {@link GPS_CALLBACK_MOTION} callback is only triggered if the motion changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -502,8 +501,8 @@ int gps_get_motion_callback_period(GPS *gps, uint32_t *ret_period);
  * Sets the period in ms with which the {@link GPS_CALLBACK_DATE_TIME} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link GPS_CALLBACK_DATE_TIME} is only triggered if the date or time changed since the
- * last triggering.
+ * The {@link GPS_CALLBACK_DATE_TIME} callback is only triggered if the date or time changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -519,7 +518,7 @@ int gps_get_date_time_callback_period(GPS *gps, uint32_t *ret_period);
 /**
  * \ingroup BrickletGPS
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

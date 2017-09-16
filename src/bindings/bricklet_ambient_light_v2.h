@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -87,7 +87,7 @@ typedef Device AmbientLightV2;
  * {@link ambient_light_v2_set_illuminance_callback_period}. The parameter is the illuminance of the
  * ambient light sensor.
  * 
- * {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} is only triggered if the illuminance has changed since the
+ * The {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed since the
  * last triggering.
  */
 #define AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE 10
@@ -131,6 +131,11 @@ typedef Device AmbientLightV2;
  * \ingroup BrickletAmbientLightV2
  */
 #define AMBIENT_LIGHT_V2_THRESHOLD_OPTION_GREATER '>'
+
+/**
+ * \ingroup BrickletAmbientLightV2
+ */
+#define AMBIENT_LIGHT_V2_ILLUMINANCE_RANGE_UNLIMITED 6
 
 /**
  * \ingroup BrickletAmbientLightV2
@@ -263,8 +268,7 @@ int ambient_light_v2_get_response_expected(AmbientLightV2 *ambient_light_v2, uin
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -285,10 +289,10 @@ int ambient_light_v2_set_response_expected_all(AmbientLightV2 *ambient_light_v2,
 /**
  * \ingroup BrickletAmbientLightV2
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, uint8_t id, void *callback, void *user_data);
+void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletAmbientLightV2
@@ -301,12 +305,17 @@ int ambient_light_v2_get_api_version(AmbientLightV2 *ambient_light_v2, uint8_t r
 /**
  * \ingroup BrickletAmbientLightV2
  *
- * Returns the illuminance of the ambient light sensor. The value
- * has a range of 0 to 6400000 and is given in 1/100 Lux, i.e. a value
- * of 45000 means that an illuminance of 450 Lux is measured.
+ * Returns the illuminance of the ambient light sensor. The measurement range goes
+ * up to about 100000lux, but above 64000lux the precision starts to drop.
+ * The illuminance is given in lux/100, i.e. a value of 450000 means that an
+ * illuminance of 4500lux is measured.
+ * 
+ * .. versionchanged:: 2.0.2$nbsp;(Plugin)
+ *   An illuminance of 0lux indicates that the sensor is saturated and the
+ *   configuration should be modified, see {@link ambient_light_v2_set_configuration}.
  * 
  * If you want to get the illuminance periodically, it is recommended to use the
- * callback {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} and set the period with 
+ * {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback and set the period with
  * {@link ambient_light_v2_set_illuminance_callback_period}.
  */
 int ambient_light_v2_get_illuminance(AmbientLightV2 *ambient_light_v2, uint32_t *ret_illuminance);
@@ -317,8 +326,8 @@ int ambient_light_v2_get_illuminance(AmbientLightV2 *ambient_light_v2, uint32_t 
  * Sets the period in ms with which the {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} is only triggered if the illuminance has changed since the
- * last triggering.
+ * The {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -334,7 +343,7 @@ int ambient_light_v2_get_illuminance_callback_period(AmbientLightV2 *ambient_lig
 /**
  * \ingroup BrickletAmbientLightV2
  *
- * Sets the thresholds for the {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED} callback. 
+ * Sets the thresholds for the {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -389,8 +398,26 @@ int ambient_light_v2_get_debounce_period(AmbientLightV2 *ambient_light_v2, uint3
  * Sets the configuration. It is possible to configure an illuminance range
  * between 0-600lux and 0-64000lux and an integration time between 50ms and 400ms.
  * 
- * A smaller illuminance range increases the resolution of the data. An
- * increase in integration time will result in less noise on the data.
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
+ *   The unlimited illuminance range allows to measure up to about 100000lux, but
+ *   above 64000lux the precision starts to drop.
+ * 
+ * A smaller illuminance range increases the resolution of the data. A longer
+ * integration time will result in less noise on the data.
+ * 
+ * .. versionchanged:: 2.0.2$nbsp;(Plugin)
+ *   If the actual measure illuminance is out-of-range then the current illuminance
+ *   range maximum +0.01lux is reported by {@link ambient_light_v2_get_illuminance} and the
+ *   {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback. For example, 800001 for the 0-8000lux range.
+ * 
+ * .. versionchanged:: 2.0.2$nbsp;(Plugin)
+ *   With a long integration time the sensor might be saturated before the measured
+ *   value reaches the maximum of the selected illuminance range. In this case 0lux
+ *   is reported by {@link ambient_light_v2_get_illuminance} and the {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback.
+ * 
+ * If the measurement is out-of-range or the sensor is saturated then you should
+ * configure the next higher illuminance range. If the highest range is already
+ * in use, then start to reduce the integration time.
  * 
  * The default values are 0-8000lux illuminance range and 200ms integration time.
  */
@@ -406,7 +433,7 @@ int ambient_light_v2_get_configuration(AmbientLightV2 *ambient_light_v2, uint8_t
 /**
  * \ingroup BrickletAmbientLightV2
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

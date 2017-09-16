@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -87,8 +87,8 @@ typedef Device DistanceUS;
  * {@link distance_us_set_distance_callback_period}. The parameter is the distance value
  * of the sensor.
  * 
- * {@link DISTANCE_US_CALLBACK_DISTANCE} is only triggered if the distance value has changed since the
- * last triggering.
+ * The {@link DISTANCE_US_CALLBACK_DISTANCE} callback is only triggered if the distance value has changed
+ * since the last triggering.
  */
 #define DISTANCE_US_CALLBACK_DISTANCE 8
 
@@ -193,8 +193,7 @@ int distance_us_get_response_expected(DistanceUS *distance_us, uint8_t function_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -215,10 +214,10 @@ int distance_us_set_response_expected_all(DistanceUS *distance_us, bool response
 /**
  * \ingroup BrickletDistanceUS
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void distance_us_register_callback(DistanceUS *distance_us, uint8_t id, void *callback, void *user_data);
+void distance_us_register_callback(DistanceUS *distance_us, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletDistanceUS
@@ -239,7 +238,7 @@ int distance_us_get_api_version(DistanceUS *distance_us, uint8_t ret_api_version
  * non-linear (resolution is bigger at close range).
  * 
  * If you want to get the distance value periodically, it is recommended to
- * use the callback {@link DISTANCE_US_CALLBACK_DISTANCE} and set the period with 
+ * use the {@link DISTANCE_US_CALLBACK_DISTANCE} callback and set the period with
  * {@link distance_us_set_distance_callback_period}.
  */
 int distance_us_get_distance_value(DistanceUS *distance_us, uint16_t *ret_distance);
@@ -250,8 +249,8 @@ int distance_us_get_distance_value(DistanceUS *distance_us, uint16_t *ret_distan
  * Sets the period in ms with which the {@link DISTANCE_US_CALLBACK_DISTANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link DISTANCE_US_CALLBACK_DISTANCE} is only triggered if the distance value has changed since the
- * last triggering.
+ * Der {@link DISTANCE_US_CALLBACK_DISTANCE} callback is only triggered if the distance value has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -267,7 +266,7 @@ int distance_us_get_distance_callback_period(DistanceUS *distance_us, uint32_t *
 /**
  * \ingroup BrickletDistanceUS
  *
- * Sets the thresholds for the {@link DISTANCE_US_CALLBACK_DISTANCE_REACHED} callback. 
+ * Sets the thresholds for the {@link DISTANCE_US_CALLBACK_DISTANCE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -283,14 +282,14 @@ int distance_us_get_distance_callback_period(DistanceUS *distance_us, uint32_t *
  * 
  * The default value is ('x', 0, 0).
  */
-int distance_us_set_distance_callback_threshold(DistanceUS *distance_us, char option, int16_t min, int16_t max);
+int distance_us_set_distance_callback_threshold(DistanceUS *distance_us, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletDistanceUS
  *
  * Returns the threshold as set by {@link distance_us_set_distance_callback_threshold}.
  */
-int distance_us_get_distance_callback_threshold(DistanceUS *distance_us, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int distance_us_get_distance_callback_threshold(DistanceUS *distance_us, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletDistanceUS
@@ -341,7 +340,7 @@ int distance_us_get_moving_average(DistanceUS *distance_us, uint8_t *ret_average
 /**
  * \ingroup BrickletDistanceUS
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

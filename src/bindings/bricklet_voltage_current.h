@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -147,8 +147,8 @@ typedef Device VoltageCurrent;
  * {@link voltage_current_set_current_callback_period}. The parameter is the current of the
  * sensor.
  * 
- * {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} is only triggered if the current has changed since the
- * last triggering.
+ * The {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback is only triggered if the current has changed since
+ * the last triggering.
  */
 #define VOLTAGE_CURRENT_CALLBACK_CURRENT 22
 
@@ -158,11 +158,11 @@ typedef Device VoltageCurrent;
  * Signature: \code void callback(int32_t voltage, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link voltage_current_set_voltage_callback_period}. The parameter is the voltage of the
- * sensor.
+ * {@link voltage_current_set_voltage_callback_period}. The parameter is the voltage of
+ * the sensor.
  * 
- * {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} is only triggered if the voltage has changed since the
- * last triggering.
+ * The {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since
+ * the last triggering.
  */
 #define VOLTAGE_CURRENT_CALLBACK_VOLTAGE 23
 
@@ -175,7 +175,7 @@ typedef Device VoltageCurrent;
  * {@link voltage_current_set_power_callback_period}. The parameter is the power of the
  * sensor.
  * 
- * {@link VOLTAGE_CURRENT_CALLBACK_POWER} is only triggered if the power has changed since the
+ * The {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback is only triggered if the power has changed since the
  * last triggering.
  */
 #define VOLTAGE_CURRENT_CALLBACK_POWER 24
@@ -349,8 +349,7 @@ int voltage_current_get_response_expected(VoltageCurrent *voltage_current, uint8
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -371,10 +370,10 @@ int voltage_current_set_response_expected_all(VoltageCurrent *voltage_current, b
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void voltage_current_register_callback(VoltageCurrent *voltage_current, uint8_t id, void *callback, void *user_data);
+void voltage_current_register_callback(VoltageCurrent *voltage_current, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletVoltageCurrent
@@ -391,7 +390,7 @@ int voltage_current_get_api_version(VoltageCurrent *voltage_current, uint8_t ret
  * and between -20000mA and 20000mA.
  * 
  * If you want to get the current periodically, it is recommended to use the
- * callback {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} and set the period with 
+ * {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback and set the period with
  * {@link voltage_current_set_current_callback_period}.
  */
 int voltage_current_get_current(VoltageCurrent *voltage_current, int32_t *ret_current);
@@ -403,7 +402,7 @@ int voltage_current_get_current(VoltageCurrent *voltage_current, int32_t *ret_cu
  * and between 0mV and 36000mV.
  * 
  * If you want to get the voltage periodically, it is recommended to use the
- * callback {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} and set the period with 
+ * {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback and set the period with
  * {@link voltage_current_set_voltage_callback_period}.
  */
 int voltage_current_get_voltage(VoltageCurrent *voltage_current, int32_t *ret_voltage);
@@ -415,7 +414,7 @@ int voltage_current_get_voltage(VoltageCurrent *voltage_current, int32_t *ret_vo
  * and between 0mV and 720000mW.
  * 
  * If you want to get the power periodically, it is recommended to use the
- * callback {@link VOLTAGE_CURRENT_CALLBACK_POWER} and set the period with 
+ * {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback and set the period with
  * {@link voltage_current_set_power_callback_period}.
  */
 int voltage_current_get_power(VoltageCurrent *voltage_current, int32_t *ret_power);
@@ -457,7 +456,7 @@ int voltage_current_get_power(VoltageCurrent *voltage_current, int32_t *ret_powe
  *  ">=7",  "8.244ms"
  * \endverbatim
  * 
- * The default values are 3, 4 and 4 (64, 1.1ms, 1.1ms) for averaging, voltage 
+ * The default values are 3, 4 and 4 (64, 1.1ms, 1.1ms) for averaging, voltage
  * conversion and current conversion.
  */
 int voltage_current_set_configuration(VoltageCurrent *voltage_current, uint8_t averaging, uint8_t voltage_conversion_time, uint8_t current_conversion_time);
@@ -477,7 +476,7 @@ int voltage_current_get_configuration(VoltageCurrent *voltage_current, uint8_t *
  * divisor if a very precise reading is needed.
  * 
  * For example, if you are expecting a measurement of 1000mA and you
- * are measuring 1023mA, you can calibrate the Voltage/Current Bricklet 
+ * are measuring 1023mA, you can calibrate the Voltage/Current Bricklet
  * by setting the multiplier to 1000 and the divisor to 1023.
  */
 int voltage_current_set_calibration(VoltageCurrent *voltage_current, uint16_t gain_multiplier, uint16_t gain_divisor);
@@ -495,8 +494,8 @@ int voltage_current_get_calibration(VoltageCurrent *voltage_current, uint16_t *r
  * Sets the period in ms with which the {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} is only triggered if the current has changed since the
- * last triggering.
+ * The {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback is only triggered if the current has changed since
+ * the last triggering.
  * 
  * The default value is 0.
  */
@@ -515,8 +514,8 @@ int voltage_current_get_current_callback_period(VoltageCurrent *voltage_current,
  * Sets the period in ms with which the {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} is only triggered if the voltage has changed since the
- * last triggering.
+ * The {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since
+ * the last triggering.
  * 
  * The default value is 0.
  */
@@ -535,7 +534,7 @@ int voltage_current_get_voltage_callback_period(VoltageCurrent *voltage_current,
  * Sets the period in ms with which the {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link VOLTAGE_CURRENT_CALLBACK_POWER} is only triggered if the power has changed since the
+ * The {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback is only triggered if the power has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -552,7 +551,7 @@ int voltage_current_get_power_callback_period(VoltageCurrent *voltage_current, u
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Sets the thresholds for the {@link VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED} callback. 
+ * Sets the thresholds for the {@link VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -580,7 +579,7 @@ int voltage_current_get_current_callback_threshold(VoltageCurrent *voltage_curre
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Sets the thresholds for the {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED} callback. 
+ * Sets the thresholds for the {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -608,7 +607,7 @@ int voltage_current_get_voltage_callback_threshold(VoltageCurrent *voltage_curre
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Sets the thresholds for the {@link VOLTAGE_CURRENT_CALLBACK_POWER_REACHED} callback. 
+ * Sets the thresholds for the {@link VOLTAGE_CURRENT_CALLBACK_POWER_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -664,7 +663,7 @@ int voltage_current_get_debounce_period(VoltageCurrent *voltage_current, uint32_
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

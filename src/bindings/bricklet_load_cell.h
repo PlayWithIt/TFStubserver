@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -122,7 +122,7 @@ typedef Device LoadCell;
  * {@link load_cell_set_weight_callback_period}. The parameter is the weight
  * as measured by the load cell.
  * 
- * {@link LOAD_CELL_CALLBACK_WEIGHT} is only triggered if the weight has changed since the
+ * The {@link LOAD_CELL_CALLBACK_WEIGHT} callback is only triggered if the weight has changed since the
  * last triggering.
  */
 #define LOAD_CELL_CALLBACK_WEIGHT 17
@@ -253,8 +253,7 @@ int load_cell_get_response_expected(LoadCell *load_cell, uint8_t function_id, bo
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -275,10 +274,10 @@ int load_cell_set_response_expected_all(LoadCell *load_cell, bool response_expec
 /**
  * \ingroup BrickletLoadCell
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void load_cell_register_callback(LoadCell *load_cell, uint8_t id, void *callback, void *user_data);
+void load_cell_register_callback(LoadCell *load_cell, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletLoadCell
@@ -293,8 +292,8 @@ int load_cell_get_api_version(LoadCell *load_cell, uint8_t ret_api_version[3]);
  *
  * Returns the currently measured weight in grams.
  * 
- * If you want to get the weight periodically, it is recommended 
- * to use the callback {@link LOAD_CELL_CALLBACK_WEIGHT} and set the period with 
+ * If you want to get the weight periodically, it is recommended
+ * to use the {@link LOAD_CELL_CALLBACK_WEIGHT} callback and set the period with
  * {@link load_cell_set_weight_callback_period}.
  */
 int load_cell_get_weight(LoadCell *load_cell, int32_t *ret_weight);
@@ -305,7 +304,7 @@ int load_cell_get_weight(LoadCell *load_cell, int32_t *ret_weight);
  * Sets the period in ms with which the {@link LOAD_CELL_CALLBACK_WEIGHT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link LOAD_CELL_CALLBACK_WEIGHT} is only triggered if the weight has changed since the
+ * The {@link LOAD_CELL_CALLBACK_WEIGHT} callback is only triggered if the weight has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -322,7 +321,7 @@ int load_cell_get_weight_callback_period(LoadCell *load_cell, uint32_t *ret_peri
 /**
  * \ingroup BrickletLoadCell
  *
- * Sets the thresholds for the {@link LOAD_CELL_CALLBACK_WEIGHT_REACHED} callback. 
+ * Sets the thresholds for the {@link LOAD_CELL_CALLBACK_WEIGHT_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -412,7 +411,7 @@ int load_cell_led_off(LoadCell *load_cell);
  *
  * Returns *true* if the led is on, *false* otherwise.
  */
-int load_cell_is_led_on(LoadCell *load_cell, uint8_t *ret_value);
+int load_cell_is_led_on(LoadCell *load_cell, bool *ret_on);
 
 /**
  * \ingroup BrickletLoadCell
@@ -420,7 +419,7 @@ int load_cell_is_led_on(LoadCell *load_cell, uint8_t *ret_value);
  * To calibrate your Load Cell Bricklet you have to
  * 
  * * empty the scale and call this function with 0 and
- * * add a known weight to the scale and call this function with the weight in 
+ * * add a known weight to the scale and call this function with the weight in
  *   grams.
  * 
  * The calibration is saved in the EEPROM of the Bricklet and only
@@ -451,7 +450,7 @@ int load_cell_tare(LoadCell *load_cell);
  * ±20mV, ±40mV and ±80mV respectively. The Load Cell Bricklet uses an
  * excitation voltage of 5V and most load cells use an output of 2mV/V. That
  * means the voltage range is ±15mV for most load cells (i.e. gain of 128x
- * is best). If you don't know what all of this means you should keep it at 
+ * is best). If you don't know what all of this means you should keep it at
  * 128x, it will most likely be correct.
  * 
  * The configuration is saved in the EEPROM of the Bricklet and only
@@ -474,7 +473,7 @@ int load_cell_get_configuration(LoadCell *load_cell, uint8_t *ret_rate, uint8_t 
 /**
  * \ingroup BrickletLoadCell
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

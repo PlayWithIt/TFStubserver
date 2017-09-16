@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-typedef void (*IntensityCallbackFunction)(uint16_t, void *);
+typedef void (*Intensity_CallbackFunction)(uint16_t intensity, void *user_data);
 
-typedef void (*IntensityReachedCallbackFunction)(uint16_t, void *);
+typedef void (*IntensityReached_CallbackFunction)(uint16_t intensity, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -43,72 +43,72 @@ typedef void (*IntensityReachedCallbackFunction)(uint16_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIntensity_;
+} ATTRIBUTE_PACKED GetIntensity_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t intensity;
-} ATTRIBUTE_PACKED GetIntensityResponse_;
+} ATTRIBUTE_PACKED GetIntensity_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetIntensityCallbackPeriod_;
+} ATTRIBUTE_PACKED SetIntensityCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIntensityCallbackPeriod_;
+} ATTRIBUTE_PACKED GetIntensityCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetIntensityCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetIntensityCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED SetIntensityCallbackThreshold_;
+} ATTRIBUTE_PACKED SetIntensityCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIntensityCallbackThreshold_;
+} ATTRIBUTE_PACKED GetIntensityCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED GetIntensityCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetIntensityCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t intensity;
-} ATTRIBUTE_PACKED IntensityCallback_;
+} ATTRIBUTE_PACKED Intensity_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t intensity;
-} ATTRIBUTE_PACKED IntensityReachedCallback_;
+} ATTRIBUTE_PACKED IntensityReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -118,7 +118,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -126,10 +126,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void sound_intensity_callback_wrapper_intensity(DevicePrivate *device_p, Packet *packet) {
-	IntensityCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[SOUND_INTENSITY_CALLBACK_INTENSITY];
-	IntensityCallback_ *callback = (IntensityCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[SOUND_INTENSITY_CALLBACK_INTENSITY];
+	Intensity_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SOUND_INTENSITY_CALLBACK_INTENSITY];
+	Intensity_Callback *callback = (Intensity_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SOUND_INTENSITY_CALLBACK_INTENSITY];
 
 	if (callback_function == NULL) {
 		return;
@@ -141,10 +142,11 @@ static void sound_intensity_callback_wrapper_intensity(DevicePrivate *device_p, 
 }
 
 static void sound_intensity_callback_wrapper_intensity_reached(DevicePrivate *device_p, Packet *packet) {
-	IntensityReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED];
-	IntensityReachedCallback_ *callback = (IntensityReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED];
+	IntensityReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED];
+	IntensityReached_Callback *callback = (IntensityReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -169,12 +171,11 @@ void sound_intensity_create(SoundIntensity *sound_intensity, const char *uid, IP
 	device_p->response_expected[SOUND_INTENSITY_FUNCTION_GET_INTENSITY_CALLBACK_THRESHOLD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[SOUND_INTENSITY_FUNCTION_SET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[SOUND_INTENSITY_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[SOUND_INTENSITY_CALLBACK_INTENSITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[SOUND_INTENSITY_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[SOUND_INTENSITY_CALLBACK_INTENSITY] = sound_intensity_callback_wrapper_intensity;
 	device_p->callback_wrappers[SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED] = sound_intensity_callback_wrapper_intensity_reached;
+
 }
 
 void sound_intensity_destroy(SoundIntensity *sound_intensity) {
@@ -193,8 +194,8 @@ int sound_intensity_set_response_expected_all(SoundIntensity *sound_intensity, b
 	return device_set_response_expected_all(sound_intensity->p, response_expected);
 }
 
-void sound_intensity_register_callback(SoundIntensity *sound_intensity, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(sound_intensity->p, id, callback, user_data);
+void sound_intensity_register_callback(SoundIntensity *sound_intensity, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(sound_intensity->p, callback_id, function, user_data);
 }
 
 int sound_intensity_get_api_version(SoundIntensity *sound_intensity, uint8_t ret_api_version[3]) {
@@ -203,8 +204,8 @@ int sound_intensity_get_api_version(SoundIntensity *sound_intensity, uint8_t ret
 
 int sound_intensity_get_intensity(SoundIntensity *sound_intensity, uint16_t *ret_intensity) {
 	DevicePrivate *device_p = sound_intensity->p;
-	GetIntensity_ request;
-	GetIntensityResponse_ response;
+	GetIntensity_Request request;
+	GetIntensity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_GET_INTENSITY, device_p->ipcon_p, device_p);
@@ -213,22 +214,20 @@ int sound_intensity_get_intensity(SoundIntensity *sound_intensity, uint16_t *ret
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_intensity = leconvert_uint16_from(response.intensity);
-
-
 
 	return ret;
 }
 
 int sound_intensity_set_intensity_callback_period(SoundIntensity *sound_intensity, uint32_t period) {
 	DevicePrivate *device_p = sound_intensity->p;
-	SetIntensityCallbackPeriod_ request;
+	SetIntensityCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -241,14 +240,13 @@ int sound_intensity_set_intensity_callback_period(SoundIntensity *sound_intensit
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int sound_intensity_get_intensity_callback_period(SoundIntensity *sound_intensity, uint32_t *ret_period) {
 	DevicePrivate *device_p = sound_intensity->p;
-	GetIntensityCallbackPeriod_ request;
-	GetIntensityCallbackPeriodResponse_ response;
+	GetIntensityCallbackPeriod_Request request;
+	GetIntensityCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_GET_INTENSITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -257,22 +255,20 @@ int sound_intensity_get_intensity_callback_period(SoundIntensity *sound_intensit
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int sound_intensity_set_intensity_callback_threshold(SoundIntensity *sound_intensity, char option, uint16_t min, uint16_t max) {
 	DevicePrivate *device_p = sound_intensity->p;
-	SetIntensityCallbackThreshold_ request;
+	SetIntensityCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_SET_INTENSITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -287,14 +283,13 @@ int sound_intensity_set_intensity_callback_threshold(SoundIntensity *sound_inten
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int sound_intensity_get_intensity_callback_threshold(SoundIntensity *sound_intensity, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
 	DevicePrivate *device_p = sound_intensity->p;
-	GetIntensityCallbackThreshold_ request;
-	GetIntensityCallbackThresholdResponse_ response;
+	GetIntensityCallbackThreshold_Request request;
+	GetIntensityCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_GET_INTENSITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -303,24 +298,22 @@ int sound_intensity_get_intensity_callback_threshold(SoundIntensity *sound_inten
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_uint16_from(response.min);
 	*ret_max = leconvert_uint16_from(response.max);
-
-
 
 	return ret;
 }
 
 int sound_intensity_set_debounce_period(SoundIntensity *sound_intensity, uint32_t debounce) {
 	DevicePrivate *device_p = sound_intensity->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -333,14 +326,13 @@ int sound_intensity_set_debounce_period(SoundIntensity *sound_intensity, uint32_
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int sound_intensity_get_debounce_period(SoundIntensity *sound_intensity, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = sound_intensity->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -349,23 +341,21 @@ int sound_intensity_get_debounce_period(SoundIntensity *sound_intensity, uint32_
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int sound_intensity_get_identity(SoundIntensity *sound_intensity, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = sound_intensity->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), SOUND_INTENSITY_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -374,20 +364,18 @@ int sound_intensity_get_identity(SoundIntensity *sound_intensity, char ret_uid[8
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -124,11 +124,11 @@ typedef Device PTC;
  * Signature: \code void callback(int32_t temperature, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link ptc_set_temperature_callback_period}. The parameter is the temperature
- * of the connected sensor.
+ * {@link ptc_set_temperature_callback_period}. The parameter is the
+ * temperature of the connected sensor.
  * 
- * {@link PTC_CALLBACK_TEMPERATURE} is only triggered if the temperature has changed since the
- * last triggering.
+ * The {@link PTC_CALLBACK_TEMPERATURE} callback is only triggered if the temperature has changed
+ * since the last triggering.
  */
 #define PTC_CALLBACK_TEMPERATURE 13
 
@@ -149,21 +149,21 @@ typedef Device PTC;
 /**
  * \ingroup BrickletPTC
  *
- * Signature: \code void callback(uint16_t resistance, void *user_data) \endcode
+ * Signature: \code void callback(int32_t resistance, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
  * {@link ptc_set_resistance_callback_period}. The parameter is the resistance
  * of the connected sensor.
  * 
- * {@link PTC_CALLBACK_RESISTANCE} is only triggered if the resistance has changed since the
- * last triggering.
+ * The {@link PTC_CALLBACK_RESISTANCE} callback is only triggered if the resistance has changed
+ * since the last triggering.
  */
 #define PTC_CALLBACK_RESISTANCE 15
 
 /**
  * \ingroup BrickletPTC
  *
- * Signature: \code void callback(uint16_t resistance, void *user_data) \endcode
+ * Signature: \code void callback(int32_t resistance, void *user_data) \endcode
  * 
  * This callback is triggered when the threshold as set by
  * {@link ptc_set_resistance_callback_threshold} is reached.
@@ -286,8 +286,7 @@ int ptc_get_response_expected(PTC *ptc, uint8_t function_id, bool *ret_response_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -308,10 +307,10 @@ int ptc_set_response_expected_all(PTC *ptc, bool response_expected);
 /**
  * \ingroup BrickletPTC
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void ptc_register_callback(PTC *ptc, uint8_t id, void *callback, void *user_data);
+void ptc_register_callback(PTC *ptc, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletPTC
@@ -328,8 +327,8 @@ int ptc_get_api_version(PTC *ptc, uint8_t ret_api_version[3]);
  * has a range of -246 to 849 °C and is given in °C/100,
  * e.g. a value of 4223 means that a temperature of 42.23 °C is measured.
  * 
- * If you want to get the temperature periodically, it is recommended 
- * to use the callback {@link PTC_CALLBACK_TEMPERATURE} and set the period with 
+ * If you want to get the temperature periodically, it is recommended
+ * to use the {@link PTC_CALLBACK_TEMPERATURE} callback and set the period with
  * {@link ptc_set_temperature_callback_period}.
  */
 int ptc_get_temperature(PTC *ptc, int32_t *ret_temperature);
@@ -344,11 +343,11 @@ int ptc_get_temperature(PTC *ptc, int32_t *ret_temperature);
  * * Pt100:  resistance = (value * 390) / 32768
  * * Pt1000: resistance = (value * 3900) / 32768
  * 
- * If you want to get the resistance periodically, it is recommended 
- * to use the callback {@link PTC_CALLBACK_RESISTANCE} and set the period with 
+ * If you want to get the resistance periodically, it is recommended
+ * to use the {@link PTC_CALLBACK_RESISTANCE} callback and set the period with
  * {@link ptc_set_resistance_callback_period}.
  */
-int ptc_get_resistance(PTC *ptc, uint16_t *ret_resistance);
+int ptc_get_resistance(PTC *ptc, int32_t *ret_resistance);
 
 /**
  * \ingroup BrickletPTC
@@ -356,8 +355,8 @@ int ptc_get_resistance(PTC *ptc, uint16_t *ret_resistance);
  * Sets the period in ms with which the {@link PTC_CALLBACK_TEMPERATURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link PTC_CALLBACK_TEMPERATURE} is only triggered if the temperature has changed since the
- * last triggering.
+ * The {@link PTC_CALLBACK_TEMPERATURE} callback is only triggered if the temperature has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -376,8 +375,8 @@ int ptc_get_temperature_callback_period(PTC *ptc, uint32_t *ret_period);
  * Sets the period in ms with which the {@link PTC_CALLBACK_RESISTANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link PTC_CALLBACK_RESISTANCE} is only triggered if the resistance has changed since the
- * last triggering.
+ * The {@link PTC_CALLBACK_RESISTANCE} callback is only triggered if the resistance has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -393,7 +392,7 @@ int ptc_get_resistance_callback_period(PTC *ptc, uint32_t *ret_period);
 /**
  * \ingroup BrickletPTC
  *
- * Sets the thresholds for the {@link PTC_CALLBACK_TEMPERATURE_REACHED} callback. 
+ * Sets the thresholds for the {@link PTC_CALLBACK_TEMPERATURE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -421,7 +420,7 @@ int ptc_get_temperature_callback_threshold(PTC *ptc, char *ret_option, int32_t *
 /**
  * \ingroup BrickletPTC
  *
- * Sets the thresholds for the {@link PTC_CALLBACK_RESISTANCE_REACHED} callback. 
+ * Sets the thresholds for the {@link PTC_CALLBACK_RESISTANCE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -437,14 +436,14 @@ int ptc_get_temperature_callback_threshold(PTC *ptc, char *ret_option, int32_t *
  * 
  * The default value is ('x', 0, 0).
  */
-int ptc_set_resistance_callback_threshold(PTC *ptc, char option, uint16_t min, uint16_t max);
+int ptc_set_resistance_callback_threshold(PTC *ptc, char option, int32_t min, int32_t max);
 
 /**
  * \ingroup BrickletPTC
  *
  * Returns the threshold as set by {@link ptc_set_resistance_callback_threshold}.
  */
-int ptc_get_resistance_callback_threshold(PTC *ptc, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
+int ptc_get_resistance_callback_threshold(PTC *ptc, char *ret_option, int32_t *ret_min, int32_t *ret_max);
 
 /**
  * \ingroup BrickletPTC
@@ -487,7 +486,7 @@ int ptc_set_noise_rejection_filter(PTC *ptc, uint8_t filter);
 /**
  * \ingroup BrickletPTC
  *
- * Returns the noise rejection filter option as set by 
+ * Returns the noise rejection filter option as set by
  * {@link ptc_set_noise_rejection_filter}
  */
 int ptc_get_noise_rejection_filter(PTC *ptc, uint8_t *ret_filter);
@@ -495,7 +494,7 @@ int ptc_get_noise_rejection_filter(PTC *ptc, uint8_t *ret_filter);
 /**
  * \ingroup BrickletPTC
  *
- * Returns *true* if the sensor is connected correctly. 
+ * Returns *true* if the sensor is connected correctly.
  * 
  * If this function
  * returns *false*, there is either no Pt100 or Pt1000 sensor connected,
@@ -524,7 +523,7 @@ int ptc_get_wire_mode(PTC *ptc, uint8_t *ret_mode);
 /**
  * \ingroup BrickletPTC
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

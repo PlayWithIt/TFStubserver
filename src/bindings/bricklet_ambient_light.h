@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -102,7 +102,7 @@ typedef Device AmbientLight;
  * {@link ambient_light_set_illuminance_callback_period}. The parameter is the illuminance of the
  * ambient light sensor.
  * 
- * {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} is only triggered if the illuminance has changed since the
+ * The {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed since the
  * last triggering.
  */
 #define AMBIENT_LIGHT_CALLBACK_ILLUMINANCE 13
@@ -116,7 +116,7 @@ typedef Device AmbientLight;
  * {@link ambient_light_set_analog_value_callback_period}. The parameter is the analog value of the
  * ambient light sensor.
  * 
- * {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} is only triggered if the analog value has changed since the
+ * The {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has changed since the
  * last triggering.
  */
 #define AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE 14
@@ -236,8 +236,7 @@ int ambient_light_get_response_expected(AmbientLight *ambient_light, uint8_t fun
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -258,10 +257,10 @@ int ambient_light_set_response_expected_all(AmbientLight *ambient_light, bool re
 /**
  * \ingroup BrickletAmbientLight
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void ambient_light_register_callback(AmbientLight *ambient_light, uint8_t id, void *callback, void *user_data);
+void ambient_light_register_callback(AmbientLight *ambient_light, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletAmbientLight
@@ -275,11 +274,11 @@ int ambient_light_get_api_version(AmbientLight *ambient_light, uint8_t ret_api_v
  * \ingroup BrickletAmbientLight
  *
  * Returns the illuminance of the ambient light sensor. The value
- * has a range of 0 to 9000 and is given in Lux/10, i.e. a value
- * of 4500 means that an illuminance of 450 Lux is measured.
+ * has a range of 0 to 9000 and is given in lux/10, i.e. a value
+ * of 4500 means that an illuminance of 450lux is measured.
  * 
  * If you want to get the illuminance periodically, it is recommended to use the
- * callback {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} and set the period with 
+ * {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback and set the period with
  * {@link ambient_light_set_illuminance_callback_period}.
  */
 int ambient_light_get_illuminance(AmbientLight *ambient_light, uint16_t *ret_illuminance);
@@ -300,8 +299,8 @@ int ambient_light_get_illuminance(AmbientLight *ambient_light, uint16_t *ret_ill
  *  set dynamically depending on the light intensity. It is impossible to
  *  distinguish between these ranges with the analog value.
  * 
- * If you want the analog value periodically, it is recommended to use the 
- * callback {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} and set the period with 
+ * If you want the analog value periodically, it is recommended to use the
+ * {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback and set the period with
  * {@link ambient_light_set_analog_value_callback_period}.
  */
 int ambient_light_get_analog_value(AmbientLight *ambient_light, uint16_t *ret_value);
@@ -312,7 +311,7 @@ int ambient_light_get_analog_value(AmbientLight *ambient_light, uint16_t *ret_va
  * Sets the period in ms with which the {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} is only triggered if the illuminance has changed since the
+ * The {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -332,7 +331,7 @@ int ambient_light_get_illuminance_callback_period(AmbientLight *ambient_light, u
  * Sets the period in ms with which the {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} is only triggered if the analog value has changed since the
+ * The {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -349,7 +348,7 @@ int ambient_light_get_analog_value_callback_period(AmbientLight *ambient_light, 
 /**
  * \ingroup BrickletAmbientLight
  *
- * Sets the thresholds for the {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED} callback. 
+ * Sets the thresholds for the {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -365,19 +364,19 @@ int ambient_light_get_analog_value_callback_period(AmbientLight *ambient_light, 
  * 
  * The default value is ('x', 0, 0).
  */
-int ambient_light_set_illuminance_callback_threshold(AmbientLight *ambient_light, char option, int16_t min, int16_t max);
+int ambient_light_set_illuminance_callback_threshold(AmbientLight *ambient_light, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletAmbientLight
  *
  * Returns the threshold as set by {@link ambient_light_set_illuminance_callback_threshold}.
  */
-int ambient_light_get_illuminance_callback_threshold(AmbientLight *ambient_light, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int ambient_light_get_illuminance_callback_threshold(AmbientLight *ambient_light, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletAmbientLight
  *
- * Sets the thresholds for the {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE_REACHED} callback. 
+ * Sets the thresholds for the {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -431,7 +430,7 @@ int ambient_light_get_debounce_period(AmbientLight *ambient_light, uint32_t *ret
 /**
  * \ingroup BrickletAmbientLight
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

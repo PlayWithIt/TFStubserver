@@ -143,7 +143,7 @@ public:
     void setVisualizationClient(VisualizationClient &client) const;
 
     /**
-     * Clear a VisualizationClient set before using {@link setVisualizationClient(VisualizationClient)}.
+     * Clear a VisualizationClient set before using {@link #setVisualizationClient()}.
      */
     void clearVisualizationClient() const;
 

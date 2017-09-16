@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -99,11 +99,11 @@ typedef Device LinearPoti;
  * Signature: \code void callback(uint16_t position, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link linear_poti_set_position_callback_period}. The parameter is the position of the
- * Linear Potentiometer.
+ * {@link linear_poti_set_position_callback_period}. The parameter is the position
+ * of the linear potentiometer.
  * 
- * {@link LINEAR_POTI_CALLBACK_POSITION} is only triggered if the position has changed since the
- * last triggering.
+ * The {@link LINEAR_POTI_CALLBACK_POSITION} callback is only triggered if the position has changed
+ * since the last triggering.
  */
 #define LINEAR_POTI_CALLBACK_POSITION 13
 
@@ -116,8 +116,8 @@ typedef Device LinearPoti;
  * {@link linear_poti_set_analog_value_callback_period}. The parameter is the analog value of the
  * Linear Potentiometer.
  * 
- * {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE} is only triggered if the position has changed since the
- * last triggering.
+ * The {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE} callback is only triggered if the position has changed
+ * since the last triggering.
  */
 #define LINEAR_POTI_CALLBACK_ANALOG_VALUE 14
 
@@ -128,7 +128,7 @@ typedef Device LinearPoti;
  * 
  * This callback is triggered when the threshold as set by
  * {@link linear_poti_set_position_callback_threshold} is reached.
- * The parameter is the position of the Linear Potentiometer.
+ * The parameter is the position of the linear potentiometer.
  * 
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link linear_poti_set_debounce_period}.
@@ -142,7 +142,7 @@ typedef Device LinearPoti;
  * 
  * This callback is triggered when the threshold as set by
  * {@link linear_poti_set_analog_value_callback_threshold} is reached.
- * The parameter is the analog value of the Linear Potentiometer.
+ * The parameter is the analog value of the linear potentiometer.
  * 
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link linear_poti_set_debounce_period}.
@@ -236,8 +236,7 @@ int linear_poti_get_response_expected(LinearPoti *linear_poti, uint8_t function_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -258,10 +257,10 @@ int linear_poti_set_response_expected_all(LinearPoti *linear_poti, bool response
 /**
  * \ingroup BrickletLinearPoti
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void linear_poti_register_callback(LinearPoti *linear_poti, uint8_t id, void *callback, void *user_data);
+void linear_poti_register_callback(LinearPoti *linear_poti, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletLinearPoti
@@ -274,11 +273,11 @@ int linear_poti_get_api_version(LinearPoti *linear_poti, uint8_t ret_api_version
 /**
  * \ingroup BrickletLinearPoti
  *
- * Returns the position of the Linear Potentiometer. The value is  
+ * Returns the position of the linear potentiometer. The value is
  * between 0 (slider down) and 100 (slider up).
  * 
  * If you want to get the position periodically, it is recommended to use the
- * callback {@link LINEAR_POTI_CALLBACK_POSITION} and set the period with 
+ * {@link LINEAR_POTI_CALLBACK_POSITION} callback and set the period with
  * {@link linear_poti_set_position_callback_period}.
  */
 int linear_poti_get_position(LinearPoti *linear_poti, uint16_t *ret_position);
@@ -295,8 +294,8 @@ int linear_poti_get_position(LinearPoti *linear_poti, uint16_t *ret_position);
  *  unfiltered analog values. The only reason to use {@link linear_poti_get_analog_value} is,
  *  if you need the full resolution of the analog-to-digital converter.
  * 
- * If you want the analog value periodically, it is recommended to use the 
- * callback {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE} and set the period with 
+ * If you want the analog value periodically, it is recommended to use the
+ * {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE} callback and set the period with
  * {@link linear_poti_set_analog_value_callback_period}.
  */
 int linear_poti_get_analog_value(LinearPoti *linear_poti, uint16_t *ret_value);
@@ -307,8 +306,8 @@ int linear_poti_get_analog_value(LinearPoti *linear_poti, uint16_t *ret_value);
  * Sets the period in ms with which the {@link LINEAR_POTI_CALLBACK_POSITION} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link LINEAR_POTI_CALLBACK_POSITION} is only triggered if the position has changed since the
- * last triggering.
+ * The {@link LINEAR_POTI_CALLBACK_POSITION} callback is only triggered if the position has changed
+ * since the last triggering.
  * 
  * The default value is 0.
  */
@@ -327,8 +326,8 @@ int linear_poti_get_position_callback_period(LinearPoti *linear_poti, uint32_t *
  * Sets the period in ms with which the {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE} is only triggered if the analog value has changed since the
- * last triggering.
+ * The {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -344,7 +343,7 @@ int linear_poti_get_analog_value_callback_period(LinearPoti *linear_poti, uint32
 /**
  * \ingroup BrickletLinearPoti
  *
- * Sets the thresholds for the {@link LINEAR_POTI_CALLBACK_POSITION_REACHED} callback. 
+ * Sets the thresholds for the {@link LINEAR_POTI_CALLBACK_POSITION_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -360,19 +359,19 @@ int linear_poti_get_analog_value_callback_period(LinearPoti *linear_poti, uint32
  * 
  * The default value is ('x', 0, 0).
  */
-int linear_poti_set_position_callback_threshold(LinearPoti *linear_poti, char option, int16_t min, int16_t max);
+int linear_poti_set_position_callback_threshold(LinearPoti *linear_poti, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletLinearPoti
  *
  * Returns the threshold as set by {@link linear_poti_set_position_callback_threshold}.
  */
-int linear_poti_get_position_callback_threshold(LinearPoti *linear_poti, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int linear_poti_get_position_callback_threshold(LinearPoti *linear_poti, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletLinearPoti
  *
- * Sets the thresholds for the {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE_REACHED} callback. 
+ * Sets the thresholds for the {@link LINEAR_POTI_CALLBACK_ANALOG_VALUE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -426,7 +425,7 @@ int linear_poti_get_debounce_period(LinearPoti *linear_poti, uint32_t *ret_debou
 /**
  * \ingroup BrickletLinearPoti
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

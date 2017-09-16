@@ -31,6 +31,21 @@
 
 typedef std::lock_guard<std::mutex> MutexLock;
 
+//-----------------------------------------------------------------------
+// functions defined in ip_connection.py but not in the cpp version
+//-----------------------------------------------------------------------
+#define FUNCTION_DISCONNECT_PROBE      128
+#define FUNCTION_GET_IDENTITY          255
+#define FUNCTION_ENUMERATE             254
+#define FUNCTION_ADC_CALIBRATE         251
+#define FUNCTION_GET_ADC_CALIBRATION   250
+#define FUNCTION_READ_BRICKLET_UID     249
+#define FUNCTION_WRITE_BRICKLET_UID    248
+#define FUNCTION_READ_BRICKLET_PLUGIN  247
+#define FUNCTION_WRITE_BRICKLET_PLUGIN 246
+
+
+
 namespace stubserver {
 
 using utils::ValueProvider;
@@ -172,7 +187,7 @@ public:
         return *this;
     }
 
-    DeviceFunctions* clone() const;
+    DeviceFunctions* clone() const override;
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };
@@ -257,7 +272,7 @@ protected:
      * If the device needs time to change a value to a target value: keep old
      * value and save the target value
      */
-    virtual void changeTargetValue(const IOPacket &p)
+    virtual void changeTargetValue(const IOPacket &p) override
     {
         T oldValue = response.get<T>();                             // save old
         memcpy(response.bytes, p.fullData.payload, response.size);  // set new
@@ -287,7 +302,7 @@ protected:
      * method is called each millisecond. The faction is 1/400 of the delta, so
      * it will take about 1.6 seconds to reach the new target.
      */
-    virtual void updateIntermediateValue()
+    virtual void updateIntermediateValue() override
     {
         // change max. 250 times per second
         if (targetReached || (++counter % 4) != 0)
@@ -320,7 +335,7 @@ public:
     { }
 
     /** create a deep copy of this device plus all child devices! */
-    DeviceFunctions* clone() const
+    DeviceFunctions* clone() const override
     {
         DeviceFunctions* result = new GetSet<T>(*this);
         return result;
@@ -371,7 +386,7 @@ public:
     ~EnableDisableBool();
 
     /** create a deep copy of this device plus all child devices! */
-    DeviceFunctions* clone() const;
+    DeviceFunctions* clone() const override;
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -137,8 +137,7 @@ int multi_touch_get_response_expected(MultiTouch *multi_touch, uint8_t function_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -159,10 +158,10 @@ int multi_touch_set_response_expected_all(MultiTouch *multi_touch, bool response
 /**
  * \ingroup BrickletMultiTouch
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void multi_touch_register_callback(MultiTouch *multi_touch, uint8_t id, void *callback, void *user_data);
+void multi_touch_register_callback(MultiTouch *multi_touch, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletMultiTouch
@@ -180,7 +179,7 @@ int multi_touch_get_api_version(MultiTouch *multi_touch, uint8_t ret_api_version
  * Bits 0 to 11 represent the 12 electrodes and bit 12 represents
  * the proximity.
  * 
- * If an electrode is touched, the corresponding bit is true. If
+ * If an electrode is touched, the corresponding bit is *true*. If
  * a hand or similar is in proximity to the electrodes, bit 12 is
  * *true*.
  * 
@@ -260,7 +259,7 @@ int multi_touch_get_electrode_sensitivity(MultiTouch *multi_touch, uint8_t *ret_
 /**
  * \ingroup BrickletMultiTouch
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

@@ -90,7 +90,7 @@ bool DeviceMultiSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
     }
 
     if (NULL == (sensor = checkIndex(0)))
-        throw new utils::Exception("Number of sensors is 0 -> invalid!");
+        throw utils::Exception("Number of sensors is 0 -> invalid!");
 
     // get/set debounce period: period is common for both channels
     if (func == sensor->rangeCallback.getPeriodFunc) {

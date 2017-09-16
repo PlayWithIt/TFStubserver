@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -124,11 +124,11 @@ typedef Device Barometer;
  * Signature: \code void callback(int32_t air_pressure, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link barometer_set_air_pressure_callback_period}. The parameter is the air pressure of the
- * air pressure sensor.
+ * {@link barometer_set_air_pressure_callback_period}. The parameter is the air
+ * pressure of the air pressure sensor.
  * 
- * {@link BAROMETER_CALLBACK_AIR_PRESSURE} is only triggered if the air pressure has changed since the
- * last triggering.
+ * The {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback is only triggered if the air pressure has
+ * changed since the last triggering.
  */
 #define BAROMETER_CALLBACK_AIR_PRESSURE 15
 
@@ -138,11 +138,11 @@ typedef Device Barometer;
  * Signature: \code void callback(int32_t altitude, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
- * {@link barometer_set_altitude_callback_period}. The parameter is the altitude of the
- * air pressure sensor.
+ * {@link barometer_set_altitude_callback_period}. The parameter is the altitude of
+ * the air pressure sensor.
  * 
- * {@link BAROMETER_CALLBACK_ALTITUDE} is only triggered if the altitude has changed since the
- * last triggering.
+ * The {@link BAROMETER_CALLBACK_ALTITUDE} callback is only triggered if the altitude has changed since
+ * the last triggering.
  */
 #define BAROMETER_CALLBACK_ALTITUDE 16
 
@@ -261,8 +261,7 @@ int barometer_get_response_expected(Barometer *barometer, uint8_t function_id, b
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -283,10 +282,10 @@ int barometer_set_response_expected_all(Barometer *barometer, bool response_expe
 /**
  * \ingroup BrickletBarometer
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void barometer_register_callback(Barometer *barometer, uint8_t id, void *callback, void *user_data);
+void barometer_register_callback(Barometer *barometer, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletBarometer
@@ -304,7 +303,7 @@ int barometer_get_api_version(Barometer *barometer, uint8_t ret_api_version[3]);
  * of 1001092 means that an air pressure of 1001.092 mbar is measured.
  * 
  * If you want to get the air pressure periodically, it is recommended to use the
- * callback {@link BAROMETER_CALLBACK_AIR_PRESSURE} and set the period with
+ * {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback and set the period with
  * {@link barometer_set_air_pressure_callback_period}.
  */
 int barometer_get_air_pressure(Barometer *barometer, int32_t *ret_air_pressure);
@@ -317,7 +316,7 @@ int barometer_get_air_pressure(Barometer *barometer, int32_t *ret_air_pressure);
  * and the reference air pressure that can be set with {@link barometer_set_reference_air_pressure}.
  * 
  * If you want to get the altitude periodically, it is recommended to use the
- * callback {@link BAROMETER_CALLBACK_ALTITUDE} and set the period with
+ * {@link BAROMETER_CALLBACK_ALTITUDE} callback and set the period with
  * {@link barometer_set_altitude_callback_period}.
  */
 int barometer_get_altitude(Barometer *barometer, int32_t *ret_altitude);
@@ -328,8 +327,8 @@ int barometer_get_altitude(Barometer *barometer, int32_t *ret_altitude);
  * Sets the period in ms with which the {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link BAROMETER_CALLBACK_AIR_PRESSURE} is only triggered if the air pressure has changed since the
- * last triggering.
+ * The {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback is only triggered if the air pressure has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -348,8 +347,8 @@ int barometer_get_air_pressure_callback_period(Barometer *barometer, uint32_t *r
  * Sets the period in ms with which the {@link BAROMETER_CALLBACK_ALTITUDE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link BAROMETER_CALLBACK_ALTITUDE} is only triggered if the altitude has changed since the
- * last triggering.
+ * The {@link BAROMETER_CALLBACK_ALTITUDE} callback is only triggered if the altitude has changed since
+ * the last triggering.
  * 
  * The default value is 0.
  */
@@ -448,6 +447,7 @@ int barometer_get_debounce_period(Barometer *barometer, uint32_t *ret_debounce);
  * \ingroup BrickletBarometer
  *
  * Sets the reference air pressure in mbar/1000 for the altitude calculation.
+ * Valid values are between 10000 and 1200000.
  * Setting the reference to the current air pressure results in a calculated
  * altitude of 0cm. Passing 0 is a shortcut for passing the current air pressure as
  * reference.
@@ -486,9 +486,9 @@ int barometer_get_reference_air_pressure(Barometer *barometer, int32_t *ret_air_
  *
  * Sets the different averaging parameters. It is possible to set
  * the length of a normal averaging for the temperature and pressure,
- * as well as an additional length of a 
+ * as well as an additional length of a
  * `moving average <https://en.wikipedia.org/wiki/Moving_average>`__
- * for the pressure. The moving average is calculated from the normal 
+ * for the pressure. The moving average is calculated from the normal
  * averages.  There is no moving average for the temperature.
  * 
  * The maximum length for the pressure average is 10, for the
@@ -519,7 +519,7 @@ int barometer_get_averaging(Barometer *barometer, uint8_t *ret_moving_average_pr
 /**
  * \ingroup BrickletBarometer
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

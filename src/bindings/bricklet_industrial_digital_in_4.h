@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -185,8 +185,7 @@ int industrial_digital_in_4_get_response_expected(IndustrialDigitalIn4 *industri
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -207,10 +206,10 @@ int industrial_digital_in_4_set_response_expected_all(IndustrialDigitalIn4 *indu
 /**
  * \ingroup BrickletIndustrialDigitalIn4
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_digital_in_4_register_callback(IndustrialDigitalIn4 *industrial_digital_in_4, uint8_t id, void *callback, void *user_data);
+void industrial_digital_in_4_register_callback(IndustrialDigitalIn4 *industrial_digital_in_4, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletIndustrialDigitalIn4
@@ -310,7 +309,7 @@ int industrial_digital_in_4_get_debounce_period(IndustrialDigitalIn4 *industrial
  * 
  * The interrupts use the grouping as set by {@link industrial_digital_in_4_set_group}.
  * 
- * The interrupt is delivered with the callback {@link INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT}.
+ * The interrupt is delivered with the {@link INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT} callback.
  */
 int industrial_digital_in_4_set_interrupt(IndustrialDigitalIn4 *industrial_digital_in_4, uint16_t interrupt_mask);
 
@@ -373,7 +372,7 @@ int industrial_digital_in_4_get_edge_count_config(IndustrialDigitalIn4 *industri
 /**
  * \ingroup BrickletIndustrialDigitalIn4
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

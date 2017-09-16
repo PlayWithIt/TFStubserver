@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,7 +21,7 @@ extern "C" {
 
 
 
-typedef void (*EdgeCountCallbackFunction)(uint32_t, bool, void *);
+typedef void (*EdgeCount_CallbackFunction)(uint32_t count, bool value, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -41,86 +41,86 @@ typedef void (*EdgeCountCallbackFunction)(uint32_t, bool, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetValue_;
+} ATTRIBUTE_PACKED GetValue_Request;
 
 typedef struct {
 	PacketHeader header;
-	bool value;
-} ATTRIBUTE_PACKED GetValueResponse_;
+	uint8_t value;
+} ATTRIBUTE_PACKED GetValue_Response;
 
 typedef struct {
 	PacketHeader header;
-	bool reset_counter;
-} ATTRIBUTE_PACKED GetEdgeCount_;
+	uint8_t reset_counter;
+} ATTRIBUTE_PACKED GetEdgeCount_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t count;
-} ATTRIBUTE_PACKED GetEdgeCountResponse_;
+} ATTRIBUTE_PACKED GetEdgeCount_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t edge_type;
 	uint8_t debounce;
-} ATTRIBUTE_PACKED SetEdgeCountConfig_;
+} ATTRIBUTE_PACKED SetEdgeCountConfig_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetEdgeCountConfig_;
+} ATTRIBUTE_PACKED GetEdgeCountConfig_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t edge_type;
 	uint8_t debounce;
-} ATTRIBUTE_PACKED GetEdgeCountConfigResponse_;
+} ATTRIBUTE_PACKED GetEdgeCountConfig_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t edges;
-} ATTRIBUTE_PACKED SetEdgeInterrupt_;
+} ATTRIBUTE_PACKED SetEdgeInterrupt_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetEdgeInterrupt_;
+} ATTRIBUTE_PACKED GetEdgeInterrupt_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t edges;
-} ATTRIBUTE_PACKED GetEdgeInterruptResponse_;
+} ATTRIBUTE_PACKED GetEdgeInterrupt_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetEdgeCountCallbackPeriod_;
+} ATTRIBUTE_PACKED SetEdgeCountCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetEdgeCountCallbackPeriod_;
+} ATTRIBUTE_PACKED GetEdgeCountCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetEdgeCountCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetEdgeCountCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED EdgeInterrupt_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t count;
-	bool value;
-} ATTRIBUTE_PACKED EdgeInterruptResponse_;
+} ATTRIBUTE_PACKED EdgeInterrupt_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t count;
-	bool value;
-} ATTRIBUTE_PACKED EdgeCountCallback_;
+	uint8_t value;
+} ATTRIBUTE_PACKED EdgeInterrupt_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+	uint32_t count;
+	uint8_t value;
+} ATTRIBUTE_PACKED EdgeCount_Callback;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -130,7 +130,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -138,18 +138,21 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void hall_effect_callback_wrapper_edge_count(DevicePrivate *device_p, Packet *packet) {
-	EdgeCountCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[HALL_EFFECT_CALLBACK_EDGE_COUNT];
-	EdgeCountCallback_ *callback = (EdgeCountCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[HALL_EFFECT_CALLBACK_EDGE_COUNT];
+	EdgeCount_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HALL_EFFECT_CALLBACK_EDGE_COUNT];
+	bool unpacked_value;
+	EdgeCount_Callback *callback = (EdgeCount_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HALL_EFFECT_CALLBACK_EDGE_COUNT];
 
 	if (callback_function == NULL) {
 		return;
 	}
 
 	callback->count = leconvert_uint32_from(callback->count);
+	unpacked_value = callback->value != 0;
 
-	callback_function(callback->count, callback->value, user_data);
+	callback_function(callback->count, unpacked_value, user_data);
 }
 
 void hall_effect_create(HallEffect *hall_effect, const char *uid, IPConnection *ipcon) {
@@ -168,10 +171,10 @@ void hall_effect_create(HallEffect *hall_effect, const char *uid, IPConnection *
 	device_p->response_expected[HALL_EFFECT_FUNCTION_SET_EDGE_COUNT_CALLBACK_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[HALL_EFFECT_FUNCTION_GET_EDGE_COUNT_CALLBACK_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[HALL_EFFECT_FUNCTION_EDGE_INTERRUPT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[HALL_EFFECT_CALLBACK_EDGE_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[HALL_EFFECT_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[HALL_EFFECT_CALLBACK_EDGE_COUNT] = hall_effect_callback_wrapper_edge_count;
+
 }
 
 void hall_effect_destroy(HallEffect *hall_effect) {
@@ -190,8 +193,8 @@ int hall_effect_set_response_expected_all(HallEffect *hall_effect, bool response
 	return device_set_response_expected_all(hall_effect->p, response_expected);
 }
 
-void hall_effect_register_callback(HallEffect *hall_effect, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(hall_effect->p, id, callback, user_data);
+void hall_effect_register_callback(HallEffect *hall_effect, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(hall_effect->p, callback_id, function, user_data);
 }
 
 int hall_effect_get_api_version(HallEffect *hall_effect, uint8_t ret_api_version[3]) {
@@ -200,8 +203,8 @@ int hall_effect_get_api_version(HallEffect *hall_effect, uint8_t ret_api_version
 
 int hall_effect_get_value(HallEffect *hall_effect, bool *ret_value) {
 	DevicePrivate *device_p = hall_effect->p;
-	GetValue_ request;
-	GetValueResponse_ response;
+	GetValue_Request request;
+	GetValue_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_VALUE, device_p->ipcon_p, device_p);
@@ -210,23 +213,21 @@ int hall_effect_get_value(HallEffect *hall_effect, bool *ret_value) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_value = response.value;
 
-
+	*ret_value = response.value != 0;
 
 	return ret;
 }
 
 int hall_effect_get_edge_count(HallEffect *hall_effect, bool reset_counter, uint32_t *ret_count) {
 	DevicePrivate *device_p = hall_effect->p;
-	GetEdgeCount_ request;
-	GetEdgeCountResponse_ response;
+	GetEdgeCount_Request request;
+	GetEdgeCount_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_COUNT, device_p->ipcon_p, device_p);
@@ -235,23 +236,22 @@ int hall_effect_get_edge_count(HallEffect *hall_effect, bool reset_counter, uint
 		return ret;
 	}
 
-	request.reset_counter = reset_counter;
+	request.reset_counter = reset_counter ? 1 : 0;
 
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_count = leconvert_uint32_from(response.count);
-
-
 
 	return ret;
 }
 
 int hall_effect_set_edge_count_config(HallEffect *hall_effect, uint8_t edge_type, uint8_t debounce) {
 	DevicePrivate *device_p = hall_effect->p;
-	SetEdgeCountConfig_ request;
+	SetEdgeCountConfig_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_SET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
@@ -265,14 +265,13 @@ int hall_effect_set_edge_count_config(HallEffect *hall_effect, uint8_t edge_type
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int hall_effect_get_edge_count_config(HallEffect *hall_effect, uint8_t *ret_edge_type, uint8_t *ret_debounce) {
 	DevicePrivate *device_p = hall_effect->p;
-	GetEdgeCountConfig_ request;
-	GetEdgeCountConfigResponse_ response;
+	GetEdgeCountConfig_Request request;
+	GetEdgeCountConfig_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
@@ -281,23 +280,21 @@ int hall_effect_get_edge_count_config(HallEffect *hall_effect, uint8_t *ret_edge
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_edge_type = response.edge_type;
 	*ret_debounce = response.debounce;
-
-
 
 	return ret;
 }
 
 int hall_effect_set_edge_interrupt(HallEffect *hall_effect, uint32_t edges) {
 	DevicePrivate *device_p = hall_effect->p;
-	SetEdgeInterrupt_ request;
+	SetEdgeInterrupt_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_SET_EDGE_INTERRUPT, device_p->ipcon_p, device_p);
@@ -310,14 +307,13 @@ int hall_effect_set_edge_interrupt(HallEffect *hall_effect, uint32_t edges) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int hall_effect_get_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_edges) {
 	DevicePrivate *device_p = hall_effect->p;
-	GetEdgeInterrupt_ request;
-	GetEdgeInterruptResponse_ response;
+	GetEdgeInterrupt_Request request;
+	GetEdgeInterrupt_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_INTERRUPT, device_p->ipcon_p, device_p);
@@ -326,22 +322,20 @@ int hall_effect_get_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_edges)
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_edges = leconvert_uint32_from(response.edges);
-
-
 
 	return ret;
 }
 
 int hall_effect_set_edge_count_callback_period(HallEffect *hall_effect, uint32_t period) {
 	DevicePrivate *device_p = hall_effect->p;
-	SetEdgeCountCallbackPeriod_ request;
+	SetEdgeCountCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_SET_EDGE_COUNT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -354,14 +348,13 @@ int hall_effect_set_edge_count_callback_period(HallEffect *hall_effect, uint32_t
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int hall_effect_get_edge_count_callback_period(HallEffect *hall_effect, uint32_t *ret_period) {
 	DevicePrivate *device_p = hall_effect->p;
-	GetEdgeCountCallbackPeriod_ request;
-	GetEdgeCountCallbackPeriodResponse_ response;
+	GetEdgeCountCallbackPeriod_Request request;
+	GetEdgeCountCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_COUNT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -370,23 +363,21 @@ int hall_effect_get_edge_count_callback_period(HallEffect *hall_effect, uint32_t
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int hall_effect_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_count, bool *ret_value) {
 	DevicePrivate *device_p = hall_effect->p;
-	EdgeInterrupt_ request;
-	EdgeInterruptResponse_ response;
+	EdgeInterrupt_Request request;
+	EdgeInterrupt_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_EDGE_INTERRUPT, device_p->ipcon_p, device_p);
@@ -395,24 +386,22 @@ int hall_effect_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_count, boo
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_count = leconvert_uint32_from(response.count);
-	*ret_value = response.value;
-
-
+	*ret_value = response.value != 0;
 
 	return ret;
 }
 
 int hall_effect_get_identity(HallEffect *hall_effect, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = hall_effect->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -421,20 +410,18 @@ int hall_effect_get_identity(HallEffect *hall_effect, char ret_uid[8], char ret_
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

@@ -31,6 +31,8 @@ namespace stubserver {
 class DeviceBrick : public DeviceVoltageCurrent
 {
     unsigned deviceType;
+    unsigned extenstionType0;   // first master extension
+    unsigned extenstionType1;   // seconds master extension
 
 public:
     DeviceBrick(unsigned type, DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent);

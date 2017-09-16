@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,13 +21,13 @@ extern "C" {
 
 
 
-typedef void (*DistanceCallbackFunction)(uint16_t, void *);
+typedef void (*Distance_CallbackFunction)(uint16_t distance, void *user_data);
 
-typedef void (*VelocityCallbackFunction)(int16_t, void *);
+typedef void (*Velocity_CallbackFunction)(int16_t velocity, void *user_data);
 
-typedef void (*DistanceReachedCallbackFunction)(uint16_t, void *);
+typedef void (*DistanceReached_CallbackFunction)(uint16_t distance, void *user_data);
 
-typedef void (*VelocityReachedCallbackFunction)(int16_t, void *);
+typedef void (*VelocityReached_CallbackFunction)(int16_t velocity, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -47,170 +47,199 @@ typedef void (*VelocityReachedCallbackFunction)(int16_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDistance_;
+} ATTRIBUTE_PACKED GetDistance_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t distance;
-} ATTRIBUTE_PACKED GetDistanceResponse_;
+} ATTRIBUTE_PACKED GetDistance_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVelocity_;
+} ATTRIBUTE_PACKED GetVelocity_Request;
 
 typedef struct {
 	PacketHeader header;
 	int16_t velocity;
-} ATTRIBUTE_PACKED GetVelocityResponse_;
+} ATTRIBUTE_PACKED GetVelocity_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetDistanceCallbackPeriod_;
+} ATTRIBUTE_PACKED SetDistanceCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDistanceCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED GetDistanceCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetDistanceCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetVelocityCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetVelocityCallbackPeriod_;
+} ATTRIBUTE_PACKED GetDistanceCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetVelocityCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED SetVelocityCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetVelocityCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t period;
+} ATTRIBUTE_PACKED GetVelocityCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED SetDistanceCallbackThreshold_;
+} ATTRIBUTE_PACKED SetDistanceCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDistanceCallbackThreshold_;
+} ATTRIBUTE_PACKED GetDistanceCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED GetDistanceCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetDistanceCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int16_t min;
 	int16_t max;
-} ATTRIBUTE_PACKED SetVelocityCallbackThreshold_;
+} ATTRIBUTE_PACKED SetVelocityCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVelocityCallbackThreshold_;
+} ATTRIBUTE_PACKED GetVelocityCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int16_t min;
 	int16_t max;
-} ATTRIBUTE_PACKED GetVelocityCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetVelocityCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t distance_average_length;
 	uint8_t velocity_average_length;
-} ATTRIBUTE_PACKED SetMovingAverage_;
+} ATTRIBUTE_PACKED SetMovingAverage_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMovingAverage_;
+} ATTRIBUTE_PACKED GetMovingAverage_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t distance_average_length;
 	uint8_t velocity_average_length;
-} ATTRIBUTE_PACKED GetMovingAverageResponse_;
+} ATTRIBUTE_PACKED GetMovingAverage_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED SetMode_;
+} ATTRIBUTE_PACKED SetMode_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMode_;
+} ATTRIBUTE_PACKED GetMode_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED GetModeResponse_;
+} ATTRIBUTE_PACKED GetMode_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED EnableLaser_;
+} ATTRIBUTE_PACKED EnableLaser_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED DisableLaser_;
+} ATTRIBUTE_PACKED DisableLaser_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED IsLaserEnabled_;
+} ATTRIBUTE_PACKED IsLaserEnabled_Request;
 
 typedef struct {
 	PacketHeader header;
-	bool laser_enabled;
-} ATTRIBUTE_PACKED IsLaserEnabledResponse_;
-
-typedef struct {
-	PacketHeader header;
-	uint16_t distance;
-} ATTRIBUTE_PACKED DistanceCallback_;
-
-typedef struct {
-	PacketHeader header;
-	int16_t velocity;
-} ATTRIBUTE_PACKED VelocityCallback_;
+	uint8_t laser_enabled;
+} ATTRIBUTE_PACKED IsLaserEnabled_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t distance;
-} ATTRIBUTE_PACKED DistanceReachedCallback_;
+} ATTRIBUTE_PACKED Distance_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int16_t velocity;
-} ATTRIBUTE_PACKED VelocityReachedCallback_;
+} ATTRIBUTE_PACKED Velocity_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+	uint16_t distance;
+} ATTRIBUTE_PACKED DistanceReached_Callback;
+
+typedef struct {
+	PacketHeader header;
+	int16_t velocity;
+} ATTRIBUTE_PACKED VelocityReached_Callback;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetSensorHardwareVersion_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t version;
+} ATTRIBUTE_PACKED GetSensorHardwareVersion_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t acquisition_count;
+	uint8_t enable_quick_termination;
+	uint8_t threshold_value;
+	uint16_t measurement_frequency;
+} ATTRIBUTE_PACKED SetConfiguration_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetConfiguration_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t acquisition_count;
+	uint8_t enable_quick_termination;
+	uint8_t threshold_value;
+	uint16_t measurement_frequency;
+} ATTRIBUTE_PACKED GetConfiguration_Response;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -220,7 +249,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -228,10 +257,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void laser_range_finder_callback_wrapper_distance(DevicePrivate *device_p, Packet *packet) {
-	DistanceCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[LASER_RANGE_FINDER_CALLBACK_DISTANCE];
-	DistanceCallback_ *callback = (DistanceCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[LASER_RANGE_FINDER_CALLBACK_DISTANCE];
+	Distance_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_DISTANCE];
+	Distance_Callback *callback = (Distance_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_DISTANCE];
 
 	if (callback_function == NULL) {
 		return;
@@ -243,10 +273,11 @@ static void laser_range_finder_callback_wrapper_distance(DevicePrivate *device_p
 }
 
 static void laser_range_finder_callback_wrapper_velocity(DevicePrivate *device_p, Packet *packet) {
-	VelocityCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[LASER_RANGE_FINDER_CALLBACK_VELOCITY];
-	VelocityCallback_ *callback = (VelocityCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[LASER_RANGE_FINDER_CALLBACK_VELOCITY];
+	Velocity_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_VELOCITY];
+	Velocity_Callback *callback = (Velocity_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_VELOCITY];
 
 	if (callback_function == NULL) {
 		return;
@@ -258,10 +289,11 @@ static void laser_range_finder_callback_wrapper_velocity(DevicePrivate *device_p
 }
 
 static void laser_range_finder_callback_wrapper_distance_reached(DevicePrivate *device_p, Packet *packet) {
-	DistanceReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[LASER_RANGE_FINDER_CALLBACK_DISTANCE_REACHED];
-	DistanceReachedCallback_ *callback = (DistanceReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[LASER_RANGE_FINDER_CALLBACK_DISTANCE_REACHED];
+	DistanceReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_DISTANCE_REACHED];
+	DistanceReached_Callback *callback = (DistanceReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_DISTANCE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -273,10 +305,11 @@ static void laser_range_finder_callback_wrapper_distance_reached(DevicePrivate *
 }
 
 static void laser_range_finder_callback_wrapper_velocity_reached(DevicePrivate *device_p, Packet *packet) {
-	VelocityReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[LASER_RANGE_FINDER_CALLBACK_VELOCITY_REACHED];
-	VelocityReachedCallback_ *callback = (VelocityReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[LASER_RANGE_FINDER_CALLBACK_VELOCITY_REACHED];
+	VelocityReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_VELOCITY_REACHED];
+	VelocityReached_Callback *callback = (VelocityReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LASER_RANGE_FINDER_CALLBACK_VELOCITY_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -290,7 +323,7 @@ static void laser_range_finder_callback_wrapper_velocity_reached(DevicePrivate *
 void laser_range_finder_create(LaserRangeFinder *laser_range_finder, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(laser_range_finder, uid, ipcon->p, 2, 0, 0);
+	device_create(laser_range_finder, uid, ipcon->p, 2, 0, 1);
 
 	device_p = laser_range_finder->p;
 
@@ -313,16 +346,16 @@ void laser_range_finder_create(LaserRangeFinder *laser_range_finder, const char 
 	device_p->response_expected[LASER_RANGE_FINDER_FUNCTION_ENABLE_LASER] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[LASER_RANGE_FINDER_FUNCTION_DISABLE_LASER] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[LASER_RANGE_FINDER_FUNCTION_IS_LASER_ENABLED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[LASER_RANGE_FINDER_CALLBACK_DISTANCE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[LASER_RANGE_FINDER_CALLBACK_VELOCITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[LASER_RANGE_FINDER_CALLBACK_DISTANCE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[LASER_RANGE_FINDER_CALLBACK_VELOCITY_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
+	device_p->response_expected[LASER_RANGE_FINDER_FUNCTION_GET_SENSOR_HARDWARE_VERSION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[LASER_RANGE_FINDER_FUNCTION_SET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[LASER_RANGE_FINDER_FUNCTION_GET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[LASER_RANGE_FINDER_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[LASER_RANGE_FINDER_CALLBACK_DISTANCE] = laser_range_finder_callback_wrapper_distance;
 	device_p->callback_wrappers[LASER_RANGE_FINDER_CALLBACK_VELOCITY] = laser_range_finder_callback_wrapper_velocity;
 	device_p->callback_wrappers[LASER_RANGE_FINDER_CALLBACK_DISTANCE_REACHED] = laser_range_finder_callback_wrapper_distance_reached;
 	device_p->callback_wrappers[LASER_RANGE_FINDER_CALLBACK_VELOCITY_REACHED] = laser_range_finder_callback_wrapper_velocity_reached;
+
 }
 
 void laser_range_finder_destroy(LaserRangeFinder *laser_range_finder) {
@@ -341,8 +374,8 @@ int laser_range_finder_set_response_expected_all(LaserRangeFinder *laser_range_f
 	return device_set_response_expected_all(laser_range_finder->p, response_expected);
 }
 
-void laser_range_finder_register_callback(LaserRangeFinder *laser_range_finder, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(laser_range_finder->p, id, callback, user_data);
+void laser_range_finder_register_callback(LaserRangeFinder *laser_range_finder, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(laser_range_finder->p, callback_id, function, user_data);
 }
 
 int laser_range_finder_get_api_version(LaserRangeFinder *laser_range_finder, uint8_t ret_api_version[3]) {
@@ -351,8 +384,8 @@ int laser_range_finder_get_api_version(LaserRangeFinder *laser_range_finder, uin
 
 int laser_range_finder_get_distance(LaserRangeFinder *laser_range_finder, uint16_t *ret_distance) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetDistance_ request;
-	GetDistanceResponse_ response;
+	GetDistance_Request request;
+	GetDistance_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_DISTANCE, device_p->ipcon_p, device_p);
@@ -361,23 +394,21 @@ int laser_range_finder_get_distance(LaserRangeFinder *laser_range_finder, uint16
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_distance = leconvert_uint16_from(response.distance);
-
-
 
 	return ret;
 }
 
 int laser_range_finder_get_velocity(LaserRangeFinder *laser_range_finder, int16_t *ret_velocity) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetVelocity_ request;
-	GetVelocityResponse_ response;
+	GetVelocity_Request request;
+	GetVelocity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_VELOCITY, device_p->ipcon_p, device_p);
@@ -386,22 +417,20 @@ int laser_range_finder_get_velocity(LaserRangeFinder *laser_range_finder, int16_
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_velocity = leconvert_int16_from(response.velocity);
-
-
 
 	return ret;
 }
 
 int laser_range_finder_set_distance_callback_period(LaserRangeFinder *laser_range_finder, uint32_t period) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	SetDistanceCallbackPeriod_ request;
+	SetDistanceCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_DISTANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -414,14 +443,13 @@ int laser_range_finder_set_distance_callback_period(LaserRangeFinder *laser_rang
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int laser_range_finder_get_distance_callback_period(LaserRangeFinder *laser_range_finder, uint32_t *ret_period) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetDistanceCallbackPeriod_ request;
-	GetDistanceCallbackPeriodResponse_ response;
+	GetDistanceCallbackPeriod_Request request;
+	GetDistanceCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_DISTANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -430,22 +458,20 @@ int laser_range_finder_get_distance_callback_period(LaserRangeFinder *laser_rang
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int laser_range_finder_set_velocity_callback_period(LaserRangeFinder *laser_range_finder, uint32_t period) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	SetVelocityCallbackPeriod_ request;
+	SetVelocityCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_VELOCITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -458,14 +484,13 @@ int laser_range_finder_set_velocity_callback_period(LaserRangeFinder *laser_rang
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int laser_range_finder_get_velocity_callback_period(LaserRangeFinder *laser_range_finder, uint32_t *ret_period) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetVelocityCallbackPeriod_ request;
-	GetVelocityCallbackPeriodResponse_ response;
+	GetVelocityCallbackPeriod_Request request;
+	GetVelocityCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_VELOCITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -474,22 +499,20 @@ int laser_range_finder_get_velocity_callback_period(LaserRangeFinder *laser_rang
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int laser_range_finder_set_distance_callback_threshold(LaserRangeFinder *laser_range_finder, char option, uint16_t min, uint16_t max) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	SetDistanceCallbackThreshold_ request;
+	SetDistanceCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_DISTANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -504,14 +527,13 @@ int laser_range_finder_set_distance_callback_threshold(LaserRangeFinder *laser_r
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int laser_range_finder_get_distance_callback_threshold(LaserRangeFinder *laser_range_finder, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetDistanceCallbackThreshold_ request;
-	GetDistanceCallbackThresholdResponse_ response;
+	GetDistanceCallbackThreshold_Request request;
+	GetDistanceCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_DISTANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -520,24 +542,22 @@ int laser_range_finder_get_distance_callback_threshold(LaserRangeFinder *laser_r
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_uint16_from(response.min);
 	*ret_max = leconvert_uint16_from(response.max);
-
-
 
 	return ret;
 }
 
 int laser_range_finder_set_velocity_callback_threshold(LaserRangeFinder *laser_range_finder, char option, int16_t min, int16_t max) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	SetVelocityCallbackThreshold_ request;
+	SetVelocityCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_VELOCITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -552,14 +572,13 @@ int laser_range_finder_set_velocity_callback_threshold(LaserRangeFinder *laser_r
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int laser_range_finder_get_velocity_callback_threshold(LaserRangeFinder *laser_range_finder, char *ret_option, int16_t *ret_min, int16_t *ret_max) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetVelocityCallbackThreshold_ request;
-	GetVelocityCallbackThresholdResponse_ response;
+	GetVelocityCallbackThreshold_Request request;
+	GetVelocityCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_VELOCITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -568,24 +587,22 @@ int laser_range_finder_get_velocity_callback_threshold(LaserRangeFinder *laser_r
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int16_from(response.min);
 	*ret_max = leconvert_int16_from(response.max);
-
-
 
 	return ret;
 }
 
 int laser_range_finder_set_debounce_period(LaserRangeFinder *laser_range_finder, uint32_t debounce) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -598,14 +615,13 @@ int laser_range_finder_set_debounce_period(LaserRangeFinder *laser_range_finder,
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int laser_range_finder_get_debounce_period(LaserRangeFinder *laser_range_finder, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -614,22 +630,20 @@ int laser_range_finder_get_debounce_period(LaserRangeFinder *laser_range_finder,
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int laser_range_finder_set_moving_average(LaserRangeFinder *laser_range_finder, uint8_t distance_average_length, uint8_t velocity_average_length) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	SetMovingAverage_ request;
+	SetMovingAverage_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
@@ -643,14 +657,13 @@ int laser_range_finder_set_moving_average(LaserRangeFinder *laser_range_finder, 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int laser_range_finder_get_moving_average(LaserRangeFinder *laser_range_finder, uint8_t *ret_distance_average_length, uint8_t *ret_velocity_average_length) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetMovingAverage_ request;
-	GetMovingAverageResponse_ response;
+	GetMovingAverage_Request request;
+	GetMovingAverage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
@@ -659,23 +672,21 @@ int laser_range_finder_get_moving_average(LaserRangeFinder *laser_range_finder, 
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_distance_average_length = response.distance_average_length;
 	*ret_velocity_average_length = response.velocity_average_length;
-
-
 
 	return ret;
 }
 
 int laser_range_finder_set_mode(LaserRangeFinder *laser_range_finder, uint8_t mode) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	SetMode_ request;
+	SetMode_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_MODE, device_p->ipcon_p, device_p);
@@ -688,14 +699,13 @@ int laser_range_finder_set_mode(LaserRangeFinder *laser_range_finder, uint8_t mo
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int laser_range_finder_get_mode(LaserRangeFinder *laser_range_finder, uint8_t *ret_mode) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetMode_ request;
-	GetModeResponse_ response;
+	GetMode_Request request;
+	GetMode_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_MODE, device_p->ipcon_p, device_p);
@@ -704,22 +714,20 @@ int laser_range_finder_get_mode(LaserRangeFinder *laser_range_finder, uint8_t *r
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_mode = response.mode;
-
-
 
 	return ret;
 }
 
 int laser_range_finder_enable_laser(LaserRangeFinder *laser_range_finder) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	EnableLaser_ request;
+	EnableLaser_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_ENABLE_LASER, device_p->ipcon_p, device_p);
@@ -728,16 +736,14 @@ int laser_range_finder_enable_laser(LaserRangeFinder *laser_range_finder) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int laser_range_finder_disable_laser(LaserRangeFinder *laser_range_finder) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	DisableLaser_ request;
+	DisableLaser_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_DISABLE_LASER, device_p->ipcon_p, device_p);
@@ -746,17 +752,15 @@ int laser_range_finder_disable_laser(LaserRangeFinder *laser_range_finder) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int laser_range_finder_is_laser_enabled(LaserRangeFinder *laser_range_finder, bool *ret_laser_enabled) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	IsLaserEnabled_ request;
-	IsLaserEnabledResponse_ response;
+	IsLaserEnabled_Request request;
+	IsLaserEnabled_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_IS_LASER_ENABLED, device_p->ipcon_p, device_p);
@@ -765,23 +769,91 @@ int laser_range_finder_is_laser_enabled(LaserRangeFinder *laser_range_finder, bo
 		return ret;
 	}
 
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_laser_enabled = response.laser_enabled != 0;
+
+	return ret;
+}
+
+int laser_range_finder_get_sensor_hardware_version(LaserRangeFinder *laser_range_finder, uint8_t *ret_version) {
+	DevicePrivate *device_p = laser_range_finder->p;
+	GetSensorHardwareVersion_Request request;
+	GetSensorHardwareVersion_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_SENSOR_HARDWARE_VERSION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_laser_enabled = response.laser_enabled;
 
+	*ret_version = response.version;
 
+	return ret;
+}
+
+int laser_range_finder_set_configuration(LaserRangeFinder *laser_range_finder, uint8_t acquisition_count, bool enable_quick_termination, uint8_t threshold_value, uint16_t measurement_frequency) {
+	DevicePrivate *device_p = laser_range_finder->p;
+	SetConfiguration_Request request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_SET_CONFIGURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.acquisition_count = acquisition_count;
+	request.enable_quick_termination = enable_quick_termination ? 1 : 0;
+	request.threshold_value = threshold_value;
+	request.measurement_frequency = leconvert_uint16_to(measurement_frequency);
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+	return ret;
+}
+
+int laser_range_finder_get_configuration(LaserRangeFinder *laser_range_finder, uint8_t *ret_acquisition_count, bool *ret_enable_quick_termination, uint8_t *ret_threshold_value, uint16_t *ret_measurement_frequency) {
+	DevicePrivate *device_p = laser_range_finder->p;
+	GetConfiguration_Request request;
+	GetConfiguration_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_CONFIGURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_acquisition_count = response.acquisition_count;
+	*ret_enable_quick_termination = response.enable_quick_termination != 0;
+	*ret_threshold_value = response.threshold_value;
+	*ret_measurement_frequency = leconvert_uint16_from(response.measurement_frequency);
 
 	return ret;
 }
 
 int laser_range_finder_get_identity(LaserRangeFinder *laser_range_finder, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = laser_range_finder->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), LASER_RANGE_FINDER_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -790,20 +862,18 @@ int laser_range_finder_get_identity(LaserRangeFinder *laser_range_finder, char r
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

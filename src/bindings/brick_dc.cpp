@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,13 +21,13 @@ extern "C" {
 
 
 
-typedef void (*UnderVoltageCallbackFunction)(uint16_t, void *);
+typedef void (*UnderVoltage_CallbackFunction)(uint16_t voltage, void *user_data);
 
-typedef void (*EmergencyShutdownCallbackFunction)(void *);
+typedef void (*EmergencyShutdown_CallbackFunction)(void *user_data);
 
-typedef void (*VelocityReachedCallbackFunction)(int16_t, void *);
+typedef void (*VelocityReached_CallbackFunction)(int16_t velocity, void *user_data);
 
-typedef void (*CurrentVelocityCallbackFunction)(int16_t, void *);
+typedef void (*CurrentVelocity_CallbackFunction)(int16_t velocity, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -48,208 +48,263 @@ typedef void (*CurrentVelocityCallbackFunction)(int16_t, void *);
 typedef struct {
 	PacketHeader header;
 	int16_t velocity;
-} ATTRIBUTE_PACKED SetVelocity_;
+} ATTRIBUTE_PACKED SetVelocity_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVelocity_;
-
-typedef struct {
-	PacketHeader header;
-	int16_t velocity;
-} ATTRIBUTE_PACKED GetVelocityResponse_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetCurrentVelocity_;
+} ATTRIBUTE_PACKED GetVelocity_Request;
 
 typedef struct {
 	PacketHeader header;
 	int16_t velocity;
-} ATTRIBUTE_PACKED GetCurrentVelocityResponse_;
+} ATTRIBUTE_PACKED GetVelocity_Response;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetCurrentVelocity_Request;
+
+typedef struct {
+	PacketHeader header;
+	int16_t velocity;
+} ATTRIBUTE_PACKED GetCurrentVelocity_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t acceleration;
-} ATTRIBUTE_PACKED SetAcceleration_;
+} ATTRIBUTE_PACKED SetAcceleration_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetAcceleration_;
+} ATTRIBUTE_PACKED GetAcceleration_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t acceleration;
-} ATTRIBUTE_PACKED GetAccelerationResponse_;
+} ATTRIBUTE_PACKED GetAcceleration_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t frequency;
-} ATTRIBUTE_PACKED SetPWMFrequency_;
+} ATTRIBUTE_PACKED SetPWMFrequency_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetPWMFrequency_;
+} ATTRIBUTE_PACKED GetPWMFrequency_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t frequency;
-} ATTRIBUTE_PACKED GetPWMFrequencyResponse_;
+} ATTRIBUTE_PACKED GetPWMFrequency_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED FullBrake_;
+} ATTRIBUTE_PACKED FullBrake_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetStackInputVoltage_;
-
-typedef struct {
-	PacketHeader header;
-	uint16_t voltage;
-} ATTRIBUTE_PACKED GetStackInputVoltageResponse_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetExternalInputVoltage_;
+} ATTRIBUTE_PACKED GetStackInputVoltage_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED GetExternalInputVoltageResponse_;
+} ATTRIBUTE_PACKED GetStackInputVoltage_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetCurrentConsumption_;
-
-typedef struct {
-	PacketHeader header;
-	uint16_t voltage;
-} ATTRIBUTE_PACKED GetCurrentConsumptionResponse_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED Enable_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED Disable_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED IsEnabled_;
-
-typedef struct {
-	PacketHeader header;
-	bool enabled;
-} ATTRIBUTE_PACKED IsEnabledResponse_;
+} ATTRIBUTE_PACKED GetExternalInputVoltage_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED SetMinimumVoltage_;
+} ATTRIBUTE_PACKED GetExternalInputVoltage_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMinimumVoltage_;
+} ATTRIBUTE_PACKED GetCurrentConsumption_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED GetMinimumVoltageResponse_;
+} ATTRIBUTE_PACKED GetCurrentConsumption_Response;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED Enable_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED Disable_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED IsEnabled_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t enabled;
+} ATTRIBUTE_PACKED IsEnabled_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint16_t voltage;
+} ATTRIBUTE_PACKED SetMinimumVoltage_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetMinimumVoltage_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint16_t voltage;
+} ATTRIBUTE_PACKED GetMinimumVoltage_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED SetDriveMode_;
+} ATTRIBUTE_PACKED SetDriveMode_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDriveMode_;
+} ATTRIBUTE_PACKED GetDriveMode_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED GetDriveModeResponse_;
+} ATTRIBUTE_PACKED GetDriveMode_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t period;
-} ATTRIBUTE_PACKED SetCurrentVelocityPeriod_;
+} ATTRIBUTE_PACKED SetCurrentVelocityPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetCurrentVelocityPeriod_;
+} ATTRIBUTE_PACKED GetCurrentVelocityPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t period;
-} ATTRIBUTE_PACKED GetCurrentVelocityPeriodResponse_;
+} ATTRIBUTE_PACKED GetCurrentVelocityPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED UnderVoltageCallback_;
+} ATTRIBUTE_PACKED UnderVoltage_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED EmergencyShutdownCallback_;
-
-typedef struct {
-	PacketHeader header;
-	int16_t velocity;
-} ATTRIBUTE_PACKED VelocityReachedCallback_;
+} ATTRIBUTE_PACKED EmergencyShutdown_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int16_t velocity;
-} ATTRIBUTE_PACKED CurrentVelocityCallback_;
+} ATTRIBUTE_PACKED VelocityReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED EnableStatusLED_;
+	int16_t velocity;
+} ATTRIBUTE_PACKED CurrentVelocity_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED DisableStatusLED_;
+	uint8_t enable_dynamic_baudrate;
+	uint32_t minimum_dynamic_baudrate;
+} ATTRIBUTE_PACKED SetSPITFPBaudrateConfig_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED IsStatusLEDEnabled_;
+} ATTRIBUTE_PACKED GetSPITFPBaudrateConfig_Request;
 
 typedef struct {
 	PacketHeader header;
-	bool enabled;
-} ATTRIBUTE_PACKED IsStatusLEDEnabledResponse_;
+	uint8_t enable_dynamic_baudrate;
+	uint32_t minimum_dynamic_baudrate;
+} ATTRIBUTE_PACKED GetSPITFPBaudrateConfig_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t communication_method;
+} ATTRIBUTE_PACKED GetSendTimeoutCount_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t timeout_count;
+} ATTRIBUTE_PACKED GetSendTimeoutCount_Response;
+
+typedef struct {
+	PacketHeader header;
+	char bricklet_port;
+	uint32_t baudrate;
+} ATTRIBUTE_PACKED SetSPITFPBaudrate_Request;
+
+typedef struct {
+	PacketHeader header;
+	char bricklet_port;
+} ATTRIBUTE_PACKED GetSPITFPBaudrate_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t baudrate;
+} ATTRIBUTE_PACKED GetSPITFPBaudrate_Response;
+
+typedef struct {
+	PacketHeader header;
+	char bricklet_port;
+} ATTRIBUTE_PACKED GetSPITFPErrorCount_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t error_count_ack_checksum;
+	uint32_t error_count_message_checksum;
+	uint32_t error_count_frame;
+	uint32_t error_count_overflow;
+} ATTRIBUTE_PACKED GetSPITFPErrorCount_Response;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED EnableStatusLED_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED DisableStatusLED_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED IsStatusLEDEnabled_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t enabled;
+} ATTRIBUTE_PACKED IsStatusLEDEnabled_Response;
 
 typedef struct {
 	PacketHeader header;
 	char port;
-} ATTRIBUTE_PACKED GetProtocol1BrickletName_;
+} ATTRIBUTE_PACKED GetProtocol1BrickletName_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t protocol_version;
 	uint8_t firmware_version[3];
 	char name[40];
-} ATTRIBUTE_PACKED GetProtocol1BrickletNameResponse_;
+} ATTRIBUTE_PACKED GetProtocol1BrickletName_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetChipTemperature_;
+} ATTRIBUTE_PACKED GetChipTemperature_Request;
 
 typedef struct {
 	PacketHeader header;
 	int16_t temperature;
-} ATTRIBUTE_PACKED GetChipTemperatureResponse_;
+} ATTRIBUTE_PACKED GetChipTemperature_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED Reset_;
+} ATTRIBUTE_PACKED Reset_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -259,7 +314,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -267,10 +322,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void dc_callback_wrapper_under_voltage(DevicePrivate *device_p, Packet *packet) {
-	UnderVoltageCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DC_CALLBACK_UNDER_VOLTAGE];
-	UnderVoltageCallback_ *callback = (UnderVoltageCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[DC_CALLBACK_UNDER_VOLTAGE];
+	UnderVoltage_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_UNDER_VOLTAGE];
+	UnderVoltage_Callback *callback = (UnderVoltage_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_UNDER_VOLTAGE];
 
 	if (callback_function == NULL) {
 		return;
@@ -282,10 +338,11 @@ static void dc_callback_wrapper_under_voltage(DevicePrivate *device_p, Packet *p
 }
 
 static void dc_callback_wrapper_emergency_shutdown(DevicePrivate *device_p, Packet *packet) {
-	EmergencyShutdownCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DC_CALLBACK_EMERGENCY_SHUTDOWN];
+	EmergencyShutdown_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_EMERGENCY_SHUTDOWN];
 	(void)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[DC_CALLBACK_EMERGENCY_SHUTDOWN];
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_EMERGENCY_SHUTDOWN];
 
 	if (callback_function == NULL) {
 		return;
@@ -295,10 +352,11 @@ static void dc_callback_wrapper_emergency_shutdown(DevicePrivate *device_p, Pack
 }
 
 static void dc_callback_wrapper_velocity_reached(DevicePrivate *device_p, Packet *packet) {
-	VelocityReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DC_CALLBACK_VELOCITY_REACHED];
-	VelocityReachedCallback_ *callback = (VelocityReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[DC_CALLBACK_VELOCITY_REACHED];
+	VelocityReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_VELOCITY_REACHED];
+	VelocityReached_Callback *callback = (VelocityReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_VELOCITY_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -310,10 +368,11 @@ static void dc_callback_wrapper_velocity_reached(DevicePrivate *device_p, Packet
 }
 
 static void dc_callback_wrapper_current_velocity(DevicePrivate *device_p, Packet *packet) {
-	CurrentVelocityCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DC_CALLBACK_CURRENT_VELOCITY];
-	CurrentVelocityCallback_ *callback = (CurrentVelocityCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[DC_CALLBACK_CURRENT_VELOCITY];
+	CurrentVelocity_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_CURRENT_VELOCITY];
+	CurrentVelocity_Callback *callback = (CurrentVelocity_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_CURRENT_VELOCITY];
 
 	if (callback_function == NULL) {
 		return;
@@ -351,10 +410,12 @@ void dc_create(DC *dc, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[DC_FUNCTION_GET_DRIVE_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_SET_CURRENT_VELOCITY_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[DC_FUNCTION_GET_CURRENT_VELOCITY_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[DC_CALLBACK_UNDER_VOLTAGE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[DC_CALLBACK_EMERGENCY_SHUTDOWN] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[DC_CALLBACK_VELOCITY_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[DC_CALLBACK_CURRENT_VELOCITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
+	device_p->response_expected[DC_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[DC_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[DC_FUNCTION_GET_SEND_TIMEOUT_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[DC_FUNCTION_SET_SPITFP_BAUDRATE] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[DC_FUNCTION_GET_SPITFP_BAUDRATE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[DC_FUNCTION_GET_SPITFP_ERROR_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_ENABLE_STATUS_LED] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[DC_FUNCTION_DISABLE_STATUS_LED] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[DC_FUNCTION_IS_STATUS_LED_ENABLED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
@@ -367,6 +428,7 @@ void dc_create(DC *dc, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[DC_CALLBACK_EMERGENCY_SHUTDOWN] = dc_callback_wrapper_emergency_shutdown;
 	device_p->callback_wrappers[DC_CALLBACK_VELOCITY_REACHED] = dc_callback_wrapper_velocity_reached;
 	device_p->callback_wrappers[DC_CALLBACK_CURRENT_VELOCITY] = dc_callback_wrapper_current_velocity;
+
 }
 
 void dc_destroy(DC *dc) {
@@ -385,8 +447,8 @@ int dc_set_response_expected_all(DC *dc, bool response_expected) {
 	return device_set_response_expected_all(dc->p, response_expected);
 }
 
-void dc_register_callback(DC *dc, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(dc->p, id, callback, user_data);
+void dc_register_callback(DC *dc, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(dc->p, callback_id, function, user_data);
 }
 
 int dc_get_api_version(DC *dc, uint8_t ret_api_version[3]) {
@@ -395,7 +457,7 @@ int dc_get_api_version(DC *dc, uint8_t ret_api_version[3]) {
 
 int dc_set_velocity(DC *dc, int16_t velocity) {
 	DevicePrivate *device_p = dc->p;
-	SetVelocity_ request;
+	SetVelocity_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_VELOCITY, device_p->ipcon_p, device_p);
@@ -408,14 +470,13 @@ int dc_set_velocity(DC *dc, int16_t velocity) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int dc_get_velocity(DC *dc, int16_t *ret_velocity) {
 	DevicePrivate *device_p = dc->p;
-	GetVelocity_ request;
-	GetVelocityResponse_ response;
+	GetVelocity_Request request;
+	GetVelocity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_VELOCITY, device_p->ipcon_p, device_p);
@@ -424,23 +485,21 @@ int dc_get_velocity(DC *dc, int16_t *ret_velocity) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_velocity = leconvert_int16_from(response.velocity);
-
-
 
 	return ret;
 }
 
 int dc_get_current_velocity(DC *dc, int16_t *ret_velocity) {
 	DevicePrivate *device_p = dc->p;
-	GetCurrentVelocity_ request;
-	GetCurrentVelocityResponse_ response;
+	GetCurrentVelocity_Request request;
+	GetCurrentVelocity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CURRENT_VELOCITY, device_p->ipcon_p, device_p);
@@ -449,22 +508,20 @@ int dc_get_current_velocity(DC *dc, int16_t *ret_velocity) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_velocity = leconvert_int16_from(response.velocity);
-
-
 
 	return ret;
 }
 
 int dc_set_acceleration(DC *dc, uint16_t acceleration) {
 	DevicePrivate *device_p = dc->p;
-	SetAcceleration_ request;
+	SetAcceleration_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_ACCELERATION, device_p->ipcon_p, device_p);
@@ -477,14 +534,13 @@ int dc_set_acceleration(DC *dc, uint16_t acceleration) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int dc_get_acceleration(DC *dc, uint16_t *ret_acceleration) {
 	DevicePrivate *device_p = dc->p;
-	GetAcceleration_ request;
-	GetAccelerationResponse_ response;
+	GetAcceleration_Request request;
+	GetAcceleration_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_ACCELERATION, device_p->ipcon_p, device_p);
@@ -493,22 +549,20 @@ int dc_get_acceleration(DC *dc, uint16_t *ret_acceleration) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_acceleration = leconvert_uint16_from(response.acceleration);
-
-
 
 	return ret;
 }
 
 int dc_set_pwm_frequency(DC *dc, uint16_t frequency) {
 	DevicePrivate *device_p = dc->p;
-	SetPWMFrequency_ request;
+	SetPWMFrequency_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_PWM_FREQUENCY, device_p->ipcon_p, device_p);
@@ -521,14 +575,13 @@ int dc_set_pwm_frequency(DC *dc, uint16_t frequency) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int dc_get_pwm_frequency(DC *dc, uint16_t *ret_frequency) {
 	DevicePrivate *device_p = dc->p;
-	GetPWMFrequency_ request;
-	GetPWMFrequencyResponse_ response;
+	GetPWMFrequency_Request request;
+	GetPWMFrequency_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_PWM_FREQUENCY, device_p->ipcon_p, device_p);
@@ -537,22 +590,20 @@ int dc_get_pwm_frequency(DC *dc, uint16_t *ret_frequency) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_frequency = leconvert_uint16_from(response.frequency);
-
-
 
 	return ret;
 }
 
 int dc_full_brake(DC *dc) {
 	DevicePrivate *device_p = dc->p;
-	FullBrake_ request;
+	FullBrake_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_FULL_BRAKE, device_p->ipcon_p, device_p);
@@ -561,17 +612,15 @@ int dc_full_brake(DC *dc) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int dc_get_stack_input_voltage(DC *dc, uint16_t *ret_voltage) {
 	DevicePrivate *device_p = dc->p;
-	GetStackInputVoltage_ request;
-	GetStackInputVoltageResponse_ response;
+	GetStackInputVoltage_Request request;
+	GetStackInputVoltage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
@@ -580,23 +629,21 @@ int dc_get_stack_input_voltage(DC *dc, uint16_t *ret_voltage) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_voltage = leconvert_uint16_from(response.voltage);
-
-
 
 	return ret;
 }
 
 int dc_get_external_input_voltage(DC *dc, uint16_t *ret_voltage) {
 	DevicePrivate *device_p = dc->p;
-	GetExternalInputVoltage_ request;
-	GetExternalInputVoltageResponse_ response;
+	GetExternalInputVoltage_Request request;
+	GetExternalInputVoltage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
@@ -605,23 +652,21 @@ int dc_get_external_input_voltage(DC *dc, uint16_t *ret_voltage) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_voltage = leconvert_uint16_from(response.voltage);
-
-
 
 	return ret;
 }
 
 int dc_get_current_consumption(DC *dc, uint16_t *ret_voltage) {
 	DevicePrivate *device_p = dc->p;
-	GetCurrentConsumption_ request;
-	GetCurrentConsumptionResponse_ response;
+	GetCurrentConsumption_Request request;
+	GetCurrentConsumption_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CURRENT_CONSUMPTION, device_p->ipcon_p, device_p);
@@ -630,22 +675,20 @@ int dc_get_current_consumption(DC *dc, uint16_t *ret_voltage) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_voltage = leconvert_uint16_from(response.voltage);
-
-
 
 	return ret;
 }
 
 int dc_enable(DC *dc) {
 	DevicePrivate *device_p = dc->p;
-	Enable_ request;
+	Enable_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_ENABLE, device_p->ipcon_p, device_p);
@@ -654,16 +697,14 @@ int dc_enable(DC *dc) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int dc_disable(DC *dc) {
 	DevicePrivate *device_p = dc->p;
-	Disable_ request;
+	Disable_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_DISABLE, device_p->ipcon_p, device_p);
@@ -672,17 +713,15 @@ int dc_disable(DC *dc) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int dc_is_enabled(DC *dc, bool *ret_enabled) {
 	DevicePrivate *device_p = dc->p;
-	IsEnabled_ request;
-	IsEnabledResponse_ response;
+	IsEnabled_Request request;
+	IsEnabled_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_IS_ENABLED, device_p->ipcon_p, device_p);
@@ -691,22 +730,20 @@ int dc_is_enabled(DC *dc, bool *ret_enabled) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_enabled = response.enabled;
 
-
+	*ret_enabled = response.enabled != 0;
 
 	return ret;
 }
 
 int dc_set_minimum_voltage(DC *dc, uint16_t voltage) {
 	DevicePrivate *device_p = dc->p;
-	SetMinimumVoltage_ request;
+	SetMinimumVoltage_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
@@ -719,14 +756,13 @@ int dc_set_minimum_voltage(DC *dc, uint16_t voltage) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int dc_get_minimum_voltage(DC *dc, uint16_t *ret_voltage) {
 	DevicePrivate *device_p = dc->p;
-	GetMinimumVoltage_ request;
-	GetMinimumVoltageResponse_ response;
+	GetMinimumVoltage_Request request;
+	GetMinimumVoltage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
@@ -735,22 +771,20 @@ int dc_get_minimum_voltage(DC *dc, uint16_t *ret_voltage) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_voltage = leconvert_uint16_from(response.voltage);
-
-
 
 	return ret;
 }
 
 int dc_set_drive_mode(DC *dc, uint8_t mode) {
 	DevicePrivate *device_p = dc->p;
-	SetDriveMode_ request;
+	SetDriveMode_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_DRIVE_MODE, device_p->ipcon_p, device_p);
@@ -763,14 +797,13 @@ int dc_set_drive_mode(DC *dc, uint8_t mode) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int dc_get_drive_mode(DC *dc, uint8_t *ret_mode) {
 	DevicePrivate *device_p = dc->p;
-	GetDriveMode_ request;
-	GetDriveModeResponse_ response;
+	GetDriveMode_Request request;
+	GetDriveMode_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_DRIVE_MODE, device_p->ipcon_p, device_p);
@@ -779,22 +812,20 @@ int dc_get_drive_mode(DC *dc, uint8_t *ret_mode) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_mode = response.mode;
-
-
 
 	return ret;
 }
 
 int dc_set_current_velocity_period(DC *dc, uint16_t period) {
 	DevicePrivate *device_p = dc->p;
-	SetCurrentVelocityPeriod_ request;
+	SetCurrentVelocityPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_CURRENT_VELOCITY_PERIOD, device_p->ipcon_p, device_p);
@@ -807,14 +838,13 @@ int dc_set_current_velocity_period(DC *dc, uint16_t period) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period) {
 	DevicePrivate *device_p = dc->p;
-	GetCurrentVelocityPeriod_ request;
-	GetCurrentVelocityPeriodResponse_ response;
+	GetCurrentVelocityPeriod_Request request;
+	GetCurrentVelocityPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CURRENT_VELOCITY_PERIOD, device_p->ipcon_p, device_p);
@@ -823,22 +853,160 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period) {
 		return ret;
 	}
 
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_period = leconvert_uint16_from(response.period);
+
+	return ret;
+}
+
+int dc_set_spitfp_baudrate_config(DC *dc, bool enable_dynamic_baudrate, uint32_t minimum_dynamic_baudrate) {
+	DevicePrivate *device_p = dc->p;
+	SetSPITFPBaudrateConfig_Request request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.enable_dynamic_baudrate = enable_dynamic_baudrate ? 1 : 0;
+	request.minimum_dynamic_baudrate = leconvert_uint32_to(minimum_dynamic_baudrate);
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+	return ret;
+}
+
+int dc_get_spitfp_baudrate_config(DC *dc, bool *ret_enable_dynamic_baudrate, uint32_t *ret_minimum_dynamic_baudrate) {
+	DevicePrivate *device_p = dc->p;
+	GetSPITFPBaudrateConfig_Request request;
+	GetSPITFPBaudrateConfig_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_period = leconvert_uint16_from(response.period);
 
+	*ret_enable_dynamic_baudrate = response.enable_dynamic_baudrate != 0;
+	*ret_minimum_dynamic_baudrate = leconvert_uint32_from(response.minimum_dynamic_baudrate);
 
+	return ret;
+}
+
+int dc_get_send_timeout_count(DC *dc, uint8_t communication_method, uint32_t *ret_timeout_count) {
+	DevicePrivate *device_p = dc->p;
+	GetSendTimeoutCount_Request request;
+	GetSendTimeoutCount_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SEND_TIMEOUT_COUNT, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.communication_method = communication_method;
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_timeout_count = leconvert_uint32_from(response.timeout_count);
+
+	return ret;
+}
+
+int dc_set_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t baudrate) {
+	DevicePrivate *device_p = dc->p;
+	SetSPITFPBaudrate_Request request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.bricklet_port = bricklet_port;
+	request.baudrate = leconvert_uint32_to(baudrate);
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+	return ret;
+}
+
+int dc_get_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t *ret_baudrate) {
+	DevicePrivate *device_p = dc->p;
+	GetSPITFPBaudrate_Request request;
+	GetSPITFPBaudrate_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.bricklet_port = bricklet_port;
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_baudrate = leconvert_uint32_from(response.baudrate);
+
+	return ret;
+}
+
+int dc_get_spitfp_error_count(DC *dc, char bricklet_port, uint32_t *ret_error_count_ack_checksum, uint32_t *ret_error_count_message_checksum, uint32_t *ret_error_count_frame, uint32_t *ret_error_count_overflow) {
+	DevicePrivate *device_p = dc->p;
+	GetSPITFPErrorCount_Request request;
+	GetSPITFPErrorCount_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.bricklet_port = bricklet_port;
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_error_count_ack_checksum = leconvert_uint32_from(response.error_count_ack_checksum);
+	*ret_error_count_message_checksum = leconvert_uint32_from(response.error_count_message_checksum);
+	*ret_error_count_frame = leconvert_uint32_from(response.error_count_frame);
+	*ret_error_count_overflow = leconvert_uint32_from(response.error_count_overflow);
 
 	return ret;
 }
 
 int dc_enable_status_led(DC *dc) {
 	DevicePrivate *device_p = dc->p;
-	EnableStatusLED_ request;
+	EnableStatusLED_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_ENABLE_STATUS_LED, device_p->ipcon_p, device_p);
@@ -847,16 +1015,14 @@ int dc_enable_status_led(DC *dc) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int dc_disable_status_led(DC *dc) {
 	DevicePrivate *device_p = dc->p;
-	DisableStatusLED_ request;
+	DisableStatusLED_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_DISABLE_STATUS_LED, device_p->ipcon_p, device_p);
@@ -865,17 +1031,15 @@ int dc_disable_status_led(DC *dc) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int dc_is_status_led_enabled(DC *dc, bool *ret_enabled) {
 	DevicePrivate *device_p = dc->p;
-	IsStatusLEDEnabled_ request;
-	IsStatusLEDEnabledResponse_ response;
+	IsStatusLEDEnabled_Request request;
+	IsStatusLEDEnabled_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_IS_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
@@ -884,23 +1048,21 @@ int dc_is_status_led_enabled(DC *dc, bool *ret_enabled) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_enabled = response.enabled;
 
-
+	*ret_enabled = response.enabled != 0;
 
 	return ret;
 }
 
 int dc_get_protocol1_bricklet_name(DC *dc, char port, uint8_t *ret_protocol_version, uint8_t ret_firmware_version[3], char ret_name[40]) {
 	DevicePrivate *device_p = dc->p;
-	GetProtocol1BrickletName_ request;
-	GetProtocol1BrickletNameResponse_ response;
+	GetProtocol1BrickletName_Request request;
+	GetProtocol1BrickletName_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, device_p->ipcon_p, device_p);
@@ -916,19 +1078,18 @@ int dc_get_protocol1_bricklet_name(DC *dc, char port, uint8_t *ret_protocol_vers
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_protocol_version = response.protocol_version;
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
-	strncpy(ret_name, response.name, 40);
-
-
+	memcpy(ret_name, response.name, 40);
 
 	return ret;
 }
 
 int dc_get_chip_temperature(DC *dc, int16_t *ret_temperature) {
 	DevicePrivate *device_p = dc->p;
-	GetChipTemperature_ request;
-	GetChipTemperatureResponse_ response;
+	GetChipTemperature_Request request;
+	GetChipTemperature_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
@@ -937,22 +1098,20 @@ int dc_get_chip_temperature(DC *dc, int16_t *ret_temperature) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_temperature = leconvert_int16_from(response.temperature);
-
-
 
 	return ret;
 }
 
 int dc_reset(DC *dc) {
 	DevicePrivate *device_p = dc->p;
-	Reset_ request;
+	Reset_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_RESET, device_p->ipcon_p, device_p);
@@ -961,17 +1120,15 @@ int dc_reset(DC *dc) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
 int dc_get_identity(DC *dc, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = dc->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -980,20 +1137,18 @@ int dc_get_identity(DC *dc, char ret_uid[8], char ret_connected_uid[8], char *re
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

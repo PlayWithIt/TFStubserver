@@ -13,7 +13,10 @@ while [ ! -z "$1" ]; do
     case "$1" in
 	-[h?])
 	    echo
-	    echo "Usage: stub {-vg} device_config.properties"
+	    echo "Usage: stub {-vg} {-rq} device_config.properties"
+	    echo
+	    echo "-rq    log request data"
+	    echo "-vg    start within valgrind"
 	    echo
 	    exit 1
 	    ;;

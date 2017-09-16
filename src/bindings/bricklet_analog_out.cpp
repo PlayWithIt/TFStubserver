@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -40,34 +40,34 @@ extern "C" {
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED SetVoltage_;
+} ATTRIBUTE_PACKED SetVoltage_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVoltage_;
+} ATTRIBUTE_PACKED GetVoltage_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED GetVoltageResponse_;
+} ATTRIBUTE_PACKED GetVoltage_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED SetMode_;
+} ATTRIBUTE_PACKED SetMode_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetMode_;
+} ATTRIBUTE_PACKED GetMode_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t mode;
-} ATTRIBUTE_PACKED GetModeResponse_;
+} ATTRIBUTE_PACKED GetMode_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -77,7 +77,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -115,9 +115,6 @@ int analog_out_set_response_expected_all(AnalogOut *analog_out, bool response_ex
 	return device_set_response_expected_all(analog_out->p, response_expected);
 }
 
-void analog_out_register_callback(AnalogOut *analog_out, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(analog_out->p, id, callback, user_data);
-}
 
 int analog_out_get_api_version(AnalogOut *analog_out, uint8_t ret_api_version[3]) {
 	return device_get_api_version(analog_out->p, ret_api_version);
@@ -125,7 +122,7 @@ int analog_out_get_api_version(AnalogOut *analog_out, uint8_t ret_api_version[3]
 
 int analog_out_set_voltage(AnalogOut *analog_out, uint16_t voltage) {
 	DevicePrivate *device_p = analog_out->p;
-	SetVoltage_ request;
+	SetVoltage_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_OUT_FUNCTION_SET_VOLTAGE, device_p->ipcon_p, device_p);
@@ -138,14 +135,13 @@ int analog_out_set_voltage(AnalogOut *analog_out, uint16_t voltage) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_out_get_voltage(AnalogOut *analog_out, uint16_t *ret_voltage) {
 	DevicePrivate *device_p = analog_out->p;
-	GetVoltage_ request;
-	GetVoltageResponse_ response;
+	GetVoltage_Request request;
+	GetVoltage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_OUT_FUNCTION_GET_VOLTAGE, device_p->ipcon_p, device_p);
@@ -154,22 +150,20 @@ int analog_out_get_voltage(AnalogOut *analog_out, uint16_t *ret_voltage) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_voltage = leconvert_uint16_from(response.voltage);
-
-
 
 	return ret;
 }
 
 int analog_out_set_mode(AnalogOut *analog_out, uint8_t mode) {
 	DevicePrivate *device_p = analog_out->p;
-	SetMode_ request;
+	SetMode_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_OUT_FUNCTION_SET_MODE, device_p->ipcon_p, device_p);
@@ -182,14 +176,13 @@ int analog_out_set_mode(AnalogOut *analog_out, uint8_t mode) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_out_get_mode(AnalogOut *analog_out, uint8_t *ret_mode) {
 	DevicePrivate *device_p = analog_out->p;
-	GetMode_ request;
-	GetModeResponse_ response;
+	GetMode_Request request;
+	GetMode_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_OUT_FUNCTION_GET_MODE, device_p->ipcon_p, device_p);
@@ -198,23 +191,21 @@ int analog_out_get_mode(AnalogOut *analog_out, uint8_t *ret_mode) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_mode = response.mode;
-
-
 
 	return ret;
 }
 
 int analog_out_get_identity(AnalogOut *analog_out, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = analog_out->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_OUT_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -223,20 +214,18 @@ int analog_out_get_identity(AnalogOut *analog_out, char ret_uid[8], char ret_con
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -139,8 +139,7 @@ int piezo_speaker_get_response_expected(PiezoSpeaker *piezo_speaker, uint8_t fun
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -161,10 +160,10 @@ int piezo_speaker_set_response_expected_all(PiezoSpeaker *piezo_speaker, bool re
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void piezo_speaker_register_callback(PiezoSpeaker *piezo_speaker, uint8_t id, void *callback, void *user_data);
+void piezo_speaker_register_callback(PiezoSpeaker *piezo_speaker, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletPiezoSpeaker
@@ -177,12 +176,12 @@ int piezo_speaker_get_api_version(PiezoSpeaker *piezo_speaker, uint8_t ret_api_v
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * Beeps with the given frequency for the duration in ms. For example: 
+ * Beeps with the given frequency for the duration in ms. For example:
  * If you set a duration of 1000, with a frequency value of 2000
  * the piezo buzzer will beep for one second with a frequency of
  * approximately 2 kHz.
  * 
- * .. versionchanged:: 2.0.2~(Plugin)
+ * .. versionchanged:: 2.0.2$nbsp;(Plugin)
  *    A duration of 0 stops the current beep if any, the frequency parameter is
  *    ignored. A duration of 4294967295 results in an infinite beep.
  * 
@@ -202,7 +201,7 @@ int piezo_speaker_beep(PiezoSpeaker *piezo_speaker, uint32_t duration, uint16_t 
  * The second parameter is the frequency (see {@link piezo_speaker_beep}).
  * 
  * For example: If you set the string "...---...", the piezo buzzer will beep
- * nine times with the durations "short short short long long long short 
+ * nine times with the durations "short short short long long long short
  * short short".
  * 
  * The maximum string size is 60.
@@ -227,7 +226,7 @@ int piezo_speaker_calibrate(PiezoSpeaker *piezo_speaker, bool *ret_calibration);
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -112,7 +112,7 @@ typedef Device DistanceIR;
  * {@link distance_ir_set_distance_callback_period}. The parameter is the distance of the
  * sensor.
  * 
- * {@link DISTANCE_IR_CALLBACK_DISTANCE} is only triggered if the distance has changed since the
+ * The {@link DISTANCE_IR_CALLBACK_DISTANCE} callback is only triggered if the distance has changed since the
  * last triggering.
  */
 #define DISTANCE_IR_CALLBACK_DISTANCE 15
@@ -126,8 +126,8 @@ typedef Device DistanceIR;
  * {@link distance_ir_set_analog_value_callback_period}. The parameter is the analog value of the
  * sensor.
  * 
- * {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE} is only triggered if the analog value has changed since the
- * last triggering.
+ * The {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has changed
+ * since the last triggering.
  */
 #define DISTANCE_IR_CALLBACK_ANALOG_VALUE 16
 
@@ -246,8 +246,7 @@ int distance_ir_get_response_expected(DistanceIR *distance_ir, uint8_t function_
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -268,10 +267,10 @@ int distance_ir_set_response_expected_all(DistanceIR *distance_ir, bool response
 /**
  * \ingroup BrickletDistanceIR
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void distance_ir_register_callback(DistanceIR *distance_ir, uint8_t id, void *callback, void *user_data);
+void distance_ir_register_callback(DistanceIR *distance_ir, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletDistanceIR
@@ -289,7 +288,7 @@ int distance_ir_get_api_version(DistanceIR *distance_ir, uint8_t ret_api_version
  * selected IR sensor.
  * 
  * If you want to get the distance periodically, it is recommended to use the
- * callback {@link DISTANCE_IR_CALLBACK_DISTANCE} and set the period with 
+ * {@link DISTANCE_IR_CALLBACK_DISTANCE} callback and set the period with
  * {@link distance_ir_set_distance_callback_period}.
  */
 int distance_ir_get_distance(DistanceIR *distance_ir, uint16_t *ret_distance);
@@ -306,8 +305,8 @@ int distance_ir_get_distance(DistanceIR *distance_ir, uint16_t *ret_distance);
  *  unfiltered analog values. The only reason to use {@link distance_ir_get_analog_value} is,
  *  if you need the full resolution of the analog-to-digital converter.
  * 
- * If you want the analog value periodically, it is recommended to use the 
- * callback {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE} and set the period with 
+ * If you want the analog value periodically, it is recommended to use the
+ * {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE} callback and set the period with
  * {@link distance_ir_set_analog_value_callback_period}.
  */
 int distance_ir_get_analog_value(DistanceIR *distance_ir, uint16_t *ret_value);
@@ -350,7 +349,7 @@ int distance_ir_get_sampling_point(DistanceIR *distance_ir, uint8_t position, ui
  * Sets the period in ms with which the {@link DISTANCE_IR_CALLBACK_DISTANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link DISTANCE_IR_CALLBACK_DISTANCE} is only triggered if the distance has changed since the
+ * The {@link DISTANCE_IR_CALLBACK_DISTANCE} callback is only triggered if the distance has changed since the
  * last triggering.
  * 
  * The default value is 0.
@@ -370,8 +369,8 @@ int distance_ir_get_distance_callback_period(DistanceIR *distance_ir, uint32_t *
  * Sets the period in ms with which the {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE} is only triggered if the analog value has changed since the
- * last triggering.
+ * The {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
+ * changed since the last triggering.
  * 
  * The default value is 0.
  */
@@ -387,7 +386,7 @@ int distance_ir_get_analog_value_callback_period(DistanceIR *distance_ir, uint32
 /**
  * \ingroup BrickletDistanceIR
  *
- * Sets the thresholds for the {@link DISTANCE_IR_CALLBACK_DISTANCE_REACHED} callback. 
+ * Sets the thresholds for the {@link DISTANCE_IR_CALLBACK_DISTANCE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -403,19 +402,19 @@ int distance_ir_get_analog_value_callback_period(DistanceIR *distance_ir, uint32
  * 
  * The default value is ('x', 0, 0).
  */
-int distance_ir_set_distance_callback_threshold(DistanceIR *distance_ir, char option, int16_t min, int16_t max);
+int distance_ir_set_distance_callback_threshold(DistanceIR *distance_ir, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletDistanceIR
  *
  * Returns the threshold as set by {@link distance_ir_set_distance_callback_threshold}.
  */
-int distance_ir_get_distance_callback_threshold(DistanceIR *distance_ir, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int distance_ir_get_distance_callback_threshold(DistanceIR *distance_ir, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletDistanceIR
  *
- * Sets the thresholds for the {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE_REACHED} callback. 
+ * Sets the thresholds for the {@link DISTANCE_IR_CALLBACK_ANALOG_VALUE_REACHED} callback.
  * 
  * The following options are possible:
  * 
@@ -469,7 +468,7 @@ int distance_ir_get_debounce_period(DistanceIR *distance_ir, uint32_t *ret_debou
 /**
  * \ingroup BrickletDistanceIR
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

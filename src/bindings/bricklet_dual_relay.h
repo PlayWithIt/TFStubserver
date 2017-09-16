@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -63,8 +63,8 @@ typedef Device DualRelay;
  *
  * Signature: \code void callback(uint8_t relay, bool state, void *user_data) \endcode
  * 
- * This callback is triggered whenever a monoflop timer reaches 0. The 
- * parameter contain the relay (1 or 2) and the current state of the relay 
+ * This callback is triggered whenever a monoflop timer reaches 0. The
+ * parameter contain the relay (1 or 2) and the current state of the relay
  * (the state after the monoflop).
  */
 #define DUAL_RELAY_CALLBACK_MONOFLOP_DONE 5
@@ -131,8 +131,7 @@ int dual_relay_get_response_expected(DualRelay *dual_relay, uint8_t function_id,
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -153,10 +152,10 @@ int dual_relay_set_response_expected_all(DualRelay *dual_relay, bool response_ex
 /**
  * \ingroup BrickletDualRelay
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void dual_relay_register_callback(DualRelay *dual_relay, uint8_t id, void *callback, void *user_data);
+void dual_relay_register_callback(DualRelay *dual_relay, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickletDualRelay
@@ -169,7 +168,7 @@ int dual_relay_get_api_version(DualRelay *dual_relay, uint8_t ret_api_version[3]
 /**
  * \ingroup BrickletDualRelay
  *
- * Sets the state of the relays, *true* means on and *false* means off. 
+ * Sets the state of the relays, *true* means on and *false* means off.
  * For example: (true, false) turns relay 1 on and relay 2 off.
  * 
  * If you just want to set one of the relays and don't know the current state
@@ -192,18 +191,18 @@ int dual_relay_get_state(DualRelay *dual_relay, bool *ret_relay1, bool *ret_rela
 /**
  * \ingroup BrickletDualRelay
  *
- * The first parameter can be 1 or 2 (relay 1 or relay 2). The second parameter 
+ * The first parameter can be 1 or 2 (relay 1 or relay 2). The second parameter
  * is the desired state of the relay (*true* means on and *false* means off).
- * The third parameter indicates the time (in ms) that the relay should hold 
+ * The third parameter indicates the time (in ms) that the relay should hold
  * the state.
  * 
  * If this function is called with the parameters (1, true, 1500):
  * Relay 1 will turn on and in 1.5s it will turn off again.
  * 
- * A monoflop can be used as a failsafe mechanism. For example: Lets assume you 
- * have a RS485 bus and a Dual Relay Bricklet connected to one of the slave 
+ * A monoflop can be used as a failsafe mechanism. For example: Lets assume you
+ * have a RS485 bus and a Dual Relay Bricklet connected to one of the slave
  * stacks. You can now call this function every second, with a time parameter
- * of two seconds. The relay will be on all the time. If now the RS485 
+ * of two seconds. The relay will be on all the time. If now the RS485
  * connection is lost, the relay will turn off in at most two seconds.
  */
 int dual_relay_set_monoflop(DualRelay *dual_relay, uint8_t relay, bool state, uint32_t time);
@@ -211,7 +210,7 @@ int dual_relay_set_monoflop(DualRelay *dual_relay, uint8_t relay, bool state, ui
 /**
  * \ingroup BrickletDualRelay
  *
- * Returns (for the given relay) the current state and the time as set by 
+ * Returns (for the given relay) the current state and the time as set by
  * {@link dual_relay_set_monoflop} as well as the remaining time until the state flips.
  * 
  * If the timer is not running currently, the remaining time will be returned
@@ -222,7 +221,7 @@ int dual_relay_get_monoflop(DualRelay *dual_relay, uint8_t relay, bool *ret_stat
 /**
  * \ingroup BrickletDualRelay
  *
- * Sets the state of the selected relay (1 or 2), *true* means on and *false* means off. 
+ * Sets the state of the selected relay (1 or 2), *true* means on and *false* means off.
  * 
  * The other relay remains untouched.
  */
@@ -231,7 +230,7 @@ int dual_relay_set_selected_state(DualRelay *dual_relay, uint8_t relay, bool sta
 /**
  * \ingroup BrickletDualRelay
  *
- * Returns the UID, the UID where the Bricklet is connected to, 
+ * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 

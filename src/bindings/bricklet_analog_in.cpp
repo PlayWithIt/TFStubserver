@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,13 +21,13 @@ extern "C" {
 
 
 
-typedef void (*VoltageCallbackFunction)(uint16_t, void *);
+typedef void (*Voltage_CallbackFunction)(uint16_t voltage, void *user_data);
 
-typedef void (*AnalogValueCallbackFunction)(uint16_t, void *);
+typedef void (*AnalogValue_CallbackFunction)(uint16_t value, void *user_data);
 
-typedef void (*VoltageReachedCallbackFunction)(uint16_t, void *);
+typedef void (*VoltageReached_CallbackFunction)(uint16_t voltage, void *user_data);
 
-typedef void (*AnalogValueReachedCallbackFunction)(uint16_t, void *);
+typedef void (*AnalogValueReached_CallbackFunction)(uint16_t value, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -47,151 +47,151 @@ typedef void (*AnalogValueReachedCallbackFunction)(uint16_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVoltage_;
+} ATTRIBUTE_PACKED GetVoltage_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED GetVoltageResponse_;
+} ATTRIBUTE_PACKED GetVoltage_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetAnalogValue_;
+} ATTRIBUTE_PACKED GetAnalogValue_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t value;
-} ATTRIBUTE_PACKED GetAnalogValueResponse_;
+} ATTRIBUTE_PACKED GetAnalogValue_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetVoltageCallbackPeriod_;
+} ATTRIBUTE_PACKED SetVoltageCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVoltageCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED GetVoltageCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetVoltageCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetAnalogValueCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetAnalogValueCallbackPeriod_;
+} ATTRIBUTE_PACKED GetVoltageCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetAnalogValueCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED SetAnalogValueCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-	char option;
-	int16_t min;
-	int16_t max;
-} ATTRIBUTE_PACKED SetVoltageCallbackThreshold_;
+} ATTRIBUTE_PACKED GetAnalogValueCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetVoltageCallbackThreshold_;
-
-typedef struct {
-	PacketHeader header;
-	char option;
-	int16_t min;
-	int16_t max;
-} ATTRIBUTE_PACKED GetVoltageCallbackThresholdResponse_;
+	uint32_t period;
+} ATTRIBUTE_PACKED GetAnalogValueCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED SetAnalogValueCallbackThreshold_;
+} ATTRIBUTE_PACKED SetVoltageCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetAnalogValueCallbackThreshold_;
+} ATTRIBUTE_PACKED GetVoltageCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	uint16_t min;
 	uint16_t max;
-} ATTRIBUTE_PACKED GetAnalogValueCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetVoltageCallbackThreshold_Response;
+
+typedef struct {
+	PacketHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} ATTRIBUTE_PACKED SetAnalogValueCallbackThreshold_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetAnalogValueCallbackThreshold_Request;
+
+typedef struct {
+	PacketHeader header;
+	char option;
+	uint16_t min;
+	uint16_t max;
+} ATTRIBUTE_PACKED GetAnalogValueCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED VoltageCallback_;
+} ATTRIBUTE_PACKED Voltage_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t value;
-} ATTRIBUTE_PACKED AnalogValueCallback_;
+} ATTRIBUTE_PACKED AnalogValue_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t voltage;
-} ATTRIBUTE_PACKED VoltageReachedCallback_;
+} ATTRIBUTE_PACKED VoltageReached_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t value;
-} ATTRIBUTE_PACKED AnalogValueReachedCallback_;
+} ATTRIBUTE_PACKED AnalogValueReached_Callback;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t range;
-} ATTRIBUTE_PACKED SetRange_;
+} ATTRIBUTE_PACKED SetRange_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetRange_;
+} ATTRIBUTE_PACKED GetRange_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t range;
-} ATTRIBUTE_PACKED GetRangeResponse_;
+} ATTRIBUTE_PACKED GetRange_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t average;
-} ATTRIBUTE_PACKED SetAveraging_;
+} ATTRIBUTE_PACKED SetAveraging_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetAveraging_;
+} ATTRIBUTE_PACKED GetAveraging_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint8_t average;
-} ATTRIBUTE_PACKED GetAveragingResponse_;
+} ATTRIBUTE_PACKED GetAveraging_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -201,7 +201,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -209,10 +209,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void analog_in_callback_wrapper_voltage(DevicePrivate *device_p, Packet *packet) {
-	VoltageCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[ANALOG_IN_CALLBACK_VOLTAGE];
-	VoltageCallback_ *callback = (VoltageCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[ANALOG_IN_CALLBACK_VOLTAGE];
+	Voltage_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_VOLTAGE];
+	Voltage_Callback *callback = (Voltage_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_VOLTAGE];
 
 	if (callback_function == NULL) {
 		return;
@@ -224,10 +225,11 @@ static void analog_in_callback_wrapper_voltage(DevicePrivate *device_p, Packet *
 }
 
 static void analog_in_callback_wrapper_analog_value(DevicePrivate *device_p, Packet *packet) {
-	AnalogValueCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[ANALOG_IN_CALLBACK_ANALOG_VALUE];
-	AnalogValueCallback_ *callback = (AnalogValueCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[ANALOG_IN_CALLBACK_ANALOG_VALUE];
+	AnalogValue_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_ANALOG_VALUE];
+	AnalogValue_Callback *callback = (AnalogValue_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_ANALOG_VALUE];
 
 	if (callback_function == NULL) {
 		return;
@@ -239,10 +241,11 @@ static void analog_in_callback_wrapper_analog_value(DevicePrivate *device_p, Pac
 }
 
 static void analog_in_callback_wrapper_voltage_reached(DevicePrivate *device_p, Packet *packet) {
-	VoltageReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
-	VoltageReachedCallback_ *callback = (VoltageReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
+	VoltageReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
+	VoltageReached_Callback *callback = (VoltageReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -254,10 +257,11 @@ static void analog_in_callback_wrapper_voltage_reached(DevicePrivate *device_p, 
 }
 
 static void analog_in_callback_wrapper_analog_value_reached(DevicePrivate *device_p, Packet *packet) {
-	AnalogValueReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[ANALOG_IN_CALLBACK_ANALOG_VALUE_REACHED];
-	AnalogValueReachedCallback_ *callback = (AnalogValueReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[ANALOG_IN_CALLBACK_ANALOG_VALUE_REACHED];
+	AnalogValueReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_ANALOG_VALUE_REACHED];
+	AnalogValueReached_Callback *callback = (AnalogValueReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ANALOG_IN_CALLBACK_ANALOG_VALUE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -271,7 +275,7 @@ static void analog_in_callback_wrapper_analog_value_reached(DevicePrivate *devic
 void analog_in_create(AnalogIn *analog_in, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(analog_in, uid, ipcon->p, 2, 0, 2);
+	device_create(analog_in, uid, ipcon->p, 2, 0, 3);
 
 	device_p = analog_in->p;
 
@@ -287,10 +291,6 @@ void analog_in_create(AnalogIn *analog_in, const char *uid, IPConnection *ipcon)
 	device_p->response_expected[ANALOG_IN_FUNCTION_GET_ANALOG_VALUE_CALLBACK_THRESHOLD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[ANALOG_IN_FUNCTION_SET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[ANALOG_IN_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[ANALOG_IN_CALLBACK_VOLTAGE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[ANALOG_IN_CALLBACK_ANALOG_VALUE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[ANALOG_IN_CALLBACK_VOLTAGE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[ANALOG_IN_CALLBACK_ANALOG_VALUE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[ANALOG_IN_FUNCTION_SET_RANGE] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[ANALOG_IN_FUNCTION_GET_RANGE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[ANALOG_IN_FUNCTION_SET_AVERAGING] = DEVICE_RESPONSE_EXPECTED_FALSE;
@@ -301,6 +301,7 @@ void analog_in_create(AnalogIn *analog_in, const char *uid, IPConnection *ipcon)
 	device_p->callback_wrappers[ANALOG_IN_CALLBACK_ANALOG_VALUE] = analog_in_callback_wrapper_analog_value;
 	device_p->callback_wrappers[ANALOG_IN_CALLBACK_VOLTAGE_REACHED] = analog_in_callback_wrapper_voltage_reached;
 	device_p->callback_wrappers[ANALOG_IN_CALLBACK_ANALOG_VALUE_REACHED] = analog_in_callback_wrapper_analog_value_reached;
+
 }
 
 void analog_in_destroy(AnalogIn *analog_in) {
@@ -319,8 +320,8 @@ int analog_in_set_response_expected_all(AnalogIn *analog_in, bool response_expec
 	return device_set_response_expected_all(analog_in->p, response_expected);
 }
 
-void analog_in_register_callback(AnalogIn *analog_in, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(analog_in->p, id, callback, user_data);
+void analog_in_register_callback(AnalogIn *analog_in, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(analog_in->p, callback_id, function, user_data);
 }
 
 int analog_in_get_api_version(AnalogIn *analog_in, uint8_t ret_api_version[3]) {
@@ -329,8 +330,8 @@ int analog_in_get_api_version(AnalogIn *analog_in, uint8_t ret_api_version[3]) {
 
 int analog_in_get_voltage(AnalogIn *analog_in, uint16_t *ret_voltage) {
 	DevicePrivate *device_p = analog_in->p;
-	GetVoltage_ request;
-	GetVoltageResponse_ response;
+	GetVoltage_Request request;
+	GetVoltage_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_VOLTAGE, device_p->ipcon_p, device_p);
@@ -339,23 +340,21 @@ int analog_in_get_voltage(AnalogIn *analog_in, uint16_t *ret_voltage) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_voltage = leconvert_uint16_from(response.voltage);
-
-
 
 	return ret;
 }
 
 int analog_in_get_analog_value(AnalogIn *analog_in, uint16_t *ret_value) {
 	DevicePrivate *device_p = analog_in->p;
-	GetAnalogValue_ request;
-	GetAnalogValueResponse_ response;
+	GetAnalogValue_Request request;
+	GetAnalogValue_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_ANALOG_VALUE, device_p->ipcon_p, device_p);
@@ -364,22 +363,20 @@ int analog_in_get_analog_value(AnalogIn *analog_in, uint16_t *ret_value) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_value = leconvert_uint16_from(response.value);
-
-
 
 	return ret;
 }
 
 int analog_in_set_voltage_callback_period(AnalogIn *analog_in, uint32_t period) {
 	DevicePrivate *device_p = analog_in->p;
-	SetVoltageCallbackPeriod_ request;
+	SetVoltageCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -392,14 +389,13 @@ int analog_in_set_voltage_callback_period(AnalogIn *analog_in, uint32_t period) 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_in_get_voltage_callback_period(AnalogIn *analog_in, uint32_t *ret_period) {
 	DevicePrivate *device_p = analog_in->p;
-	GetVoltageCallbackPeriod_ request;
-	GetVoltageCallbackPeriodResponse_ response;
+	GetVoltageCallbackPeriod_Request request;
+	GetVoltageCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -408,22 +404,20 @@ int analog_in_get_voltage_callback_period(AnalogIn *analog_in, uint32_t *ret_per
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int analog_in_set_analog_value_callback_period(AnalogIn *analog_in, uint32_t period) {
 	DevicePrivate *device_p = analog_in->p;
-	SetAnalogValueCallbackPeriod_ request;
+	SetAnalogValueCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -436,14 +430,13 @@ int analog_in_set_analog_value_callback_period(AnalogIn *analog_in, uint32_t per
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_in_get_analog_value_callback_period(AnalogIn *analog_in, uint32_t *ret_period) {
 	DevicePrivate *device_p = analog_in->p;
-	GetAnalogValueCallbackPeriod_ request;
-	GetAnalogValueCallbackPeriodResponse_ response;
+	GetAnalogValueCallbackPeriod_Request request;
+	GetAnalogValueCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -452,22 +445,20 @@ int analog_in_get_analog_value_callback_period(AnalogIn *analog_in, uint32_t *re
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
-int analog_in_set_voltage_callback_threshold(AnalogIn *analog_in, char option, int16_t min, int16_t max) {
+int analog_in_set_voltage_callback_threshold(AnalogIn *analog_in, char option, uint16_t min, uint16_t max) {
 	DevicePrivate *device_p = analog_in->p;
-	SetVoltageCallbackThreshold_ request;
+	SetVoltageCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -477,19 +468,18 @@ int analog_in_set_voltage_callback_threshold(AnalogIn *analog_in, char option, i
 	}
 
 	request.option = option;
-	request.min = leconvert_int16_to(min);
-	request.max = leconvert_int16_to(max);
+	request.min = leconvert_uint16_to(min);
+	request.max = leconvert_uint16_to(max);
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
-
 
 	return ret;
 }
 
-int analog_in_get_voltage_callback_threshold(AnalogIn *analog_in, char *ret_option, int16_t *ret_min, int16_t *ret_max) {
+int analog_in_get_voltage_callback_threshold(AnalogIn *analog_in, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
 	DevicePrivate *device_p = analog_in->p;
-	GetVoltageCallbackThreshold_ request;
-	GetVoltageCallbackThresholdResponse_ response;
+	GetVoltageCallbackThreshold_Request request;
+	GetVoltageCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -498,24 +488,22 @@ int analog_in_get_voltage_callback_threshold(AnalogIn *analog_in, char *ret_opti
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
-	*ret_min = leconvert_int16_from(response.min);
-	*ret_max = leconvert_int16_from(response.max);
-
-
+	*ret_min = leconvert_uint16_from(response.min);
+	*ret_max = leconvert_uint16_from(response.max);
 
 	return ret;
 }
 
 int analog_in_set_analog_value_callback_threshold(AnalogIn *analog_in, char option, uint16_t min, uint16_t max) {
 	DevicePrivate *device_p = analog_in->p;
-	SetAnalogValueCallbackThreshold_ request;
+	SetAnalogValueCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_SET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -530,14 +518,13 @@ int analog_in_set_analog_value_callback_threshold(AnalogIn *analog_in, char opti
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_in_get_analog_value_callback_threshold(AnalogIn *analog_in, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
 	DevicePrivate *device_p = analog_in->p;
-	GetAnalogValueCallbackThreshold_ request;
-	GetAnalogValueCallbackThresholdResponse_ response;
+	GetAnalogValueCallbackThreshold_Request request;
+	GetAnalogValueCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -546,24 +533,22 @@ int analog_in_get_analog_value_callback_threshold(AnalogIn *analog_in, char *ret
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_uint16_from(response.min);
 	*ret_max = leconvert_uint16_from(response.max);
-
-
 
 	return ret;
 }
 
 int analog_in_set_debounce_period(AnalogIn *analog_in, uint32_t debounce) {
 	DevicePrivate *device_p = analog_in->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -576,14 +561,13 @@ int analog_in_set_debounce_period(AnalogIn *analog_in, uint32_t debounce) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_in_get_debounce_period(AnalogIn *analog_in, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = analog_in->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -592,22 +576,20 @@ int analog_in_get_debounce_period(AnalogIn *analog_in, uint32_t *ret_debounce) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int analog_in_set_range(AnalogIn *analog_in, uint8_t range) {
 	DevicePrivate *device_p = analog_in->p;
-	SetRange_ request;
+	SetRange_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_SET_RANGE, device_p->ipcon_p, device_p);
@@ -620,14 +602,13 @@ int analog_in_set_range(AnalogIn *analog_in, uint8_t range) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_in_get_range(AnalogIn *analog_in, uint8_t *ret_range) {
 	DevicePrivate *device_p = analog_in->p;
-	GetRange_ request;
-	GetRangeResponse_ response;
+	GetRange_Request request;
+	GetRange_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_RANGE, device_p->ipcon_p, device_p);
@@ -636,22 +617,20 @@ int analog_in_get_range(AnalogIn *analog_in, uint8_t *ret_range) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_range = response.range;
-
-
 
 	return ret;
 }
 
 int analog_in_set_averaging(AnalogIn *analog_in, uint8_t average) {
 	DevicePrivate *device_p = analog_in->p;
-	SetAveraging_ request;
+	SetAveraging_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_SET_AVERAGING, device_p->ipcon_p, device_p);
@@ -664,14 +643,13 @@ int analog_in_set_averaging(AnalogIn *analog_in, uint8_t average) {
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int analog_in_get_averaging(AnalogIn *analog_in, uint8_t *ret_average) {
 	DevicePrivate *device_p = analog_in->p;
-	GetAveraging_ request;
-	GetAveragingResponse_ response;
+	GetAveraging_Request request;
+	GetAveraging_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_AVERAGING, device_p->ipcon_p, device_p);
@@ -680,23 +658,21 @@ int analog_in_get_averaging(AnalogIn *analog_in, uint8_t *ret_average) {
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_average = response.average;
-
-
 
 	return ret;
 }
 
 int analog_in_get_identity(AnalogIn *analog_in, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = analog_in->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), ANALOG_IN_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -705,20 +681,18 @@ int analog_in_get_identity(AnalogIn *analog_in, char ret_uid[8], char ret_connec
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

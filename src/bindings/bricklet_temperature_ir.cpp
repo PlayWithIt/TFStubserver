@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -21,13 +21,13 @@ extern "C" {
 
 
 
-typedef void (*AmbientTemperatureCallbackFunction)(int16_t, void *);
+typedef void (*AmbientTemperature_CallbackFunction)(int16_t temperature, void *user_data);
 
-typedef void (*ObjectTemperatureCallbackFunction)(int16_t, void *);
+typedef void (*ObjectTemperature_CallbackFunction)(int16_t temperature, void *user_data);
 
-typedef void (*AmbientTemperatureReachedCallbackFunction)(int16_t, void *);
+typedef void (*AmbientTemperatureReached_CallbackFunction)(int16_t temperature, void *user_data);
 
-typedef void (*ObjectTemperatureReachedCallbackFunction)(int16_t, void *);
+typedef void (*ObjectTemperatureReached_CallbackFunction)(int16_t temperature, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -47,137 +47,137 @@ typedef void (*ObjectTemperatureReachedCallbackFunction)(int16_t, void *);
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetAmbientTemperature_;
+} ATTRIBUTE_PACKED GetAmbientTemperature_Request;
 
 typedef struct {
 	PacketHeader header;
 	int16_t temperature;
-} ATTRIBUTE_PACKED GetAmbientTemperatureResponse_;
+} ATTRIBUTE_PACKED GetAmbientTemperature_Response;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetObjectTemperature_;
+} ATTRIBUTE_PACKED GetObjectTemperature_Request;
 
 typedef struct {
 	PacketHeader header;
 	int16_t temperature;
-} ATTRIBUTE_PACKED GetObjectTemperatureResponse_;
+} ATTRIBUTE_PACKED GetObjectTemperature_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t emissivity;
-} ATTRIBUTE_PACKED SetEmissivity_;
+} ATTRIBUTE_PACKED SetEmissivity_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetEmissivity_;
+} ATTRIBUTE_PACKED GetEmissivity_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint16_t emissivity;
-} ATTRIBUTE_PACKED GetEmissivityResponse_;
+} ATTRIBUTE_PACKED GetEmissivity_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetAmbientTemperatureCallbackPeriod_;
+} ATTRIBUTE_PACKED SetAmbientTemperatureCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-	uint32_t period;
-} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackPeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED SetObjectTemperatureCallbackPeriod_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetObjectTemperatureCallbackPeriod_;
+} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t period;
-} ATTRIBUTE_PACKED GetObjectTemperatureCallbackPeriodResponse_;
+} ATTRIBUTE_PACKED SetObjectTemperatureCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetObjectTemperatureCallbackPeriod_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t period;
+} ATTRIBUTE_PACKED GetObjectTemperatureCallbackPeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int16_t min;
 	int16_t max;
-} ATTRIBUTE_PACKED SetAmbientTemperatureCallbackThreshold_;
+} ATTRIBUTE_PACKED SetAmbientTemperatureCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackThreshold_;
-
-typedef struct {
-	PacketHeader header;
-	char option;
-	int16_t min;
-	int16_t max;
-} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackThreshold_Request;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int16_t min;
 	int16_t max;
-} ATTRIBUTE_PACKED SetObjectTemperatureCallbackThreshold_;
-
-typedef struct {
-	PacketHeader header;
-} ATTRIBUTE_PACKED GetObjectTemperatureCallbackThreshold_;
+} ATTRIBUTE_PACKED GetAmbientTemperatureCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	char option;
 	int16_t min;
 	int16_t max;
-} ATTRIBUTE_PACKED GetObjectTemperatureCallbackThresholdResponse_;
+} ATTRIBUTE_PACKED SetObjectTemperatureCallbackThreshold_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetObjectTemperatureCallbackThreshold_Request;
+
+typedef struct {
+	PacketHeader header;
+	char option;
+	int16_t min;
+	int16_t max;
+} ATTRIBUTE_PACKED GetObjectTemperatureCallbackThreshold_Response;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED SetDebouncePeriod_;
+} ATTRIBUTE_PACKED SetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetDebouncePeriod_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Request;
 
 typedef struct {
 	PacketHeader header;
 	uint32_t debounce;
-} ATTRIBUTE_PACKED GetDebouncePeriodResponse_;
+} ATTRIBUTE_PACKED GetDebouncePeriod_Response;
 
 typedef struct {
 	PacketHeader header;
 	int16_t temperature;
-} ATTRIBUTE_PACKED AmbientTemperatureCallback_;
+} ATTRIBUTE_PACKED AmbientTemperature_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int16_t temperature;
-} ATTRIBUTE_PACKED ObjectTemperatureCallback_;
+} ATTRIBUTE_PACKED ObjectTemperature_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int16_t temperature;
-} ATTRIBUTE_PACKED AmbientTemperatureReachedCallback_;
+} ATTRIBUTE_PACKED AmbientTemperatureReached_Callback;
 
 typedef struct {
 	PacketHeader header;
 	int16_t temperature;
-} ATTRIBUTE_PACKED ObjectTemperatureReachedCallback_;
+} ATTRIBUTE_PACKED ObjectTemperatureReached_Callback;
 
 typedef struct {
 	PacketHeader header;
-} ATTRIBUTE_PACKED GetIdentity_;
+} ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
 	PacketHeader header;
@@ -187,7 +187,7 @@ typedef struct {
 	uint8_t hardware_version[3];
 	uint8_t firmware_version[3];
 	uint16_t device_identifier;
-} ATTRIBUTE_PACKED GetIdentityResponse_;
+} ATTRIBUTE_PACKED GetIdentity_Response;
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(pop)
@@ -195,10 +195,11 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 static void temperature_ir_callback_wrapper_ambient_temperature(DevicePrivate *device_p, Packet *packet) {
-	AmbientTemperatureCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE];
-	AmbientTemperatureCallback_ *callback = (AmbientTemperatureCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE];
+	AmbientTemperature_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE];
+	AmbientTemperature_Callback *callback = (AmbientTemperature_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE];
 
 	if (callback_function == NULL) {
 		return;
@@ -210,10 +211,11 @@ static void temperature_ir_callback_wrapper_ambient_temperature(DevicePrivate *d
 }
 
 static void temperature_ir_callback_wrapper_object_temperature(DevicePrivate *device_p, Packet *packet) {
-	ObjectTemperatureCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE];
-	ObjectTemperatureCallback_ *callback = (ObjectTemperatureCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE];
+	ObjectTemperature_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE];
+	ObjectTemperature_Callback *callback = (ObjectTemperature_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE];
 
 	if (callback_function == NULL) {
 		return;
@@ -225,10 +227,11 @@ static void temperature_ir_callback_wrapper_object_temperature(DevicePrivate *de
 }
 
 static void temperature_ir_callback_wrapper_ambient_temperature_reached(DevicePrivate *device_p, Packet *packet) {
-	AmbientTemperatureReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED];
-	AmbientTemperatureReachedCallback_ *callback = (AmbientTemperatureReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED];
+	AmbientTemperatureReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED];
+	AmbientTemperatureReached_Callback *callback = (AmbientTemperatureReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -240,10 +243,11 @@ static void temperature_ir_callback_wrapper_ambient_temperature_reached(DevicePr
 }
 
 static void temperature_ir_callback_wrapper_object_temperature_reached(DevicePrivate *device_p, Packet *packet) {
-	ObjectTemperatureReachedCallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED];
-	ObjectTemperatureReachedCallback_ *callback = (ObjectTemperatureReachedCallback_ *)packet;
-	*(void **)(&callback_function) = device_p->registered_callbacks[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED];
+	ObjectTemperatureReached_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED];
+	ObjectTemperatureReached_Callback *callback = (ObjectTemperatureReached_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED];
 
 	if (callback_function == NULL) {
 		return;
@@ -275,16 +279,13 @@ void temperature_ir_create(TemperatureIR *temperature_ir, const char *uid, IPCon
 	device_p->response_expected[TEMPERATURE_IR_FUNCTION_GET_OBJECT_TEMPERATURE_CALLBACK_THRESHOLD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[TEMPERATURE_IR_FUNCTION_SET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[TEMPERATURE_IR_FUNCTION_GET_DEBOUNCE_PERIOD] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
-	device_p->response_expected[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
-	device_p->response_expected[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[TEMPERATURE_IR_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE] = temperature_ir_callback_wrapper_ambient_temperature;
 	device_p->callback_wrappers[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE] = temperature_ir_callback_wrapper_object_temperature;
 	device_p->callback_wrappers[TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED] = temperature_ir_callback_wrapper_ambient_temperature_reached;
 	device_p->callback_wrappers[TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED] = temperature_ir_callback_wrapper_object_temperature_reached;
+
 }
 
 void temperature_ir_destroy(TemperatureIR *temperature_ir) {
@@ -303,8 +304,8 @@ int temperature_ir_set_response_expected_all(TemperatureIR *temperature_ir, bool
 	return device_set_response_expected_all(temperature_ir->p, response_expected);
 }
 
-void temperature_ir_register_callback(TemperatureIR *temperature_ir, uint8_t id, void *callback, void *user_data) {
-	device_register_callback(temperature_ir->p, id, callback, user_data);
+void temperature_ir_register_callback(TemperatureIR *temperature_ir, int16_t callback_id, void *function, void *user_data) {
+	device_register_callback(temperature_ir->p, callback_id, function, user_data);
 }
 
 int temperature_ir_get_api_version(TemperatureIR *temperature_ir, uint8_t ret_api_version[3]) {
@@ -313,8 +314,8 @@ int temperature_ir_get_api_version(TemperatureIR *temperature_ir, uint8_t ret_ap
 
 int temperature_ir_get_ambient_temperature(TemperatureIR *temperature_ir, int16_t *ret_temperature) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetAmbientTemperature_ request;
-	GetAmbientTemperatureResponse_ response;
+	GetAmbientTemperature_Request request;
+	GetAmbientTemperature_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_AMBIENT_TEMPERATURE, device_p->ipcon_p, device_p);
@@ -323,23 +324,21 @@ int temperature_ir_get_ambient_temperature(TemperatureIR *temperature_ir, int16_
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_temperature = leconvert_int16_from(response.temperature);
-
-
 
 	return ret;
 }
 
 int temperature_ir_get_object_temperature(TemperatureIR *temperature_ir, int16_t *ret_temperature) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetObjectTemperature_ request;
-	GetObjectTemperatureResponse_ response;
+	GetObjectTemperature_Request request;
+	GetObjectTemperature_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_OBJECT_TEMPERATURE, device_p->ipcon_p, device_p);
@@ -348,22 +347,20 @@ int temperature_ir_get_object_temperature(TemperatureIR *temperature_ir, int16_t
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_temperature = leconvert_int16_from(response.temperature);
-
-
 
 	return ret;
 }
 
 int temperature_ir_set_emissivity(TemperatureIR *temperature_ir, uint16_t emissivity) {
 	DevicePrivate *device_p = temperature_ir->p;
-	SetEmissivity_ request;
+	SetEmissivity_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_SET_EMISSIVITY, device_p->ipcon_p, device_p);
@@ -376,14 +373,13 @@ int temperature_ir_set_emissivity(TemperatureIR *temperature_ir, uint16_t emissi
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int temperature_ir_get_emissivity(TemperatureIR *temperature_ir, uint16_t *ret_emissivity) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetEmissivity_ request;
-	GetEmissivityResponse_ response;
+	GetEmissivity_Request request;
+	GetEmissivity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_EMISSIVITY, device_p->ipcon_p, device_p);
@@ -392,22 +388,20 @@ int temperature_ir_get_emissivity(TemperatureIR *temperature_ir, uint16_t *ret_e
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_emissivity = leconvert_uint16_from(response.emissivity);
-
-
 
 	return ret;
 }
 
 int temperature_ir_set_ambient_temperature_callback_period(TemperatureIR *temperature_ir, uint32_t period) {
 	DevicePrivate *device_p = temperature_ir->p;
-	SetAmbientTemperatureCallbackPeriod_ request;
+	SetAmbientTemperatureCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_SET_AMBIENT_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -420,14 +414,13 @@ int temperature_ir_set_ambient_temperature_callback_period(TemperatureIR *temper
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int temperature_ir_get_ambient_temperature_callback_period(TemperatureIR *temperature_ir, uint32_t *ret_period) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetAmbientTemperatureCallbackPeriod_ request;
-	GetAmbientTemperatureCallbackPeriodResponse_ response;
+	GetAmbientTemperatureCallbackPeriod_Request request;
+	GetAmbientTemperatureCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_AMBIENT_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -436,22 +429,20 @@ int temperature_ir_get_ambient_temperature_callback_period(TemperatureIR *temper
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int temperature_ir_set_object_temperature_callback_period(TemperatureIR *temperature_ir, uint32_t period) {
 	DevicePrivate *device_p = temperature_ir->p;
-	SetObjectTemperatureCallbackPeriod_ request;
+	SetObjectTemperatureCallbackPeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_SET_OBJECT_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -464,14 +455,13 @@ int temperature_ir_set_object_temperature_callback_period(TemperatureIR *tempera
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int temperature_ir_get_object_temperature_callback_period(TemperatureIR *temperature_ir, uint32_t *ret_period) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetObjectTemperatureCallbackPeriod_ request;
-	GetObjectTemperatureCallbackPeriodResponse_ response;
+	GetObjectTemperatureCallbackPeriod_Request request;
+	GetObjectTemperatureCallbackPeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_OBJECT_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
@@ -480,22 +470,20 @@ int temperature_ir_get_object_temperature_callback_period(TemperatureIR *tempera
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_period = leconvert_uint32_from(response.period);
-
-
 
 	return ret;
 }
 
 int temperature_ir_set_ambient_temperature_callback_threshold(TemperatureIR *temperature_ir, char option, int16_t min, int16_t max) {
 	DevicePrivate *device_p = temperature_ir->p;
-	SetAmbientTemperatureCallbackThreshold_ request;
+	SetAmbientTemperatureCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_SET_AMBIENT_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -510,14 +498,13 @@ int temperature_ir_set_ambient_temperature_callback_threshold(TemperatureIR *tem
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int temperature_ir_get_ambient_temperature_callback_threshold(TemperatureIR *temperature_ir, char *ret_option, int16_t *ret_min, int16_t *ret_max) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetAmbientTemperatureCallbackThreshold_ request;
-	GetAmbientTemperatureCallbackThresholdResponse_ response;
+	GetAmbientTemperatureCallbackThreshold_Request request;
+	GetAmbientTemperatureCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_AMBIENT_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -526,24 +513,22 @@ int temperature_ir_get_ambient_temperature_callback_threshold(TemperatureIR *tem
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int16_from(response.min);
 	*ret_max = leconvert_int16_from(response.max);
-
-
 
 	return ret;
 }
 
 int temperature_ir_set_object_temperature_callback_threshold(TemperatureIR *temperature_ir, char option, int16_t min, int16_t max) {
 	DevicePrivate *device_p = temperature_ir->p;
-	SetObjectTemperatureCallbackThreshold_ request;
+	SetObjectTemperatureCallbackThreshold_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_SET_OBJECT_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -558,14 +543,13 @@ int temperature_ir_set_object_temperature_callback_threshold(TemperatureIR *temp
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int temperature_ir_get_object_temperature_callback_threshold(TemperatureIR *temperature_ir, char *ret_option, int16_t *ret_min, int16_t *ret_max) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetObjectTemperatureCallbackThreshold_ request;
-	GetObjectTemperatureCallbackThresholdResponse_ response;
+	GetObjectTemperatureCallbackThreshold_Request request;
+	GetObjectTemperatureCallbackThreshold_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_OBJECT_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
@@ -574,24 +558,22 @@ int temperature_ir_get_object_temperature_callback_threshold(TemperatureIR *temp
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_option = response.option;
 	*ret_min = leconvert_int16_from(response.min);
 	*ret_max = leconvert_int16_from(response.max);
-
-
 
 	return ret;
 }
 
 int temperature_ir_set_debounce_period(TemperatureIR *temperature_ir, uint32_t debounce) {
 	DevicePrivate *device_p = temperature_ir->p;
-	SetDebouncePeriod_ request;
+	SetDebouncePeriod_Request request;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -604,14 +586,13 @@ int temperature_ir_set_debounce_period(TemperatureIR *temperature_ir, uint32_t d
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
-
 	return ret;
 }
 
 int temperature_ir_get_debounce_period(TemperatureIR *temperature_ir, uint32_t *ret_debounce) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetDebouncePeriod_ request;
-	GetDebouncePeriodResponse_ response;
+	GetDebouncePeriod_Request request;
+	GetDebouncePeriod_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
@@ -620,23 +601,21 @@ int temperature_ir_get_debounce_period(TemperatureIR *temperature_ir, uint32_t *
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
+
 	*ret_debounce = leconvert_uint32_from(response.debounce);
-
-
 
 	return ret;
 }
 
 int temperature_ir_get_identity(TemperatureIR *temperature_ir, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = temperature_ir->p;
-	GetIdentity_ request;
-	GetIdentityResponse_ response;
+	GetIdentity_Request request;
+	GetIdentity_Response response;
 	int ret;
 
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_IR_FUNCTION_GET_IDENTITY, device_p->ipcon_p, device_p);
@@ -645,20 +624,18 @@ int temperature_ir_get_identity(TemperatureIR *temperature_ir, char ret_uid[8], 
 		return ret;
 	}
 
-
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
 
 	if (ret < 0) {
 		return ret;
 	}
-	strncpy(ret_uid, response.uid, 8);
-	strncpy(ret_connected_uid, response.connected_uid, 8);
+
+	memcpy(ret_uid, response.uid, 8);
+	memcpy(ret_connected_uid, response.connected_uid, 8);
 	*ret_position = response.position;
 	memcpy(ret_hardware_version, response.hardware_version, 3 * sizeof(uint8_t));
 	memcpy(ret_firmware_version, response.firmware_version, 3 * sizeof(uint8_t));
 	*ret_device_identifier = leconvert_uint16_from(response.device_identifier);
-
-
 
 	return ret;
 }

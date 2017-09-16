@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2015-07-28.      *
+ * This file was automatically generated on 2017-07-27.      *
  *                                                           *
- * Bindings Version 2.1.7                                    *
+ * C/C++ Bindings Version 2.1.17                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -186,6 +186,36 @@ typedef Device Servo;
 /**
  * \ingroup BrickServo
  */
+#define SERVO_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG 231
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG 232
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_FUNCTION_GET_SEND_TIMEOUT_COUNT 233
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_FUNCTION_SET_SPITFP_BAUDRATE 234
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_FUNCTION_GET_SPITFP_BAUDRATE 235
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_FUNCTION_GET_SPITFP_ERROR_COUNT 237
+
+/**
+ * \ingroup BrickServo
+ */
 #define SERVO_FUNCTION_ENABLE_STATUS_LED 238
 
 /**
@@ -268,6 +298,46 @@ typedef Device Servo;
 
 /**
  * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_NONE 0
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_USB 1
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_SPI_STACK 2
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_CHIBI 3
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_RS485 4
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_WIFI 5
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_ETHERNET 6
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_COMMUNICATION_METHOD_WIFI_V2 7
+
+/**
+ * \ingroup BrickServo
  *
  * This constant is used to identify a Servo Brick.
  *
@@ -327,8 +397,7 @@ int servo_get_response_expected(Servo *servo, uint8_t function_id, bool *ret_res
  * Changes the response expected flag of the function specified by the
  * \c function_id parameter. This flag can only be changed for setter
  * (default value: *false*) and callback configuration functions
- * (default value: *true*). For getter functions it is always enabled and
- * callbacks it is always disabled.
+ * (default value: *true*). For getter functions it is always enabled.
  *
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
@@ -349,10 +418,10 @@ int servo_set_response_expected_all(Servo *servo, bool response_expected);
 /**
  * \ingroup BrickServo
  *
- * Registers a callback with ID \c id to the function \c callback. The
- * \c user_data will be given as a parameter of the callback.
+ * Registers the given \c function with the given \c callback_id. The
+ * \c user_data will be passed as the last parameter to the \c function.
  */
-void servo_register_callback(Servo *servo, uint8_t id, void *callback, void *user_data);
+void servo_register_callback(Servo *servo, int16_t callback_id, void *function, void *user_data);
 
 /**
  * \ingroup BrickServo
@@ -388,7 +457,7 @@ int servo_is_enabled(Servo *servo, uint8_t servo_num, bool *ret_enabled);
 /**
  * \ingroup BrickServo
  *
- * Sets the position in °/100 for the specified servo. 
+ * Sets the position in °/100 for the specified servo.
  * 
  * The default range of the position is -9000 to 9000, but it can be specified
  * according to your servo with {@link servo_set_degree}.
@@ -459,7 +528,7 @@ int servo_set_acceleration(Servo *servo, uint8_t servo_num, uint16_t acceleratio
 /**
  * \ingroup BrickServo
  *
- * Returns the acceleration for the specified servo as set by 
+ * Returns the acceleration for the specified servo as set by
  * {@link servo_set_acceleration}.
  */
 int servo_get_acceleration(Servo *servo, uint8_t servo_num, uint16_t *ret_acceleration);
@@ -468,7 +537,7 @@ int servo_get_acceleration(Servo *servo, uint8_t servo_num, uint16_t *ret_accele
  * \ingroup BrickServo
  *
  * Sets the output voltages with which the servos are driven in mV.
- * The minimum output voltage is 2000mV and the maximum output voltage is 
+ * The minimum output voltage is 2000mV and the maximum output voltage is
  * 9000mV.
  * 
  * \note
@@ -492,7 +561,7 @@ int servo_get_output_voltage(Servo *servo, uint16_t *ret_voltage);
  *
  * Sets the minimum and maximum pulse width of the specified servo in µs.
  * 
- * Usually, servos are controlled with a 
+ * Usually, servos are controlled with a
  * `PWM <https://en.wikipedia.org/wiki/Pulse-width_modulation>`__, whereby the
  * length of the pulse controls the position of the servo. Every servo has
  * different minimum and maximum pulse widths, these can be specified with
@@ -505,7 +574,7 @@ int servo_get_output_voltage(Servo *servo, uint16_t *ret_voltage);
  * Both values have a range from 1 to 65535 (unsigned 16-bit integer). The
  * minimum must be smaller than the maximum.
  * 
- * The default values are 1000µs (1ms) and 2000µs (2ms) for minimum and 
+ * The default values are 1000µs (1ms) and 2000µs (2ms) for minimum and
  * maximum pulse width.
  */
 int servo_set_pulse_width(Servo *servo, uint8_t servo_num, uint16_t min, uint16_t max);
@@ -527,7 +596,7 @@ int servo_get_pulse_width(Servo *servo, uint8_t servo_num, uint16_t *ret_min, ui
  * This only specifies the abstract values between which the minimum and maximum
  * pulse width is scaled. For example: If you specify a pulse width of 1000µs
  * to 2000µs and a degree range of -90° to 90°, a call of {@link servo_set_position}
- * with 0 will result in a pulse width of 1500µs 
+ * with 0 will result in a pulse width of 1500µs
  * (-90° = 1000µs, 90° = 2000µs, etc.).
  * 
  * Possible usage:
@@ -547,7 +616,7 @@ int servo_get_pulse_width(Servo *servo, uint8_t servo_num, uint16_t *ret_min, ui
  *   control it with a RC brushless motor controller. In this case you can set the
  *   minimum to 0 and the maximum to 10000. {@link servo_set_position} now controls the rpm.
  * 
- * Both values have a possible range from -32767 to 32767 
+ * Both values have a possible range from -32767 to 32767
  * (signed 16-bit integer). The minimum must be smaller than the maximum.
  * 
  * The default values are -9000 and 9000 for the minimum and maximum degree.
@@ -567,15 +636,15 @@ int servo_get_degree(Servo *servo, uint8_t servo_num, int16_t *ret_min, int16_t 
  *
  * Sets the period of the specified servo in µs.
  * 
- * Usually, servos are controlled with a 
+ * Usually, servos are controlled with a
  * `PWM <https://en.wikipedia.org/wiki/Pulse-width_modulation>`__. Different
- * servos expect PWMs with different periods. Most servos run well with a 
+ * servos expect PWMs with different periods. Most servos run well with a
  * period of about 20ms.
  * 
  * If your servo comes with a datasheet that specifies a period, you should
  * set it accordingly. If you don't have a datasheet and you have no idea
  * what the correct period is, the default value (19.5ms) will most likely
- * work fine. 
+ * work fine.
  * 
  * The minimum possible period is 1µs and the maximum is 65535µs.
  * 
@@ -608,7 +677,7 @@ int servo_get_overall_current(Servo *servo, uint16_t *ret_current);
  * \ingroup BrickServo
  *
  * Returns the stack input voltage in mV. The stack input voltage is the
- * voltage that is supplied via the stack, i.e. it is given by a 
+ * voltage that is supplied via the stack, i.e. it is given by a
  * Step-Down or Step-Up Power Supply.
  */
 int servo_get_stack_input_voltage(Servo *servo, uint16_t *ret_voltage);
@@ -617,10 +686,10 @@ int servo_get_stack_input_voltage(Servo *servo, uint16_t *ret_voltage);
  * \ingroup BrickServo
  *
  * Returns the external input voltage in mV. The external input voltage is
- * given via the black power input connector on the Servo Brick. 
- *  
+ * given via the black power input connector on the Servo Brick.
+ * 
  * If there is an external input voltage and a stack input voltage, the motors
- * will be driven by the external input voltage. If there is only a stack 
+ * will be driven by the external input voltage. If there is only a stack
  * voltage present, the motors will be driven by this voltage.
  * 
  * \warning
@@ -637,7 +706,7 @@ int servo_get_external_input_voltage(Servo *servo, uint16_t *ret_voltage);
  * Sets the minimum voltage in mV, below which the {@link SERVO_CALLBACK_UNDER_VOLTAGE} callback
  * is triggered. The minimum possible value that works with the Servo Brick is 5V.
  * You can use this function to detect the discharge of a battery that is used
- * to drive the stepper motor. If you have a fixed power supply, you likely do 
+ * to drive the stepper motor. If you have a fixed power supply, you likely do
  * not need this functionality.
  * 
  * The default value is 5V (5000mV).
@@ -680,7 +749,7 @@ int servo_disable_position_reached_callback(Servo *servo);
  * 
  * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
-int servo_is_position_reached_callback_enabled(Servo *servo, uint8_t *ret_enabled);
+int servo_is_position_reached_callback_enabled(Servo *servo, bool *ret_enabled);
 
 /**
  * \ingroup BrickServo
@@ -711,7 +780,112 @@ int servo_disable_velocity_reached_callback(Servo *servo);
  * 
  * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
-int servo_is_velocity_reached_callback_enabled(Servo *servo, uint8_t *ret_enabled);
+int servo_is_velocity_reached_callback_enabled(Servo *servo, bool *ret_enabled);
+
+/**
+ * \ingroup BrickServo
+ *
+ * The SPITF protocol can be used with a dynamic baudrate. If the dynamic baudrate is
+ * enabled, the Brick will try to adapt the baudrate for the communication
+ * between Bricks and Bricklets according to the amount of data that is transferred.
+ * 
+ * The baudrate will be increased exponetially if lots of data is send/receieved and
+ * decreased linearly if little data is send/received.
+ * 
+ * This lowers the baudrate in applications where little data is transferred (e.g.
+ * a weather station) and increases the robustness. If there is lots of data to transfer
+ * (e.g. Thermal Imaging Bricklet) it automatically increases the baudrate as needed.
+ * 
+ * In cases where some data has to transferred as fast as possible every few seconds
+ * (e.g. RS485 Bricklet with a high baudrate but small payload) you may want to turn
+ * the dynamic baudrate off to get the highest possible performance.
+ * 
+ * The maximum value of the baudrate can be set per port with the function 
+ * {@link servo_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
+ * as set by {@link servo_set_spitfp_baudrate} will be used statically.
+ * 
+ * The minimum dynamic baudrate has a value range of 400000 to 2000000 baud.
+ * 
+ * By default dynamic baudrate is enabled and the minimum dynamic baudrate is 400000.
+ * 
+ * .. versionadded:: 2.3.4$nbsp;(Firmware)
+ */
+int servo_set_spitfp_baudrate_config(Servo *servo, bool enable_dynamic_baudrate, uint32_t minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Returns the baudrate config, see {@link servo_set_spitfp_baudrate_config}.
+ * 
+ * .. versionadded:: 2.3.4$nbsp;(Firmware)
+ */
+int servo_get_spitfp_baudrate_config(Servo *servo, bool *ret_enable_dynamic_baudrate, uint32_t *ret_minimum_dynamic_baudrate);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Returns the timeout count for the different communication methods.
+ * 
+ * The methods 0-2 are available for all Bricks, 3-7 only for Master Bricks.
+ * 
+ * This function is mostly used for debugging during development, in normal operation
+ * the counters should nearly always stay at 0.
+ * 
+ * .. versionadded:: 2.3.2$nbsp;(Firmware)
+ */
+int servo_get_send_timeout_count(Servo *servo, uint8_t communication_method, uint32_t *ret_timeout_count);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Sets the baudrate for a specific Bricklet port ('a' - 'd'). The
+ * baudrate can be in the range 400000 to 2000000.
+ * 
+ * If you want to increase the throughput of Bricklets you can increase
+ * the baudrate. If you get a high error count because of high
+ * interference (see {@link servo_get_spitfp_error_count}) you can decrease the
+ * baudrate.
+ * 
+ * If the dynamic baudrate feature is enabled, the baudrate set by this
+ * function corresponds to the maximum baudrate (see {@link servo_set_spitfp_baudrate_config}).
+ * 
+ * Regulatory testing is done with the default baudrate. If CE compatability
+ * or similar is necessary in you applications we recommend to not change
+ * the baudrate.
+ * 
+ * The default baudrate for all ports is 1400000.
+ * 
+ * .. versionadded:: 2.3.2$nbsp;(Firmware)
+ */
+int servo_set_spitfp_baudrate(Servo *servo, char bricklet_port, uint32_t baudrate);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Returns the baudrate for a given Bricklet port, see {@link servo_set_spitfp_baudrate}.
+ * 
+ * .. versionadded:: 2.3.2$nbsp;(Firmware)
+ */
+int servo_get_spitfp_baudrate(Servo *servo, char bricklet_port, uint32_t *ret_baudrate);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Returns the error count for the communication between Brick and Bricklet.
+ * 
+ * The errors are divided into
+ * 
+ * * ACK checksum errors,
+ * * message checksum errors,
+ * * frameing errors and
+ * * overflow errors.
+ * 
+ * The errors counts are for errors that occur on the Brick side. All
+ * Bricklets have a similar function that returns the errors on the Bricklet side.
+ * 
+ * .. versionadded:: 2.3.2$nbsp;(Firmware)
+ */
+int servo_get_spitfp_error_count(Servo *servo, char bricklet_port, uint32_t *ret_error_count_ack_checksum, uint32_t *ret_error_count_message_checksum, uint32_t *ret_error_count_frame, uint32_t *ret_error_count_overflow);
 
 /**
  * \ingroup BrickServo
@@ -788,7 +962,7 @@ int servo_reset(Servo *servo);
 /**
  * \ingroup BrickServo
  *
- * Returns the UID, the UID where the Brick is connected to, 
+ * Returns the UID, the UID where the Brick is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
