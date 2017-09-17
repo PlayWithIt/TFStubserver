@@ -29,6 +29,7 @@
 #include <bricklet_analog_out_v2.h>
 #include <bricklet_ambient_light.h>
 #include <bricklet_ambient_light_v2.h>
+#include <bricklet_co2.h>
 #include <bricklet_color.h>
 #include <bricklet_distance_ir.h>
 #include <bricklet_distance_us.h>
@@ -49,6 +50,7 @@
 #include <bricklet_sound_intensity.h>
 #include <bricklet_temperature.h>
 #include <bricklet_temperature_ir.h>
+#include <bricklet_uv_light.h>
 #include <bricklet_voltage_current.h>
 #include <device_table.h>
 
@@ -282,6 +284,21 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     case BAROMETER_DEVICE_IDENTIFIER:
         functions = new DeviceBarometer(createValueProvider(getProperty("valueProvider")));
         label = "mbar * 1000";
+        break;
+
+    case CO2_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(CO2_FUNCTION_GET_CO2_CONCENTRATION,
+                                  CO2_FUNCTION_SET_CO2_CONCENTRATION_CALLBACK_PERIOD,
+                                  CO2_CALLBACK_CO2_CONCENTRATION);
+        sensor->setRangeCallback(CO2_FUNCTION_SET_CO2_CONCENTRATION_CALLBACK_THRESHOLD,
+                                 CO2_FUNCTION_GET_CO2_CONCENTRATION_CALLBACK_THRESHOLD,
+                                 CO2_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 CO2_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 CO2_CALLBACK_CO2_CONCENTRATION_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=1200,max=2500,step=5,interval=300")));
+        sensor->setMinMax(0, 10000);
+        functions = sensor;
+        label = "ppm";
         break;
 
     case COLOR_DEVICE_IDENTIFIER:
@@ -577,6 +594,22 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case TILT_DEVICE_IDENTIFIER:
         functions = new DeviceTilt(createValueProvider(getProperty("valueProvider")));
+        break;
+
+    case UV_LIGHT_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(UV_LIGHT_FUNCTION_GET_UV_LIGHT,
+                                  UV_LIGHT_FUNCTION_SET_UV_LIGHT_CALLBACK_PERIOD,
+                                  UV_LIGHT_CALLBACK_UV_LIGHT);
+        sensor->setRangeCallback(UV_LIGHT_FUNCTION_SET_UV_LIGHT_CALLBACK_THRESHOLD,
+                                 UV_LIGHT_FUNCTION_GET_UV_LIGHT_CALLBACK_THRESHOLD,
+                                 UV_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD,
+                                 UV_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
+                                 UV_LIGHT_CALLBACK_UV_LIGHT_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=300,step=2,interval=100")));
+        sensor->setMinMax(0, 328);
+        sensor->setValueSize(4);
+        functions = sensor;
+        label = "mW/cm²";
         break;
 
     case VOLTAGE_CURRENT_DEVICE_IDENTIFIER:
