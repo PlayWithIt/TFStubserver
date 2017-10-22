@@ -99,7 +99,7 @@ bool DeviceHallEffect::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visu
 
 void DeviceHallEffect::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    int newValue = visualizationClient.getInputState();
+    int newValue;
 
     if (visualizationClient.useAsInputSource())
         newValue = visualizationClient.getInputState();

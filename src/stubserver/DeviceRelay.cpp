@@ -369,7 +369,7 @@ DeviceDualRelay::DeviceDualRelay()
 std::string DeviceDualRelay::getLabel(unsigned switchNo) const
 {
     if (switchNo > numSwitches)
-        throw std::out_of_range("RelayState::isOn: 'switchNo' is too high");
+        throw std::out_of_range("DeviceDualRelay::getLabel: 'switchNo' is too high");
 
     char buf[16];
     sprintf(buf, "SW%u", switchNo + 1);
@@ -440,7 +440,7 @@ void DeviceRemoteRelay::updateRelay(const char *id, uint8_t state)
         ++numSwitches;
     }
     else {
-        Log::error("RemoteSwitch: relay code array overflow!");
+        Log::error("DeviceRemoteRelay: relay code array overflow!");
     }
 }
 
@@ -542,7 +542,7 @@ void DeviceRemoteRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
 std::string DeviceRemoteRelay::getLabel(unsigned switchNo) const
 {
     if (switchNo > numSwitches)
-        throw std::out_of_range("RelayState::isOn: 'switchNo' is too high");
+        throw std::out_of_range("DeviceRemoteRelay::getLabel: 'switchNo' is too high");
 
     return codes[switchNo];
 }

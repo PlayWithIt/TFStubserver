@@ -23,6 +23,7 @@
 #include <brick_master.h>
 #include <brick_servo.h>
 #include <brick_dc.h>
+#include <bricklet_accelerometer.h>
 #include <bricklet_analog_in.h>
 #include <bricklet_analog_in_v2.h>
 #include <bricklet_analog_out.h>
@@ -33,7 +34,6 @@
 #include <bricklet_color.h>
 #include <bricklet_distance_ir.h>
 #include <bricklet_distance_us.h>
-#include <bricklet_dual_button.h>
 #include <bricklet_dust_detector.h>
 #include <bricklet_humidity.h>
 #include <bricklet_industrial_digital_out_4.h>
@@ -42,6 +42,7 @@
 #include <bricklet_industrial_dual_analog_in.h>
 #include <bricklet_io16.h>
 #include <bricklet_io4.h>
+#include <bricklet_joystick.h>
 #include <bricklet_line.h>
 #include <bricklet_load_cell.h>
 #include <bricklet_moisture.h>
@@ -60,12 +61,14 @@
 #include "BrickStack.h"
 #include "DeviceBarometer.h"
 #include "DeviceBrick.h"
+#include "DeviceDualButton.h"
 #include "DeviceInOut.h"
 #include "DeviceHallEffect.h"
 #include "DeviceLCD.h"
 #include "DeviceLedStrip.h"
 #include "DeviceMotionDetector.h"
 #include "DeviceMultiSensor.h"
+#include "DeviceOled.h"
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
 #include "DeviceSensor.h"
@@ -198,7 +201,23 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     //----------- Bricklets -------------------------------------------------------------------------------------------
-
+/*
+    // ACCELEROMETER needs 3 value providers with 16Bit each
+    case ACCELEROMETER_DEVICE_IDENTIFIER:
+        sensor = new DeviceSensor(ACCELEROMETER_FUNCTION_GET_ACCELERATION,
+                                  ACCELEROMETER_FUNCTION_SET_ACCELERATION_CALLBACK_PERIOD,
+                                  ACCELEROMETER_CALLBACK_ACCELERATION);
+        sensor->setRangeCallback(AMBIENT_LIGHT_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD,
+                AMBIENT_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
+                AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
+        sensor->setMinMax(0, 9000);
+        functions = sensor;
+        label = "X/Y/Z";
+        break;
+*/
     case AMBIENT_LIGHT_DEVICE_IDENTIFIER:
         sensor = new DeviceSensor(
                 AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE,
@@ -310,7 +329,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setOther(functions);
         functions = sensor;
 
-        // TODO: this will not work ... there are 4 independent value, 16bit each
+        // TODO: this will not work ... there are 4 independent values, 16bit each
         // -> need 4 valueProviders or other mechanism, also for the callback.
         sensor = new DeviceSensor(COLOR_FUNCTION_GET_COLOR, COLOR_FUNCTION_SET_COLOR_CALLBACK_PERIOD, COLOR_CALLBACK_COLOR);
         sensor->setRangeCallback(COLOR_FUNCTION_SET_COLOR_CALLBACK_THRESHOLD,
@@ -362,6 +381,14 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = sensor;
         break;
 
+    case DUAL_BUTTON_DEVICE_IDENTIFIER:
+        functions = new DeviceDualButton(createValueProvider(getProperty("valueProvider")));
+        break;
+
+    case DUAL_RELAY_DEVICE_IDENTIFIER:
+        functions = new DeviceDualRelay();
+        break;
+
     case DUST_DETECTOR_DEVICE_IDENTIFIER:
         functions = new GetSet<uint8_t>(DUST_DETECTOR_FUNCTION_GET_MOVING_AVERAGE, DUST_DETECTOR_FUNCTION_SET_MOVING_AVERAGE, 100);
         sensor = new DeviceSensor(
@@ -378,10 +405,6 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setOther(functions);
         functions = sensor;
         label ="µg/m³";
-        break;
-
-    case DUAL_RELAY_DEVICE_IDENTIFIER:
-        functions = new DeviceDualRelay();
         break;
 
     case HALL_EFFECT_DEVICE_IDENTIFIER:
@@ -432,7 +455,34 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     case IO4_DEVICE_IDENTIFIER:
         functions = new DeviceInOut(createValueProvider(getProperty("valueProvider")));
         break;
+/*
+    case JOYSTICK_DEVICE_IDENTIFIER:
+        functions = new GetSet<uint16_t>(COLOR_FUNCTION_GET_CONFIG, COLOR_FUNCTION_SET_CONFIG, 0x0303);
+        sensor = new DeviceSensor(JOYSTICK_FUNCTION_GET_POSITION, COLOR_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, COLOR_CALLBACK_ILLUMINANCE);
+        sensor->setValueSize(4);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=100000,step=500,interval=250")));
+        sensor->setMinMax(0, 100000);
+        sensor->setOther(functions);
+        functions = sensor;
 
+        // TODO: this will not work ... there are 4 independent values, 16bit each
+        // -> need 4 valueProviders or other mechanism, also for the callback.
+        sensor = new DeviceSensor(COLOR_FUNCTION_GET_COLOR, COLOR_FUNCTION_SET_COLOR_CALLBACK_PERIOD, COLOR_CALLBACK_COLOR);
+        sensor->setRangeCallback(COLOR_FUNCTION_SET_COLOR_CALLBACK_THRESHOLD,
+                COLOR_FUNCTION_GET_COLOR_CALLBACK_THRESHOLD,
+                COLOR_FUNCTION_SET_DEBOUNCE_PERIOD,
+                COLOR_FUNCTION_GET_DEBOUNCE_PERIOD,
+                COLOR_CALLBACK_COLOR_REACHED);
+
+        sensor->enableStatusLed(COLOR_FUNCTION_IS_LIGHT_ON, COLOR_FUNCTION_LIGHT_ON, COLOR_FUNCTION_LIGHT_OFF);
+        sensor->setValueSize(8);
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3200000,step=800,interval=200")));
+        sensor->setMinMax(0, 6400000);
+        sensor->setOther(functions);
+        functions = sensor;
+        label = "X / Y";
+        break;
+*/
     case LINEAR_POTI_DEVICE_IDENTIFIER:
         functions = new DevicePotentiometer(true);
         break;
@@ -508,6 +558,14 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case PIEZO_SPEAKER_DEVICE_IDENTIFIER:
         functions = new DevicePiezoSpeaker();
+        break;
+
+    case OLED_128X64_DEVICE_IDENTIFIER:
+        functions = new DeviceOled(128, 64);
+        break;
+
+    case OLED_64X48_DEVICE_IDENTIFIER:
+        functions = new DeviceOled(64, 48);
         break;
 
     case PTC_DEVICE_IDENTIFIER:

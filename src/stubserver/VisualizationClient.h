@@ -210,6 +210,54 @@ protected:
 };
 
 /**
+ * The state of an OLED screen.
+ */
+class OledState : public VisibleDeviceState
+{
+public:
+    /**
+     * Default init with screen size.
+     */
+    OledState(unsigned _cols, unsigned _lines);
+
+    /**
+     * Returns the number of display columns.
+     */
+    unsigned getCols() const {
+        return cols;
+    }
+
+    /**
+     * Returns the number of display lines.
+     */
+    unsigned getLines() const {
+        return lines;
+    }
+
+    uint8_t getContrast() const {
+        return contrast;
+    }
+
+    bool isInverted() const {
+        return inverted;
+    }
+
+    /**
+     * Is a single pixel set in the screen?
+     */
+    bool isPixelOn(unsigned line, unsigned col) const;
+
+protected:
+    const unsigned cols, lines;
+
+    uint8_t pixels[128 * 8];  // 1 byte holds the value for 8 pixels
+    uint8_t contrast;
+    bool    inverted;
+
+    void clear();
+};
+
+/**
  * Virtual base class for LED strip state.
  */
 class LedStripState : public VisibleDeviceState
@@ -310,6 +358,42 @@ protected:
     int      min, max;
     bool     statusLedOn;
 };
+
+
+/**
+ * A simple sensor with one value in the range 0 .. 4095 (typically), Potentiometers
+ * can also be handled as sensors as they just return one value.
+ */
+class DualButtonState : public VisibleDeviceState
+{
+public:
+    /**
+     * Default init.
+     */
+    DualButtonState();
+
+    /**
+     * Returns the current button states: bit 0 is left, bit 1 right button.
+     */
+    int getButtonStates() const {
+        return buttonStates;
+    }
+
+    // test if left or right LED is ON.
+    bool isLedOn_l() const {
+        return ledOn_l;
+    }
+
+    bool isLedOn_r() const {
+        return ledOn_r;
+    }
+
+protected:
+    int  buttonStates;
+    bool ledOn_l;
+    bool ledOn_r;
+};
+
 
 /**
  * A simple relay state for a set of max 16 switches.

@@ -24,6 +24,9 @@
 
 namespace stubserver {
 
+// each byte has just one single pixel set
+static const uint8_t SINGLE_PIXEL[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
+
 
 VisibleDeviceState::~VisibleDeviceState() { }
 
@@ -68,6 +71,15 @@ SensorState::SensorState(int _min, int _max)
   , min(_min)
   , max(_max)
   , statusLedOn(false)
+{
+}
+
+
+DualButtonState::DualButtonState()
+  : VisibleDeviceState(0)
+  , buttonStates(0)
+  , ledOn_l(false)
+  , ledOn_r(false)
 {
 }
 
@@ -126,6 +138,40 @@ const std::string& LcdState::getLine(unsigned line) const
     if (line >= lines)
         throw std::out_of_range("Line no invalid");
     return text[line];
+}
+
+/**
+ * Default init.
+ */
+OledState::OledState(unsigned _cols, unsigned _lines)
+    : VisibleDeviceState(0)
+    , cols(_cols)
+    , lines(_lines)
+    , contrast(143)
+    , inverted(false)
+{
+    clear();
+}
+
+/**
+ * Clear all pixel data of the screen.
+ */
+void OledState::clear() {
+    bzero(pixels, sizeof(pixels));
+}
+
+/**
+ * Is a single pixel set in the screen?
+ */
+bool OledState::isPixelOn(unsigned line, unsigned col) const
+{
+    if (line > lines || col > cols)
+        return false;
+
+    unsigned byteNo = (line / 8) * cols + col;
+    unsigned bitNo  = line & 7;
+
+    return pixels[byteNo] & SINGLE_PIXEL[bitNo];
 }
 
 
