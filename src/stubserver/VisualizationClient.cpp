@@ -83,6 +83,13 @@ DualButtonState::DualButtonState()
 {
 }
 
+/**
+ * Unknown time so far.
+ */
+RealTimeClockState::RealTimeClockState()
+    : VisibleDeviceState(0)
+    , brickletTime(0)
+{ }
 
 /**
  * Just basic init.
@@ -171,7 +178,7 @@ bool OledState::isPixelOn(unsigned line, unsigned col) const
     unsigned byteNo = (line / 8) * cols + col;
     unsigned bitNo  = line & 7;
 
-    return pixels[byteNo] & SINGLE_PIXEL[bitNo];
+    return pixels[byteNo] & SINGLE_PIXEL[bitNo] ? true:false;
 }
 
 

@@ -67,17 +67,8 @@ void DeviceOled::writeText(uint8_t fulldata[])
                 if (mask->isOn(x, y))
                     byte += (1 << y);
 
-            // skip leading blank cols
-            if (x > 0 || byte != 0) {
-                pixels[offset] = byte;
-                // printf("Byte %d = %d\n", x, byte);
-                ++offset;
-            }
-        }
-
-        // one blank col between chars
-        if (pixels[offset - 1] != 0) {
-            pixels[offset] = 0;
+            pixels[offset] = byte;
+            // printf("Byte %d = %d\n", x, byte);
             ++offset;
         }
     }

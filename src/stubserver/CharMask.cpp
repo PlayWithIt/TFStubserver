@@ -310,6 +310,47 @@ ScreenFont::ScreenFont(bool forOled)
                           " XX  ",
                           "     "));
 
+    set(';', new CharMask("     ",
+                          " XX  ",
+                          " XX  ",
+                          "     ",
+                          " XX  ",
+                          "  X  ",
+                          " X   "));
+
+    set('<', new CharMask("   X ",
+                          "  X  ",
+                          " X   ",
+                          "X    ",
+                          " X   ",
+                          "  X  ",
+                          "   X "));
+
+
+    set('=', new CharMask("     ",
+                          "     ",
+                          "XXXXX",
+                          "     ",
+                          "XXXXX",
+                          "     ",
+                          "     "));
+
+    set('>', new CharMask("X    ",
+                          " X   ",
+                          "  X  ",
+                          "   X ",
+                          "  X  ",
+                          " X   ",
+                          "X    "));
+
+    set('?', new CharMask(" XXX ",
+                          "X   X",
+                          "X   X",
+                          "   X ",
+                          "  X  ",
+                          "     ",
+                          "  X  " ));
+
     set('A', new CharMask(" XXX ",
                           "X   X",
                           "X   X",
@@ -551,23 +592,22 @@ ScreenFont::ScreenFont(bool forOled)
                           "     ",
                           "XXXXX"));
 
-    set('=', new CharMask("     ",
-                          "     ",
-                          "XXXXX",
-                          "     ",
-                          "XXXXX",
-                          "     ",
-                          "     "));
+    // the index values are that one from the LCD / OLED charset!
+    unsigned i_ae, i_oe, i_ue;
+    unsigned i_FF;
+    if (forOled) {
+        i_ae = 0x84;
+        i_oe = 0x94;
+        i_ue = 0x81;
+        i_FF = 0xDB;
+    }
+    else {
+        i_ae = 0xE1;
+        i_oe = 0xEF;
+        i_ue = 0xF5;
+        i_FF = 0xFF;
+    }
 
-    set('?', new CharMask(" XXX ",
-                          "X   X",
-                          "X   X",
-                          "   X ",
-                          "  X  ",
-                          "     ",
-                          "  X  " ));
-
-    // the hex value is that one from the LCD charset!
     set(0xA1, new CharMask("   ",
                            "   ",
                            "   ",
@@ -585,7 +625,7 @@ ScreenFont::ScreenFont(bool forOled)
                            "   ",
                            "   "));
     // ä
-    set(0xE1, new CharMask(" X X ",
+    set(i_ae, new CharMask(" X X ",
                            "     ",
                            " XXX ",
                            "    X",
@@ -732,7 +772,7 @@ ScreenFont::ScreenFont(bool forOled)
                           " XXX " ));
 
     // ö
-    set(0xEF, new CharMask(" X X ",
+    set(i_oe, new CharMask(" X X ",
                            "     ",
                            " XXX ",
                            "X   X",
@@ -789,7 +829,7 @@ ScreenFont::ScreenFont(bool forOled)
                           " XX X"));
 
     // ü
-    set(0xF5, new CharMask(" X X ",
+    set(i_ue, new CharMask(" X X ",
                            "     ",
                            "X   X",
                            "X   X",
@@ -862,15 +902,14 @@ ScreenFont::ScreenFont(bool forOled)
                           " X   " ));
 
     // 255 has all pixels active for LCD
-    unsigned ii = forOled ? 0xDB : 0xFF;
-    set(ii, new CharMask("XXXXX",
-                         "XXXXX",
-                         "XXXXX",
-                         "XXXXX",
-                         "XXXXX",
-                         "XXXXX",
-                         "XXXXX",
-                         "XXXXX" ));
+    set(i_FF, new CharMask("XXXXX",
+                           "XXXXX",
+                           "XXXXX",
+                           "XXXXX",
+                           "XXXXX",
+                           "XXXXX",
+                           "XXXXX",
+                           "XXXXX" ));
 
     //------------------------------------------------------------------------------
     if (forOled) {

@@ -71,6 +71,7 @@
 #include "DeviceOled.h"
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
+#include "DeviceRTC.h"
 #include "DeviceSensor.h"
 #include "DeviceTilt.h"
 #include "DeviceTouchPad.h"
@@ -578,6 +579,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
         sensor->setMinMax(-4000, 12500);
         functions = sensor;
+        break;
+
+    case REAL_TIME_CLOCK_DEVICE_IDENTIFIER:
+        functions = new DeviceRTC();
         break;
 
     case REMOTE_SWITCH_DEVICE_IDENTIFIER:

@@ -21,6 +21,7 @@
 #define STUBSERVER_VISUALIZATIONCLIENT_H_
 
 #include <string>
+#include <ctime>
 
 
 namespace stubserver {
@@ -392,6 +393,19 @@ protected:
     int  buttonStates;
     bool ledOn_l;
     bool ledOn_r;
+};
+
+
+/**
+ * Holds date/time of a real-time clock bricklet.
+ */
+class RealTimeClockState : public VisibleDeviceState
+{
+public:
+    RealTimeClockState();
+
+protected:
+    time_t brickletTime;
 };
 
 

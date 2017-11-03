@@ -59,11 +59,13 @@ typedef struct IOPacket
     PacketHeader header;
     union {
         uint64_t uint64Value;
+        int64_t  int64Value;
         uint32_t uint32Value;
         int32_t  int32Value;
         uint16_t uint16Value;
         int16_t  int16Value;
         uint8_t  uint8Value;
+        int8_t   int8Value;
         bool     boolValue;
         char     group[4];
 
