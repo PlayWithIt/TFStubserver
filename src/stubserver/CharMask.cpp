@@ -302,22 +302,6 @@ ScreenFont::ScreenFont(bool forOled)
                           "   X ",
                           " XX  "));
 
-    set(':', new CharMask("     ",
-                          " XX  ",
-                          " XX  ",
-                          "     ",
-                          " XX  ",
-                          " XX  ",
-                          "     "));
-
-    set(';', new CharMask("     ",
-                          " XX  ",
-                          " XX  ",
-                          "     ",
-                          " XX  ",
-                          "  X  ",
-                          " X   "));
-
     set('<', new CharMask("   X ",
                           "  X  ",
                           " X   ",
@@ -608,22 +592,6 @@ ScreenFont::ScreenFont(bool forOled)
         i_FF = 0xFF;
     }
 
-    set(0xA1, new CharMask("   ",
-                           "   ",
-                           "   ",
-                           "   ",
-                           "XXX",
-                           "X X",
-                           "XXX",
-                           "   "));
-
-    set(0xDF, new CharMask("XXX",
-                           "X X",
-                           "XXX",
-                           "   ",
-                           "   ",
-                           "   ",
-                           "   "));
     // ä
     set(i_ae, new CharMask(" X X ",
                            "     ",
@@ -641,14 +609,6 @@ ScreenFont::ScreenFont(bool forOled)
                            "XXXX ",
                            "X    ",
                            "X    " ));
-
-    set(0xEB, new CharMask("X X",
-                           " X ",
-                           "X X",
-                           "   ",
-                           "   ",
-                           "   ",
-                           "   "));
 
     set('a', new CharMask("     ",
                           "     ",
@@ -916,21 +876,226 @@ ScreenFont::ScreenFont(bool forOled)
         set(' ', new CharMask());   // blank chars
         set(255, new CharMask());
 
+        set(':', new CharMask("     ",
+                              "     ",
+                              "  X  ",
+                              "     ",
+                              "  X  ",
+                              "     ",
+                              "     "));
+
+        set(';', new CharMask("     ",
+                              "     ",
+                              "  X  ",
+                              "     ",
+                              "  X  ",
+                              "  X  ",
+                              " X   "));
+
+        set(0x01, new CharMask(" XXX ",
+                               "XXXXX",
+                               "X X X",
+                               "XXXXX",
+                               "XX XX",
+                               "X   X",
+                               " XXX " ));
+
+        set(0x02, new CharMask(" XXX ",
+                               "XXXXX",
+                               "X X X",
+                               "XXXXX",
+                               "X   X",
+                               "X   X",
+                               " XXX " ));
+
+        set(0x03, new CharMask("     ",
+                               " X X ",
+                               "XXXXX",
+                               "XXXXX",
+                               "XXXXX",
+                               " XXX ",
+                               "  X  " ));
+
+        set(0x04, new CharMask("     ",
+                               "  X  ",
+                               " XXX ",
+                               "XXXXX",
+                               "XXXXX",
+                               " XXX ",
+                               "  X  " ));
+
+        set(0x05, new CharMask(" XXX ",
+                               " X X ",
+                               "XXXXX",
+                               "X X X",
+                               "XXXXX",
+                               "  X  ",
+                               " XXX " ));
+
+        set(0x06, new CharMask("  X  ",
+                               " XXX ",
+                               "XXXXX",
+                               "XXXXX",
+                               "XXXXX",
+                               "  X  ",
+                               " XXX " ));
+
+        set(0x07, new CharMask("     ",
+                               "     ",
+                               "  X  ",
+                               " XXX ",
+                               " XXX ",
+                               "  X  ",
+                               "     " ));
+
+        set(0x08, new CharMask("XXXXX",
+                               "XXXXX",
+                               "XX XX",
+                               "X   X",
+                               "X   X",
+                               "XX XX",
+                               "XXXXX",
+                               "XXXXX" ));
+
+        set(0x09, new CharMask("     ",
+                               "     ",
+                               "  X  ",
+                               " X X ",
+                               " X X ",
+                               "  X  ",
+                               "     " ));
+
+        set(0x0A, new CharMask("XXXXX",
+                               "XXXXX",
+                               "XX XX",
+                               "X X X",
+                               "X X X",
+                               "XX XX",
+                               "XXXXX",
+                               "XXXXX" ));
+
+        set(0x0B, new CharMask("     ",
+                               "  XXX",
+                               "   XX",
+                               " XX X",
+                               "X X  ",
+                               "X X  ",
+                               " X   " ));
+
+        set(0x0C, new CharMask(" XXX ",
+                               "X   X",
+                               "X   X",
+                               " XXX ",
+                               "  X  ",
+                               "XXXXX",
+                               "  X  " ));
+
+        set(0x0D, new CharMask(" XXXX",
+                               " X  X",
+                               " XXXX",
+                               " X   ",
+                               " X   ",
+                               " X   ",
+                               "XX   " ));
+
+        set(0x0E, new CharMask(" XXXX",
+                               " X  X",
+                               " XXXX",
+                               " X  X",
+                               " X  X",
+                               " X XX",
+                               "XX   " ));
+
+        set(0x0F, new CharMask("  X  ",
+                               "X X X",
+                               " XXX ",
+                               "XX XX",
+                               "XX XX",
+                               " XXX ",
+                               "X X X",
+                               "  X  " ));
+
+        set(0x10, new CharMask("X    ",
+                               "XX   ",
+                               "XXXX ",
+                               "XXXXX",
+                               "XXXX ",
+                               "XX   ",
+                               "X    " ));
+
+        set(0x11, new CharMask("    X",
+                               "   XX",
+                               " XXXX",
+                               "XXXXX",
+                               "  XXX",
+                               "   XX",
+                               "    X" ));
+
+        set(0x12, new CharMask("  X  ",
+                               " XXX ",
+                               "X X X",
+                               "  X  ",
+                               "X X X",
+                               " XXX ",
+                               "  X  " ));
+
+        set(0x13, new CharMask("XX XX",
+                               "XX XX",
+                               "XX XX",
+                               "XX XX",
+                               "XX XX",
+                               "     ",
+                               "XX XX" ));
+
+        set(0x14, new CharMask(" XX X",
+                               "X X X",
+                               "X X X",
+                               " XX X",
+                               "  X X",
+                               "  X X",
+                               "  X X" ));
+
+        set(0x15, new CharMask("  XX ",
+                               " X  X",
+                               " X X ",
+                               "  X X",
+                               "   X ",
+                               "    X",
+                               " X  X",
+                               "  XX " ));
+
+        set(0x16, new CharMask("     ",
+                               "     ",
+                               "     ",
+                               "     ",
+                               "     ",
+                               "XXXXX",
+                               "XXXXX" ));
+
+        set(0x17, new CharMask("  X  ",
+                               " XXX ",
+                               "X X X",
+                               "  X  ",
+                               "X X X",
+                               " XXX ",
+                               "  X  ",
+                               "XXXXX" ));
+
         set(0x18, new CharMask("     ",
                                "  X  ",
                                " XXX ",
                                "X X X",
                                "  X  ",
                                "  X  ",
-                               "     " ));
+                               "  X  " ));
 
         set(0x19, new CharMask("     ",
                                "  X  ",
                                "  X  ",
+                               "  X  ",
                                "X X X",
                                " XXX ",
-                               "  X  ",
-                               "     " ));
+                               "  X  " ));
 
         set(0x1A, new CharMask("     ",
                                "  X  ",
@@ -955,6 +1120,60 @@ ScreenFont::ScreenFont(bool forOled)
                               "     ",
                               "     ",
                               "     " ));
+
+        set(0x99, new CharMask("X   X",
+                               " XXX ",
+                               "X   X",
+                               "X   X",
+                               "X   X",
+                               "X   X",
+                               "X   X",
+                               " XXX " ));
+
+        set(0x9A, new CharMask("X   X",
+                               "     ",
+                               "X   X",
+                               "X   X",
+                               "X   X",
+                               "X   X",
+                               "X   X",
+                               " XXX " ));
+
+        set(0x9B, new CharMask("  X  ",
+                               "  X  ",
+                               "XXXXX",
+                               "X X  ",
+                               "X X  ",
+                               "XXXXX",
+                               "  X  ",
+                               "  X  " ));
+
+        set(0xB0, new CharMask("X X X",
+                               "     ",
+                               "X X X",
+                               "     ",
+                               "X X X",
+                               "     ",
+                               "X X X",
+                               "     " ));
+
+        set(0xB1, new CharMask(" X X ",
+                               "X X X",
+                               " X X ",
+                               "X X X",
+                               " X X ",
+                               "X X X",
+                               " X X ",
+                               "X X X" ));
+
+        set(0xB2, new CharMask("XXXXX",
+                               "X X X",
+                               "XXXXX",
+                               "X X X",
+                               "XXXXX",
+                               "X X X",
+                               "XXXXX",
+                               "X X X" ));
 
         set(0xB3, new CharMask("   X ",
                                "   X ",
@@ -1055,6 +1274,168 @@ ScreenFont::ScreenFont(bool forOled)
                                "     ",
                                "     " ));
 
+        set(0xBE, new CharMask("   X ",
+                               "   X ",
+                               "XXXX ",
+                               "   X ",
+                               "XXXX ",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xBF, new CharMask("     ",
+                               "     ",
+                               "     ",
+                               "     ",
+                               "XXXX ",
+                               "   X ",
+                               "   X ",
+                               "   X " ));
+
+        set(0xC0, new CharMask("   X ",
+                               "   X ",
+                               "   X ",
+                               "   X ",
+                               "   XX",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xC1, new CharMask("   X ",
+                               "   X ",
+                               "   X ",
+                               "   X ",
+                               "XXXXX",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xC2, new CharMask("     ",
+                               "     ",
+                               "     ",
+                               "     ",
+                               "XXXXX",
+                               "   X ",
+                               "   X ",
+                               "   X " ));
+
+        set(0xC3, new CharMask("   X ",
+                               "   X ",
+                               "   X ",
+                               "   X ",
+                               "   XX",
+                               "   X ",
+                               "   X ",
+                               "   X " ));
+
+        set(0xC4, new CharMask("     ",
+                               "     ",
+                               "     ",
+                               "     ",
+                               "XXXXX",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xC5, new CharMask("   X ",
+                               "   X ",
+                               "   X ",
+                               "   X ",
+                               "XXXXX",
+                               "   X ",
+                               "   X ",
+                               "   X " ));
+
+        set(0xC6, new CharMask("   X ",
+                               "   X ",
+                               "   XX",
+                               "   X ",
+                               "   XX",
+                               "   X ",
+                               "   X ",
+                               "   X " ));
+
+        set(0xC7, new CharMask("  X X",
+                               "  X X",
+                               "  X X",
+                               "  X X",
+                               "  X X",
+                               "  X X",
+                               "  X X",
+                               "  X X" ));
+
+        set(0xC8, new CharMask("  X X",
+                               "  X X",
+                               "  X X",
+                               "  X  ",
+                               "  XXX",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xC9, new CharMask("     ",
+                               "     ",
+                               "  XXX",
+                               "  X  ",
+                               "  X X",
+                               "  X X",
+                               "  X X",
+                               "  X X" ));
+
+        set(0xCA, new CharMask("  X X",
+                               "  X X",
+                               "XXX X",
+                               "     ",
+                               "XXXXX",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xCB, new CharMask("     ",
+                               "     ",
+                               "XXXXX",
+                               "     ",
+                               "XXX X",
+                               "  X X",
+                               "  X X",
+                               "  X X" ));
+
+        set(0xCC, new CharMask("  X X",
+                               "  X X",
+                               "  X X",
+                               "  X  ",
+                               "  X X",
+                               "  X X",
+                               "  X X",
+                               "  X X" ));
+
+        set(0xCD, new CharMask("     ",
+                               "     ",
+                               "XXXXX",
+                               "     ",
+                               "XXXXX",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xCE, new CharMask("  X X",
+                               "  X X",
+                               "XXX X",
+                               "     ",
+                               "XXX X",
+                               "  X X",
+                               "  X X",
+                               "  X X" ));
+
+        set(0xCF, new CharMask("   X ",
+                               "   X ",
+                               "XXXXX",
+                               "     ",
+                               "XXXXX",
+                               "     ",
+                               "     ",
+                               "     " ));
+
         set(0xDC, new CharMask("     ",
                                "     ",
                                "     ",
@@ -1097,6 +1478,22 @@ ScreenFont::ScreenFont(bool forOled)
             if (chars[i] == NULL)
                 chars[i] = new CharMask();
 
+        set(':', new CharMask("     ",
+                              " XX  ",
+                              " XX  ",
+                              "     ",
+                              " XX  ",
+                              " XX  ",
+                              "     "));
+
+        set(';', new CharMask("     ",
+                              " XX  ",
+                              " XX  ",
+                              "     ",
+                              " XX  ",
+                              "  X  ",
+                              " X   "));
+
         set(0x7E, new CharMask("     ",
                                "  X  ",
                                "   X ",
@@ -1112,6 +1509,31 @@ ScreenFont::ScreenFont(bool forOled)
                                " X   ",
                                "  X  ",
                                "     " ));
+
+        set(0xA1, new CharMask("   ",
+                               "   ",
+                               "   ",
+                               "   ",
+                               "XXX",
+                               "X X",
+                               "XXX",
+                               "   "));
+
+        set(0xDF, new CharMask("XXX",
+                               "X X",
+                               "XXX",
+                               "   ",
+                               "   ",
+                               "   ",
+                               "   "));
+
+        set(0xEB, new CharMask("X X",
+                               " X ",
+                               "X X",
+                               "   ",
+                               "   ",
+                               "   ",
+                               "   "));
     }
 
     // guarantee that all chars at least have a value
