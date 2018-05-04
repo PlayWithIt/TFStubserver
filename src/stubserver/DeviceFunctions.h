@@ -44,6 +44,13 @@ typedef std::lock_guard<std::mutex> MutexLock;
 #define FUNCTION_READ_BRICKLET_PLUGIN  247
 #define FUNCTION_WRITE_BRICKLET_PLUGIN 246
 
+#define FUNCTION_BRICKLET_RESET        243
+#define FUNCTION_GET_CHIP_TEMPERATURE  242
+#define FUNCTION_GET_STATUS_LED_CONFIG 240
+#define FUNCTION_SET_STATUS_LED_CONFIG 239
+#define FUNCTION_GET_BOOTLOADER_MODE   236
+#define FUNCTION_SET_BOOTLOADER_MODE   235
+
 
 
 namespace stubserver {
@@ -343,6 +350,7 @@ public:
 };
 
 
+
 /**
  * This is a virtual device which has an array index in the packet (e.g. for
  * the ServoBrick. The brick has a channel index for each servo, this is handled
@@ -367,6 +375,7 @@ public:
 };
 
 
+
 /**
  * An enable / disable command which holds one boolean. The commands supports
  * a 'get', but no direct 'set': instead an enable / disable must be used.
@@ -387,6 +396,27 @@ public:
 
     /** create a deep copy of this device plus all child devices! */
     DeviceFunctions* clone() const override;
+
+    DECLARE_OWN_DEVICE_CALLBACKS
+};
+
+
+
+/**
+ * The V2 device is for all devices that have a chip on the bricklet and
+ * support led status and chip temperature status functions.
+ */
+class V2Device : public DeviceFunctions
+{
+    V2Device& operator=(const V2Device& rhs) = delete;
+    V2Device(const V2Device& rhs) = delete;
+
+protected:
+    VisibleDeviceState *visibleDeviceState;
+
+public:
+    V2Device(DeviceFunctions *other, VisibleDeviceState *state);
+    ~V2Device();
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

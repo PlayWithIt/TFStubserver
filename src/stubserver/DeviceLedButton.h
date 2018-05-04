@@ -1,7 +1,7 @@
 /*
- * DeviceMotionDetector.h
+ * DeviceLedButton.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2018 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STUBSERVER_DEVICEMOTIONDETECTOR_H_
-#define STUBSERVER_DEVICEMOTIONDETECTOR_H_
+#ifndef STUBSERVER_DEVICELEDBUTTON_H_
+#define STUBSERVER_DEVICELEDBUTTON_H_
 
 #include "DeviceFunctions.h"
 #include "VisualizationClient.h"
@@ -26,23 +26,29 @@
 namespace stubserver {
 
 /**
- * Simple MotionDetector which has only two callbacks.
+ * Simulates the Led button bricklet.
  */
-class DeviceMotionDetector : public V2Device, public SensorState
+class DeviceLedButton: public DeviceFunctions, public DualButtonState
 {
     ValueProvider *valueProvider;
-    uint64_t       motionEnd;
+
+    // flags how status LED should behave, the LED ON/OFF state is kept in DualButtonState
+    uint8_t ledConfig;
 
 public:
     /**
-     * The ValueProvider just needs to provide 1 (on) and 0 (off).
+     * The ValueProvider must provide <br>
+     * 0 -> both buttons off<br>
+     * 1 -> left button down<br>
+     * 2 -> right button down<br>
+     * 3 -> both buttons down<br>
      */
-    DeviceMotionDetector(ValueProvider *vp);
-    ~DeviceMotionDetector();
+    DeviceLedButton(ValueProvider *vp);
+    virtual ~DeviceLedButton();
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 } /* namespace stubserver */
 
-#endif /* STUBSERVER_DEVICEMOTIONDETECTOR_H_ */
+#endif /* STUBSERVER_DEVICELEDBUTTON_H_ */

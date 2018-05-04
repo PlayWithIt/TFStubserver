@@ -32,7 +32,7 @@ DeviceBrick::DeviceBrick(unsigned type, DeviceFunctions* _other, uint8_t _funcGe
    , extenstionType1(0)
 {
     enableStatusLed(MASTER_FUNCTION_IS_STATUS_LED_ENABLED, MASTER_FUNCTION_ENABLE_STATUS_LED, MASTER_FUNCTION_DISABLE_STATUS_LED);
-    setStatusLedOn(true);
+    setStatusLedConfig(STATUS_LED_ON);
 }
 
 DeviceBrick::DeviceBrick(unsigned type, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
@@ -65,6 +65,11 @@ bool DeviceBrick::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
             p.header.length = sizeof(p.header) + 4;
             p.uint32Value = p.group[0] == 0 ? extenstionType0 : extenstionType1;
             utils::Log() << "Return extension type " << p.uint32Value << " for position " << (p.group[0] == 0 ? '0' : '1');
+            return true;
+
+        case MASTER_FUNCTION_GET_CONNECTION_TYPE:
+            p.header.length = sizeof(p.header) + 1;
+            p.uint8Value = MASTER_CONNECTION_TYPE_USB;
             return true;
 
         case MASTER_FUNCTION_SET_EXTENSION_TYPE:

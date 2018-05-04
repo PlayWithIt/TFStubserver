@@ -21,6 +21,7 @@
 #include <math.h>
 #include <fstream>
 #include <cstring>
+#include <ctime>
 #include <limits>
 
 #include "Exceptions.h"
@@ -121,7 +122,7 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options)
 RandomValueProvider::RandomValueProvider(int _min, int _max, unsigned int _interval)
   : ValueProvider(_min, _max, _interval)
 {
-    srandom(time(NULL));
+    srand(time(NULL));
     lastValue = calcValue();
 }
 
@@ -130,7 +131,7 @@ RandomValueProvider::RandomValueProvider(int _min, int _max, unsigned int _inter
  */
 int RandomValueProvider::calcValue() const
 {
-    long v = random();
+    long v = rand();
     int result = (v % (max - min + 1)) + min;
     return result;
 }

@@ -49,7 +49,7 @@ std::string& replace(std::string& inOut, const char *old, const char *newStr)
     size_t oldLen = strlen(old);
 
     if ((pos = inOut.find(old)) != std::string::npos) {
-       inOut.replace(pos, oldLen, newStr);
+        inOut.replace(pos, oldLen, newStr);
     }
     return inOut;
 }
@@ -66,8 +66,8 @@ std::string& replaceAll(std::string& inOut, const char *old, const char *newStr)
     size_t newLen = strlen(newStr);
 
     while((pos = inOut.find(old, pos)) != std::string::npos) {
-       inOut.replace(pos, oldLen, newStr);
-       pos += newLen;
+        inOut.replace(pos, oldLen, newStr);
+        pos += newLen;
     }
     return inOut;
 }
@@ -95,6 +95,92 @@ bool startsWith(const std::string &s, const char *prefix)
 }
 
 /**
+ * We could use std::locale here but unfortunately if the locale de_DE is not
+ * defined by default, an admin must install/create it or the program would crash!
+ */
+inline void myLower(char &in)
+{
+    if (in >= 'A' && in <= 'Z')
+        in += 32;
+    else {
+        switch ((uint8_t)in) {
+        case UCHAR_Auml:
+            in = (char)UCHAR_auml;
+            break;
+        case UCHAR_Ouml:
+            in = (char)UCHAR_ouml;
+            break;
+        case UCHAR_Uuml:
+            in = (char)UCHAR_uuml;
+            break;
+        }
+    }
+}
+
+inline void myUpper(char &in)
+{
+    if (in >= 'a' && in <= 'z')
+        in -= 32;
+    else {
+        switch ((uint8_t)in) {
+        case UCHAR_auml:
+            in = (char)UCHAR_Auml;
+            break;
+        case UCHAR_ouml:
+            in = (char)UCHAR_Ouml;
+            break;
+        case UCHAR_uuml:
+            in = (char)UCHAR_Uuml;
+            break;
+        }
+    }
+}
+
+/**
+ * Converts the given String to lower case (using ASCII locale) and returns
+ * the address of the string.
+ */
+std::string& toLower(std::string &s)
+{
+    for (auto it = s.begin(); it != s.end(); ++it)
+        myLower(*it);
+    return s;
+}
+
+/**
+ * Converts the given String to lower case (using ASCII locale) and returns
+ * the address of the string.
+ */
+char* toLower(char *s)
+{
+    for (char *it = s; *it; ++it)
+        myLower(*it);
+    return s;
+}
+
+/**
+ * Converts the given String to upper case (using ASCII locale) and returns
+ * the address of the string.
+ */
+std::string& toUpper(std::string &s)
+{
+    for (auto it = s.begin(); it != s.end(); ++it)
+        myUpper(*it);
+    return s;
+}
+
+/**
+ * Converts the given String to upper case (using ASCII locale) and returns
+ * the address of the string.
+ */
+char* toUpper(char *s)
+{
+    for (char *it = s; *it; ++it)
+        myUpper(*it);
+    return s;
+}
+
+/**
  * Does a string end with the given suffix string?
  */
 bool endsWith(const std::string &whole, const std::string &suffix)
@@ -118,7 +204,44 @@ bool endsWith(const std::string &whole, const std::string &suffix)
 std::string strerror(int err)
 {
     char buff[2048];
+#ifdef _WIN32
+    strerror_s(buff, sizeof(buff), err);
+    return buff;
+#else
     return strerror_r(err, buff, sizeof(buff));
+#endif
+}
+
+inline bool isSpace(char ch) {
+    return (ch == ' ' || ch == '\t');
+}
+
+/**
+ * Removes leading and trailing blanks and tabs.
+ */
+std::string& trim(std::string &in)
+{
+    unsigned l = in.length();
+
+    // empty string
+    if (l == 0)
+        return in;
+
+    unsigned first = 0;
+    while (first < l && isSpace(in[first]))
+        ++first;
+
+    // only spaces?
+    if (first == l) {
+        in.clear();
+        return in;
+    }
+
+    while (l-1 > first && isSpace(in[l-1]))
+        --l;
+
+    in = in.substr(first, l - first);
+    return in;
 }
 
 } /* namespace strings */

@@ -56,21 +56,19 @@ int64_t VisualizationClient::getInputState(unsigned sn) const {
 
 SensorState::SensorState()
   : VisibleDeviceState(0)
-  , sensorValue(0)
-  , counter(0)
   , min(0)
   , max(4095)
-  , statusLedOn(false)
+  , sensorValue(0)
+  , counter(0)
 {
 }
 
 SensorState::SensorState(int _min, int _max)
   : VisibleDeviceState(0)
-  , sensorValue(0)
-  , counter(0)
   , min(_min)
   , max(_max)
-  , statusLedOn(false)
+  , sensorValue(0)
+  , counter(0)
 {
 }
 
@@ -80,6 +78,9 @@ DualButtonState::DualButtonState()
   , buttonStates(0)
   , ledOn_l(false)
   , ledOn_r(false)
+  , red(0)
+  , green(0)
+  , blue(0)
 {
 }
 

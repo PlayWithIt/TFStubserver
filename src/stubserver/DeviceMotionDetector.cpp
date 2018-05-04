@@ -26,10 +26,11 @@ namespace stubserver {
 
 
 DeviceMotionDetector::DeviceMotionDetector(ValueProvider *vp)
-  : SensorState(0, 1)
+  : V2Device(NULL, this), SensorState(0, 1)
   , valueProvider(vp)
   , motionEnd(0)
 {
+    setStatusLedConfig(MOTION_DETECTOR_STATUS_LED_CONFIG_SHOW_STATUS);
 }
 
 DeviceMotionDetector::~DeviceMotionDetector()
@@ -51,7 +52,7 @@ bool DeviceMotionDetector::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
         return true;
 
     default:
-        return false;
+        return V2Device::consumeCommand(relativeTimeMs, p, visualizationClient);
     }
 }
 

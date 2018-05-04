@@ -21,6 +21,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>    // std::sort
+#include <vector>
 #include <string.h>
 #include <errno.h>
 
@@ -161,7 +162,28 @@ void Properties::load(const char *filename)
         end = l - 1;
         while (end > 0 && line[end] == ' ')
             --end;
-        std::string right = line.substr(start, end+1);
+
+        std::string right;
+
+        // continuation char at the end of the line?
+        if (end > 0 && line[end] == '\\') {
+            right = line.substr(start, end - start);
+            while (std::getline(input, line)) {
+
+                l = line.length();
+                start = 0;
+                while (start < l && line[start] == ' ')
+                    ++start;
+                if (l == 0 || line[l - 1] != '\\') {
+                    right += line.substr(start);
+                    break;
+                }
+                right += line.substr(start, l - start - 1);
+            }
+
+        }
+        else
+            right = line.substr(start, end - start + 1);
 
         // insert new value
         put(left, right);
@@ -297,7 +319,6 @@ const char* Properties::getOrSet(const char *key, const char *defaultValue) noex
  * key is not present in the container or the value has an invalid format.
  */
 bool Properties::getBool(const std::string &key) const
-    throw(KeyNotFound, ValueFormatError)
 {
     const char *v = get(key);
     if (!v)
@@ -320,7 +341,6 @@ bool Properties::getBool(const std::string &key) const
  * key is not present in the container or the value has an invalid format.
  */
 bool Properties::getBool(const std::string &key, bool defaultValue) const
-    throw(ValueFormatError)
 {
     try {
         return getBool(key);
@@ -335,7 +355,6 @@ bool Properties::getBool(const std::string &key, bool defaultValue) const
  * key is not present in the container or the value has an invalid format.
  */
 int Properties::getInt(const std::string &key) const
-    throw(KeyNotFound, ValueFormatError)
 {
     const char *v = get(key);
     if (!v)
@@ -348,7 +367,6 @@ int Properties::getInt(const std::string &key) const
  * key is not present in the container or the value has an invalid format.
  */
 int Properties::getInt(const std::string &key, int defaultValue) const
-    throw(ValueFormatError)
 {
     try {
         return getInt(key);
@@ -363,7 +381,6 @@ int Properties::getInt(const std::string &key, int defaultValue) const
  * key is not present in the container or the value has an invalid format.
  */
 double Properties::getDouble(const std::string &key) const
-    throw(KeyNotFound, ValueFormatError)
 {
     const char *v = get(key);
     if (!v)
@@ -382,7 +399,6 @@ double Properties::getDouble(const std::string &key) const
  * key is not present in the container or the value has an invalid format.
  */
 double Properties::getDouble(const std::string &key, double defaultValue) const
-    throw(ValueFormatError)
 {
     try {
         return getDouble(key);

@@ -19,6 +19,8 @@
 
 #include <memory.h>
 
+#include <bindings/bricklet_rgb_led_button.h>
+
 #include <utils/Log.h>
 #include <utils/Exceptions.h>
 
@@ -393,6 +395,10 @@ void GetSetRaw::updateIntermediateValue()
 }
 
 
+//-----------------------------------------------------------------------------
+//----- GetSetRaw
+//-----------------------------------------------------------------------------
+
 /**
  * Base init, nothing special
  */
@@ -457,6 +463,75 @@ bool EnableDisableBool::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
  * Just delegate to other function set since here we have no callbacks.
  */
 void EnableDisableBool::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
+{
+    if (other)
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
+}
+
+//-----------------------------------------------------------------------------
+//----- V2Devcice
+//-----------------------------------------------------------------------------
+
+/**
+ * Base init, nothing special
+ */
+V2Device::V2Device(DeviceFunctions *_other, VisibleDeviceState *state)
+  : DeviceFunctions(_other)
+  , visibleDeviceState(state)
+{
+}
+
+
+V2Device::~V2Device()
+{
+}
+
+/**
+ * First check if the other function supports this packet, if not
+ * check for this function and ignore it.
+ */
+bool V2Device::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
+{
+    p.header.length = sizeof(p.header);
+
+    switch (p.header.function_id) {
+    case FUNCTION_SET_STATUS_LED_CONFIG:
+        if (visibleDeviceState) {
+            visibleDeviceState->setStatusLedConfig(p.fullData.payload[0]);
+            visibleDeviceState->notify(visualizationClient, SensorState::LED_CHANGE);
+        }
+        return true;
+
+    case FUNCTION_GET_STATUS_LED_CONFIG:
+        if (visibleDeviceState)
+            p.fullData.payload[0] = visibleDeviceState->getStatusLedConfig();
+        else
+            p.fullData.payload[0] = STATUS_LED_HEARTBEAT;
+        p.header.length += 1;
+        return true;
+
+    case FUNCTION_GET_BOOTLOADER_MODE:
+        p.uint8Value = RGB_LED_BUTTON_BOOTLOADER_MODE_FIRMWARE;                   // default: firmware mode
+        p.header.length += 1;
+        return true;
+
+    case FUNCTION_SET_BOOTLOADER_MODE:
+        // ignore
+        return true;
+
+    case FUNCTION_BRICKLET_RESET:
+        return true;
+    }
+
+    if (other && other->consumeCommand(relativeTimeMs, p, visualizationClient))
+        return true;
+    return false;
+}
+
+/**
+ * Just delegate to other function set since here we have no callbacks.
+ */
+void V2Device::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
     if (other)
         other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);

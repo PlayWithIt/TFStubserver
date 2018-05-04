@@ -278,6 +278,8 @@ public:
     virtual int getValue(uint64_t relativeTimeMs);
 };
 
+typedef ValueProvider *PValueProvider;
+
 }
 
 #endif /* VALUEPROVIDER_H_ */

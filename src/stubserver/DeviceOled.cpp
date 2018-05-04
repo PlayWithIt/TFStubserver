@@ -51,7 +51,8 @@ void DeviceOled::writeText(uint8_t fulldata[])
 {
     uint8_t line = fulldata[0];
     uint8_t ind  = fulldata[1];
-    unsigned offset = line * cols + ind * 5;
+    unsigned colOffset  = ind * 5;
+    unsigned byteOffset = line * cols + colOffset;
 
     for (unsigned i = 2; i < 28; ++i)
     {
@@ -62,14 +63,18 @@ void DeviceOled::writeText(uint8_t fulldata[])
         PCharMask mask = oledFont.get(c);
         for (int x = 0; x < 5; ++x)
         {
+            if (colOffset >= cols)  // truncate line
+                return;
+
             uint8_t byte = 0;
             for (int y = 0; y < 8; ++y)
                 if (mask->isOn(x, y))
                     byte += (1 << y);
 
-            pixels[offset] = byte;
+            pixels[byteOffset] = byte;
             // printf("Byte %d = %d\n", x, byte);
-            ++offset;
+            ++byteOffset;
+            ++colOffset;
         }
     }
 }

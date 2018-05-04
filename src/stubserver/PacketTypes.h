@@ -73,10 +73,12 @@ typedef struct IOPacket
             uint32_t value1;
             uint32_t value2;
         } ATTRIBUTE_PACKED uints;
+
         struct {
             int16_t value1;
             int16_t value2;
         } ATTRIBUTE_PACKED shorts;
+
         struct {
             uint16_t value1;
             uint16_t value2;
@@ -148,6 +150,18 @@ typedef struct IOPacket
             uint8_t g[16];
             uint8_t b[16];
         } ATTRIBUTE_PACKED ledColors;
+
+        struct {
+            int16_t  temperature;
+            uint8_t  humidity;
+            uint16_t last_change;
+        } ATTRIBUTE_PACKED otdoorData;
+
+        struct {
+            uint8_t  id;
+            int16_t  temperature;
+            uint8_t  humidity;
+        } ATTRIBUTE_PACKED otdoorCallback;
 
         struct {
             char uid[8];

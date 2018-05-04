@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <bricklet_dual_button.h>
+
 #include "BrickStack.h"
 #include "DeviceDualButton.h"
 

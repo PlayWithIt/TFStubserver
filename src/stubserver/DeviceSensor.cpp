@@ -161,13 +161,13 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
     {
         if (func == setStatusLedOnFunc) {
             //utils::Log::log("Toggle status led ON");
-            setStatusLedOn(true);
+            setStatusLedConfig(STATUS_LED_ON);
             notify(visualizationClient, LED_CHANGE);
             return true;
         }
         if (func == setStatusLedOffFunc) {
             //utils::Log::log("Toggle status led OFF");
-            setStatusLedOn(false);
+            setStatusLedConfig(STATUS_LED_OFF);
             notify(visualizationClient, LED_CHANGE);
             return true;
         }
@@ -269,7 +269,7 @@ void DeviceSensor::enableStatusLed(uint8_t _getStatusLedFunc, uint8_t _setStatus
     getStatusLedFunc = _getStatusLedFunc;
     setStatusLedOnFunc = _setStatusLedOnFunc;
     setStatusLedOffFunc = _setStatusLedOffFunc;
-    setStatusLedOn(true);
+    setStatusLedConfig(STATUS_LED_ON);
 }
 
 /**

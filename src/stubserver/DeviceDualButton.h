@@ -20,8 +20,6 @@
 #ifndef STUBSERVER_DEVICEDUALBUTTON_H_
 #define STUBSERVER_DEVICEDUALBUTTON_H_
 
-#include <bricklet_dual_button.h>
-
 #include "DeviceFunctions.h"
 #include "VisualizationClient.h"
 

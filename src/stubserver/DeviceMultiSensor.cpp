@@ -236,13 +236,13 @@ DeviceDualAnalogIn::DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2)
     s1->rangeCallback.setFunctions(INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD,
             INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_DEBOUNCE_PERIOD, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_DEBOUNCE_PERIOD,
             INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED );
-    s1->setStatusLedOn(false);
+    s1->setStatusLedConfig(STATUS_LED_OFF);
     s1->setMinMax(-35 * 1000, 35 * 1000);
     s1->setInternalSensorNo(0);
 
     SensorData *s2 = new SensorData(v2, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_PERIOD, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE);
     s2->rangeCallback = s1->rangeCallback;
-    s2->setStatusLedOn(false);
+    s2->setStatusLedConfig(STATUS_LED_OFF);
     s2->setMinMax(-35 * 1000, 35 * 1000);
     s2->setInternalSensorNo(1);
 

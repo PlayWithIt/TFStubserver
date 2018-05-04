@@ -95,7 +95,7 @@ void ClientThread::run()
 
         int size = recv(socketHandle, dataPtr, headerSize, 0);
         if (size < 0) {
-            Log::perror("read()");
+            Log::perror("ClientThread::run() - read() error");
             continue;
         }
         if (size == 0) {
@@ -120,7 +120,7 @@ void ClientThread::run()
         {
             int n = recv(socketHandle, dataPtr + size, packet.header.length - size, 0);
             if (n < 0) {
-                Log::perror("read()");
+                Log::perror("ClientThread::run() - recv() error");
                 break;
             }
             size += n;

@@ -48,6 +48,7 @@
 #include <bricklet_moisture.h>
 #include <bricklet_humidity.h>
 #include <bricklet_ptc.h>
+#include <bricklet_rgb_led_button.h>
 #include <bricklet_sound_intensity.h>
 #include <bricklet_temperature.h>
 #include <bricklet_temperature_ir.h>
@@ -65,10 +66,12 @@
 #include "DeviceInOut.h"
 #include "DeviceHallEffect.h"
 #include "DeviceLCD.h"
+#include "DeviceLedButton.h"
 #include "DeviceLedStrip.h"
 #include "DeviceMotionDetector.h"
 #include "DeviceMultiSensor.h"
 #include "DeviceOled.h"
+#include "DeviceOutdoorWeather.h"
 #include "DevicePiezoSpeaker.h"
 #include "DeviceRelay.h"
 #include "DeviceRTC.h"
@@ -386,6 +389,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DeviceDualButton(createValueProvider(getProperty("valueProvider")));
         break;
 
+    case RGB_LED_BUTTON_DEVICE_IDENTIFIER:
+        functions = new DeviceLedButton(createValueProvider(getProperty("valueProvider")));
+        break;
+
     case DUAL_RELAY_DEVICE_IDENTIFIER:
         functions = new DeviceDualRelay();
         break;
@@ -527,7 +534,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->enableStatusLed(LOAD_CELL_FUNCTION_IS_LED_ON, LOAD_CELL_FUNCTION_LED_ON, LOAD_CELL_FUNCTION_LED_OFF);
         sensor->setCalibrateZeroFunc(LOAD_CELL_FUNCTION_TARE);
         sensor->setValueSize(4);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2000,step=10,interval=200")));
+        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2000,step=500,interval=5000")));
         sensor->setMinMax(0, 5000);
         sensor->setOther(functions);
         functions = sensor;
@@ -568,6 +575,25 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     case OLED_64X48_DEVICE_IDENTIFIER:
         functions = new DeviceOled(64, 48);
         break;
+
+    case OUTDOOR_WEATHER_DEVICE_IDENTIFIER: {
+        DeviceOutdoorWeather *w = new DeviceOutdoorWeather(createValueProvider(getProperty("valueProvider1")), getIntProperty("sensorId1"));
+        for (int i = 2; i < DeviceOutdoorWeather::MAX_SENSORS; ++i) {
+            char name[32];
+            sprintf(name, "valueProvider%d", i);
+            const char *vp = getProperty(name, "");
+
+            if (vp[0] == 0)  // not set
+                break;
+
+            sprintf(name, "sensorId%d", i);
+            int id = getIntProperty(name);
+
+            w->addSensor(createValueProvider(vp), id);
+        }
+        functions = w;
+    }
+    break;
 
     case PTC_DEVICE_IDENTIFIER:
         sensor = new DeviceSensor(PTC_FUNCTION_GET_TEMPERATURE, PTC_FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, PTC_CALLBACK_TEMPERATURE);
@@ -850,7 +876,7 @@ void SimulatedDevice::setVisualizationClient(VisualizationClient &client) const 
         state->notify(client, VisibleDeviceState::CONNECTED);
     }
     else {
-        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has NO base state yet, cannot use notify(CONNECTED)";
+        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has no VisibleDeviceState base class, cannot use notify(CONNECTED)";
     }
 }
 
@@ -877,14 +903,14 @@ const char *SimulatedDevice::getProperty(const std::string &key, int minLength)
         if (minLength <= 0)
             return "";
     }
-    if (res == NULL || (int)strlen(res) < minLength)
+    if (res == NULL || (int) strlen(res) < minLength)
     {
         char msg[128];
         if (!res)
             sprintf(msg, "Property '%s' for uid %s does not exist, check properties",
                     key.c_str(), uidStr.c_str());
         else
-            sprintf(msg, "Property '%s' for uid %s must have length %d, but has %d",
+            sprintf(msg, "Property '%s' for uid %s must have length %u, but has %d",
                     key.c_str(), uidStr.c_str(), minLength, res ? (int) strlen(res) : 0);
         throw Exception(msg);
     }
@@ -897,6 +923,12 @@ const char *SimulatedDevice::getProperty(const std::string &key, const char *def
     if (res == NULL || *res == 0)
         res = defaultValue;
     return res;
+}
+
+int SimulatedDevice::getIntProperty(const std::string &key)
+{
+	const char *v = getProperty(key, 1);
+	return atoi(v);
 }
 
 /**
@@ -988,10 +1020,15 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         return true;
 
     uint8_t func = p.header.function_id;
-    if (MASTER_FUNCTION_RESET == func && isBrick)
+    if (MASTER_FUNCTION_RESET == func)
     {
         // enumerate all bricklets
-        Log() << "Got a reset event for brick " << getUidStr();
+        if (isBrick) {
+            Log() << "Got a reset event for brick " << getUidStr();
+        }
+        else {
+            Log() << "Got a reset event for bricklet " << getUidStr();
+        }
         brickStack->initEnumerate(IPCON_ENUMERATION_TYPE_AVAILABLE);
         return true;
     }
@@ -1043,9 +1080,9 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         p.identity.device_identifier   = deviceTypeId;
         return true;
     }
-    if (MASTER_FUNCTION_GET_CHIP_TEMPERATURE == func && isBrick)
+    if (MASTER_FUNCTION_GET_CHIP_TEMPERATURE == func)
     {
-        // CHIP_TEMPERATURE is available in all bricks and has the same function-id in all bricks
+        // CHIP_TEMPERATURE is available in all bricks and some bricklets and has the same function-id 242
         p.header.length = sizeof(p.header) + sizeof(int16_t);
         p.int16Value = 320 + (time % 10);
         return true;

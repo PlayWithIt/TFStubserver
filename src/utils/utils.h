@@ -28,6 +28,10 @@ namespace utils {
 // will return true afterwards.
 void initSignalHandlers();
 
+// Set signal handler for example for SIGUSR1 or similar.
+// The function takes three arguments, the second is 'siginfo_t'
+void setSignalHandler(int signalNo, void (*function)(int, void *sigInfo, void *u_context), void *extraData);
+
 // return a flag that is true after a signal handler is called.
 bool shouldFinish();
 

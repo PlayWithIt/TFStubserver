@@ -1113,6 +1113,38 @@ ScreenFont::ScreenFont(bool forOled)
                                "  X  ",
                                "     " ));
 
+        set(0x1C, new CharMask("     ",
+                               "X    ",
+                               "X    ",
+                               "X    ",
+                               "XXXXX",
+                               "     ",
+                               "     " ));
+
+        set(0x1D, new CharMask("     ",
+                               " X X ",
+                               "XXXXX",
+                               "XXXXX",
+                               " X X ",
+                               "     ",
+                               "     " ));
+
+        set(0x1E, new CharMask("     ",
+                               "  X  ",
+                               "  X  ",
+                               " XXX ",
+                               "XXXXX",
+                               "XXXXX",
+                               "     " ));
+
+        set(0x1F, new CharMask("     ",
+                               "XXXXX",
+                               "XXXXX",
+                               " XXX ",
+                               "  X  ",
+                               "  X  ",
+                               "     " ));
+
         set('~', new CharMask(" X   ",
                               "X X X",
                               "   X ",
@@ -1120,6 +1152,15 @@ ScreenFont::ScreenFont(bool forOled)
                               "     ",
                               "     ",
                               "     " ));
+
+        set(0x80, new CharMask(" XXX ",
+                               "X   X",
+                               "X    ",
+                               "X    ",
+                               "X   X",
+                               " XXX ",
+                               "   X ",
+                               " XX  " ));
 
         set(0x99, new CharMask("X   X",
                                " XXX ",
@@ -1467,6 +1508,15 @@ ScreenFont::ScreenFont(bool forOled)
                                "XXXXX",
                                "XXXXX",
                                "XXXXX",
+                               "     ",
+                               "     ",
+                               "     ",
+                               "     " ));
+
+        set(0xF8, new CharMask(" XXX ",
+                               "XX XX",
+                               "XX XX",
+                               " XXX ",
                                "     ",
                                "     ",
                                "     ",

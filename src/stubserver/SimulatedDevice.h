@@ -70,6 +70,8 @@ class SimulatedDevice
      */
     const char *getProperty(const std::string &key, int minLength = 0);
     const char *getProperty(const std::string &key, const char *defaultValue);
+    int getIntProperty(const std::string &key);
+
     utils::ValueProvider* createValueProvider(const char *options);
 
 public:

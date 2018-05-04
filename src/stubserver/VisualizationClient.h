@@ -29,6 +29,16 @@ namespace stubserver {
 class VisibleDeviceState;
 
 /**
+ * How the status led is configured: not supported by all devices, but most of them.
+ */
+enum StatusLedSetting {
+    STATUS_LED_OFF = 0,         // always off
+    STATUS_LED_ON  = 1,         // always on
+    STATUS_LED_HEARTBEAT = 2,   // show heart beat
+    STATUS_LED_ACTIVITY = 3     // show activity status
+};
+
+/**
  * A special in-memory client that can register to a device and receive events if some
  * device states change (e.g. LCD text or sensor values). There maybe one client per device
  * (client can be specific). It is even possible that some devices have a client, some not.
@@ -75,12 +85,17 @@ class VisibleDeviceState
     unsigned changeCode;
     unsigned internalSensorNo;
 
+    /**
+     * Status led config is device specific value: some devices use 0,1 or 0,1,2,3.
+     */
+    uint8_t statusLedConfig;
+
 public:
     explicit VisibleDeviceState(unsigned c)
-       : changeCode(c), internalSensorNo(0) { }
+       : changeCode(c), internalSensorNo(0), statusLedConfig(STATUS_LED_HEARTBEAT) { }
 
     explicit VisibleDeviceState(unsigned c, unsigned sn)
-       : changeCode(c), internalSensorNo(sn) { }
+       : changeCode(c), internalSensorNo(sn), statusLedConfig(STATUS_LED_HEARTBEAT) { }
 
     virtual ~VisibleDeviceState();
 
@@ -92,6 +107,12 @@ public:
     static const unsigned DISCONNECT   = 0;
     static const unsigned CONNECTED    = 1;
     static const unsigned VALUE_CHANGE = 2;
+
+    /**
+     * Function code for LED status change.
+     */
+    static const unsigned LED_CHANGE = 3;
+
 
     void setChangeCode(unsigned c) {
         changeCode = c;
@@ -107,6 +128,25 @@ public:
 
     unsigned getInternalSensorNo() const {
         return internalSensorNo;
+    }
+
+    /**
+     * Changes the value of the status LED: some devices just have on/off,
+     * some other on (1) / off (0) + activity status (2)
+     */
+    void setStatusLedConfig(uint8_t cfg) {
+        statusLedConfig = cfg;
+    }
+
+    /**
+     * Returns true if there is any light on the LED in some cases.
+     */
+    bool isStatusLedOn() const {
+        return statusLedConfig != STATUS_LED_OFF;
+    }
+
+    uint8_t getStatusLedConfig() const {
+        return statusLedConfig;
     }
 
     /**
@@ -132,11 +172,11 @@ public:
     static const unsigned MAX_LINES     = 5;
 
     // possible change events
-    static const unsigned CURSOR_CHANGE = 5;
-    static const unsigned LIGHT_CHANGE  = 6;
-    static const unsigned TEXT_CHANGE   = 7;
-    static const unsigned CLEAR_SCREEN  = 8;
-    static const unsigned CUSTOM_CHAR   = 9;   // change custom char definition
+    static const unsigned CURSOR_CHANGE = 10;
+    static const unsigned LIGHT_CHANGE  = 11;
+    static const unsigned TEXT_CHANGE   = 12;
+    static const unsigned CLEAR_SCREEN  = 13;
+    static const unsigned CUSTOM_CHAR   = 14;   // change custom char definition
 
     /**
      * Default init with screen size.
@@ -318,24 +358,11 @@ public:
     SensorState();
     SensorState(int _min, int _max);
 
-    static const unsigned LED_CHANGE = 10;
-
     /**
      * Returns the current "sensor" value.
      */
     int getSensorValue() const {
         return sensorValue;
-    }
-
-    /**
-     * Changes the value of the status LED.
-     */
-    void setStatusLedOn(bool on) {
-        statusLedOn = on;
-    }
-
-    bool isStatusLedOn() const {
-        return statusLedOn;
     }
 
     /**
@@ -354,16 +381,15 @@ public:
     }
 
 protected:
+    int      min, max;
     int      sensorValue;
     unsigned counter;
-    int      min, max;
-    bool     statusLedOn;
 };
 
 
 /**
- * A simple sensor with one value in the range 0 .. 4095 (typically), Potentiometers
- * can also be handled as sensors as they just return one value.
+ * Dual button state or RGB Led Button state: the LED button is like the "left" button
+ * of the dual button state. The RGB button also has a status led but an additional color value.
  */
 class DualButtonState : public VisibleDeviceState
 {
@@ -380,7 +406,7 @@ public:
         return buttonStates;
     }
 
-    // test if left or right LED is ON.
+    // test if left or right LED is ON (status LED).
     bool isLedOn_l() const {
         return ledOn_l;
     }
@@ -393,6 +419,7 @@ protected:
     int  buttonStates;
     bool ledOn_l;
     bool ledOn_r;
+    uint8_t red, green, blue;   // RGB color of single button
 };
 
 

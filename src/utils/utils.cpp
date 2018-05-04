@@ -19,6 +19,7 @@
 
 #ifdef _WIN32
 #include <stdint.h>
+#include <Windows.h>
 #else
 #include <unistd.h>
 #include <sys/time.h>
@@ -27,6 +28,7 @@
 
 #include <signal.h>
 #include <string.h>
+#include <atomic>
 #include <stdexcept>
 
 #include "Log.h"
@@ -41,7 +43,7 @@ static const char BASE58_ALPHABET[] = \
 
 namespace utils {
 
-static bool finish = false;
+static std::atomic_bool finish(false);
 
 
 
@@ -148,7 +150,14 @@ void usleep(int us)
 // signal handler to terminate the loop
 static void sigTermHandler(int sig, siginfo_t *, void *)
 {
-    Log() << "sigTermHandler(" << sig << ") called => finish ...";
+    static unsigned count = 0;
+
+    if (++count == 5) {
+        Log() << "sigTermHandler(" << sig << ") called 5 times => hard exit ...";
+        exit(16);
+    }
+
+    Log() << "sigTermHandler(" << sig << ") called (" << count << ") => finish ...";
     finish = true;
 }
 
@@ -184,6 +193,19 @@ static void sigKillHandler(int sig, siginfo_t *, void *)
 bool shouldFinish()
 {
     return finish;
+}
+
+// set signal handler for example for SIGUSR1 or similar
+void setSignalHandler(int signalNo, void (*function)(int, void *sigInfo, void *u_context), void* extraData)
+{
+#ifndef _WIN32
+    struct sigaction act;
+    memset(&act, 0, sizeof(act));
+
+    act.sa_sigaction = (void (*)(int, siginfo_t *sigInfo, void *u_context))function;
+    act.sa_flags     = SA_SIGINFO;
+    sigaction(signalNo, &act, NULL);
+#endif
 }
 
 /**

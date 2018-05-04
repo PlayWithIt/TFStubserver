@@ -29,6 +29,13 @@ namespace utils {
  */
 namespace strings
 {
+#define UCHAR_auml  0344
+#define UCHAR_ouml  0366
+#define UCHAR_uuml  0374
+#define UCHAR_Auml  0304
+#define UCHAR_Ouml  0326
+#define UCHAR_Uuml  0334
+
     /**
      * Split a string using a given delimiter into a vector of strings.
      * @param s the string to split
@@ -66,10 +73,29 @@ namespace strings
     bool endsWith(const std::string &s, const std::string &suffix);
 
     /**
+     * Converts the given String to lower case (using ASCII locale) and returns
+     * the address of the string.
+     */
+    std::string& toLower(std::string &s);
+    char *toLower(char *s);
+
+    /**
+     * Converts the given String to upper case (using ASCII locale) and returns
+     * the address of the string.
+     */
+    std::string& toUpper(std::string &s);
+    char *toUpper(char *s);
+
+    /**
      * Returns a locale specific error text for the given error code (see 'errno'). This
      * method is thread-safe.
      */
     std::string strerror(int err);
+
+    /**
+     * Removes leading and trailing blanks and tabs.
+     */
+    std::string& trim(std::string &in);
 
 } /* namespace strings */
 } /* namespace utils */

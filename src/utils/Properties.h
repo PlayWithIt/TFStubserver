@@ -125,44 +125,44 @@ public:
     /**
      * Return a value for the given key, throws an exception if the given
      * key is not present in the container or the value has an invalid format.
+	 * @throw KeyNotFound ValueFormatError
      */
-    bool getBool(const std::string &key) const
-        throw(KeyNotFound, ValueFormatError);
+    bool getBool(const std::string &key) const;
 
     /**
      * Return a value for the given key, throws an exception if the given
      * key is not present in the container or the value has an invalid format.
+     * @throw ValueFormatError
      */
-    bool getBool(const std::string &key, bool defaultValue) const
-        throw(ValueFormatError);
+    bool getBool(const std::string &key, bool defaultValue) const;
 
     /**
      * Return a value for the given key, return a default value if the key is not
      * present in the container; throws an exception if the value has an invalid format.
+     * @throw KeyNotFound, ValueFormatError
      */
-    int getInt(const std::string &key) const
-        throw(KeyNotFound, ValueFormatError);
+    int getInt(const std::string &key) const;
 
     /**
      * Return a value for the given key, throws an exception if the given
      * key is not present in the container or the value has an invalid format.
+     * @throw ValueFormatError
      */
-    int getInt(const std::string &key, int defaultValue) const
-        throw(ValueFormatError);
+    int getInt(const std::string &key, int defaultValue) const;
 
     /**
      * Return a value for the given key, throws an exception if the given
      * key is not present in the container or the value has an invalid format.
+     * @throw KeyNotFound, ValueFormatError
      */
-    double getDouble(const std::string &key) const
-        throw(KeyNotFound, ValueFormatError);
+    double getDouble(const std::string &key) const;
 
     /**
      * Return a value for the given key, return a default value if the key is not
      * present in the container; throws an exception if the value has an invalid format.
+     * @throw KeyNotFound, ValueFormatError
      */
-    double getDouble(const std::string &key, double defaultValue) const
-        throw(ValueFormatError);
+    double getDouble(const std::string &key, double defaultValue) const;
 
     /**
      * This the properties map emtpy?
