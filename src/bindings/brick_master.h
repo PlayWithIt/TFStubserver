@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-10-05.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.22                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -2742,7 +2742,7 @@ int master_get_wifi2_mesh_ap_status(Master *master, char ret_ssid[32], uint8_t r
  * enabled, the Brick will try to adapt the baudrate for the communication
  * between Bricks and Bricklets according to the amount of data that is transferred.
  * 
- * The baudrate will be increased exponetially if lots of data is send/receieved and
+ * The baudrate will be increased exponentially if lots of data is send/received and
  * decreased linearly if little data is send/received.
  * 
  * This lowers the baudrate in applications where little data is transferred (e.g.
@@ -2753,7 +2753,7 @@ int master_get_wifi2_mesh_ap_status(Master *master, char ret_ssid[32], uint8_t r
  * (e.g. RS485 Bricklet with a high baudrate but small payload) you may want to turn
  * the dynamic baudrate off to get the highest possible performance.
  * 
- * The maximum value of the baudrate can be set per port with the function 
+ * The maximum value of the baudrate can be set per port with the function
  * {@link master_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
  * as set by {@link master_set_spitfp_baudrate} will be used statically.
  * 
@@ -2802,7 +2802,7 @@ int master_get_send_timeout_count(Master *master, uint8_t communication_method, 
  * If the dynamic baudrate feature is enabled, the baudrate set by this
  * function corresponds to the maximum baudrate (see {@link master_set_spitfp_baudrate_config}).
  * 
- * Regulatory testing is done with the default baudrate. If CE compatability
+ * Regulatory testing is done with the default baudrate. If CE compatibility
  * or similar is necessary in you applications we recommend to not change
  * the baudrate.
  * 
@@ -2830,7 +2830,7 @@ int master_get_spitfp_baudrate(Master *master, char bricklet_port, uint32_t *ret
  * 
  * * ACK checksum errors,
  * * message checksum errors,
- * * frameing errors and
+ * * framing errors and
  * * overflow errors.
  * 
  * The errors counts are for errors that occur on the Brick side. All

@@ -7,14 +7,14 @@
  * Commons Zero (CC0 1.0) License for more details.
  */
 
-#ifndef _WIN32
-	#ifndef _BSD_SOURCE
-		#define _BSD_SOURCE // for usleep from unistd.h
-	#endif
-	#ifndef _GNU_SOURCE
-		#define _GNU_SOURCE
-	#endif
-#endif
+//#ifndef _WIN32
+//	#ifndef _BSD_SOURCE
+//		#define _BSD_SOURCE // for usleep from unistd.h
+//	#endif
+//	#ifndef _GNU_SOURCE
+//		#define _GNU_SOURCE
+//	#endif
+//#endif
 
 #include <errno.h>
 #include <stddef.h>
@@ -1965,6 +1965,8 @@ static int ipcon_connect_unlocked(IPConnectionPrivate *ipcon_p, bool is_auto_rec
 	ipcon_p->callback->packet_dispatch_allowed = true;
 
 	if (thread_create(&ipcon_p->receive_thread, ipcon_receive_loop, ipcon_p) < 0) {
+		ipcon_p->receive_flag = false;
+
 		// destroy socket
 		ipcon_disconnect_unlocked(ipcon_p);
 

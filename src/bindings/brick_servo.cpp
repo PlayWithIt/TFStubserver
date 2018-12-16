@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-06-08.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.20                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -466,7 +466,7 @@ static void servo_callback_wrapper_velocity_reached(DevicePrivate *device_p, Pac
 void servo_create(Servo *servo, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(servo, uid, ipcon->p, 2, 0, 1);
+	device_create(servo, uid, ipcon->p, 2, 0, 4);
 
 	device_p = servo->p;
 

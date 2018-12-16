@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-10-05.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.22                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -282,7 +282,7 @@ int nfc_rfid_get_api_version(NFCRFID *nfc_rfid, uint8_t ret_api_version[3]);
  * It is no problem if you don't know the tag type. You can cycle through
  * the available tag types until the tag gives an answer to the request.
  * 
- * Current the following tag types are supported:
+ * Currently the following tag types are supported:
  * 
  * * Mifare Classic
  * * NFC Forum Type 1
@@ -352,7 +352,7 @@ int nfc_rfid_get_state(NFCRFID *nfc_rfid, uint8_t *ret_state, bool *ret_idle);
  * a Mifare Classic page you have to authenticate it beforehand.
  * Each page can be authenticated with two keys: A (``key_number`` = 0) and B
  * (``key_number`` = 1). A new Mifare Classic
- * tag that has not yet been written to can can be accessed with key A
+ * tag that has not yet been written to can be accessed with key A
  * and the default key ``[0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]``.
  * 
  * The approach to read or write a Mifare Classic page is as follows:
@@ -361,7 +361,7 @@ int nfc_rfid_get_state(NFCRFID *nfc_rfid, uint8_t *ret_state, bool *ret_idle);
  * 2. Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state}
  *    or {@link NFC_RFID_CALLBACK_STATE_CHANGED} callback)
  * 3. If looking for a specific tag then call {@link nfc_rfid_get_tag_id} and check if the
- *    expected tag was found, if it was not found got back to step 1
+ *    expected tag was found, if it was not found go back to step 1
  * 4. Call {@link nfc_rfid_authenticate_mifare_classic_page} with page and key for the page
  * 5. Wait for state to change to *AuthenticatingMifareClassicPageReady* (see
  *    {@link nfc_rfid_get_state} or {@link NFC_RFID_CALLBACK_STATE_CHANGED} callback)

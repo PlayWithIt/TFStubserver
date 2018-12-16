@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-06-08.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.20                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -28,6 +28,8 @@ typedef void (*TemperatureReached_CallbackFunction)(int32_t temperature, void *u
 typedef void (*Resistance_CallbackFunction)(int32_t resistance, void *user_data);
 
 typedef void (*ResistanceReached_CallbackFunction)(int32_t resistance, void *user_data);
+
+typedef void (*SensorConnected_CallbackFunction)(bool connected, void *user_data);
 
 #if defined _MSC_VER || defined __BORLANDC__
 	#pragma pack(push)
@@ -200,6 +202,25 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	uint8_t enabled;
+} ATTRIBUTE_PACKED SetSensorConnectedCallbackConfiguration_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetSensorConnectedCallbackConfiguration_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t enabled;
+} ATTRIBUTE_PACKED GetSensorConnectedCallbackConfiguration_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t connected;
+} ATTRIBUTE_PACKED SensorConnected_Callback;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
@@ -281,10 +302,26 @@ static void ptc_callback_wrapper_resistance_reached(DevicePrivate *device_p, Pac
 	callback_function(callback->resistance, user_data);
 }
 
+static void ptc_callback_wrapper_sensor_connected(DevicePrivate *device_p, Packet *packet) {
+	SensorConnected_CallbackFunction callback_function;
+	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_SENSOR_CONNECTED];
+	bool unpacked_connected;
+	SensorConnected_Callback *callback = (SensorConnected_Callback *)packet;
+
+	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PTC_CALLBACK_SENSOR_CONNECTED];
+
+	if (callback_function == NULL) {
+		return;
+	}
+	unpacked_connected = callback->connected != 0;
+
+	callback_function(unpacked_connected, user_data);
+}
+
 void ptc_create(PTC *ptc, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(ptc, uid, ipcon->p, 2, 0, 0);
+	device_create(ptc, uid, ipcon->p, 2, 0, 1);
 
 	device_p = ptc->p;
 
@@ -305,12 +342,15 @@ void ptc_create(PTC *ptc, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[PTC_FUNCTION_IS_SENSOR_CONNECTED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[PTC_FUNCTION_SET_WIRE_MODE] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[PTC_FUNCTION_GET_WIRE_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[PTC_FUNCTION_SET_SENSOR_CONNECTED_CALLBACK_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_TRUE;
+	device_p->response_expected[PTC_FUNCTION_GET_SENSOR_CONNECTED_CALLBACK_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[PTC_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[PTC_CALLBACK_TEMPERATURE] = ptc_callback_wrapper_temperature;
 	device_p->callback_wrappers[PTC_CALLBACK_TEMPERATURE_REACHED] = ptc_callback_wrapper_temperature_reached;
 	device_p->callback_wrappers[PTC_CALLBACK_RESISTANCE] = ptc_callback_wrapper_resistance;
 	device_p->callback_wrappers[PTC_CALLBACK_RESISTANCE_REACHED] = ptc_callback_wrapper_resistance_reached;
+	device_p->callback_wrappers[PTC_CALLBACK_SENSOR_CONNECTED] = ptc_callback_wrapper_sensor_connected;
 
 }
 
@@ -698,6 +738,47 @@ int ptc_get_wire_mode(PTC *ptc, uint8_t *ret_mode) {
 	}
 
 	*ret_mode = response.mode;
+
+	return ret;
+}
+
+int ptc_set_sensor_connected_callback_configuration(PTC *ptc, bool enabled) {
+	DevicePrivate *device_p = ptc->p;
+	SetSensorConnectedCallbackConfiguration_Request request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_SET_SENSOR_CONNECTED_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.enabled = enabled ? 1 : 0;
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+	return ret;
+}
+
+int ptc_get_sensor_connected_callback_configuration(PTC *ptc, bool *ret_enabled) {
+	DevicePrivate *device_p = ptc->p;
+	GetSensorConnectedCallbackConfiguration_Request request;
+	GetSensorConnectedCallbackConfiguration_Response response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), PTC_FUNCTION_GET_SENSOR_CONNECTED_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_enabled = response.enabled != 0;
 
 	return ret;
 }

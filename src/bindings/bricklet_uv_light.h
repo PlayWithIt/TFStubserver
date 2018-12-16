@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-10-05.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.22                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -221,10 +221,11 @@ int uv_light_get_api_version(UVLight *uv_light, uint8_t ret_api_version[3]);
  * \ingroup BrickletUVLight
  *
  * Returns the UV light intensity of the sensor, the intensity is given
- * in µW/cm².
+ * in 1/10 mW/m². The sensor has already weighted the intensity with the erythemal
+ * action spectrum to get the skin-affecting irradiation.
  * 
- * To get UV Index you have to divide the value by 250. For example, a UV Light
- * intensity of 500µW/cm² is equivalent to an UV Index of 2.
+ * To get UV index you just have to divide the value by 250. For example, a UV
+ * light intensity of 500 is equivalent to an UV index of 2.
  * 
  * If you want to get the intensity periodically, it is recommended to use the
  * {@link UV_LIGHT_CALLBACK_UV_LIGHT} callback and set the period with

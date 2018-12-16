@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-10-05.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.22                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -265,7 +265,9 @@ typedef Device Servo;
  * Signature: \code void callback(uint8_t servo_num, int16_t position, void *user_data) \endcode
  * 
  * This callback is triggered when a position set by {@link servo_set_position}
- * is reached. The parameters are the servo and the position that is reached.
+ * is reached. If the new position matches the current position then the
+ * callback is not triggered, because the servo didn't move.
+ * The parameters are the servo and the position that is reached.
  * 
  * You can enable this callback with {@link servo_enable_position_reached_callback}.
  * 
@@ -789,7 +791,7 @@ int servo_is_velocity_reached_callback_enabled(Servo *servo, bool *ret_enabled);
  * enabled, the Brick will try to adapt the baudrate for the communication
  * between Bricks and Bricklets according to the amount of data that is transferred.
  * 
- * The baudrate will be increased exponetially if lots of data is send/receieved and
+ * The baudrate will be increased exponentially if lots of data is send/received and
  * decreased linearly if little data is send/received.
  * 
  * This lowers the baudrate in applications where little data is transferred (e.g.
@@ -800,7 +802,7 @@ int servo_is_velocity_reached_callback_enabled(Servo *servo, bool *ret_enabled);
  * (e.g. RS485 Bricklet with a high baudrate but small payload) you may want to turn
  * the dynamic baudrate off to get the highest possible performance.
  * 
- * The maximum value of the baudrate can be set per port with the function 
+ * The maximum value of the baudrate can be set per port with the function
  * {@link servo_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
  * as set by {@link servo_set_spitfp_baudrate} will be used statically.
  * 
@@ -849,7 +851,7 @@ int servo_get_send_timeout_count(Servo *servo, uint8_t communication_method, uin
  * If the dynamic baudrate feature is enabled, the baudrate set by this
  * function corresponds to the maximum baudrate (see {@link servo_set_spitfp_baudrate_config}).
  * 
- * Regulatory testing is done with the default baudrate. If CE compatability
+ * Regulatory testing is done with the default baudrate. If CE compatibility
  * or similar is necessary in you applications we recommend to not change
  * the baudrate.
  * 
@@ -877,7 +879,7 @@ int servo_get_spitfp_baudrate(Servo *servo, char bricklet_port, uint32_t *ret_ba
  * 
  * * ACK checksum errors,
  * * message checksum errors,
- * * frameing errors and
+ * * framing errors and
  * * overflow errors.
  * 
  * The errors counts are for errors that occur on the Brick side. All

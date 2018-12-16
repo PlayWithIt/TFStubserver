@@ -2,3 +2,4 @@
 /src/bindings/device_identifiers.h
 /lib/*
 /obj/*
+/bin/*

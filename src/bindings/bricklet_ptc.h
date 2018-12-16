@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-10-05.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.22                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -116,6 +116,16 @@ typedef Device PTC;
 /**
  * \ingroup BrickletPTC
  */
+#define PTC_FUNCTION_SET_SENSOR_CONNECTED_CALLBACK_CONFIGURATION 22
+
+/**
+ * \ingroup BrickletPTC
+ */
+#define PTC_FUNCTION_GET_SENSOR_CONNECTED_CALLBACK_CONFIGURATION 23
+
+/**
+ * \ingroup BrickletPTC
+ */
 #define PTC_FUNCTION_GET_IDENTITY 255
 
 /**
@@ -173,6 +183,20 @@ typedef Device PTC;
  * with the period as set by {@link ptc_set_debounce_period}.
  */
 #define PTC_CALLBACK_RESISTANCE_REACHED 16
+
+/**
+ * \ingroup BrickletPTC
+ *
+ * Signature: \code void callback(bool connected, void *user_data) \endcode
+ * 
+ * This callback is triggered periodically according to the configuration set by
+ * {@link ptc_set_sensor_connected_callback_configuration}.
+ * 
+ * The parameter is the same as {@link ptc_is_sensor_connected}.
+ * 
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
+ */
+#define PTC_CALLBACK_SENSOR_CONNECTED 24
 
 
 /**
@@ -519,6 +543,27 @@ int ptc_set_wire_mode(PTC *ptc, uint8_t mode);
  * Returns the wire mode as set by {@link ptc_set_wire_mode}
  */
 int ptc_get_wire_mode(PTC *ptc, uint8_t *ret_mode);
+
+/**
+ * \ingroup BrickletPTC
+ *
+ * If you enable this callback, the {@link PTC_CALLBACK_SENSOR_CONNECTED} callback is triggered
+ * every time a Pt sensor is connected/disconnected.
+ * 
+ * By default this callback is disabled.
+ * 
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
+ */
+int ptc_set_sensor_connected_callback_configuration(PTC *ptc, bool enabled);
+
+/**
+ * \ingroup BrickletPTC
+ *
+ * Returns the configuration as set by {@link ptc_set_sensor_connected_callback_configuration}.
+ * 
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
+ */
+int ptc_get_sensor_connected_callback_configuration(PTC *ptc, bool *ret_enabled);
 
 /**
  * \ingroup BrickletPTC

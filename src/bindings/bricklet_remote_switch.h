@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2017-07-27.      *
+ * This file was automatically generated on 2018-10-05.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.17                             *
+ * C/C++ Bindings Version 2.1.22                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -78,7 +78,7 @@ typedef Device RemoteSwitch;
  *
  * Signature: \code void callback(void *user_data) \endcode
  * 
- * This callback is called whenever the switching state changes
+ * This callback is triggered whenever the switching state changes
  * from busy to ready, see {@link remote_switch_get_switching_state}.
  */
 #define REMOTE_SWITCH_CALLBACK_SWITCHING_DONE 3
