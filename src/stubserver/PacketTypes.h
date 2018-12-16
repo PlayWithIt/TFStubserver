@@ -155,13 +155,23 @@ typedef struct IOPacket
             int16_t  temperature;
             uint8_t  humidity;
             uint16_t last_change;
-        } ATTRIBUTE_PACKED otdoorData;
+        } ATTRIBUTE_PACKED outdoorData;
+
+        struct {
+            uint8_t  x_start;
+            uint8_t  y_start;
+            uint8_t  x_end;
+            uint8_t  y_end;
+            uint16_t pixels_length;
+            uint16_t pixels_chunk_offset;
+            uint8_t  bits[56];
+        } ATTRIBUTE_PACKED lcdData;
 
         struct {
             uint8_t  id;
             int16_t  temperature;
             uint8_t  humidity;
-        } ATTRIBUTE_PACKED otdoorCallback;
+        } ATTRIBUTE_PACKED outdoorCallback;
 
         struct {
             char uid[8];

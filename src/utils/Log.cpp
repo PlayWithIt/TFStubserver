@@ -213,7 +213,7 @@ void Log::error(const char* msg, const std::exception &ex)
     printTime(&os);
 
 #ifdef _WIN32
-	os << "Exception of type '" << typeid(ex).name() << "'";
+    os << "Exception of type '" << typeid(ex).name() << "'";
 #else
     int status = 0;
     char *realname = abi::__cxa_demangle(typeid(ex).name(), 0, 0, &status);
@@ -221,7 +221,9 @@ void Log::error(const char* msg, const std::exception &ex)
     if (status == 0 && realname) {
         // exception name is readable
         os << realname;
-	}
+        // see description of __cxa_demangle: must be freed
+        free(realname);
+    }
     else {
         os << "Exception of type '" << typeid(ex).name() << "'";
     }

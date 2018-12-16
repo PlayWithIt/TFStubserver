@@ -166,7 +166,7 @@ bool ClientThread::SenderThread::consume(IOPacket &packet)
 {
     int size = send(socketHandle, &packet, packet.header.length, 0);
     if (size != packet.header.length) {
-        Log::perror("send()");
+        Log::perror("ClientThread::SenderThread::consume /send()");
     }
     ++packetsOut;
     return true;

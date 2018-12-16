@@ -568,6 +568,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DevicePiezoSpeaker();
         break;
 
+    case LCD_128X64_DEVICE_IDENTIFIER:
+        functions = new DeviceOled(true, 128, 64);
+        break;
+
     case OLED_128X64_DEVICE_IDENTIFIER:
         functions = new DeviceOled(128, 64);
         break;

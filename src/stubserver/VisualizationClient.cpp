@@ -18,6 +18,7 @@
  */
 
 #include <stdexcept>
+#include <string.h>
 #include <strings.h>
 
 #include "VisualizationClient.h"
@@ -25,7 +26,7 @@
 namespace stubserver {
 
 // each byte has just one single pixel set
-static const uint8_t SINGLE_PIXEL[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
+const uint8_t DisplayState::SINGLE_PIXEL[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 
 
 VisibleDeviceState::~VisibleDeviceState() { }
@@ -151,12 +152,20 @@ const std::string& LcdState::getLine(unsigned line) const
 /**
  * Default init.
  */
-OledState::OledState(unsigned _cols, unsigned _lines)
+DisplayState::DisplayState(unsigned _cols, unsigned _lines)
     : VisibleDeviceState(0)
     , cols(_cols)
     , lines(_lines)
     , contrast(143)
     , inverted(false)
+    , newEvent(false)
+    , gesture(NOTHING)
+    , duration(0)
+    , x_start(0)
+    , y_start(0)
+    , x_end(0)
+    , y_end(0)
+    , time(0)
 {
     clear();
 }
@@ -164,14 +173,14 @@ OledState::OledState(unsigned _cols, unsigned _lines)
 /**
  * Clear all pixel data of the screen.
  */
-void OledState::clear() {
+void DisplayState::clear() {
     bzero(pixels, sizeof(pixels));
 }
 
 /**
  * Is a single pixel set in the screen?
  */
-bool OledState::isPixelOn(unsigned line, unsigned col) const
+bool DisplayState::isPixelOn(unsigned line, unsigned col) const
 {
     if (line > lines || col > cols)
         return false;
@@ -182,5 +191,51 @@ bool OledState::isPixelOn(unsigned line, unsigned col) const
     return pixels[byteNo] & SINGLE_PIXEL[bitNo] ? true:false;
 }
 
+/**
+ * Set/clear a single pixel?
+ */
+void DisplayState::setPixel(unsigned line, unsigned col, bool on)
+{
+    if (line > lines || col > cols)
+        return;
+
+    unsigned byteNo = (line / 8) * cols + col;
+    unsigned bitNo  = line & 7;
+
+    if (on)
+        pixels[byteNo] |= SINGLE_PIXEL[bitNo];
+    else
+        pixels[byteNo] &= (0xFF - SINGLE_PIXEL[bitNo]);
+}
+
+
+/**
+ * Start a press or a swipe (touch the display and hold).
+ */
+void DisplayState::startTouch(uint16_t x, uint16_t y) const
+{
+    x_start  = x;
+    y_start  = y;
+    gesture  = PRESS;
+    newEvent = true;
+}
+
+/**
+ * End touching the display: based on the end position the gesture is calculated!
+ */
+void DisplayState::endTouch(uint16_t x, uint16_t y) const
+{
+    x_end = x;
+    y_end = y;
+
+    if (static_cast<int>(x_end - x_start) < -1)
+        gesture = SWIPE_LEFT;
+    else if (static_cast<int>(x_end - x_start) > 1)
+        gesture = SWIPE_RIGHT;
+    else if (static_cast<int>(y_end - y_start) < -1)
+        gesture = SWIPE_UP;
+    else if (static_cast<int>(y_end - y_start) > 1)
+        gesture = SWIPE_DOWN;
+}
 
 }

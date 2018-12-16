@@ -71,7 +71,7 @@ public:
     File& operator=(File &&other);
 
     /**
-     * Free resource, delete file if 'removeOnDestroy' is set.
+     * Free resource, delete file if 'deleteOnDestroy' is set.
      */
     virtual ~File();
 
@@ -145,6 +145,13 @@ public:
     int getErrorCode() const {
         return errorCode;
     }
+
+    /**
+     * Returns the parent: if the current File is a file: the parent is a folder;
+     * if the current File is a directory, the parent is the parent directory.
+     * Returns the actual File if it is already the root directory.
+     */
+    const File getParent() const;
 
     /**
      * Creates an empty file if it does not exist, makes nothing if a file exists.
@@ -305,6 +312,11 @@ public:
      *         file was not found along the path.
      */
     static const File which(const char *envName, const char *filename);
+
+    /**
+     * Returns the full path to the current executable (/proc/self/exe on Linux).
+     */
+    static const File currentExe();
 
     /**
      * Returns the size in bytes: for directories this is the size in bytes

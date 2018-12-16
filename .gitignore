@@ -1,0 +1,4 @@
+/src/bindings/device_table.h
+/src/bindings/device_identifiers.h
+/lib/*
+/obj/*

@@ -54,6 +54,8 @@ private:
         int                   temperature;
         unsigned              humidity;
         uint8_t               id;
+
+        SensorData();
     };
 
     /**

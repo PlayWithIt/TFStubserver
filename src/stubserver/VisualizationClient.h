@@ -250,16 +250,30 @@ protected:
     bool     cursorVisible;
 };
 
+
 /**
- * The state of an OLED screen.
+ * The state of a display: OLED screen or LCD 128x64.
  */
-class OledState : public VisibleDeviceState
+class DisplayState : public VisibleDeviceState
 {
 public:
+    // values 1,2,4,8,16,32,64,128
+    static const uint8_t SINGLE_PIXEL[8];
+
+    enum Gesture : char {
+        NOTHING     = ' ',   // init
+        PRESS       = 'P',   // simple press, no swipe gesture
+        SWIPE_LEFT  = '<',
+        SWIPE_RIGHT = '>',
+        SWIPE_UP    = '^',
+        SWIPE_DOWN  = 'v',
+    };
+
+
     /**
      * Default init with screen size.
      */
-    OledState(unsigned _cols, unsigned _lines);
+    DisplayState(unsigned _cols, unsigned _lines);
 
     /**
      * Returns the number of display columns.
@@ -283,18 +297,57 @@ public:
         return inverted;
     }
 
+    Gesture getGesture() const {
+        return gesture;
+    }
+
+    unsigned getTouchX() const {
+        return x_start;
+    }
+
+    unsigned getTouchY() const {
+        return y_start;
+    }
+
+
     /**
      * Is a single pixel set in the screen?
      */
     bool isPixelOn(unsigned line, unsigned col) const;
 
+    /**
+     * Start a press or a swipe (touch the display and hold).
+     */
+    void startTouch(uint16_t x, uint16_t y) const;
+
+    /**
+     * End touching the display: based on the end position the gesture is calculated!
+     */
+    void endTouch(uint16_t x, uint16_t y) const;
+
 protected:
     const unsigned cols, lines;
 
-    uint8_t pixels[128 * 8];  // 1 byte holds the value for 8 pixels
+    uint8_t pixels[128 * 8];  // 1 byte holds the value for 8 pixels in vertical order
     uint8_t contrast;
+    uint8_t backlight;
     bool    inverted;
 
+    // for touch displays - they have a "const" object but are allowed to update
+    // these event attributes.
+    mutable bool     newEvent;
+    mutable Gesture  gesture;
+    mutable uint32_t duration;     // in ms
+    mutable uint16_t x_start;
+    mutable uint16_t y_start;
+    mutable uint16_t x_end;
+    mutable uint16_t y_end;
+    mutable uint64_t time;         // time when pressed
+
+    /**
+     * Set/clear a single pixel?
+     */
+    void setPixel(unsigned line, unsigned col, bool on);
     void clear();
 };
 

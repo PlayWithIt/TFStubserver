@@ -183,14 +183,24 @@ public:
     }
 
     /**
-     * Resize array and throw away existing content!
+     * Resize array and copy all items into the new array, one by one (time consuming !)
      */
     void resize(unsigned newSize)
     {
-        delete[] vectorStart;
+        unsigned oldSize  = allocated;
+        unsigned oldFirst = first;
+        pointer old = vectorStart;
+
         vectorStart = new _Tp[newSize];
         allocated = newSize;
-        clear();
+        first = 0;
+
+        // copy old content
+        for (unsigned i = 0; i < used; ++i) {
+            vectorStart[i] = old[(oldFirst + i) % oldSize];
+        }
+
+        delete[] old;
     }
 
     /**

@@ -24,6 +24,11 @@
 
 namespace stubserver {
 
+DeviceOutdoorWeather::SensorData::SensorData()
+{
+    bzero(this, sizeof(SensorData));
+}
+
 DeviceOutdoorWeather::DeviceOutdoorWeather(ValueProvider *vp, uint8_t id)
     : V2Device(NULL, this)
     , SensorState(-1000, 1000)  // -100 .. +100°C
@@ -84,10 +89,10 @@ bool DeviceOutdoorWeather::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
     	// outdoor_weather_get_sensor_data(OutdoorWeather *dev, uint8_t id, int16_t *ret_temperature, uint8_t *ret_humidity, uint16_t *ret_last_change);
         sensor = getSensor(p.uint8Value);
         if (sensor) {
-            p.otdoorData.temperature = sensor->temperature;
-            p.otdoorData.humidity    = sensor->humidity;
-            p.otdoorData.last_change = (relativeTimeMs - sensor->lastChange) / 1000;
-            p.header.length += sizeof(p.otdoorData);
+            p.outdoorData.temperature = sensor->temperature;
+            p.outdoorData.humidity    = sensor->humidity;
+            p.outdoorData.last_change = (relativeTimeMs - sensor->lastChange) / 1000;
+            p.header.length += sizeof(p.outdoorData);
         }
         else
             p.setErrorCode(IOPacket::INVALID_PARAMETER);
@@ -143,13 +148,13 @@ void DeviceOutdoorWeather::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
 
             SensorData* sensor = &(sensors[0]);
             sensor->temperature = newValue;
-            sensor->humidity    = 40 + (relativeTimeMs % 10);
+            sensor->humidity    = 40 + ((relativeTimeMs / 100) % 12);
             sensor->lastChange  = relativeTimeMs;
 
-            IOPacket packet(uid, OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA, 3);
-            packet.otdoorCallback.id          = sensor->id;
-            packet.otdoorCallback.temperature = newValue;
-            packet.otdoorCallback.humidity    = sensor->humidity;
+            IOPacket packet(uid, OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA, 4);
+            packet.outdoorCallback.id          = sensor->id;
+            packet.outdoorCallback.temperature = newValue;
+            packet.outdoorCallback.humidity    = sensor->humidity;
 
             brickStack->dispatchCallback(packet);
         }
@@ -164,13 +169,13 @@ void DeviceOutdoorWeather::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
         if (sensor->temperature != nw)
         {
             sensor->temperature = nw;
-            sensor->humidity    = 40 + (relativeTimeMs % 10);
+            sensor->humidity    = 40 + ((relativeTimeMs / 100) % 12);
             sensor->lastChange  = relativeTimeMs;
 
-            IOPacket packet(uid, OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA, 3);
-            packet.otdoorCallback.id          = sensor->id;
-            packet.otdoorCallback.temperature = nw;
-            packet.otdoorCallback.humidity    = sensor->humidity;
+            IOPacket packet(uid, OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA, 4);
+            packet.outdoorCallback.id          = sensor->id;
+            packet.outdoorCallback.temperature = nw;
+            packet.outdoorCallback.humidity    = sensor->humidity;
 
             brickStack->dispatchCallback(packet);
 

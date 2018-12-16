@@ -41,7 +41,7 @@ public:
     explicit EmptyQueueException(const std::string &s) : msg(s) { }
     explicit EmptyQueueException(const char *s) : msg(s) { }
 
-    virtual const char* what() const NOEXCEPT {
+    virtual const char* what() const noexcept override {
         return msg.c_str();
     }
 };
@@ -149,7 +149,7 @@ public:
         {
             {
                 // get a lock to wait until all items are consumed and then notify to wake up
-                std::lock_guard<std::mutex> lock(queueMutex);
+                std::unique_lock<std::mutex> lock(queueMutex);
                 queueEvent.notify_one();
             }
             s = size;

@@ -26,7 +26,7 @@ namespace utils {
 class DateTime;
 
 /**
- * TODO
+ * Provides a formatter which can be used to format an object of type {@link DateTime}.
  *
  * <b>Format string variables:</b><br>
  * y - 2 digit year with leading '0' <br>
@@ -59,6 +59,10 @@ public:
 
     virtual ~DateTimeFormat();
 
+    // %Y-%0M-%0D
+    static const char * const LOG_FORMAT_DATE;
+
+    // %Y-%0M-%0D %0h:%0m:%0s
     static const char * const LOG_FORMAT_DATE_TIME;
     static const char * const LOG_FORMAT_DATE_TIME_MILLIS;
     static const char * const LOG_FORMAT_DATE_TIME_MICROS;

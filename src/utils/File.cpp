@@ -20,12 +20,19 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits.h>
-#include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
-#include <dirent.h>
 
 #include <stdexcept>
+
+#ifdef _WIN32
+#include <Windows.h>
+#include <process.h>
+#define getpid _getpid
+#else
+#include <dirent.h>
+#include <unistd.h>
+#endif
 
 #include "StringUtil.h"
 #include "Exceptions.h"
@@ -33,6 +40,9 @@
 #include "FileFilter.h"
 #include "Log.h"
 
+#ifndef PATH_MAX
+#define PATH_MAX 2048
+#endif
 
 #define ERR_MOVED_AWAY 999999
 
@@ -274,6 +284,24 @@ unsigned File::getMode() const
 }
 
 /**
+ * Returns the parent: if the current File is a file: the parent is a folder;
+ * if the current File is a directory, the parent is the parent directory.
+ * Returns the actual File if it is already the root directory.
+ */
+const File File::getParent() const
+{
+    std::string p = this->getAbsolutePath();
+    if (p.length() <= 2)
+        return *this;
+
+    size_t pos = p.rfind(PATH_SEP_CHAR);
+    if (pos == std::string::npos)
+        return *this;
+
+    return File(p.substr(0, pos));
+}
+
+/**
  * Returns a timestamp in milli-seconds since epoch when the file was last modified or
  * 0 if the file does not exist. Use {@link refresh()} before a call, if the file
  * object lives longer and the latest state on the harddrive should be re-read.
@@ -339,6 +367,25 @@ bool File::canWrite() const {
 }
 
 /**
+ * Returns the full path to the current executable (/proc/self/exe on Linux).
+ */
+const File File::currentExe()
+{
+    char buf[PATH_MAX];
+    ssize_t s = readlink("/proc/self/exe", buf, sizeof(buf));
+    if (s <= 0)
+    {
+        Log::perror("/proc/self/exe");
+        throw std::runtime_error("Cannot read a symlink /proc/self/exe");
+    }
+
+    // terminate string
+    buf[s] = 0;
+
+    return File(buf);
+}
+
+/**
  * Lists the contents of the directory denoted by this File. If the current
  * File doesn't point to a directory or does not exist, an exception is thrown.
  *
@@ -361,23 +408,22 @@ size_t File::listDirectory(FileList &result, FileFilter *filter) const
     }
 
     size_t numItems = 0;
-    struct dirent entry;
     struct dirent *pEntry;
 
-    int rc = readdir_r(dir, &entry, &pEntry);
-    while (rc == 0 && pEntry)
+    pEntry = readdir(dir);
+    while (pEntry)
     {
         // do not include "." and ".." in the list
-        if (strcmp(entry.d_name, ".") && strcmp(entry.d_name, ".."))
+        if (strcmp(pEntry->d_name, ".") && strcmp(pEntry->d_name, ".."))
         {
-            File f(*this, entry.d_name);
+            File f(*this, pEntry->d_name);
             if (!filter || (*filter)(f))
             {
                 result.push_back(std::move(f));
                 ++numItems;
             }
         }
-        rc = readdir_r(dir, &entry, &pEntry);
+        pEntry = readdir(dir);
     }
     closedir(dir);
     return numItems;

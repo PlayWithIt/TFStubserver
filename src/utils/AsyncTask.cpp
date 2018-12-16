@@ -30,9 +30,22 @@ using utils::MutexLock;
 namespace utils {
 
 /**
- * Defaul init.
+ * Default init.
  */
 AsyncTask::AsyncTask(const char* name)
+   : taskName(name)
+   , th(NULL)
+   , active(false)
+   , finish(false)
+   , eventCondition()
+   , taskMutex()
+{
+}
+
+/**
+ * Default init.
+ */
+AsyncTask::AsyncTask(const std::string &name)
    : taskName(name)
    , th(NULL)
    , active(false)

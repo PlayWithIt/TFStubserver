@@ -27,6 +27,7 @@ namespace utils {
 // defines the index in user defined storage where to save the latest DateTimeFormat object
 static int const dateFormatIndex = std::ios_base::xalloc();
 
+const char * const DateTimeFormat::LOG_FORMAT_DATE             = "%Y-%0M-%0D";
 const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME        = "%Y-%0M-%0D %0h:%0m:%0s";
 const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME_MILLIS = "%Y-%0M-%0D %0h:%0m:%0s.%t";
 const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME_MICROS = "%Y-%0M-%0D %0h:%0m:%0s.%u";

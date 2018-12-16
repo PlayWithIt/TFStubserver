@@ -105,6 +105,7 @@ protected:
     bool shouldFinish(const std::chrono::system_clock::time_point &absTime);
 
 public:
+    AsyncTask(const std::string &name);
     AsyncTask(const char *name);
     virtual ~AsyncTask();
 
