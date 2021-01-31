@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -235,7 +235,7 @@ void temperature_ir_destroy(TemperatureIR *temperature_ir);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int temperature_ir_get_response_expected(TemperatureIR *temperature_ir, uint8_t function_id, bool *ret_response_expected);
@@ -251,7 +251,7 @@ int temperature_ir_get_response_expected(TemperatureIR *temperature_ir, uint8_t 
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int temperature_ir_set_response_expected(TemperatureIR *temperature_ir, uint8_t function_id, bool response_expected);
@@ -270,7 +270,7 @@ int temperature_ir_set_response_expected_all(TemperatureIR *temperature_ir, bool
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void temperature_ir_register_callback(TemperatureIR *temperature_ir, int16_t callback_id, void *function, void *user_data);
+void temperature_ir_register_callback(TemperatureIR *temperature_ir, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletTemperatureIR
@@ -283,10 +283,7 @@ int temperature_ir_get_api_version(TemperatureIR *temperature_ir, uint8_t ret_ap
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Returns the ambient temperature of the sensor. The value
- * has a range of -400 to 1250 and is given in °C/10,
- * e.g. a value of 423 means that an ambient temperature of 42.3 °C is
- * measured.
+ * Returns the ambient temperature of the sensor.
  * 
  * If you want to get the ambient temperature periodically, it is recommended
  * to use the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback and set the period with
@@ -298,10 +295,7 @@ int temperature_ir_get_ambient_temperature(TemperatureIR *temperature_ir, int16_
  * \ingroup BrickletTemperatureIR
  *
  * Returns the object temperature of the sensor, i.e. the temperature
- * of the surface of the object the sensor is aimed at. The value
- * has a range of -700 to 3800 and is given in °C/10,
- * e.g. a value of 3001 means that a temperature of 300.1 °C is measured
- * on the surface of the object.
+ * of the surface of the object the sensor is aimed at.
  * 
  * The temperature of different materials is dependent on their `emissivity
  * <https://en.wikipedia.org/wiki/Emissivity>`__. The emissivity of the material
@@ -322,7 +316,7 @@ int temperature_ir_get_object_temperature(TemperatureIR *temperature_ir, int16_t
  * 
  * The emissivity is usually given as a value between 0.0 and 1.0. A list of
  * emissivities of different materials can be found
- * `here <http://www.infrared-thermography.com/material.htm>`__.
+ * `here <https://www.infrared-thermography.com/material.htm>`__.
  * 
  * The parameter of {@link temperature_ir_set_emissivity} has to be given with a factor of
  * 65535 (16-bit). For example: An emissivity of 0.1 can be set with the
@@ -332,8 +326,7 @@ int temperature_ir_get_object_temperature(TemperatureIR *temperature_ir, int16_t
  *  If you need a precise measurement for the object temperature, it is
  *  absolutely crucial that you also provide a precise emissivity.
  * 
- * The default emissivity is 1.0 (value of 65535) and the minimum emissivity the
- * sensor can handle is 0.1 (value of 6553).
+ * The emissivity is stored in non-volatile memory and will still be used after a restart or power cycle of the Bricklet.
  */
 int temperature_ir_set_emissivity(TemperatureIR *temperature_ir, uint16_t emissivity);
 
@@ -347,13 +340,11 @@ int temperature_ir_get_emissivity(TemperatureIR *temperature_ir, uint16_t *ret_e
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the period in ms with which the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback is
+ * Sets the period with which the {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback is
  * triggered periodically. A value of 0 turns the callback off.
  * 
  * The {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE} callback is only triggered if the temperature has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int temperature_ir_set_ambient_temperature_callback_period(TemperatureIR *temperature_ir, uint32_t period);
 
@@ -367,13 +358,11 @@ int temperature_ir_get_ambient_temperature_callback_period(TemperatureIR *temper
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the period in ms with which the {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback is
+ * Sets the period with which the {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback is
  * triggered periodically. A value of 0 turns the callback off.
  * 
  * The {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE} callback is only triggered if the temperature
  * has changed since the last triggering.
- * 
- * The default value is 0.
  */
 int temperature_ir_set_object_temperature_callback_period(TemperatureIR *temperature_ir, uint32_t period);
 
@@ -400,8 +389,6 @@ int temperature_ir_get_object_temperature_callback_period(TemperatureIR *tempera
  *  "'<'",    "Callback is triggered when the ambient temperature is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the ambient temperature is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int temperature_ir_set_ambient_temperature_callback_threshold(TemperatureIR *temperature_ir, char option, int16_t min, int16_t max);
 
@@ -428,8 +415,6 @@ int temperature_ir_get_ambient_temperature_callback_threshold(TemperatureIR *tem
  *  "'<'",    "Callback is triggered when the object temperature is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the object temperature is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int temperature_ir_set_object_temperature_callback_threshold(TemperatureIR *temperature_ir, char option, int16_t min, int16_t max);
 
@@ -443,7 +428,7 @@ int temperature_ir_get_object_temperature_callback_threshold(TemperatureIR *temp
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED},
  * * {@link TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED}
@@ -454,8 +439,6 @@ int temperature_ir_get_object_temperature_callback_threshold(TemperatureIR *temp
  * * {@link temperature_ir_set_object_temperature_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int temperature_ir_set_debounce_period(TemperatureIR *temperature_ir, uint32_t debounce);
 
@@ -473,7 +456,9 @@ int temperature_ir_get_debounce_period(TemperatureIR *temperature_ir, uint32_t *
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -143,12 +143,7 @@ typedef Device SoundPressureLevel;
 /**
  * \ingroup BrickletSoundPressureLevel
  *
- * Signature: \code void callback(uint16_t spectrum_length, uint16_t spectrum_chunk_offset, uint16_t spectrum_chunk_data[30], void *user_data) \endcode
- * 
- * This callback is triggered periodically according to the configuration set by
- * {@link sound_pressure_level_set_spectrum_callback_configuration}.
- * 
- * The parameter is the same as {@link sound_pressure_level_get_spectrum}.
+ * See SOUND_PRESSURE_LEVEL_CALLBACK_SPECTRUM
  */
 #define SOUND_PRESSURE_LEVEL_CALLBACK_SPECTRUM_LOW_LEVEL 8
 
@@ -161,6 +156,9 @@ typedef Device SoundPressureLevel;
  * {@link sound_pressure_level_set_spectrum_callback_configuration}.
  * 
  * The parameter is the same as {@link sound_pressure_level_get_spectrum}.
+ * 
+ * \note
+ *  If reconstructing the value fails, the callback is triggered with NULL for spectrum.
  */
 #define SOUND_PRESSURE_LEVEL_CALLBACK_SPECTRUM (-8)
 
@@ -365,7 +363,7 @@ void sound_pressure_level_destroy(SoundPressureLevel *sound_pressure_level);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int sound_pressure_level_get_response_expected(SoundPressureLevel *sound_pressure_level, uint8_t function_id, bool *ret_response_expected);
@@ -381,7 +379,7 @@ int sound_pressure_level_get_response_expected(SoundPressureLevel *sound_pressur
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int sound_pressure_level_set_response_expected(SoundPressureLevel *sound_pressure_level, uint8_t function_id, bool response_expected);
@@ -400,7 +398,7 @@ int sound_pressure_level_set_response_expected_all(SoundPressureLevel *sound_pre
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void sound_pressure_level_register_callback(SoundPressureLevel *sound_pressure_level, int16_t callback_id, void *function, void *user_data);
+void sound_pressure_level_register_callback(SoundPressureLevel *sound_pressure_level, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletSoundPressureLevel
@@ -413,8 +411,7 @@ int sound_pressure_level_get_api_version(SoundPressureLevel *sound_pressure_leve
 /**
  * \ingroup BrickletSoundPressureLevel
  *
- * Returns the measured sound pressure in decibels. The values are given in
- * dB/10 (tenths dB).
+ * Returns the measured sound pressure in decibels.
  * 
  * The Bricklet supports the weighting standards dB(A), dB(B), dB(C), dB(D),
  * dB(Z) and ITU-R 468. You can configure the weighting with {@link sound_pressure_level_set_configuration}.
@@ -431,7 +428,7 @@ int sound_pressure_level_get_decibel(SoundPressureLevel *sound_pressure_level, u
 /**
  * \ingroup BrickletSoundPressureLevel
  *
- * The period in ms is the period with which the {@link SOUND_PRESSURE_LEVEL_CALLBACK_DECIBEL} callback is triggered
+ * The period is the period with which the {@link SOUND_PRESSURE_LEVEL_CALLBACK_DECIBEL} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -458,8 +455,6 @@ int sound_pressure_level_get_decibel(SoundPressureLevel *sound_pressure_level, u
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int sound_pressure_level_set_decibel_callback_configuration(SoundPressureLevel *sound_pressure_level, uint32_t period, bool value_has_to_change, char option, uint16_t min, uint16_t max);
 
@@ -497,13 +492,11 @@ int sound_pressure_level_get_spectrum_low_level(SoundPressureLevel *sound_pressu
 /**
  * \ingroup BrickletSoundPressureLevel
  *
- * The period in ms is the period with which the {@link SOUND_PRESSURE_LEVEL_CALLBACK_SPECTRUM} callback is
+ * The period is the period with which the {@link SOUND_PRESSURE_LEVEL_CALLBACK_SPECTRUM} callback is
  * triggered periodically. A value of 0 turns the callback off.
  * 
  * Every new measured spectrum will be send at most once. Set the period to 1 to
  * make sure that you get every spectrum.
- * 
- * The default value is 0.
  */
 int sound_pressure_level_set_spectrum_callback_configuration(SoundPressureLevel *sound_pressure_level, uint32_t period);
 
@@ -539,8 +532,6 @@ int sound_pressure_level_get_spectrum_callback_configuration(SoundPressureLevel 
  * often used to measure volumes at concerts etc. dB(Z) has a
  * flat response, no weighting is applied. ITU-R 468 is an ITU
  * weighting standard mostly used in the UK and Europe.
- * 
- * The defaults are FFT size 1024 and weighting standard dB(A).
  */
 int sound_pressure_level_set_configuration(SoundPressureLevel *sound_pressure_level, uint8_t fft_size, uint8_t weighting);
 
@@ -639,7 +630,7 @@ int sound_pressure_level_get_status_led_config(SoundPressureLevel *sound_pressur
 /**
  * \ingroup BrickletSoundPressureLevel
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -686,7 +677,9 @@ int sound_pressure_level_read_uid(SoundPressureLevel *sound_pressure_level, uint
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

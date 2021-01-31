@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*Weight_CallbackFunction)(int32_t weight, void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -236,10 +236,17 @@ typedef struct {
 
 static void load_cell_v2_callback_wrapper_weight(DevicePrivate *device_p, Packet *packet) {
 	Weight_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_V2_CALLBACK_WEIGHT];
-	Weight_Callback *callback = (Weight_Callback *)packet;
+	void *user_data;
+	Weight_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_V2_CALLBACK_WEIGHT];
+	if (packet->header.length != sizeof(Weight_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Weight_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_V2_CALLBACK_WEIGHT];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LOAD_CELL_V2_CALLBACK_WEIGHT];
+	callback = (Weight_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -251,9 +258,10 @@ static void load_cell_v2_callback_wrapper_weight(DevicePrivate *device_p, Packet
 }
 
 void load_cell_v2_create(LoadCellV2 *load_cell_v2, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(load_cell_v2, uid, ipcon->p, 2, 0, 0);
+	device_create(load_cell_v2, uid, ipcon_p, 2, 0, 0, LOAD_CELL_V2_DEVICE_IDENTIFIER);
 
 	device_p = load_cell_v2->p;
 
@@ -283,6 +291,7 @@ void load_cell_v2_create(LoadCellV2 *load_cell_v2, const char *uid, IPConnection
 
 	device_p->callback_wrappers[LOAD_CELL_V2_CALLBACK_WEIGHT] = load_cell_v2_callback_wrapper_weight;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void load_cell_v2_destroy(LoadCellV2 *load_cell_v2) {
@@ -301,7 +310,7 @@ int load_cell_v2_set_response_expected_all(LoadCellV2 *load_cell_v2, bool respon
 	return device_set_response_expected_all(load_cell_v2->p, response_expected);
 }
 
-void load_cell_v2_register_callback(LoadCellV2 *load_cell_v2, int16_t callback_id, void *function, void *user_data) {
+void load_cell_v2_register_callback(LoadCellV2 *load_cell_v2, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(load_cell_v2->p, callback_id, function, user_data);
 }
 
@@ -315,13 +324,19 @@ int load_cell_v2_get_weight(LoadCellV2 *load_cell_v2, int32_t *ret_weight) {
 	GetWeight_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_WEIGHT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -337,6 +352,12 @@ int load_cell_v2_set_weight_callback_configuration(LoadCellV2 *load_cell_v2, uin
 	SetWeightCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_SET_WEIGHT_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -349,7 +370,7 @@ int load_cell_v2_set_weight_callback_configuration(LoadCellV2 *load_cell_v2, uin
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -360,13 +381,19 @@ int load_cell_v2_get_weight_callback_configuration(LoadCellV2 *load_cell_v2, uin
 	GetWeightCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_WEIGHT_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -386,6 +413,12 @@ int load_cell_v2_set_moving_average(LoadCellV2 *load_cell_v2, uint16_t average) 
 	SetMovingAverage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_SET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -394,7 +427,7 @@ int load_cell_v2_set_moving_average(LoadCellV2 *load_cell_v2, uint16_t average) 
 
 	request.average = leconvert_uint16_to(average);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -405,13 +438,19 @@ int load_cell_v2_get_moving_average(LoadCellV2 *load_cell_v2, uint16_t *ret_aver
 	GetMovingAverage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -427,6 +466,12 @@ int load_cell_v2_set_info_led_config(LoadCellV2 *load_cell_v2, uint8_t config) {
 	SetInfoLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_SET_INFO_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -435,7 +480,7 @@ int load_cell_v2_set_info_led_config(LoadCellV2 *load_cell_v2, uint8_t config) {
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -446,13 +491,19 @@ int load_cell_v2_get_info_led_config(LoadCellV2 *load_cell_v2, uint8_t *ret_conf
 	GetInfoLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_INFO_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -468,6 +519,12 @@ int load_cell_v2_calibrate(LoadCellV2 *load_cell_v2, uint32_t weight) {
 	Calibrate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_CALIBRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -476,7 +533,7 @@ int load_cell_v2_calibrate(LoadCellV2 *load_cell_v2, uint32_t weight) {
 
 	request.weight = leconvert_uint32_to(weight);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -486,13 +543,19 @@ int load_cell_v2_tare(LoadCellV2 *load_cell_v2) {
 	Tare_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_TARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -501,6 +564,12 @@ int load_cell_v2_set_configuration(LoadCellV2 *load_cell_v2, uint8_t rate, uint8
 	DevicePrivate *device_p = load_cell_v2->p;
 	SetConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_SET_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -511,7 +580,7 @@ int load_cell_v2_set_configuration(LoadCellV2 *load_cell_v2, uint8_t rate, uint8
 	request.rate = rate;
 	request.gain = gain;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -522,13 +591,19 @@ int load_cell_v2_get_configuration(LoadCellV2 *load_cell_v2, uint8_t *ret_rate, 
 	GetConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -546,13 +621,19 @@ int load_cell_v2_get_spitfp_error_count(LoadCellV2 *load_cell_v2, uint32_t *ret_
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -572,6 +653,12 @@ int load_cell_v2_set_bootloader_mode(LoadCellV2 *load_cell_v2, uint8_t mode, uin
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -580,7 +667,7 @@ int load_cell_v2_set_bootloader_mode(LoadCellV2 *load_cell_v2, uint8_t mode, uin
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -597,13 +684,19 @@ int load_cell_v2_get_bootloader_mode(LoadCellV2 *load_cell_v2, uint8_t *ret_mode
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -619,6 +712,12 @@ int load_cell_v2_set_write_firmware_pointer(LoadCellV2 *load_cell_v2, uint32_t p
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -627,7 +726,7 @@ int load_cell_v2_set_write_firmware_pointer(LoadCellV2 *load_cell_v2, uint32_t p
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -638,6 +737,12 @@ int load_cell_v2_write_firmware(LoadCellV2 *load_cell_v2, uint8_t data[64], uint
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -646,7 +751,7 @@ int load_cell_v2_write_firmware(LoadCellV2 *load_cell_v2, uint8_t data[64], uint
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -662,6 +767,12 @@ int load_cell_v2_set_status_led_config(LoadCellV2 *load_cell_v2, uint8_t config)
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -670,7 +781,7 @@ int load_cell_v2_set_status_led_config(LoadCellV2 *load_cell_v2, uint8_t config)
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -681,13 +792,19 @@ int load_cell_v2_get_status_led_config(LoadCellV2 *load_cell_v2, uint8_t *ret_co
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -704,13 +821,19 @@ int load_cell_v2_get_chip_temperature(LoadCellV2 *load_cell_v2, int16_t *ret_tem
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -726,13 +849,19 @@ int load_cell_v2_reset(LoadCellV2 *load_cell_v2) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -742,6 +871,12 @@ int load_cell_v2_write_uid(LoadCellV2 *load_cell_v2, uint32_t uid) {
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -750,7 +885,7 @@ int load_cell_v2_write_uid(LoadCellV2 *load_cell_v2, uint32_t uid) {
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -761,13 +896,19 @@ int load_cell_v2_read_uid(LoadCellV2 *load_cell_v2, uint32_t *ret_uid) {
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LOAD_CELL_V2_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -790,7 +931,7 @@ int load_cell_v2_get_identity(LoadCellV2 *load_cell_v2, char ret_uid[8], char re
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

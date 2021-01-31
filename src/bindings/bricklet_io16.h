@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -211,7 +211,7 @@ void io16_destroy(IO16 *io16);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int io16_get_response_expected(IO16 *io16, uint8_t function_id, bool *ret_response_expected);
@@ -227,7 +227,7 @@ int io16_get_response_expected(IO16 *io16, uint8_t function_id, bool *ret_respon
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int io16_set_response_expected(IO16 *io16, uint8_t function_id, bool response_expected);
@@ -246,7 +246,7 @@ int io16_set_response_expected_all(IO16 *io16, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void io16_register_callback(IO16 *io16, int16_t callback_id, void *function, void *user_data);
+void io16_register_callback(IO16 *io16, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletIO16
@@ -264,6 +264,9 @@ int io16_get_api_version(IO16 *io16, uint8_t ret_api_version[3]);
  * 
  * For example: The value 15 or 0b00001111 will turn the pins 0-3 high and the
  * pins 4-7 low for the specified port.
+ * 
+ * All running monoflop timers of the given port will be aborted if this function
+ * is called.
  * 
  * \note
  *  This function does nothing for pins that are configured as input.
@@ -299,7 +302,8 @@ int io16_get_port(IO16 *io16, char port, uint8_t *ret_value_mask);
  * * ('b', 3, 'o', false) or ('b', 0b00000011, 'o', false) will set pins 0 and 1 of port B as output low.
  * * ('b', 4, 'o', true) or ('b', 0b00000100, 'o', true) will set pin 2 of port B as output high.
  * 
- * The default configuration is input with pull-up.
+ * Running monoflop timers for the selected pins will be aborted if this
+ * function is called.
  */
 int io16_set_port_configuration(IO16 *io16, char port, uint8_t selection_mask, char direction, bool value);
 
@@ -322,13 +326,11 @@ int io16_get_port_configuration(IO16 *io16, char port, uint8_t *ret_direction_ma
 /**
  * \ingroup BrickletIO16
  *
- * Sets the debounce period of the {@link IO16_CALLBACK_INTERRUPT} callback in ms.
+ * Sets the debounce period of the {@link IO16_CALLBACK_INTERRUPT} callback.
  * 
  * For example: If you set this value to 100, you will get the interrupt
  * maximal every 100ms. This is necessary if something that bounces is
  * connected to the IO-16 Bricklet, such as a button.
- * 
- * The default value is 100.
  */
 int io16_set_debounce_period(IO16 *io16, uint32_t debounce);
 
@@ -371,7 +373,7 @@ int io16_get_port_interrupt(IO16 *io16, char port, uint8_t *ret_interrupt_mask);
  * The third parameter is a bitmask with the desired value of the specified
  * output pins. A 1 in the bitmask means high and a 0 in the bitmask means low.
  * 
- * The forth parameter indicates the time (in ms) that the pins should hold
+ * The forth parameter indicates the time that the pins should hold
  * the value.
  * 
  * If this function is called with the parameters ('a', 9, 1, 1500) or
@@ -407,6 +409,9 @@ int io16_get_port_monoflop(IO16 *io16, char port, uint8_t pin, uint8_t *ret_valu
  * For example: The parameters ('a', 192, 128) or ('a', 0b11000000, 0b10000000)
  * will turn pin 7 high and pin 6 low on port A, pins 0-6 will remain untouched.
  * 
+ * Running monoflop timers for the selected pins will be aborted if this
+ * function is called.
+ * 
  * \note
  *  This function does nothing for pins that are configured as input.
  *  Pull-up resistors can be switched on with {@link io16_set_port_configuration}.
@@ -435,18 +440,14 @@ int io16_get_edge_count(IO16 *io16, uint8_t pin, bool reset_counter, uint32_t *r
  * The edge type parameter configures if rising edges, falling edges or
  * both are counted if the pin is configured for input. Possible edge types are:
  * 
- * * 0 = rising (default)
+ * * 0 = rising
  * * 1 = falling
  * * 2 = both
- * 
- * The debounce time is given in ms.
  * 
  * Configuring an edge counter resets its value to 0.
  * 
  * If you don't know what any of this means, just leave it at default. The
  * default configuration is very likely OK for you.
- * 
- * Default values: 0 (edge type) and 100ms (debounce time)
  * 
  * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
@@ -469,7 +470,9 @@ int io16_get_edge_count_config(IO16 *io16, uint8_t pin, uint8_t *ret_edge_type, 
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

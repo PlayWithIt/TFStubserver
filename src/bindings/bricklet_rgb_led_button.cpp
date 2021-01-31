@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*ButtonStateChanged_CallbackFunction)(uint8_t state, void *user_da
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -197,10 +197,17 @@ typedef struct {
 
 static void rgb_led_button_callback_wrapper_button_state_changed(DevicePrivate *device_p, Packet *packet) {
 	ButtonStateChanged_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RGB_LED_BUTTON_CALLBACK_BUTTON_STATE_CHANGED];
-	ButtonStateChanged_Callback *callback = (ButtonStateChanged_Callback *)packet;
+	void *user_data;
+	ButtonStateChanged_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RGB_LED_BUTTON_CALLBACK_BUTTON_STATE_CHANGED];
+	if (packet->header.length != sizeof(ButtonStateChanged_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ButtonStateChanged_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RGB_LED_BUTTON_CALLBACK_BUTTON_STATE_CHANGED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RGB_LED_BUTTON_CALLBACK_BUTTON_STATE_CHANGED];
+	callback = (ButtonStateChanged_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -210,9 +217,10 @@ static void rgb_led_button_callback_wrapper_button_state_changed(DevicePrivate *
 }
 
 void rgb_led_button_create(RGBLEDButton *rgb_led_button, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(rgb_led_button, uid, ipcon->p, 2, 0, 0);
+	device_create(rgb_led_button, uid, ipcon_p, 2, 0, 0, RGB_LED_BUTTON_DEVICE_IDENTIFIER);
 
 	device_p = rgb_led_button->p;
 
@@ -236,6 +244,7 @@ void rgb_led_button_create(RGBLEDButton *rgb_led_button, const char *uid, IPConn
 
 	device_p->callback_wrappers[RGB_LED_BUTTON_CALLBACK_BUTTON_STATE_CHANGED] = rgb_led_button_callback_wrapper_button_state_changed;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void rgb_led_button_destroy(RGBLEDButton *rgb_led_button) {
@@ -254,7 +263,7 @@ int rgb_led_button_set_response_expected_all(RGBLEDButton *rgb_led_button, bool 
 	return device_set_response_expected_all(rgb_led_button->p, response_expected);
 }
 
-void rgb_led_button_register_callback(RGBLEDButton *rgb_led_button, int16_t callback_id, void *function, void *user_data) {
+void rgb_led_button_register_callback(RGBLEDButton *rgb_led_button, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(rgb_led_button->p, callback_id, function, user_data);
 }
 
@@ -267,6 +276,12 @@ int rgb_led_button_set_color(RGBLEDButton *rgb_led_button, uint8_t red, uint8_t 
 	SetColor_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_SET_COLOR, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -277,7 +292,7 @@ int rgb_led_button_set_color(RGBLEDButton *rgb_led_button, uint8_t red, uint8_t 
 	request.green = green;
 	request.blue = blue;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -288,13 +303,19 @@ int rgb_led_button_get_color(RGBLEDButton *rgb_led_button, uint8_t *ret_red, uin
 	GetColor_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_GET_COLOR, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -313,13 +334,19 @@ int rgb_led_button_get_button_state(RGBLEDButton *rgb_led_button, uint8_t *ret_s
 	GetButtonState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_GET_BUTTON_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -335,6 +362,12 @@ int rgb_led_button_set_color_calibration(RGBLEDButton *rgb_led_button, uint8_t r
 	SetColorCalibration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_SET_COLOR_CALIBRATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -345,7 +378,7 @@ int rgb_led_button_set_color_calibration(RGBLEDButton *rgb_led_button, uint8_t r
 	request.green = green;
 	request.blue = blue;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -356,13 +389,19 @@ int rgb_led_button_get_color_calibration(RGBLEDButton *rgb_led_button, uint8_t *
 	GetColorCalibration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_GET_COLOR_CALIBRATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -381,13 +420,19 @@ int rgb_led_button_get_spitfp_error_count(RGBLEDButton *rgb_led_button, uint32_t
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -407,6 +452,12 @@ int rgb_led_button_set_bootloader_mode(RGBLEDButton *rgb_led_button, uint8_t mod
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -415,7 +466,7 @@ int rgb_led_button_set_bootloader_mode(RGBLEDButton *rgb_led_button, uint8_t mod
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -432,13 +483,19 @@ int rgb_led_button_get_bootloader_mode(RGBLEDButton *rgb_led_button, uint8_t *re
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -454,6 +511,12 @@ int rgb_led_button_set_write_firmware_pointer(RGBLEDButton *rgb_led_button, uint
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -462,7 +525,7 @@ int rgb_led_button_set_write_firmware_pointer(RGBLEDButton *rgb_led_button, uint
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -473,6 +536,12 @@ int rgb_led_button_write_firmware(RGBLEDButton *rgb_led_button, uint8_t data[64]
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -481,7 +550,7 @@ int rgb_led_button_write_firmware(RGBLEDButton *rgb_led_button, uint8_t data[64]
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -497,6 +566,12 @@ int rgb_led_button_set_status_led_config(RGBLEDButton *rgb_led_button, uint8_t c
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -505,7 +580,7 @@ int rgb_led_button_set_status_led_config(RGBLEDButton *rgb_led_button, uint8_t c
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -516,13 +591,19 @@ int rgb_led_button_get_status_led_config(RGBLEDButton *rgb_led_button, uint8_t *
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -539,13 +620,19 @@ int rgb_led_button_get_chip_temperature(RGBLEDButton *rgb_led_button, int16_t *r
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -561,13 +648,19 @@ int rgb_led_button_reset(RGBLEDButton *rgb_led_button) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -577,6 +670,12 @@ int rgb_led_button_write_uid(RGBLEDButton *rgb_led_button, uint32_t uid) {
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -585,7 +684,7 @@ int rgb_led_button_write_uid(RGBLEDButton *rgb_led_button, uint32_t uid) {
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -596,13 +695,19 @@ int rgb_led_button_read_uid(RGBLEDButton *rgb_led_button, uint32_t *ret_uid) {
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_BUTTON_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -625,7 +730,7 @@ int rgb_led_button_get_identity(RGBLEDButton *rgb_led_button, char ret_uid[8], c
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*UVLightReached_CallbackFunction)(uint32_t uv_light, void *user_da
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -127,10 +127,17 @@ typedef struct {
 
 static void uv_light_callback_wrapper_uv_light(DevicePrivate *device_p, Packet *packet) {
 	UVLight_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT];
-	UVLight_Callback *callback = (UVLight_Callback *)packet;
+	void *user_data;
+	UVLight_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT];
+	if (packet->header.length != sizeof(UVLight_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (UVLight_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT];
+	callback = (UVLight_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -143,10 +150,17 @@ static void uv_light_callback_wrapper_uv_light(DevicePrivate *device_p, Packet *
 
 static void uv_light_callback_wrapper_uv_light_reached(DevicePrivate *device_p, Packet *packet) {
 	UVLightReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT_REACHED];
-	UVLightReached_Callback *callback = (UVLightReached_Callback *)packet;
+	void *user_data;
+	UVLightReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT_REACHED];
+	if (packet->header.length != sizeof(UVLightReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (UVLightReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + UV_LIGHT_CALLBACK_UV_LIGHT_REACHED];
+	callback = (UVLightReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -158,9 +172,10 @@ static void uv_light_callback_wrapper_uv_light_reached(DevicePrivate *device_p, 
 }
 
 void uv_light_create(UVLight *uv_light, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(uv_light, uid, ipcon->p, 2, 0, 0);
+	device_create(uv_light, uid, ipcon_p, 2, 0, 0, UV_LIGHT_DEVICE_IDENTIFIER);
 
 	device_p = uv_light->p;
 
@@ -176,6 +191,7 @@ void uv_light_create(UVLight *uv_light, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[UV_LIGHT_CALLBACK_UV_LIGHT] = uv_light_callback_wrapper_uv_light;
 	device_p->callback_wrappers[UV_LIGHT_CALLBACK_UV_LIGHT_REACHED] = uv_light_callback_wrapper_uv_light_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void uv_light_destroy(UVLight *uv_light) {
@@ -194,7 +210,7 @@ int uv_light_set_response_expected_all(UVLight *uv_light, bool response_expected
 	return device_set_response_expected_all(uv_light->p, response_expected);
 }
 
-void uv_light_register_callback(UVLight *uv_light, int16_t callback_id, void *function, void *user_data) {
+void uv_light_register_callback(UVLight *uv_light, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(uv_light->p, callback_id, function, user_data);
 }
 
@@ -208,13 +224,19 @@ int uv_light_get_uv_light(UVLight *uv_light, uint32_t *ret_uv_light) {
 	GetUVLight_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), UV_LIGHT_FUNCTION_GET_UV_LIGHT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -230,6 +252,12 @@ int uv_light_set_uv_light_callback_period(UVLight *uv_light, uint32_t period) {
 	SetUVLightCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), UV_LIGHT_FUNCTION_SET_UV_LIGHT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -238,7 +266,7 @@ int uv_light_set_uv_light_callback_period(UVLight *uv_light, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -249,13 +277,19 @@ int uv_light_get_uv_light_callback_period(UVLight *uv_light, uint32_t *ret_perio
 	GetUVLightCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), UV_LIGHT_FUNCTION_GET_UV_LIGHT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -271,6 +305,12 @@ int uv_light_set_uv_light_callback_threshold(UVLight *uv_light, char option, uin
 	SetUVLightCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), UV_LIGHT_FUNCTION_SET_UV_LIGHT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -281,7 +321,7 @@ int uv_light_set_uv_light_callback_threshold(UVLight *uv_light, char option, uin
 	request.min = leconvert_uint32_to(min);
 	request.max = leconvert_uint32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -292,13 +332,19 @@ int uv_light_get_uv_light_callback_threshold(UVLight *uv_light, char *ret_option
 	GetUVLightCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), UV_LIGHT_FUNCTION_GET_UV_LIGHT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -316,6 +362,12 @@ int uv_light_set_debounce_period(UVLight *uv_light, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), UV_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -324,7 +376,7 @@ int uv_light_set_debounce_period(UVLight *uv_light, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -335,13 +387,19 @@ int uv_light_get_debounce_period(UVLight *uv_light, uint32_t *ret_debounce) {
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), UV_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -364,7 +422,7 @@ int uv_light_get_identity(UVLight *uv_light, char ret_uid[8], char ret_connected
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

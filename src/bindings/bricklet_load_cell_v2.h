@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -346,7 +346,7 @@ void load_cell_v2_destroy(LoadCellV2 *load_cell_v2);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int load_cell_v2_get_response_expected(LoadCellV2 *load_cell_v2, uint8_t function_id, bool *ret_response_expected);
@@ -362,7 +362,7 @@ int load_cell_v2_get_response_expected(LoadCellV2 *load_cell_v2, uint8_t functio
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int load_cell_v2_set_response_expected(LoadCellV2 *load_cell_v2, uint8_t function_id, bool response_expected);
@@ -381,7 +381,7 @@ int load_cell_v2_set_response_expected_all(LoadCellV2 *load_cell_v2, bool respon
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void load_cell_v2_register_callback(LoadCellV2 *load_cell_v2, int16_t callback_id, void *function, void *user_data);
+void load_cell_v2_register_callback(LoadCellV2 *load_cell_v2, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLoadCellV2
@@ -394,7 +394,7 @@ int load_cell_v2_get_api_version(LoadCellV2 *load_cell_v2, uint8_t ret_api_versi
 /**
  * \ingroup BrickletLoadCellV2
  *
- * Returns the currently measured weight in grams.
+ * Returns the currently measured weight.
  * 
  * 
  * If you want to get the value periodically, it is recommended to use the
@@ -406,7 +406,7 @@ int load_cell_v2_get_weight(LoadCellV2 *load_cell_v2, int32_t *ret_weight);
 /**
  * \ingroup BrickletLoadCellV2
  *
- * The period in ms is the period with which the {@link LOAD_CELL_V2_CALLBACK_WEIGHT} callback is triggered
+ * The period is the period with which the {@link LOAD_CELL_V2_CALLBACK_WEIGHT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -433,8 +433,6 @@ int load_cell_v2_get_weight(LoadCellV2 *load_cell_v2, int32_t *ret_weight);
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int load_cell_v2_set_weight_callback_configuration(LoadCellV2 *load_cell_v2, uint32_t period, bool value_has_to_change, char option, int32_t min, int32_t max);
 
@@ -453,10 +451,6 @@ int load_cell_v2_get_weight_callback_configuration(LoadCellV2 *load_cell_v2, uin
  * 
  * Setting the length to 1 will turn the averaging off. With less
  * averaging, there is more noise on the data.
- * 
- * The range for the averaging is 1-100.
- * 
- * The default value is 4.
  */
 int load_cell_v2_set_moving_average(LoadCellV2 *load_cell_v2, uint16_t average);
 
@@ -488,8 +482,7 @@ int load_cell_v2_get_info_led_config(LoadCellV2 *load_cell_v2, uint8_t *ret_conf
  * To calibrate your Load Cell Bricklet 2.0 you have to
  * 
  * * empty the scale and call this function with 0 and
- * * add a known weight to the scale and call this function with the weight in
- *   grams.
+ * * add a known weight to the scale and call this function with the weight.
  * 
  * The calibration is saved in the flash of the Bricklet and only
  * needs to be done once.
@@ -521,8 +514,6 @@ int load_cell_v2_tare(LoadCellV2 *load_cell_v2);
  * means the voltage range is ±15mV for most load cells (i.e. gain of 128x
  * is best). If you don't know what all of this means you should keep it at
  * 128x, it will most likely be correct.
- * 
- * The default rate is 10Hz and the default gain is 128x.
  */
 int load_cell_v2_set_configuration(LoadCellV2 *load_cell_v2, uint8_t rate, uint8_t gain);
 
@@ -621,7 +612,7 @@ int load_cell_v2_get_status_led_config(LoadCellV2 *load_cell_v2, uint8_t *ret_co
 /**
  * \ingroup BrickletLoadCellV2
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -668,7 +659,9 @@ int load_cell_v2_read_uid(LoadCellV2 *load_cell_v2, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

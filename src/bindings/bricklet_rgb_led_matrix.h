@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -275,7 +275,7 @@ void rgb_led_matrix_destroy(RGBLEDMatrix *rgb_led_matrix);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int rgb_led_matrix_get_response_expected(RGBLEDMatrix *rgb_led_matrix, uint8_t function_id, bool *ret_response_expected);
@@ -291,7 +291,7 @@ int rgb_led_matrix_get_response_expected(RGBLEDMatrix *rgb_led_matrix, uint8_t f
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int rgb_led_matrix_set_response_expected(RGBLEDMatrix *rgb_led_matrix, uint8_t function_id, bool response_expected);
@@ -310,7 +310,7 @@ int rgb_led_matrix_set_response_expected_all(RGBLEDMatrix *rgb_led_matrix, bool 
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void rgb_led_matrix_register_callback(RGBLEDMatrix *rgb_led_matrix, int16_t callback_id, void *function, void *user_data);
+void rgb_led_matrix_register_callback(RGBLEDMatrix *rgb_led_matrix, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletRGBLEDMatrix
@@ -365,7 +365,7 @@ int rgb_led_matrix_get_blue(RGBLEDMatrix *rgb_led_matrix, uint8_t ret_blue[64]);
 /**
  * \ingroup BrickletRGBLEDMatrix
  *
- * Sets the frame duration in ms.
+ * Sets the frame duration.
  * 
  * Example: If you want to achieve 20 frames per second, you should
  * set the frame duration to 50ms (50ms * 20 = 1 second).
@@ -382,15 +382,13 @@ int rgb_led_matrix_get_blue(RGBLEDMatrix *rgb_led_matrix, uint8_t ret_blue[64]);
  * * and so on.
  * 
  * For frame duration of 0 see {@link rgb_led_matrix_draw_frame}.
- * 
- * Default value: 0 = off.
  */
 int rgb_led_matrix_set_frame_duration(RGBLEDMatrix *rgb_led_matrix, uint16_t frame_duration);
 
 /**
  * \ingroup BrickletRGBLEDMatrix
  *
- * Returns the frame duration in ms as set by {@link rgb_led_matrix_set_frame_duration}.
+ * Returns the frame duration as set by {@link rgb_led_matrix_set_frame_duration}.
  */
 int rgb_led_matrix_get_frame_duration(RGBLEDMatrix *rgb_led_matrix, uint16_t *ret_frame_duration);
 
@@ -416,7 +414,7 @@ int rgb_led_matrix_draw_frame(RGBLEDMatrix *rgb_led_matrix);
 /**
  * \ingroup BrickletRGBLEDMatrix
  *
- * Returns the current supply voltage of the Bricklet. The voltage is given in mV.
+ * Returns the current supply voltage of the Bricklet.
  */
 int rgb_led_matrix_get_supply_voltage(RGBLEDMatrix *rgb_led_matrix, uint16_t *ret_voltage);
 
@@ -508,7 +506,7 @@ int rgb_led_matrix_get_status_led_config(RGBLEDMatrix *rgb_led_matrix, uint8_t *
 /**
  * \ingroup BrickletRGBLEDMatrix
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -555,7 +553,9 @@ int rgb_led_matrix_read_uid(RGBLEDMatrix *rgb_led_matrix, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

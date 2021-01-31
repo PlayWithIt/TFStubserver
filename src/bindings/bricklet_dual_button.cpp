@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*StateChanged_CallbackFunction)(uint8_t button_l, uint8_t button_r
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -100,10 +100,17 @@ typedef struct {
 
 static void dual_button_callback_wrapper_state_changed(DevicePrivate *device_p, Packet *packet) {
 	StateChanged_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUAL_BUTTON_CALLBACK_STATE_CHANGED];
-	StateChanged_Callback *callback = (StateChanged_Callback *)packet;
+	void *user_data;
+	StateChanged_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUAL_BUTTON_CALLBACK_STATE_CHANGED];
+	if (packet->header.length != sizeof(StateChanged_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (StateChanged_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUAL_BUTTON_CALLBACK_STATE_CHANGED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUAL_BUTTON_CALLBACK_STATE_CHANGED];
+	callback = (StateChanged_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -113,9 +120,10 @@ static void dual_button_callback_wrapper_state_changed(DevicePrivate *device_p, 
 }
 
 void dual_button_create(DualButton *dual_button, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(dual_button, uid, ipcon->p, 2, 0, 0);
+	device_create(dual_button, uid, ipcon_p, 2, 0, 0, DUAL_BUTTON_DEVICE_IDENTIFIER);
 
 	device_p = dual_button->p;
 
@@ -127,6 +135,7 @@ void dual_button_create(DualButton *dual_button, const char *uid, IPConnection *
 
 	device_p->callback_wrappers[DUAL_BUTTON_CALLBACK_STATE_CHANGED] = dual_button_callback_wrapper_state_changed;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void dual_button_destroy(DualButton *dual_button) {
@@ -145,7 +154,7 @@ int dual_button_set_response_expected_all(DualButton *dual_button, bool response
 	return device_set_response_expected_all(dual_button->p, response_expected);
 }
 
-void dual_button_register_callback(DualButton *dual_button, int16_t callback_id, void *function, void *user_data) {
+void dual_button_register_callback(DualButton *dual_button, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(dual_button->p, callback_id, function, user_data);
 }
 
@@ -158,6 +167,12 @@ int dual_button_set_led_state(DualButton *dual_button, uint8_t led_l, uint8_t le
 	SetLEDState_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_BUTTON_FUNCTION_SET_LED_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -167,7 +182,7 @@ int dual_button_set_led_state(DualButton *dual_button, uint8_t led_l, uint8_t le
 	request.led_l = led_l;
 	request.led_r = led_r;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -178,13 +193,19 @@ int dual_button_get_led_state(DualButton *dual_button, uint8_t *ret_led_l, uint8
 	GetLEDState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_BUTTON_FUNCTION_GET_LED_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -202,13 +223,19 @@ int dual_button_get_button_state(DualButton *dual_button, uint8_t *ret_button_l,
 	GetButtonState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_BUTTON_FUNCTION_GET_BUTTON_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -225,6 +252,12 @@ int dual_button_set_selected_led_state(DualButton *dual_button, uint8_t led, uin
 	SetSelectedLEDState_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_BUTTON_FUNCTION_SET_SELECTED_LED_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -234,7 +267,7 @@ int dual_button_set_selected_led_state(DualButton *dual_button, uint8_t led, uin
 	request.led = led;
 	request.state = state;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -251,7 +284,7 @@ int dual_button_get_identity(DualButton *dual_button, char ret_uid[8], char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

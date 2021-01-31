@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -336,7 +336,7 @@ void analog_in_v3_destroy(AnalogInV3 *analog_in_v3);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int analog_in_v3_get_response_expected(AnalogInV3 *analog_in_v3, uint8_t function_id, bool *ret_response_expected);
@@ -352,7 +352,7 @@ int analog_in_v3_get_response_expected(AnalogInV3 *analog_in_v3, uint8_t functio
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int analog_in_v3_set_response_expected(AnalogInV3 *analog_in_v3, uint8_t function_id, bool response_expected);
@@ -371,7 +371,7 @@ int analog_in_v3_set_response_expected_all(AnalogInV3 *analog_in_v3, bool respon
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void analog_in_v3_register_callback(AnalogInV3 *analog_in_v3, int16_t callback_id, void *function, void *user_data);
+void analog_in_v3_register_callback(AnalogInV3 *analog_in_v3, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletAnalogInV3
@@ -384,8 +384,7 @@ int analog_in_v3_get_api_version(AnalogInV3 *analog_in_v3, uint8_t ret_api_versi
 /**
  * \ingroup BrickletAnalogInV3
  *
- * Returns the measured voltage. The value is in mV and
- * between 0V and 42V. The resolution is approximately 10mV to 1mV
+ * Returns the measured voltage. The resolution is approximately 10mV to 1mV
  * depending on the oversampling configuration ({@link analog_in_v3_set_oversampling}).
  * 
  * 
@@ -398,7 +397,7 @@ int analog_in_v3_get_voltage(AnalogInV3 *analog_in_v3, uint16_t *ret_voltage);
 /**
  * \ingroup BrickletAnalogInV3
  *
- * The period in ms is the period with which the {@link ANALOG_IN_V3_CALLBACK_VOLTAGE} callback is triggered
+ * The period is the period with which the {@link ANALOG_IN_V3_CALLBACK_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -425,8 +424,6 @@ int analog_in_v3_get_voltage(AnalogInV3 *analog_in_v3, uint16_t *ret_voltage);
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int analog_in_v3_set_voltage_callback_configuration(AnalogInV3 *analog_in_v3, uint32_t period, bool value_has_to_change, char option, uint16_t min, uint16_t max);
 
@@ -452,8 +449,6 @@ int analog_in_v3_get_voltage_callback_configuration(AnalogInV3 *analog_in_v3, ui
  * With increased oversampling the noise decreases. With decreased
  * oversampling the reaction time increases (changes in voltage will be
  * measured faster).
- * 
- * The default value is 4096x.
  */
 int analog_in_v3_set_oversampling(AnalogInV3 *analog_in_v3, uint8_t oversampling);
 
@@ -573,7 +568,7 @@ int analog_in_v3_get_status_led_config(AnalogInV3 *analog_in_v3, uint8_t *ret_co
 /**
  * \ingroup BrickletAnalogInV3
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -620,7 +615,9 @@ int analog_in_v3_read_uid(AnalogInV3 *analog_in_v3, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

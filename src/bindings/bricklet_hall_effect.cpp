@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*EdgeCount_CallbackFunction)(uint32_t count, bool value, void *use
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -139,11 +139,18 @@ typedef struct {
 
 static void hall_effect_callback_wrapper_edge_count(DevicePrivate *device_p, Packet *packet) {
 	EdgeCount_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HALL_EFFECT_CALLBACK_EDGE_COUNT];
+	void *user_data;
+	EdgeCount_Callback *callback;
 	bool unpacked_value;
-	EdgeCount_Callback *callback = (EdgeCount_Callback *)packet;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HALL_EFFECT_CALLBACK_EDGE_COUNT];
+	if (packet->header.length != sizeof(EdgeCount_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (EdgeCount_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HALL_EFFECT_CALLBACK_EDGE_COUNT];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HALL_EFFECT_CALLBACK_EDGE_COUNT];
+	callback = (EdgeCount_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -156,9 +163,10 @@ static void hall_effect_callback_wrapper_edge_count(DevicePrivate *device_p, Pac
 }
 
 void hall_effect_create(HallEffect *hall_effect, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(hall_effect, uid, ipcon->p, 2, 0, 0);
+	device_create(hall_effect, uid, ipcon_p, 2, 0, 0, HALL_EFFECT_DEVICE_IDENTIFIER);
 
 	device_p = hall_effect->p;
 
@@ -175,6 +183,7 @@ void hall_effect_create(HallEffect *hall_effect, const char *uid, IPConnection *
 
 	device_p->callback_wrappers[HALL_EFFECT_CALLBACK_EDGE_COUNT] = hall_effect_callback_wrapper_edge_count;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void hall_effect_destroy(HallEffect *hall_effect) {
@@ -193,7 +202,7 @@ int hall_effect_set_response_expected_all(HallEffect *hall_effect, bool response
 	return device_set_response_expected_all(hall_effect->p, response_expected);
 }
 
-void hall_effect_register_callback(HallEffect *hall_effect, int16_t callback_id, void *function, void *user_data) {
+void hall_effect_register_callback(HallEffect *hall_effect, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(hall_effect->p, callback_id, function, user_data);
 }
 
@@ -207,13 +216,19 @@ int hall_effect_get_value(HallEffect *hall_effect, bool *ret_value) {
 	GetValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -230,6 +245,12 @@ int hall_effect_get_edge_count(HallEffect *hall_effect, bool reset_counter, uint
 	GetEdgeCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -238,7 +259,7 @@ int hall_effect_get_edge_count(HallEffect *hall_effect, bool reset_counter, uint
 
 	request.reset_counter = reset_counter ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -254,6 +275,12 @@ int hall_effect_set_edge_count_config(HallEffect *hall_effect, uint8_t edge_type
 	SetEdgeCountConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_SET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -263,7 +290,7 @@ int hall_effect_set_edge_count_config(HallEffect *hall_effect, uint8_t edge_type
 	request.edge_type = edge_type;
 	request.debounce = debounce;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -274,13 +301,19 @@ int hall_effect_get_edge_count_config(HallEffect *hall_effect, uint8_t *ret_edge
 	GetEdgeCountConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -297,6 +330,12 @@ int hall_effect_set_edge_interrupt(HallEffect *hall_effect, uint32_t edges) {
 	SetEdgeInterrupt_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_SET_EDGE_INTERRUPT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -305,7 +344,7 @@ int hall_effect_set_edge_interrupt(HallEffect *hall_effect, uint32_t edges) {
 
 	request.edges = leconvert_uint32_to(edges);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -316,13 +355,19 @@ int hall_effect_get_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_edges)
 	GetEdgeInterrupt_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_INTERRUPT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -338,6 +383,12 @@ int hall_effect_set_edge_count_callback_period(HallEffect *hall_effect, uint32_t
 	SetEdgeCountCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_SET_EDGE_COUNT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -346,7 +397,7 @@ int hall_effect_set_edge_count_callback_period(HallEffect *hall_effect, uint32_t
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -357,13 +408,19 @@ int hall_effect_get_edge_count_callback_period(HallEffect *hall_effect, uint32_t
 	GetEdgeCountCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_GET_EDGE_COUNT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -380,13 +437,19 @@ int hall_effect_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_count, boo
 	EdgeInterrupt_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HALL_EFFECT_FUNCTION_EDGE_INTERRUPT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -410,7 +473,7 @@ int hall_effect_get_identity(HallEffect *hall_effect, char ret_uid[8], char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

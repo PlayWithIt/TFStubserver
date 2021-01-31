@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -38,7 +38,7 @@ typedef void (*DateTime_CallbackFunction)(uint32_t date, uint32_t time, void *us
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -237,10 +237,17 @@ typedef struct {
 
 static void gps_callback_wrapper_coordinates(DevicePrivate *device_p, Packet *packet) {
 	Coordinates_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_COORDINATES];
-	Coordinates_Callback *callback = (Coordinates_Callback *)packet;
+	void *user_data;
+	Coordinates_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_COORDINATES];
+	if (packet->header.length != sizeof(Coordinates_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Coordinates_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_COORDINATES];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_COORDINATES];
+	callback = (Coordinates_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -258,10 +265,17 @@ static void gps_callback_wrapper_coordinates(DevicePrivate *device_p, Packet *pa
 
 static void gps_callback_wrapper_status(DevicePrivate *device_p, Packet *packet) {
 	Status_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_STATUS];
-	Status_Callback *callback = (Status_Callback *)packet;
+	void *user_data;
+	Status_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_STATUS];
+	if (packet->header.length != sizeof(Status_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Status_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_STATUS];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_STATUS];
+	callback = (Status_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -272,10 +286,17 @@ static void gps_callback_wrapper_status(DevicePrivate *device_p, Packet *packet)
 
 static void gps_callback_wrapper_altitude(DevicePrivate *device_p, Packet *packet) {
 	Altitude_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_ALTITUDE];
-	Altitude_Callback *callback = (Altitude_Callback *)packet;
+	void *user_data;
+	Altitude_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_ALTITUDE];
+	if (packet->header.length != sizeof(Altitude_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Altitude_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_ALTITUDE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_ALTITUDE];
+	callback = (Altitude_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -289,10 +310,17 @@ static void gps_callback_wrapper_altitude(DevicePrivate *device_p, Packet *packe
 
 static void gps_callback_wrapper_motion(DevicePrivate *device_p, Packet *packet) {
 	Motion_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_MOTION];
-	Motion_Callback *callback = (Motion_Callback *)packet;
+	void *user_data;
+	Motion_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_MOTION];
+	if (packet->header.length != sizeof(Motion_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Motion_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_MOTION];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_MOTION];
+	callback = (Motion_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -306,10 +334,17 @@ static void gps_callback_wrapper_motion(DevicePrivate *device_p, Packet *packet)
 
 static void gps_callback_wrapper_date_time(DevicePrivate *device_p, Packet *packet) {
 	DateTime_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_DATE_TIME];
-	DateTime_Callback *callback = (DateTime_Callback *)packet;
+	void *user_data;
+	DateTime_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_DATE_TIME];
+	if (packet->header.length != sizeof(DateTime_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (DateTime_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_DATE_TIME];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + GPS_CALLBACK_DATE_TIME];
+	callback = (DateTime_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -322,9 +357,10 @@ static void gps_callback_wrapper_date_time(DevicePrivate *device_p, Packet *pack
 }
 
 void gps_create(GPS *gps, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(gps, uid, ipcon->p, 2, 0, 1);
+	device_create(gps, uid, ipcon_p, 2, 0, 1, GPS_DEVICE_IDENTIFIER);
 
 	device_p = gps->p;
 
@@ -352,6 +388,7 @@ void gps_create(GPS *gps, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[GPS_CALLBACK_MOTION] = gps_callback_wrapper_motion;
 	device_p->callback_wrappers[GPS_CALLBACK_DATE_TIME] = gps_callback_wrapper_date_time;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void gps_destroy(GPS *gps) {
@@ -370,7 +407,7 @@ int gps_set_response_expected_all(GPS *gps, bool response_expected) {
 	return device_set_response_expected_all(gps->p, response_expected);
 }
 
-void gps_register_callback(GPS *gps, int16_t callback_id, void *function, void *user_data) {
+void gps_register_callback(GPS *gps, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(gps->p, callback_id, function, user_data);
 }
 
@@ -384,13 +421,19 @@ int gps_get_coordinates(GPS *gps, uint32_t *ret_latitude, char *ret_ns, uint32_t
 	GetCoordinates_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_COORDINATES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -414,13 +457,19 @@ int gps_get_status(GPS *gps, uint8_t *ret_fix, uint8_t *ret_satellites_view, uin
 	GetStatus_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -439,13 +488,19 @@ int gps_get_altitude(GPS *gps, int32_t *ret_altitude, int32_t *ret_geoidal_separ
 	GetAltitude_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_ALTITUDE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -463,13 +518,19 @@ int gps_get_motion(GPS *gps, uint32_t *ret_course, uint32_t *ret_speed) {
 	GetMotion_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_MOTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -487,13 +548,19 @@ int gps_get_date_time(GPS *gps, uint32_t *ret_date, uint32_t *ret_time) {
 	GetDateTime_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_DATE_TIME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -510,6 +577,12 @@ int gps_restart(GPS *gps, uint8_t restart_type) {
 	Restart_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_RESTART, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -518,7 +591,7 @@ int gps_restart(GPS *gps, uint8_t restart_type) {
 
 	request.restart_type = restart_type;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -528,6 +601,12 @@ int gps_set_coordinates_callback_period(GPS *gps, uint32_t period) {
 	SetCoordinatesCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_SET_COORDINATES_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -536,7 +615,7 @@ int gps_set_coordinates_callback_period(GPS *gps, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -547,13 +626,19 @@ int gps_get_coordinates_callback_period(GPS *gps, uint32_t *ret_period) {
 	GetCoordinatesCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_COORDINATES_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -569,6 +654,12 @@ int gps_set_status_callback_period(GPS *gps, uint32_t period) {
 	SetStatusCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_SET_STATUS_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -577,7 +668,7 @@ int gps_set_status_callback_period(GPS *gps, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -588,13 +679,19 @@ int gps_get_status_callback_period(GPS *gps, uint32_t *ret_period) {
 	GetStatusCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_STATUS_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -610,6 +707,12 @@ int gps_set_altitude_callback_period(GPS *gps, uint32_t period) {
 	SetAltitudeCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_SET_ALTITUDE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -618,7 +721,7 @@ int gps_set_altitude_callback_period(GPS *gps, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -629,13 +732,19 @@ int gps_get_altitude_callback_period(GPS *gps, uint32_t *ret_period) {
 	GetAltitudeCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_ALTITUDE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -651,6 +760,12 @@ int gps_set_motion_callback_period(GPS *gps, uint32_t period) {
 	SetMotionCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_SET_MOTION_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -659,7 +774,7 @@ int gps_set_motion_callback_period(GPS *gps, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -670,13 +785,19 @@ int gps_get_motion_callback_period(GPS *gps, uint32_t *ret_period) {
 	GetMotionCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_MOTION_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -692,6 +813,12 @@ int gps_set_date_time_callback_period(GPS *gps, uint32_t period) {
 	SetDateTimeCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_SET_DATE_TIME_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -700,7 +827,7 @@ int gps_set_date_time_callback_period(GPS *gps, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -711,13 +838,19 @@ int gps_get_date_time_callback_period(GPS *gps, uint32_t *ret_period) {
 	GetDateTimeCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), GPS_FUNCTION_GET_DATE_TIME_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -740,7 +873,7 @@ int gps_get_identity(GPS *gps, char ret_uid[8], char ret_connected_uid[8], char 
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -28,7 +28,7 @@ extern "C" {
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -118,9 +118,10 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 void industrial_analog_out_create(IndustrialAnalogOut *industrial_analog_out, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(industrial_analog_out, uid, ipcon->p, 2, 0, 0);
+	device_create(industrial_analog_out, uid, ipcon_p, 2, 0, 0, INDUSTRIAL_ANALOG_OUT_DEVICE_IDENTIFIER);
 
 	device_p = industrial_analog_out->p;
 
@@ -135,6 +136,7 @@ void industrial_analog_out_create(IndustrialAnalogOut *industrial_analog_out, co
 	device_p->response_expected[INDUSTRIAL_ANALOG_OUT_FUNCTION_GET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[INDUSTRIAL_ANALOG_OUT_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void industrial_analog_out_destroy(IndustrialAnalogOut *industrial_analog_out) {
@@ -163,13 +165,19 @@ int industrial_analog_out_enable(IndustrialAnalogOut *industrial_analog_out) {
 	Enable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_ENABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -179,13 +187,19 @@ int industrial_analog_out_disable(IndustrialAnalogOut *industrial_analog_out) {
 	Disable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_DISABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -196,13 +210,19 @@ int industrial_analog_out_is_enabled(IndustrialAnalogOut *industrial_analog_out,
 	IsEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_IS_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -218,6 +238,12 @@ int industrial_analog_out_set_voltage(IndustrialAnalogOut *industrial_analog_out
 	SetVoltage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_SET_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -226,7 +252,7 @@ int industrial_analog_out_set_voltage(IndustrialAnalogOut *industrial_analog_out
 
 	request.voltage = leconvert_uint16_to(voltage);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -237,13 +263,19 @@ int industrial_analog_out_get_voltage(IndustrialAnalogOut *industrial_analog_out
 	GetVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_GET_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -259,6 +291,12 @@ int industrial_analog_out_set_current(IndustrialAnalogOut *industrial_analog_out
 	SetCurrent_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_SET_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -267,7 +305,7 @@ int industrial_analog_out_set_current(IndustrialAnalogOut *industrial_analog_out
 
 	request.current = leconvert_uint16_to(current);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -278,13 +316,19 @@ int industrial_analog_out_get_current(IndustrialAnalogOut *industrial_analog_out
 	GetCurrent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_GET_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -300,6 +344,12 @@ int industrial_analog_out_set_configuration(IndustrialAnalogOut *industrial_anal
 	SetConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_SET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -309,7 +359,7 @@ int industrial_analog_out_set_configuration(IndustrialAnalogOut *industrial_anal
 	request.voltage_range = voltage_range;
 	request.current_range = current_range;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -320,13 +370,19 @@ int industrial_analog_out_get_configuration(IndustrialAnalogOut *industrial_anal
 	GetConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_ANALOG_OUT_FUNCTION_GET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -350,7 +406,7 @@ int industrial_analog_out_get_identity(IndustrialAnalogOut *industrial_analog_ou
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

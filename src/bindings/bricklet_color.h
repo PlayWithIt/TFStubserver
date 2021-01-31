@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -173,7 +173,7 @@ typedef Device Color;
  * 
  * This callback is triggered periodically with the period that is set by
  * {@link color_set_color_temperature_callback_period}. The parameter is the
- * color temperature in Kelvin.
+ * color temperature.
  * 
  * The {@link COLOR_CALLBACK_COLOR_TEMPERATURE} callback is only triggered if the color temperature
  * has changed since the last triggering.
@@ -311,7 +311,7 @@ void color_destroy(Color *color);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int color_get_response_expected(Color *color, uint8_t function_id, bool *ret_response_expected);
@@ -327,7 +327,7 @@ int color_get_response_expected(Color *color, uint8_t function_id, bool *ret_res
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int color_set_response_expected(Color *color, uint8_t function_id, bool response_expected);
@@ -346,7 +346,7 @@ int color_set_response_expected_all(Color *color, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void color_register_callback(Color *color, int16_t callback_id, void *function, void *user_data);
+void color_register_callback(Color *color, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletColor
@@ -359,8 +359,7 @@ int color_get_api_version(Color *color, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletColor
  *
- * Returns the measured color of the sensor. The values
- * have a range of 0 to 65535.
+ * Returns the measured color of the sensor.
  * 
  * The red (r), green (g), blue (b) and clear (c) colors are measured
  * with four different photodiodes that are responsive at different
@@ -381,13 +380,11 @@ int color_get_color(Color *color, uint16_t *ret_r, uint16_t *ret_g, uint16_t *re
 /**
  * \ingroup BrickletColor
  *
- * Sets the period in ms with which the {@link COLOR_CALLBACK_COLOR} callback is triggered
+ * Sets the period with which the {@link COLOR_CALLBACK_COLOR} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link COLOR_CALLBACK_COLOR} callback is only triggered if the color has changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int color_set_color_callback_period(Color *color, uint32_t period);
 
@@ -414,8 +411,6 @@ int color_get_color_callback_period(Color *color, uint32_t *ret_period);
  *  "'<'",    "Callback is triggered when the temperature is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the temperature is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0, 0, 0, 0, 0, 0, 0).
  */
 int color_set_color_callback_threshold(Color *color, char option, uint16_t min_r, uint16_t max_r, uint16_t min_g, uint16_t max_g, uint16_t min_b, uint16_t max_b, uint16_t min_c, uint16_t max_c);
 
@@ -429,7 +424,7 @@ int color_get_color_callback_threshold(Color *color, char *ret_option, uint16_t 
 /**
  * \ingroup BrickletColor
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link COLOR_CALLBACK_COLOR_REACHED}
  * 
@@ -438,8 +433,6 @@ int color_get_color_callback_threshold(Color *color, char *ret_option, uint16_t 
  * * {@link color_set_color_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int color_set_debounce_period(Color *color, uint32_t debounce);
 
@@ -502,8 +495,6 @@ int color_is_light_on(Color *color, uint8_t *ret_light);
  * and accuracy. With a longer integration time the values read will
  * be more accurate but it will take longer time to get the conversion
  * results.
- * 
- * The default values are 60x gain and 154ms integration time.
  */
 int color_set_config(Color *color, uint8_t gain, uint8_t integration_time);
 
@@ -523,7 +514,7 @@ int color_get_config(Color *color, uint8_t *ret_gain, uint8_t *ret_integration_t
  *  lux = illuminance * 700 / gain / integration_time
  * 
  * To get a correct illuminance measurement make sure that the color
- * values themself are not saturated. The color value (R, G or B)
+ * values themselves are not saturated. The color value (R, G or B)
  * is saturated if it is equal to the maximum value of 65535.
  * In that case you have to reduce the gain, see {@link color_set_config}.
  */
@@ -532,10 +523,10 @@ int color_get_illuminance(Color *color, uint32_t *ret_illuminance);
 /**
  * \ingroup BrickletColor
  *
- * Returns the color temperature in Kelvin.
+ * Returns the color temperature.
  * 
  * To get a correct color temperature measurement make sure that the color
- * values themself are not saturated. The color value (R, G or B)
+ * values themselves are not saturated. The color value (R, G or B)
  * is saturated if it is equal to the maximum value of 65535.
  * In that case you have to reduce the gain, see {@link color_set_config}.
  */
@@ -544,13 +535,11 @@ int color_get_color_temperature(Color *color, uint16_t *ret_color_temperature);
 /**
  * \ingroup BrickletColor
  *
- * Sets the period in ms with which the {@link COLOR_CALLBACK_ILLUMINANCE} callback is triggered
+ * Sets the period with which the {@link COLOR_CALLBACK_ILLUMINANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link COLOR_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int color_set_illuminance_callback_period(Color *color, uint32_t period);
 
@@ -564,13 +553,11 @@ int color_get_illuminance_callback_period(Color *color, uint32_t *ret_period);
 /**
  * \ingroup BrickletColor
  *
- * Sets the period in ms with which the {@link COLOR_CALLBACK_COLOR_TEMPERATURE} callback is
+ * Sets the period with which the {@link COLOR_CALLBACK_COLOR_TEMPERATURE} callback is
  * triggered periodically. A value of 0 turns the callback off.
  * 
  * The {@link COLOR_CALLBACK_COLOR_TEMPERATURE} callback is only triggered if the color temperature
  * has changed since the last triggering.
- * 
- * The default value is 0.
  */
 int color_set_color_temperature_callback_period(Color *color, uint32_t period);
 
@@ -588,7 +575,9 @@ int color_get_color_temperature_callback_period(Color *color, uint32_t *ret_peri
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

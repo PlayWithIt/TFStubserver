@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*MonoflopDone_CallbackFunction)(bool state, void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -96,11 +96,18 @@ typedef struct {
 
 static void solid_state_relay_callback_wrapper_monoflop_done(DevicePrivate *device_p, Packet *packet) {
 	MonoflopDone_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SOLID_STATE_RELAY_CALLBACK_MONOFLOP_DONE];
+	void *user_data;
+	MonoflopDone_Callback *callback;
 	bool unpacked_state;
-	MonoflopDone_Callback *callback = (MonoflopDone_Callback *)packet;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SOLID_STATE_RELAY_CALLBACK_MONOFLOP_DONE];
+	if (packet->header.length != sizeof(MonoflopDone_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (MonoflopDone_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SOLID_STATE_RELAY_CALLBACK_MONOFLOP_DONE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SOLID_STATE_RELAY_CALLBACK_MONOFLOP_DONE];
+	callback = (MonoflopDone_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -111,9 +118,10 @@ static void solid_state_relay_callback_wrapper_monoflop_done(DevicePrivate *devi
 }
 
 void solid_state_relay_create(SolidStateRelay *solid_state_relay, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(solid_state_relay, uid, ipcon->p, 2, 0, 0);
+	device_create(solid_state_relay, uid, ipcon_p, 2, 0, 0, SOLID_STATE_RELAY_DEVICE_IDENTIFIER);
 
 	device_p = solid_state_relay->p;
 
@@ -125,6 +133,7 @@ void solid_state_relay_create(SolidStateRelay *solid_state_relay, const char *ui
 
 	device_p->callback_wrappers[SOLID_STATE_RELAY_CALLBACK_MONOFLOP_DONE] = solid_state_relay_callback_wrapper_monoflop_done;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void solid_state_relay_destroy(SolidStateRelay *solid_state_relay) {
@@ -143,7 +152,7 @@ int solid_state_relay_set_response_expected_all(SolidStateRelay *solid_state_rel
 	return device_set_response_expected_all(solid_state_relay->p, response_expected);
 }
 
-void solid_state_relay_register_callback(SolidStateRelay *solid_state_relay, int16_t callback_id, void *function, void *user_data) {
+void solid_state_relay_register_callback(SolidStateRelay *solid_state_relay, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(solid_state_relay->p, callback_id, function, user_data);
 }
 
@@ -156,6 +165,12 @@ int solid_state_relay_set_state(SolidStateRelay *solid_state_relay, bool state) 
 	SetState_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SOLID_STATE_RELAY_FUNCTION_SET_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -164,7 +179,7 @@ int solid_state_relay_set_state(SolidStateRelay *solid_state_relay, bool state) 
 
 	request.state = state ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -175,13 +190,19 @@ int solid_state_relay_get_state(SolidStateRelay *solid_state_relay, bool *ret_st
 	GetState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SOLID_STATE_RELAY_FUNCTION_GET_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -197,6 +218,12 @@ int solid_state_relay_set_monoflop(SolidStateRelay *solid_state_relay, bool stat
 	SetMonoflop_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SOLID_STATE_RELAY_FUNCTION_SET_MONOFLOP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -206,7 +233,7 @@ int solid_state_relay_set_monoflop(SolidStateRelay *solid_state_relay, bool stat
 	request.state = state ? 1 : 0;
 	request.time = leconvert_uint32_to(time);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -217,13 +244,19 @@ int solid_state_relay_get_monoflop(SolidStateRelay *solid_state_relay, bool *ret
 	GetMonoflop_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SOLID_STATE_RELAY_FUNCTION_GET_MONOFLOP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -248,7 +281,7 @@ int solid_state_relay_get_identity(SolidStateRelay *solid_state_relay, char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

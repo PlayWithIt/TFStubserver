@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -261,7 +261,7 @@ void rgb_led_button_destroy(RGBLEDButton *rgb_led_button);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int rgb_led_button_get_response_expected(RGBLEDButton *rgb_led_button, uint8_t function_id, bool *ret_response_expected);
@@ -277,7 +277,7 @@ int rgb_led_button_get_response_expected(RGBLEDButton *rgb_led_button, uint8_t f
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int rgb_led_button_set_response_expected(RGBLEDButton *rgb_led_button, uint8_t function_id, bool response_expected);
@@ -296,7 +296,7 @@ int rgb_led_button_set_response_expected_all(RGBLEDButton *rgb_led_button, bool 
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void rgb_led_button_register_callback(RGBLEDButton *rgb_led_button, int16_t callback_id, void *function, void *user_data);
+void rgb_led_button_register_callback(RGBLEDButton *rgb_led_button, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletRGBLEDButton
@@ -310,8 +310,6 @@ int rgb_led_button_get_api_version(RGBLEDButton *rgb_led_button, uint8_t ret_api
  * \ingroup BrickletRGBLEDButton
  *
  * Sets the color of the LED.
- * 
- * By default the LED is off (0, 0, 0).
  */
 int rgb_led_button_set_color(RGBLEDButton *rgb_led_button, uint8_t red, uint8_t green, uint8_t blue);
 
@@ -333,14 +331,10 @@ int rgb_led_button_get_button_state(RGBLEDButton *rgb_led_button, uint8_t *ret_s
  * \ingroup BrickletRGBLEDButton
  *
  * Sets a color calibration. Some colors appear brighter then others,
- * so a calibration may be necessary for nice uniform colors.
- * 
- * The values range from 0% to 100%.
+ * so a calibration may be necessary for uniform colors.
  * 
  * The calibration is saved in flash. You don't need to call this
  * function on every startup.
- * 
- * Default value is (100, 100, 55).
  */
 int rgb_led_button_set_color_calibration(RGBLEDButton *rgb_led_button, uint8_t red, uint8_t green, uint8_t blue);
 
@@ -439,7 +433,7 @@ int rgb_led_button_get_status_led_config(RGBLEDButton *rgb_led_button, uint8_t *
 /**
  * \ingroup BrickletRGBLEDButton
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -486,7 +480,9 @@ int rgb_led_button_read_uid(RGBLEDButton *rgb_led_button, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -203,7 +203,7 @@ void real_time_clock_destroy(RealTimeClock *real_time_clock);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int real_time_clock_get_response_expected(RealTimeClock *real_time_clock, uint8_t function_id, bool *ret_response_expected);
@@ -219,7 +219,7 @@ int real_time_clock_get_response_expected(RealTimeClock *real_time_clock, uint8_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int real_time_clock_set_response_expected(RealTimeClock *real_time_clock, uint8_t function_id, bool response_expected);
@@ -238,7 +238,7 @@ int real_time_clock_set_response_expected_all(RealTimeClock *real_time_clock, bo
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void real_time_clock_register_callback(RealTimeClock *real_time_clock, int16_t callback_id, void *function, void *user_data);
+void real_time_clock_register_callback(RealTimeClock *real_time_clock, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletRealTimeClock
@@ -251,19 +251,7 @@ int real_time_clock_get_api_version(RealTimeClock *real_time_clock, uint8_t ret_
 /**
  * \ingroup BrickletRealTimeClock
  *
- * Sets the current date (including weekday) and the current time with hundredths
- * of a second resolution.
- * 
- * Possible value ranges:
- * 
- * * Year: 2000 to 2099
- * * Month: 1 to 12 (January to December)
- * * Day: 1 to 31
- * * Hour: 0 to 23
- * * Minute: 0 to 59
- * * Second: 0 to 59
- * * Centisecond: 0 to 99
- * * Weekday: 1 to 7 (Monday to Sunday)
+ * Sets the current date (including weekday) and the current time.
  * 
  * If the backup battery is installed then the real-time clock keeps date and
  * time even if the Bricklet is not powered by a Brick.
@@ -278,16 +266,16 @@ int real_time_clock_set_date_time(RealTimeClock *real_time_clock, uint16_t year,
  * \ingroup BrickletRealTimeClock
  *
  * Returns the current date (including weekday) and the current time of the
- * real-time clock with hundredths of a second resolution.
+ * real-time clock.
  */
 int real_time_clock_get_date_time(RealTimeClock *real_time_clock, uint16_t *ret_year, uint8_t *ret_month, uint8_t *ret_day, uint8_t *ret_hour, uint8_t *ret_minute, uint8_t *ret_second, uint8_t *ret_centisecond, uint8_t *ret_weekday);
 
 /**
  * \ingroup BrickletRealTimeClock
  *
- * Returns the current date and the time of the real-time clock converted to
- * milliseconds. The timestamp has an effective resolution of hundredths of a
- * second.
+ * Returns the current date and the time of the real-time clock.
+ * The timestamp has an effective resolution of hundredths of a
+ * second and is an offset to 2000-01-01 00:00:00.000.
  */
 int real_time_clock_get_timestamp(RealTimeClock *real_time_clock, int64_t *ret_timestamp);
 
@@ -332,13 +320,11 @@ int real_time_clock_get_offset(RealTimeClock *real_time_clock, int8_t *ret_offse
 /**
  * \ingroup BrickletRealTimeClock
  *
- * Sets the period in ms with which the {@link REAL_TIME_CLOCK_CALLBACK_DATE_TIME} callback is triggered
+ * Sets the period with which the {@link REAL_TIME_CLOCK_CALLBACK_DATE_TIME} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link REAL_TIME_CLOCK_CALLBACK_DATE_TIME} Callback is only triggered if the date or time changed
  * since the last triggering.
- * 
- * The default value is 0.
  * 
  * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
@@ -401,7 +387,9 @@ int real_time_clock_get_alarm(RealTimeClock *real_time_clock, int8_t *ret_month,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

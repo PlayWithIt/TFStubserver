@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-11-28.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.23                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -38,7 +38,7 @@ typedef void (*GUITabSelected_CallbackFunction)(int8_t index, void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -611,10 +611,17 @@ typedef struct {
 
 static void lcd_128x64_callback_wrapper_touch_position(DevicePrivate *device_p, Packet *packet) {
 	TouchPosition_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_POSITION];
-	TouchPosition_Callback *callback = (TouchPosition_Callback *)packet;
+	void *user_data;
+	TouchPosition_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_POSITION];
+	if (packet->header.length != sizeof(TouchPosition_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (TouchPosition_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_POSITION];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_POSITION];
+	callback = (TouchPosition_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -630,10 +637,17 @@ static void lcd_128x64_callback_wrapper_touch_position(DevicePrivate *device_p, 
 
 static void lcd_128x64_callback_wrapper_touch_gesture(DevicePrivate *device_p, Packet *packet) {
 	TouchGesture_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_GESTURE];
-	TouchGesture_Callback *callback = (TouchGesture_Callback *)packet;
+	void *user_data;
+	TouchGesture_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_GESTURE];
+	if (packet->header.length != sizeof(TouchGesture_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (TouchGesture_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_GESTURE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_TOUCH_GESTURE];
+	callback = (TouchGesture_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -652,11 +666,18 @@ static void lcd_128x64_callback_wrapper_touch_gesture(DevicePrivate *device_p, P
 
 static void lcd_128x64_callback_wrapper_gui_button_pressed(DevicePrivate *device_p, Packet *packet) {
 	GUIButtonPressed_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_BUTTON_PRESSED];
+	void *user_data;
+	GUIButtonPressed_Callback *callback;
 	bool unpacked_pressed;
-	GUIButtonPressed_Callback *callback = (GUIButtonPressed_Callback *)packet;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_BUTTON_PRESSED];
+	if (packet->header.length != sizeof(GUIButtonPressed_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (GUIButtonPressed_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_BUTTON_PRESSED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_BUTTON_PRESSED];
+	callback = (GUIButtonPressed_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -668,10 +689,17 @@ static void lcd_128x64_callback_wrapper_gui_button_pressed(DevicePrivate *device
 
 static void lcd_128x64_callback_wrapper_gui_slider_value(DevicePrivate *device_p, Packet *packet) {
 	GUISliderValue_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_SLIDER_VALUE];
-	GUISliderValue_Callback *callback = (GUISliderValue_Callback *)packet;
+	void *user_data;
+	GUISliderValue_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_SLIDER_VALUE];
+	if (packet->header.length != sizeof(GUISliderValue_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (GUISliderValue_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_SLIDER_VALUE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_SLIDER_VALUE];
+	callback = (GUISliderValue_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -682,10 +710,17 @@ static void lcd_128x64_callback_wrapper_gui_slider_value(DevicePrivate *device_p
 
 static void lcd_128x64_callback_wrapper_gui_tab_selected(DevicePrivate *device_p, Packet *packet) {
 	GUITabSelected_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_TAB_SELECTED];
-	GUITabSelected_Callback *callback = (GUITabSelected_Callback *)packet;
+	void *user_data;
+	GUITabSelected_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_TAB_SELECTED];
+	if (packet->header.length != sizeof(GUITabSelected_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (GUITabSelected_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_TAB_SELECTED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_128X64_CALLBACK_GUI_TAB_SELECTED];
+	callback = (GUITabSelected_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -695,9 +730,10 @@ static void lcd_128x64_callback_wrapper_gui_tab_selected(DevicePrivate *device_p
 }
 
 void lcd_128x64_create(LCD128x64 *lcd_128x64, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(lcd_128x64, uid, ipcon->p, 2, 0, 1);
+	device_create(lcd_128x64, uid, ipcon_p, 2, 0, 1, LCD_128X64_DEVICE_IDENTIFIER);
 
 	device_p = lcd_128x64->p;
 
@@ -767,6 +803,7 @@ void lcd_128x64_create(LCD128x64 *lcd_128x64, const char *uid, IPConnection *ipc
 	device_p->callback_wrappers[LCD_128X64_CALLBACK_GUI_SLIDER_VALUE] = lcd_128x64_callback_wrapper_gui_slider_value;
 	device_p->callback_wrappers[LCD_128X64_CALLBACK_GUI_TAB_SELECTED] = lcd_128x64_callback_wrapper_gui_tab_selected;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void lcd_128x64_destroy(LCD128x64 *lcd_128x64) {
@@ -785,7 +822,7 @@ int lcd_128x64_set_response_expected_all(LCD128x64 *lcd_128x64, bool response_ex
 	return device_set_response_expected_all(lcd_128x64->p, response_expected);
 }
 
-void lcd_128x64_register_callback(LCD128x64 *lcd_128x64, int16_t callback_id, void *function, void *user_data) {
+void lcd_128x64_register_callback(LCD128x64 *lcd_128x64, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(lcd_128x64->p, callback_id, function, user_data);
 }
 
@@ -798,6 +835,12 @@ int lcd_128x64_write_pixels_low_level(LCD128x64 *lcd_128x64, uint8_t x_start, ui
 	WritePixelsLowLevel_Request request;
 	int ret;
 	int i;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_WRITE_PIXELS_LOW_LEVEL, device_p->ipcon_p, device_p);
 
@@ -813,7 +856,7 @@ int lcd_128x64_write_pixels_low_level(LCD128x64 *lcd_128x64, uint8_t x_start, ui
 	request.pixels_chunk_offset = leconvert_uint16_to(pixels_chunk_offset);
 	memset(request.pixels_chunk_data, 0, 56); for (i = 0; i < 448; i++) request.pixels_chunk_data[i / 8] |= (pixels_chunk_data[i] ? 1 : 0) << (i % 8);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -824,6 +867,12 @@ int lcd_128x64_read_pixels_low_level(LCD128x64 *lcd_128x64, uint8_t x_start, uin
 	ReadPixelsLowLevel_Response response;
 	int ret;
 	int i;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_READ_PIXELS_LOW_LEVEL, device_p->ipcon_p, device_p);
 
@@ -836,7 +885,7 @@ int lcd_128x64_read_pixels_low_level(LCD128x64 *lcd_128x64, uint8_t x_start, uin
 	request.x_end = x_end;
 	request.y_end = y_end;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -854,13 +903,19 @@ int lcd_128x64_clear_display(LCD128x64 *lcd_128x64) {
 	ClearDisplay_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_CLEAR_DISPLAY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -869,6 +924,12 @@ int lcd_128x64_set_display_configuration(LCD128x64 *lcd_128x64, uint8_t contrast
 	DevicePrivate *device_p = lcd_128x64->p;
 	SetDisplayConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_DISPLAY_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -881,7 +942,7 @@ int lcd_128x64_set_display_configuration(LCD128x64 *lcd_128x64, uint8_t contrast
 	request.invert = invert ? 1 : 0;
 	request.automatic_draw = automatic_draw ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -892,13 +953,19 @@ int lcd_128x64_get_display_configuration(LCD128x64 *lcd_128x64, uint8_t *ret_con
 	GetDisplayConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_DISPLAY_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -917,6 +984,12 @@ int lcd_128x64_write_line(LCD128x64 *lcd_128x64, uint8_t line, uint8_t position,
 	WriteLine_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_WRITE_LINE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -928,7 +1001,7 @@ int lcd_128x64_write_line(LCD128x64 *lcd_128x64, uint8_t line, uint8_t position,
 	memcpy(request.text, text, 22);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -938,6 +1011,12 @@ int lcd_128x64_draw_buffered_frame(LCD128x64 *lcd_128x64, bool force_complete_re
 	DrawBufferedFrame_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_DRAW_BUFFERED_FRAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -946,7 +1025,7 @@ int lcd_128x64_draw_buffered_frame(LCD128x64 *lcd_128x64, bool force_complete_re
 
 	request.force_complete_redraw = force_complete_redraw ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -957,13 +1036,19 @@ int lcd_128x64_get_touch_position(LCD128x64 *lcd_128x64, uint16_t *ret_pressure,
 	GetTouchPosition_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_TOUCH_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -982,6 +1067,12 @@ int lcd_128x64_set_touch_position_callback_configuration(LCD128x64 *lcd_128x64, 
 	SetTouchPositionCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_TOUCH_POSITION_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -991,7 +1082,7 @@ int lcd_128x64_set_touch_position_callback_configuration(LCD128x64 *lcd_128x64, 
 	request.period = leconvert_uint32_to(period);
 	request.value_has_to_change = value_has_to_change ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1002,13 +1093,19 @@ int lcd_128x64_get_touch_position_callback_configuration(LCD128x64 *lcd_128x64, 
 	GetTouchPositionCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_TOUCH_POSITION_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1026,13 +1123,19 @@ int lcd_128x64_get_touch_gesture(LCD128x64 *lcd_128x64, uint8_t *ret_gesture, ui
 	GetTouchGesture_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_TOUCH_GESTURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1055,6 +1158,12 @@ int lcd_128x64_set_touch_gesture_callback_configuration(LCD128x64 *lcd_128x64, u
 	SetTouchGestureCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_TOUCH_GESTURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1064,7 +1173,7 @@ int lcd_128x64_set_touch_gesture_callback_configuration(LCD128x64 *lcd_128x64, u
 	request.period = leconvert_uint32_to(period);
 	request.value_has_to_change = value_has_to_change ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1075,13 +1184,19 @@ int lcd_128x64_get_touch_gesture_callback_configuration(LCD128x64 *lcd_128x64, u
 	GetTouchGestureCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_TOUCH_GESTURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1098,6 +1213,12 @@ int lcd_128x64_draw_line(LCD128x64 *lcd_128x64, uint8_t position_x_start, uint8_
 	DrawLine_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_DRAW_LINE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1110,7 +1231,7 @@ int lcd_128x64_draw_line(LCD128x64 *lcd_128x64, uint8_t position_x_start, uint8_
 	request.position_y_end = position_y_end;
 	request.color = color ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1119,6 +1240,12 @@ int lcd_128x64_draw_box(LCD128x64 *lcd_128x64, uint8_t position_x_start, uint8_t
 	DevicePrivate *device_p = lcd_128x64->p;
 	DrawBox_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_DRAW_BOX, device_p->ipcon_p, device_p);
 
@@ -1133,7 +1260,7 @@ int lcd_128x64_draw_box(LCD128x64 *lcd_128x64, uint8_t position_x_start, uint8_t
 	request.fill = fill ? 1 : 0;
 	request.color = color ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1142,6 +1269,12 @@ int lcd_128x64_draw_text(LCD128x64 *lcd_128x64, uint8_t position_x, uint8_t posi
 	DevicePrivate *device_p = lcd_128x64->p;
 	DrawText_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_DRAW_TEXT, device_p->ipcon_p, device_p);
 
@@ -1156,7 +1289,7 @@ int lcd_128x64_draw_text(LCD128x64 *lcd_128x64, uint8_t position_x, uint8_t posi
 	memcpy(request.text, text, 22);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1165,6 +1298,12 @@ int lcd_128x64_set_gui_button(LCD128x64 *lcd_128x64, uint8_t index, uint8_t posi
 	DevicePrivate *device_p = lcd_128x64->p;
 	SetGUIButton_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_BUTTON, device_p->ipcon_p, device_p);
 
@@ -1180,7 +1319,7 @@ int lcd_128x64_set_gui_button(LCD128x64 *lcd_128x64, uint8_t index, uint8_t posi
 	memcpy(request.text, text, 16);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1191,6 +1330,12 @@ int lcd_128x64_get_gui_button(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_ac
 	GetGUIButton_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_BUTTON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1199,7 +1344,7 @@ int lcd_128x64_get_gui_button(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_ac
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1220,6 +1365,12 @@ int lcd_128x64_remove_gui_button(LCD128x64 *lcd_128x64, uint8_t index) {
 	RemoveGUIButton_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_REMOVE_GUI_BUTTON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1228,7 +1379,7 @@ int lcd_128x64_remove_gui_button(LCD128x64 *lcd_128x64, uint8_t index) {
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1237,6 +1388,12 @@ int lcd_128x64_set_gui_button_pressed_callback_configuration(LCD128x64 *lcd_128x
 	DevicePrivate *device_p = lcd_128x64->p;
 	SetGUIButtonPressedCallbackConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_BUTTON_PRESSED_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -1247,7 +1404,7 @@ int lcd_128x64_set_gui_button_pressed_callback_configuration(LCD128x64 *lcd_128x
 	request.period = leconvert_uint32_to(period);
 	request.value_has_to_change = value_has_to_change ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1258,13 +1415,19 @@ int lcd_128x64_get_gui_button_pressed_callback_configuration(LCD128x64 *lcd_128x
 	GetGUIButtonPressedCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_BUTTON_PRESSED_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1282,6 +1445,12 @@ int lcd_128x64_get_gui_button_pressed(LCD128x64 *lcd_128x64, uint8_t index, bool
 	GetGUIButtonPressed_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_BUTTON_PRESSED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1290,7 +1459,7 @@ int lcd_128x64_get_gui_button_pressed(LCD128x64 *lcd_128x64, uint8_t index, bool
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1306,6 +1475,12 @@ int lcd_128x64_set_gui_slider(LCD128x64 *lcd_128x64, uint8_t index, uint8_t posi
 	SetGUISlider_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_SLIDER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1319,7 +1494,7 @@ int lcd_128x64_set_gui_slider(LCD128x64 *lcd_128x64, uint8_t index, uint8_t posi
 	request.direction = direction;
 	request.value = value;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1330,6 +1505,12 @@ int lcd_128x64_get_gui_slider(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_ac
 	GetGUISlider_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_SLIDER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1338,7 +1519,7 @@ int lcd_128x64_get_gui_slider(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_ac
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1359,6 +1540,12 @@ int lcd_128x64_remove_gui_slider(LCD128x64 *lcd_128x64, uint8_t index) {
 	RemoveGUISlider_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_REMOVE_GUI_SLIDER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1367,7 +1554,7 @@ int lcd_128x64_remove_gui_slider(LCD128x64 *lcd_128x64, uint8_t index) {
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1376,6 +1563,12 @@ int lcd_128x64_set_gui_slider_value_callback_configuration(LCD128x64 *lcd_128x64
 	DevicePrivate *device_p = lcd_128x64->p;
 	SetGUISliderValueCallbackConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_SLIDER_VALUE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -1386,7 +1579,7 @@ int lcd_128x64_set_gui_slider_value_callback_configuration(LCD128x64 *lcd_128x64
 	request.period = leconvert_uint32_to(period);
 	request.value_has_to_change = value_has_to_change ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1397,13 +1590,19 @@ int lcd_128x64_get_gui_slider_value_callback_configuration(LCD128x64 *lcd_128x64
 	GetGUISliderValueCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_SLIDER_VALUE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1421,6 +1620,12 @@ int lcd_128x64_get_gui_slider_value(LCD128x64 *lcd_128x64, uint8_t index, uint8_
 	GetGUISliderValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_SLIDER_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1429,7 +1634,7 @@ int lcd_128x64_get_gui_slider_value(LCD128x64 *lcd_128x64, uint8_t index, uint8_
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1445,6 +1650,12 @@ int lcd_128x64_set_gui_tab_configuration(LCD128x64 *lcd_128x64, uint8_t change_t
 	SetGUITabConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_TAB_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1454,7 +1665,7 @@ int lcd_128x64_set_gui_tab_configuration(LCD128x64 *lcd_128x64, uint8_t change_t
 	request.change_tab_config = change_tab_config;
 	request.clear_gui = clear_gui ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1465,13 +1676,19 @@ int lcd_128x64_get_gui_tab_configuration(LCD128x64 *lcd_128x64, uint8_t *ret_cha
 	GetGUITabConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_TAB_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1488,6 +1705,12 @@ int lcd_128x64_set_gui_tab_text(LCD128x64 *lcd_128x64, uint8_t index, const char
 	SetGUITabText_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_TAB_TEXT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1498,7 +1721,7 @@ int lcd_128x64_set_gui_tab_text(LCD128x64 *lcd_128x64, uint8_t index, const char
 	memcpy(request.text, text, 5);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1509,6 +1732,12 @@ int lcd_128x64_get_gui_tab_text(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_
 	GetGUITabText_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_TAB_TEXT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1517,7 +1746,7 @@ int lcd_128x64_get_gui_tab_text(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1535,6 +1764,12 @@ int lcd_128x64_set_gui_tab_icon(LCD128x64 *lcd_128x64, uint8_t index, bool icon[
 	int ret;
 	int i;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_TAB_ICON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1544,7 +1779,7 @@ int lcd_128x64_set_gui_tab_icon(LCD128x64 *lcd_128x64, uint8_t index, bool icon[
 	request.index = index;
 	memset(request.icon, 0, 21); for (i = 0; i < 168; i++) request.icon[i / 8] |= (icon[i] ? 1 : 0) << (i % 8);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1556,6 +1791,12 @@ int lcd_128x64_get_gui_tab_icon(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_
 	int ret;
 	int i;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_TAB_ICON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1564,7 +1805,7 @@ int lcd_128x64_get_gui_tab_icon(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1581,6 +1822,12 @@ int lcd_128x64_remove_gui_tab(LCD128x64 *lcd_128x64, uint8_t index) {
 	RemoveGUITab_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_REMOVE_GUI_TAB, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1589,7 +1836,7 @@ int lcd_128x64_remove_gui_tab(LCD128x64 *lcd_128x64, uint8_t index) {
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1599,6 +1846,12 @@ int lcd_128x64_set_gui_tab_selected(LCD128x64 *lcd_128x64, uint8_t index) {
 	SetGUITabSelected_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_TAB_SELECTED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1607,7 +1860,7 @@ int lcd_128x64_set_gui_tab_selected(LCD128x64 *lcd_128x64, uint8_t index) {
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1616,6 +1869,12 @@ int lcd_128x64_set_gui_tab_selected_callback_configuration(LCD128x64 *lcd_128x64
 	DevicePrivate *device_p = lcd_128x64->p;
 	SetGUITabSelectedCallbackConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_TAB_SELECTED_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -1626,7 +1885,7 @@ int lcd_128x64_set_gui_tab_selected_callback_configuration(LCD128x64 *lcd_128x64
 	request.period = leconvert_uint32_to(period);
 	request.value_has_to_change = value_has_to_change ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1637,13 +1896,19 @@ int lcd_128x64_get_gui_tab_selected_callback_configuration(LCD128x64 *lcd_128x64
 	GetGUITabSelectedCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_TAB_SELECTED_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1661,13 +1926,19 @@ int lcd_128x64_get_gui_tab_selected(LCD128x64 *lcd_128x64, int8_t *ret_index) {
 	GetGUITabSelected_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_TAB_SELECTED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1682,6 +1953,12 @@ int lcd_128x64_set_gui_graph_configuration(LCD128x64 *lcd_128x64, uint8_t index,
 	DevicePrivate *device_p = lcd_128x64->p;
 	SetGUIGraphConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_GRAPH_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -1700,7 +1977,7 @@ int lcd_128x64_set_gui_graph_configuration(LCD128x64 *lcd_128x64, uint8_t index,
 	memcpy(request.text_y, text_y, 4);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1711,6 +1988,12 @@ int lcd_128x64_get_gui_graph_configuration(LCD128x64 *lcd_128x64, uint8_t index,
 	GetGUIGraphConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_GRAPH_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1719,7 +2002,7 @@ int lcd_128x64_get_gui_graph_configuration(LCD128x64 *lcd_128x64, uint8_t index,
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1742,6 +2025,12 @@ int lcd_128x64_set_gui_graph_data_low_level(LCD128x64 *lcd_128x64, uint8_t index
 	SetGUIGraphDataLowLevel_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_GUI_GRAPH_DATA_LOW_LEVEL, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1753,7 +2042,7 @@ int lcd_128x64_set_gui_graph_data_low_level(LCD128x64 *lcd_128x64, uint8_t index
 	request.data_chunk_offset = leconvert_uint16_to(data_chunk_offset);
 	memcpy(request.data_chunk_data, data_chunk_data, 59 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1764,6 +2053,12 @@ int lcd_128x64_get_gui_graph_data_low_level(LCD128x64 *lcd_128x64, uint8_t index
 	GetGUIGraphDataLowLevel_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_GUI_GRAPH_DATA_LOW_LEVEL, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1772,7 +2067,7 @@ int lcd_128x64_get_gui_graph_data_low_level(LCD128x64 *lcd_128x64, uint8_t index
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1790,6 +2085,12 @@ int lcd_128x64_remove_gui_graph(LCD128x64 *lcd_128x64, uint8_t index) {
 	RemoveGUIGraph_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_REMOVE_GUI_GRAPH, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1798,7 +2099,7 @@ int lcd_128x64_remove_gui_graph(LCD128x64 *lcd_128x64, uint8_t index) {
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1808,13 +2109,19 @@ int lcd_128x64_remove_all_gui(LCD128x64 *lcd_128x64) {
 	RemoveAllGUI_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_REMOVE_ALL_GUI, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1824,6 +2131,12 @@ int lcd_128x64_set_touch_led_config(LCD128x64 *lcd_128x64, uint8_t config) {
 	SetTouchLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_TOUCH_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1832,7 +2145,7 @@ int lcd_128x64_set_touch_led_config(LCD128x64 *lcd_128x64, uint8_t config) {
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1843,13 +2156,19 @@ int lcd_128x64_get_touch_led_config(LCD128x64 *lcd_128x64, uint8_t *ret_config) 
 	GetTouchLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_TOUCH_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1866,13 +2185,19 @@ int lcd_128x64_get_spitfp_error_count(LCD128x64 *lcd_128x64, uint32_t *ret_error
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1892,6 +2217,12 @@ int lcd_128x64_set_bootloader_mode(LCD128x64 *lcd_128x64, uint8_t mode, uint8_t 
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1900,7 +2231,7 @@ int lcd_128x64_set_bootloader_mode(LCD128x64 *lcd_128x64, uint8_t mode, uint8_t 
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1917,13 +2248,19 @@ int lcd_128x64_get_bootloader_mode(LCD128x64 *lcd_128x64, uint8_t *ret_mode) {
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1939,6 +2276,12 @@ int lcd_128x64_set_write_firmware_pointer(LCD128x64 *lcd_128x64, uint32_t pointe
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1947,7 +2290,7 @@ int lcd_128x64_set_write_firmware_pointer(LCD128x64 *lcd_128x64, uint32_t pointe
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1958,6 +2301,12 @@ int lcd_128x64_write_firmware(LCD128x64 *lcd_128x64, uint8_t data[64], uint8_t *
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1966,7 +2315,7 @@ int lcd_128x64_write_firmware(LCD128x64 *lcd_128x64, uint8_t data[64], uint8_t *
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1982,6 +2331,12 @@ int lcd_128x64_set_status_led_config(LCD128x64 *lcd_128x64, uint8_t config) {
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1990,7 +2345,7 @@ int lcd_128x64_set_status_led_config(LCD128x64 *lcd_128x64, uint8_t config) {
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2001,13 +2356,19 @@ int lcd_128x64_get_status_led_config(LCD128x64 *lcd_128x64, uint8_t *ret_config)
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2024,13 +2385,19 @@ int lcd_128x64_get_chip_temperature(LCD128x64 *lcd_128x64, int16_t *ret_temperat
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2046,13 +2413,19 @@ int lcd_128x64_reset(LCD128x64 *lcd_128x64) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2062,6 +2435,12 @@ int lcd_128x64_write_uid(LCD128x64 *lcd_128x64, uint32_t uid) {
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2070,7 +2449,7 @@ int lcd_128x64_write_uid(LCD128x64 *lcd_128x64, uint32_t uid) {
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2081,13 +2460,19 @@ int lcd_128x64_read_uid(LCD128x64 *lcd_128x64, uint32_t *ret_uid) {
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_128X64_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2110,7 +2495,7 @@ int lcd_128x64_get_identity(LCD128x64 *lcd_128x64, char ret_uid[8], char ret_con
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2128,7 +2513,7 @@ int lcd_128x64_get_identity(LCD128x64 *lcd_128x64, char ret_uid[8], char ret_con
 
 int lcd_128x64_write_pixels(LCD128x64 *lcd_128x64, uint8_t x_start, uint8_t y_start, uint8_t x_end, uint8_t y_end, bool *pixels, uint16_t pixels_length) {
 	DevicePrivate *device_p = lcd_128x64->p;
-	int ret;
+	int ret = 0;
 	uint16_t pixels_chunk_offset = 0;
 	bool pixels_chunk_data[448];
 	uint16_t pixels_chunk_length;
@@ -2167,7 +2552,7 @@ int lcd_128x64_write_pixels(LCD128x64 *lcd_128x64, uint8_t x_start, uint8_t y_st
 
 int lcd_128x64_read_pixels(LCD128x64 *lcd_128x64, uint8_t x_start, uint8_t y_start, uint8_t x_end, uint8_t y_end, bool *ret_pixels, uint16_t *ret_pixels_length) {
 	DevicePrivate *device_p = lcd_128x64->p;
-	int ret;
+	int ret = 0;
 	uint16_t pixels_length = 0;
 	uint16_t pixels_chunk_offset;
 	bool pixels_chunk_data[480];
@@ -2243,7 +2628,7 @@ unlock:
 
 int lcd_128x64_set_gui_graph_data(LCD128x64 *lcd_128x64, uint8_t index, uint8_t *data, uint16_t data_length) {
 	DevicePrivate *device_p = lcd_128x64->p;
-	int ret;
+	int ret = 0;
 	uint16_t data_chunk_offset = 0;
 	uint8_t data_chunk_data[59];
 	uint16_t data_chunk_length;
@@ -2282,7 +2667,7 @@ int lcd_128x64_set_gui_graph_data(LCD128x64 *lcd_128x64, uint8_t index, uint8_t 
 
 int lcd_128x64_get_gui_graph_data(LCD128x64 *lcd_128x64, uint8_t index, uint8_t *ret_data, uint16_t *ret_data_length) {
 	DevicePrivate *device_p = lcd_128x64->p;
-	int ret;
+	int ret = 0;
 	uint16_t data_length = 0;
 	uint16_t data_chunk_offset;
 	uint8_t data_chunk_data[59];

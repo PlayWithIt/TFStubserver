@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*ButtonReleased_CallbackFunction)(uint8_t button, void *user_data)
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -172,10 +172,17 @@ typedef struct {
 
 static void lcd_20x4_callback_wrapper_button_pressed(DevicePrivate *device_p, Packet *packet) {
 	ButtonPressed_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_PRESSED];
-	ButtonPressed_Callback *callback = (ButtonPressed_Callback *)packet;
+	void *user_data;
+	ButtonPressed_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_PRESSED];
+	if (packet->header.length != sizeof(ButtonPressed_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ButtonPressed_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_PRESSED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_PRESSED];
+	callback = (ButtonPressed_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -186,10 +193,17 @@ static void lcd_20x4_callback_wrapper_button_pressed(DevicePrivate *device_p, Pa
 
 static void lcd_20x4_callback_wrapper_button_released(DevicePrivate *device_p, Packet *packet) {
 	ButtonReleased_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_RELEASED];
-	ButtonReleased_Callback *callback = (ButtonReleased_Callback *)packet;
+	void *user_data;
+	ButtonReleased_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_RELEASED];
+	if (packet->header.length != sizeof(ButtonReleased_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ButtonReleased_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_RELEASED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LCD_20X4_CALLBACK_BUTTON_RELEASED];
+	callback = (ButtonReleased_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -199,9 +213,10 @@ static void lcd_20x4_callback_wrapper_button_released(DevicePrivate *device_p, P
 }
 
 void lcd_20x4_create(LCD20x4 *lcd_20x4, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(lcd_20x4, uid, ipcon->p, 2, 0, 2);
+	device_create(lcd_20x4, uid, ipcon_p, 2, 0, 2, LCD_20X4_DEVICE_IDENTIFIER);
 
 	device_p = lcd_20x4->p;
 
@@ -224,6 +239,7 @@ void lcd_20x4_create(LCD20x4 *lcd_20x4, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[LCD_20X4_CALLBACK_BUTTON_PRESSED] = lcd_20x4_callback_wrapper_button_pressed;
 	device_p->callback_wrappers[LCD_20X4_CALLBACK_BUTTON_RELEASED] = lcd_20x4_callback_wrapper_button_released;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void lcd_20x4_destroy(LCD20x4 *lcd_20x4) {
@@ -242,7 +258,7 @@ int lcd_20x4_set_response_expected_all(LCD20x4 *lcd_20x4, bool response_expected
 	return device_set_response_expected_all(lcd_20x4->p, response_expected);
 }
 
-void lcd_20x4_register_callback(LCD20x4 *lcd_20x4, int16_t callback_id, void *function, void *user_data) {
+void lcd_20x4_register_callback(LCD20x4 *lcd_20x4, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(lcd_20x4->p, callback_id, function, user_data);
 }
 
@@ -255,6 +271,12 @@ int lcd_20x4_write_line(LCD20x4 *lcd_20x4, uint8_t line, uint8_t position, const
 	WriteLine_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_WRITE_LINE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -266,7 +288,7 @@ int lcd_20x4_write_line(LCD20x4 *lcd_20x4, uint8_t line, uint8_t position, const
 	memcpy(request.text, text, 20);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -276,13 +298,19 @@ int lcd_20x4_clear_display(LCD20x4 *lcd_20x4) {
 	ClearDisplay_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_CLEAR_DISPLAY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -292,13 +320,19 @@ int lcd_20x4_backlight_on(LCD20x4 *lcd_20x4) {
 	BacklightOn_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_BACKLIGHT_ON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -308,13 +342,19 @@ int lcd_20x4_backlight_off(LCD20x4 *lcd_20x4) {
 	BacklightOff_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_BACKLIGHT_OFF, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -325,13 +365,19 @@ int lcd_20x4_is_backlight_on(LCD20x4 *lcd_20x4, bool *ret_backlight) {
 	IsBacklightOn_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_IS_BACKLIGHT_ON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -347,6 +393,12 @@ int lcd_20x4_set_config(LCD20x4 *lcd_20x4, bool cursor, bool blinking) {
 	SetConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_SET_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -356,7 +408,7 @@ int lcd_20x4_set_config(LCD20x4 *lcd_20x4, bool cursor, bool blinking) {
 	request.cursor = cursor ? 1 : 0;
 	request.blinking = blinking ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -367,13 +419,19 @@ int lcd_20x4_get_config(LCD20x4 *lcd_20x4, bool *ret_cursor, bool *ret_blinking)
 	GetConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_GET_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -391,6 +449,12 @@ int lcd_20x4_is_button_pressed(LCD20x4 *lcd_20x4, uint8_t button, bool *ret_pres
 	IsButtonPressed_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_IS_BUTTON_PRESSED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -399,7 +463,7 @@ int lcd_20x4_is_button_pressed(LCD20x4 *lcd_20x4, uint8_t button, bool *ret_pres
 
 	request.button = button;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -415,6 +479,12 @@ int lcd_20x4_set_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t char
 	SetCustomCharacter_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_SET_CUSTOM_CHARACTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -424,7 +494,7 @@ int lcd_20x4_set_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t char
 	request.index = index;
 	memcpy(request.character, character, 8 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -435,6 +505,12 @@ int lcd_20x4_get_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t ret_
 	GetCustomCharacter_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_GET_CUSTOM_CHARACTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -443,7 +519,7 @@ int lcd_20x4_get_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t ret_
 
 	request.index = index;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -459,6 +535,12 @@ int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char text[2
 	SetDefaultText_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_SET_DEFAULT_TEXT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -469,7 +551,7 @@ int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char text[2
 	memcpy(request.text, text, 20);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -480,6 +562,12 @@ int lcd_20x4_get_default_text(LCD20x4 *lcd_20x4, uint8_t line, char ret_text[20]
 	GetDefaultText_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_GET_DEFAULT_TEXT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -488,7 +576,7 @@ int lcd_20x4_get_default_text(LCD20x4 *lcd_20x4, uint8_t line, char ret_text[20]
 
 	request.line = line;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -504,6 +592,12 @@ int lcd_20x4_set_default_text_counter(LCD20x4 *lcd_20x4, int32_t counter) {
 	SetDefaultTextCounter_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_SET_DEFAULT_TEXT_COUNTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -512,7 +606,7 @@ int lcd_20x4_set_default_text_counter(LCD20x4 *lcd_20x4, int32_t counter) {
 
 	request.counter = leconvert_int32_to(counter);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -523,13 +617,19 @@ int lcd_20x4_get_default_text_counter(LCD20x4 *lcd_20x4, int32_t *ret_counter) {
 	GetDefaultTextCounter_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LCD_20X4_FUNCTION_GET_DEFAULT_TEXT_COUNTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -552,7 +652,7 @@ int lcd_20x4_get_identity(LCD20x4 *lcd_20x4, char ret_uid[8], char ret_connected
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

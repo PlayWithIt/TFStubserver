@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -272,7 +272,7 @@ void gps_destroy(GPS *gps);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int gps_get_response_expected(GPS *gps, uint8_t function_id, bool *ret_response_expected);
@@ -288,7 +288,7 @@ int gps_get_response_expected(GPS *gps, uint8_t function_id, bool *ret_response_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int gps_set_response_expected(GPS *gps, uint8_t function_id, bool response_expected);
@@ -307,7 +307,7 @@ int gps_set_response_expected_all(GPS *gps, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void gps_register_callback(GPS *gps, int16_t callback_id, void *function, void *user_data);
+void gps_register_callback(GPS *gps, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletGPS
@@ -330,9 +330,9 @@ int gps_get_api_version(GPS *gps, uint8_t ret_api_version[3]);
  * the additional multiplicative effect of GPS satellite geometry on GPS
  * precision. See
  * `here <https://en.wikipedia.org/wiki/Dilution_of_precision_(GPS)>`__
- * for more information. The values are give in hundredths.
+ * for more information.
  * 
- * EPE is the "Estimated Position Error". The EPE is given in cm. This is not the
+ * EPE is the "Estimated Position Error". This is not the
  * absolute maximum error, it is the error with a specific confidence. See
  * `here <https://www.nps.gov/gis/gps/WhatisEPE.html>`__ for more information.
  * 
@@ -367,8 +367,6 @@ int gps_get_status(GPS *gps, uint8_t *ret_fix, uint8_t *ret_satellites_view, uin
  *
  * Returns the current altitude and corresponding geoidal separation.
  * 
- * Both values are given in cm.
- * 
  * This data is only valid if there is currently a fix as indicated by
  * {@link gps_get_status}.
  */
@@ -377,8 +375,7 @@ int gps_get_altitude(GPS *gps, int32_t *ret_altitude, int32_t *ret_geoidal_separ
 /**
  * \ingroup BrickletGPS
  *
- * Returns the current course and speed. Course is given in hundredths degree
- * and speed is given in hundredths km/h. A course of 0° means the Bricklet is
+ * Returns the current course and speed. A course of 0° means the Bricklet is
  * traveling north bound and 90° means it is traveling east bound.
  * 
  * Please note that this only returns useful values if an actual movement
@@ -395,7 +392,7 @@ int gps_get_motion(GPS *gps, uint32_t *ret_course, uint32_t *ret_speed);
  * Returns the current date and time. The date is
  * given in the format ``ddmmyy`` and the time is given
  * in the format ``hhmmss.sss``. For example, 140713 means
- * 14.05.13 as date and 195923568 means 19:59:23.568 as time.
+ * 14.07.13 as date and 195923568 means 19:59:23.568 as time.
  */
 int gps_get_date_time(GPS *gps, uint32_t *ret_date, uint32_t *ret_time);
 
@@ -418,13 +415,11 @@ int gps_restart(GPS *gps, uint8_t restart_type);
 /**
  * \ingroup BrickletGPS
  *
- * Sets the period in ms with which the {@link GPS_CALLBACK_COORDINATES} callback is triggered
+ * Sets the period with which the {@link GPS_CALLBACK_COORDINATES} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link GPS_CALLBACK_COORDINATES} callback is only triggered if the coordinates changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int gps_set_coordinates_callback_period(GPS *gps, uint32_t period);
 
@@ -438,13 +433,11 @@ int gps_get_coordinates_callback_period(GPS *gps, uint32_t *ret_period);
 /**
  * \ingroup BrickletGPS
  *
- * Sets the period in ms with which the {@link GPS_CALLBACK_STATUS} callback is triggered
+ * Sets the period with which the {@link GPS_CALLBACK_STATUS} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link GPS_CALLBACK_STATUS} callback is only triggered if the status changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int gps_set_status_callback_period(GPS *gps, uint32_t period);
 
@@ -458,13 +451,11 @@ int gps_get_status_callback_period(GPS *gps, uint32_t *ret_period);
 /**
  * \ingroup BrickletGPS
  *
- * Sets the period in ms with which the {@link GPS_CALLBACK_ALTITUDE} callback is triggered
+ * Sets the period with which the {@link GPS_CALLBACK_ALTITUDE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link GPS_CALLBACK_ALTITUDE} callback is only triggered if the altitude changed since
  * the last triggering.
- * 
- * The default value is 0.
  */
 int gps_set_altitude_callback_period(GPS *gps, uint32_t period);
 
@@ -478,13 +469,11 @@ int gps_get_altitude_callback_period(GPS *gps, uint32_t *ret_period);
 /**
  * \ingroup BrickletGPS
  *
- * Sets the period in ms with which the {@link GPS_CALLBACK_MOTION} callback is triggered
+ * Sets the period with which the {@link GPS_CALLBACK_MOTION} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link GPS_CALLBACK_MOTION} callback is only triggered if the motion changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int gps_set_motion_callback_period(GPS *gps, uint32_t period);
 
@@ -498,13 +487,11 @@ int gps_get_motion_callback_period(GPS *gps, uint32_t *ret_period);
 /**
  * \ingroup BrickletGPS
  *
- * Sets the period in ms with which the {@link GPS_CALLBACK_DATE_TIME} callback is triggered
+ * Sets the period with which the {@link GPS_CALLBACK_DATE_TIME} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link GPS_CALLBACK_DATE_TIME} callback is only triggered if the date or time changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int gps_set_date_time_callback_period(GPS *gps, uint32_t period);
 
@@ -522,7 +509,9 @@ int gps_get_date_time_callback_period(GPS *gps, uint32_t *ret_period);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

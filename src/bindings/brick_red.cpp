@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -40,7 +40,7 @@ typedef void (*ProgramProcessSpawned_CallbackFunction)(uint16_t program_id, void
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -835,10 +835,17 @@ typedef struct {
 
 static void red_callback_wrapper_async_file_read(DevicePrivate *device_p, Packet *packet) {
 	AsyncFileRead_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_READ];
-	AsyncFileRead_Callback *callback = (AsyncFileRead_Callback *)packet;
+	void *user_data;
+	AsyncFileRead_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_READ];
+	if (packet->header.length != sizeof(AsyncFileRead_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AsyncFileRead_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_READ];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_READ];
+	callback = (AsyncFileRead_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -851,10 +858,17 @@ static void red_callback_wrapper_async_file_read(DevicePrivate *device_p, Packet
 
 static void red_callback_wrapper_async_file_write(DevicePrivate *device_p, Packet *packet) {
 	AsyncFileWrite_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_WRITE];
-	AsyncFileWrite_Callback *callback = (AsyncFileWrite_Callback *)packet;
+	void *user_data;
+	AsyncFileWrite_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_WRITE];
+	if (packet->header.length != sizeof(AsyncFileWrite_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AsyncFileWrite_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_WRITE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_ASYNC_FILE_WRITE];
+	callback = (AsyncFileWrite_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -867,10 +881,17 @@ static void red_callback_wrapper_async_file_write(DevicePrivate *device_p, Packe
 
 static void red_callback_wrapper_file_events_occurred(DevicePrivate *device_p, Packet *packet) {
 	FileEventsOccurred_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_FILE_EVENTS_OCCURRED];
-	FileEventsOccurred_Callback *callback = (FileEventsOccurred_Callback *)packet;
+	void *user_data;
+	FileEventsOccurred_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_FILE_EVENTS_OCCURRED];
+	if (packet->header.length != sizeof(FileEventsOccurred_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (FileEventsOccurred_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_FILE_EVENTS_OCCURRED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_FILE_EVENTS_OCCURRED];
+	callback = (FileEventsOccurred_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -884,10 +905,17 @@ static void red_callback_wrapper_file_events_occurred(DevicePrivate *device_p, P
 
 static void red_callback_wrapper_process_state_changed(DevicePrivate *device_p, Packet *packet) {
 	ProcessStateChanged_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROCESS_STATE_CHANGED];
-	ProcessStateChanged_Callback *callback = (ProcessStateChanged_Callback *)packet;
+	void *user_data;
+	ProcessStateChanged_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROCESS_STATE_CHANGED];
+	if (packet->header.length != sizeof(ProcessStateChanged_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ProcessStateChanged_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROCESS_STATE_CHANGED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROCESS_STATE_CHANGED];
+	callback = (ProcessStateChanged_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -901,10 +929,17 @@ static void red_callback_wrapper_process_state_changed(DevicePrivate *device_p, 
 
 static void red_callback_wrapper_program_scheduler_state_changed(DevicePrivate *device_p, Packet *packet) {
 	ProgramSchedulerStateChanged_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED];
-	ProgramSchedulerStateChanged_Callback *callback = (ProgramSchedulerStateChanged_Callback *)packet;
+	void *user_data;
+	ProgramSchedulerStateChanged_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED];
+	if (packet->header.length != sizeof(ProgramSchedulerStateChanged_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ProgramSchedulerStateChanged_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED];
+	callback = (ProgramSchedulerStateChanged_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -917,10 +952,17 @@ static void red_callback_wrapper_program_scheduler_state_changed(DevicePrivate *
 
 static void red_callback_wrapper_program_process_spawned(DevicePrivate *device_p, Packet *packet) {
 	ProgramProcessSpawned_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_PROCESS_SPAWNED];
-	ProgramProcessSpawned_Callback *callback = (ProgramProcessSpawned_Callback *)packet;
+	void *user_data;
+	ProgramProcessSpawned_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_PROCESS_SPAWNED];
+	if (packet->header.length != sizeof(ProgramProcessSpawned_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ProgramProcessSpawned_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_PROCESS_SPAWNED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RED_CALLBACK_PROGRAM_PROCESS_SPAWNED];
+	callback = (ProgramProcessSpawned_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -932,9 +974,10 @@ static void red_callback_wrapper_program_process_spawned(DevicePrivate *device_p
 }
 
 void red_create(RED *red, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(red, uid, ipcon->p, 2, 0, 0);
+	device_create(red, uid, ipcon_p, 2, 0, 0, RED_DEVICE_IDENTIFIER);
 
 	device_p = red->p;
 
@@ -1007,6 +1050,7 @@ void red_create(RED *red, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[RED_CALLBACK_PROGRAM_SCHEDULER_STATE_CHANGED] = red_callback_wrapper_program_scheduler_state_changed;
 	device_p->callback_wrappers[RED_CALLBACK_PROGRAM_PROCESS_SPAWNED] = red_callback_wrapper_program_process_spawned;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void red_destroy(RED *red) {
@@ -1025,7 +1069,7 @@ int red_set_response_expected_all(RED *red, bool response_expected) {
 	return device_set_response_expected_all(red->p, response_expected);
 }
 
-void red_register_callback(RED *red, int16_t callback_id, void *function, void *user_data) {
+void red_register_callback(RED *red, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(red->p, callback_id, function, user_data);
 }
 
@@ -1039,6 +1083,12 @@ int red_create_session(RED *red, uint32_t lifetime, uint8_t *ret_error_code, uin
 	CreateSession_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_CREATE_SESSION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1047,7 +1097,7 @@ int red_create_session(RED *red, uint32_t lifetime, uint8_t *ret_error_code, uin
 
 	request.lifetime = leconvert_uint32_to(lifetime);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1065,6 +1115,12 @@ int red_expire_session(RED *red, uint16_t session_id, uint8_t *ret_error_code) {
 	ExpireSession_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_EXPIRE_SESSION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1073,7 +1129,7 @@ int red_expire_session(RED *red, uint16_t session_id, uint8_t *ret_error_code) {
 
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1089,6 +1145,12 @@ int red_expire_session_unchecked(RED *red, uint16_t session_id) {
 	ExpireSessionUnchecked_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_EXPIRE_SESSION_UNCHECKED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1097,7 +1159,7 @@ int red_expire_session_unchecked(RED *red, uint16_t session_id) {
 
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1108,6 +1170,12 @@ int red_keep_session_alive(RED *red, uint16_t session_id, uint32_t lifetime, uin
 	KeepSessionAlive_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_KEEP_SESSION_ALIVE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1117,7 +1185,7 @@ int red_keep_session_alive(RED *red, uint16_t session_id, uint32_t lifetime, uin
 	request.session_id = leconvert_uint16_to(session_id);
 	request.lifetime = leconvert_uint32_to(lifetime);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1134,6 +1202,12 @@ int red_release_object(RED *red, uint16_t object_id, uint16_t session_id, uint8_
 	ReleaseObject_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_RELEASE_OBJECT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1143,7 +1217,7 @@ int red_release_object(RED *red, uint16_t object_id, uint16_t session_id, uint8_
 	request.object_id = leconvert_uint16_to(object_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1159,6 +1233,12 @@ int red_release_object_unchecked(RED *red, uint16_t object_id, uint16_t session_
 	ReleaseObjectUnchecked_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_RELEASE_OBJECT_UNCHECKED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1168,7 +1248,7 @@ int red_release_object_unchecked(RED *red, uint16_t object_id, uint16_t session_
 	request.object_id = leconvert_uint16_to(object_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1178,6 +1258,12 @@ int red_allocate_string(RED *red, uint32_t length_to_reserve, const char buffer[
 	AllocateString_Request request;
 	AllocateString_Response response;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_ALLOCATE_STRING, device_p->ipcon_p, device_p);
 
@@ -1190,7 +1276,7 @@ int red_allocate_string(RED *red, uint32_t length_to_reserve, const char buffer[
 
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1208,6 +1294,12 @@ int red_truncate_string(RED *red, uint16_t string_id, uint32_t length, uint8_t *
 	TruncateString_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_TRUNCATE_STRING, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1217,7 +1309,7 @@ int red_truncate_string(RED *red, uint16_t string_id, uint32_t length, uint8_t *
 	request.string_id = leconvert_uint16_to(string_id);
 	request.length = leconvert_uint32_to(length);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1234,6 +1326,12 @@ int red_get_string_length(RED *red, uint16_t string_id, uint8_t *ret_error_code,
 	GetStringLength_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_STRING_LENGTH, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1242,7 +1340,7 @@ int red_get_string_length(RED *red, uint16_t string_id, uint8_t *ret_error_code,
 
 	request.string_id = leconvert_uint16_to(string_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1260,6 +1358,12 @@ int red_set_string_chunk(RED *red, uint16_t string_id, uint32_t offset, const ch
 	SetStringChunk_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SET_STRING_CHUNK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1271,7 +1375,7 @@ int red_set_string_chunk(RED *red, uint16_t string_id, uint32_t offset, const ch
 	memcpy(request.buffer, buffer, 58);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1288,6 +1392,12 @@ int red_get_string_chunk(RED *red, uint16_t string_id, uint32_t offset, uint8_t 
 	GetStringChunk_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_STRING_CHUNK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1297,7 +1407,7 @@ int red_get_string_chunk(RED *red, uint16_t string_id, uint32_t offset, uint8_t 
 	request.string_id = leconvert_uint16_to(string_id);
 	request.offset = leconvert_uint32_to(offset);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1315,6 +1425,12 @@ int red_allocate_list(RED *red, uint16_t length_to_reserve, uint16_t session_id,
 	AllocateList_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_ALLOCATE_LIST, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1324,7 +1440,7 @@ int red_allocate_list(RED *red, uint16_t length_to_reserve, uint16_t session_id,
 	request.length_to_reserve = leconvert_uint16_to(length_to_reserve);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1342,6 +1458,12 @@ int red_get_list_length(RED *red, uint16_t list_id, uint8_t *ret_error_code, uin
 	GetListLength_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_LIST_LENGTH, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1350,7 +1472,7 @@ int red_get_list_length(RED *red, uint16_t list_id, uint8_t *ret_error_code, uin
 
 	request.list_id = leconvert_uint16_to(list_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1368,6 +1490,12 @@ int red_get_list_item(RED *red, uint16_t list_id, uint16_t index, uint16_t sessi
 	GetListItem_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_LIST_ITEM, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1378,7 +1506,7 @@ int red_get_list_item(RED *red, uint16_t list_id, uint16_t index, uint16_t sessi
 	request.index = leconvert_uint16_to(index);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1397,6 +1525,12 @@ int red_append_to_list(RED *red, uint16_t list_id, uint16_t item_object_id, uint
 	AppendToList_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_APPEND_TO_LIST, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1406,7 +1540,7 @@ int red_append_to_list(RED *red, uint16_t list_id, uint16_t item_object_id, uint
 	request.list_id = leconvert_uint16_to(list_id);
 	request.item_object_id = leconvert_uint16_to(item_object_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1423,6 +1557,12 @@ int red_remove_from_list(RED *red, uint16_t list_id, uint16_t index, uint8_t *re
 	RemoveFromList_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_REMOVE_FROM_LIST, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1432,7 +1572,7 @@ int red_remove_from_list(RED *red, uint16_t list_id, uint16_t index, uint8_t *re
 	request.list_id = leconvert_uint16_to(list_id);
 	request.index = leconvert_uint16_to(index);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1449,6 +1589,12 @@ int red_open_file(RED *red, uint16_t name_string_id, uint32_t flags, uint16_t pe
 	OpenFile_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_OPEN_FILE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1462,7 +1608,7 @@ int red_open_file(RED *red, uint16_t name_string_id, uint32_t flags, uint16_t pe
 	request.gid = leconvert_uint32_to(gid);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1480,6 +1626,12 @@ int red_create_pipe(RED *red, uint32_t flags, uint64_t length, uint16_t session_
 	CreatePipe_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_CREATE_PIPE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1490,7 +1642,7 @@ int red_create_pipe(RED *red, uint32_t flags, uint64_t length, uint16_t session_
 	request.length = leconvert_uint64_to(length);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1508,6 +1660,12 @@ int red_get_file_info(RED *red, uint16_t file_id, uint16_t session_id, uint8_t *
 	GetFileInfo_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_FILE_INFO, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1517,7 +1675,7 @@ int red_get_file_info(RED *red, uint16_t file_id, uint16_t session_id, uint8_t *
 	request.file_id = leconvert_uint16_to(file_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1544,6 +1702,12 @@ int red_read_file(RED *red, uint16_t file_id, uint8_t length_to_read, uint8_t *r
 	ReadFile_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_READ_FILE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1553,7 +1717,7 @@ int red_read_file(RED *red, uint16_t file_id, uint8_t length_to_read, uint8_t *r
 	request.file_id = leconvert_uint16_to(file_id);
 	request.length_to_read = length_to_read;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1571,6 +1735,12 @@ int red_read_file_async(RED *red, uint16_t file_id, uint64_t length_to_read) {
 	ReadFileAsync_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_READ_FILE_ASYNC, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1580,7 +1750,7 @@ int red_read_file_async(RED *red, uint16_t file_id, uint64_t length_to_read) {
 	request.file_id = leconvert_uint16_to(file_id);
 	request.length_to_read = leconvert_uint64_to(length_to_read);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1591,6 +1761,12 @@ int red_abort_async_file_read(RED *red, uint16_t file_id, uint8_t *ret_error_cod
 	AbortAsyncFileRead_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_ABORT_ASYNC_FILE_READ, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1599,7 +1775,7 @@ int red_abort_async_file_read(RED *red, uint16_t file_id, uint8_t *ret_error_cod
 
 	request.file_id = leconvert_uint16_to(file_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1616,6 +1792,12 @@ int red_write_file(RED *red, uint16_t file_id, uint8_t buffer[61], uint8_t lengt
 	WriteFile_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_WRITE_FILE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1626,7 +1808,7 @@ int red_write_file(RED *red, uint16_t file_id, uint8_t buffer[61], uint8_t lengt
 	memcpy(request.buffer, buffer, 61 * sizeof(uint8_t));
 	request.length_to_write = length_to_write;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1643,6 +1825,12 @@ int red_write_file_unchecked(RED *red, uint16_t file_id, uint8_t buffer[61], uin
 	WriteFileUnchecked_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_WRITE_FILE_UNCHECKED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1653,7 +1841,7 @@ int red_write_file_unchecked(RED *red, uint16_t file_id, uint8_t buffer[61], uin
 	memcpy(request.buffer, buffer, 61 * sizeof(uint8_t));
 	request.length_to_write = length_to_write;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1662,6 +1850,12 @@ int red_write_file_async(RED *red, uint16_t file_id, uint8_t buffer[61], uint8_t
 	DevicePrivate *device_p = red->p;
 	WriteFileAsync_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_WRITE_FILE_ASYNC, device_p->ipcon_p, device_p);
 
@@ -1673,7 +1867,7 @@ int red_write_file_async(RED *red, uint16_t file_id, uint8_t buffer[61], uint8_t
 	memcpy(request.buffer, buffer, 61 * sizeof(uint8_t));
 	request.length_to_write = length_to_write;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1683,6 +1877,12 @@ int red_set_file_position(RED *red, uint16_t file_id, int64_t offset, uint8_t or
 	SetFilePosition_Request request;
 	SetFilePosition_Response response;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SET_FILE_POSITION, device_p->ipcon_p, device_p);
 
@@ -1694,7 +1894,7 @@ int red_set_file_position(RED *red, uint16_t file_id, int64_t offset, uint8_t or
 	request.offset = leconvert_int64_to(offset);
 	request.origin = origin;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1712,6 +1912,12 @@ int red_get_file_position(RED *red, uint16_t file_id, uint8_t *ret_error_code, u
 	GetFilePosition_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_FILE_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1720,7 +1926,7 @@ int red_get_file_position(RED *red, uint16_t file_id, uint8_t *ret_error_code, u
 
 	request.file_id = leconvert_uint16_to(file_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1738,6 +1944,12 @@ int red_set_file_events(RED *red, uint16_t file_id, uint16_t events, uint8_t *re
 	SetFileEvents_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SET_FILE_EVENTS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1747,7 +1959,7 @@ int red_set_file_events(RED *red, uint16_t file_id, uint16_t events, uint8_t *re
 	request.file_id = leconvert_uint16_to(file_id);
 	request.events = leconvert_uint16_to(events);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1764,6 +1976,12 @@ int red_get_file_events(RED *red, uint16_t file_id, uint8_t *ret_error_code, uin
 	GetFileEvents_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_FILE_EVENTS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1772,7 +1990,7 @@ int red_get_file_events(RED *red, uint16_t file_id, uint8_t *ret_error_code, uin
 
 	request.file_id = leconvert_uint16_to(file_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1790,6 +2008,12 @@ int red_open_directory(RED *red, uint16_t name_string_id, uint16_t session_id, u
 	OpenDirectory_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_OPEN_DIRECTORY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1799,7 +2023,7 @@ int red_open_directory(RED *red, uint16_t name_string_id, uint16_t session_id, u
 	request.name_string_id = leconvert_uint16_to(name_string_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1817,6 +2041,12 @@ int red_get_directory_name(RED *red, uint16_t directory_id, uint16_t session_id,
 	GetDirectoryName_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_DIRECTORY_NAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1826,7 +2056,7 @@ int red_get_directory_name(RED *red, uint16_t directory_id, uint16_t session_id,
 	request.directory_id = leconvert_uint16_to(directory_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1844,6 +2074,12 @@ int red_get_next_directory_entry(RED *red, uint16_t directory_id, uint16_t sessi
 	GetNextDirectoryEntry_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_NEXT_DIRECTORY_ENTRY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1853,7 +2089,7 @@ int red_get_next_directory_entry(RED *red, uint16_t directory_id, uint16_t sessi
 	request.directory_id = leconvert_uint16_to(directory_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1872,6 +2108,12 @@ int red_rewind_directory(RED *red, uint16_t directory_id, uint8_t *ret_error_cod
 	RewindDirectory_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_REWIND_DIRECTORY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1880,7 +2122,7 @@ int red_rewind_directory(RED *red, uint16_t directory_id, uint8_t *ret_error_cod
 
 	request.directory_id = leconvert_uint16_to(directory_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1897,6 +2139,12 @@ int red_create_directory(RED *red, uint16_t name_string_id, uint32_t flags, uint
 	CreateDirectory_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_CREATE_DIRECTORY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1909,7 +2157,7 @@ int red_create_directory(RED *red, uint16_t name_string_id, uint32_t flags, uint
 	request.uid = leconvert_uint32_to(uid);
 	request.gid = leconvert_uint32_to(gid);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1926,6 +2174,12 @@ int red_get_processes(RED *red, uint16_t session_id, uint8_t *ret_error_code, ui
 	GetProcesses_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROCESSES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1934,7 +2188,7 @@ int red_get_processes(RED *red, uint16_t session_id, uint8_t *ret_error_code, ui
 
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1951,6 +2205,12 @@ int red_spawn_process(RED *red, uint16_t executable_string_id, uint16_t argument
 	SpawnProcess_Request request;
 	SpawnProcess_Response response;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SPAWN_PROCESS, device_p->ipcon_p, device_p);
 
@@ -1969,7 +2229,7 @@ int red_spawn_process(RED *red, uint16_t executable_string_id, uint16_t argument
 	request.stderr_file_id = leconvert_uint16_to(stderr_file_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1987,6 +2247,12 @@ int red_kill_process(RED *red, uint16_t process_id, uint8_t signal, uint8_t *ret
 	KillProcess_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_KILL_PROCESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1996,7 +2262,7 @@ int red_kill_process(RED *red, uint16_t process_id, uint8_t signal, uint8_t *ret
 	request.process_id = leconvert_uint16_to(process_id);
 	request.signal = signal;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2013,6 +2279,12 @@ int red_get_process_command(RED *red, uint16_t process_id, uint16_t session_id, 
 	GetProcessCommand_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROCESS_COMMAND, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2022,7 +2294,7 @@ int red_get_process_command(RED *red, uint16_t process_id, uint16_t session_id, 
 	request.process_id = leconvert_uint16_to(process_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2043,6 +2315,12 @@ int red_get_process_identity(RED *red, uint16_t process_id, uint8_t *ret_error_c
 	GetProcessIdentity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROCESS_IDENTITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2051,7 +2329,7 @@ int red_get_process_identity(RED *red, uint16_t process_id, uint8_t *ret_error_c
 
 	request.process_id = leconvert_uint16_to(process_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2071,6 +2349,12 @@ int red_get_process_stdio(RED *red, uint16_t process_id, uint16_t session_id, ui
 	GetProcessStdio_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROCESS_STDIO, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2080,7 +2364,7 @@ int red_get_process_stdio(RED *red, uint16_t process_id, uint16_t session_id, ui
 	request.process_id = leconvert_uint16_to(process_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2100,6 +2384,12 @@ int red_get_process_state(RED *red, uint16_t process_id, uint8_t *ret_error_code
 	GetProcessState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROCESS_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2108,7 +2398,7 @@ int red_get_process_state(RED *red, uint16_t process_id, uint8_t *ret_error_code
 
 	request.process_id = leconvert_uint16_to(process_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2128,6 +2418,12 @@ int red_get_programs(RED *red, uint16_t session_id, uint8_t *ret_error_code, uin
 	GetPrograms_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROGRAMS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2136,7 +2432,7 @@ int red_get_programs(RED *red, uint16_t session_id, uint8_t *ret_error_code, uin
 
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2154,6 +2450,12 @@ int red_define_program(RED *red, uint16_t identifier_string_id, uint16_t session
 	DefineProgram_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_DEFINE_PROGRAM, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2163,7 +2465,7 @@ int red_define_program(RED *red, uint16_t identifier_string_id, uint16_t session
 	request.identifier_string_id = leconvert_uint16_to(identifier_string_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2181,6 +2483,12 @@ int red_purge_program(RED *red, uint16_t program_id, uint32_t cookie, uint8_t *r
 	PurgeProgram_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_PURGE_PROGRAM, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2190,7 +2498,7 @@ int red_purge_program(RED *red, uint16_t program_id, uint32_t cookie, uint8_t *r
 	request.program_id = leconvert_uint16_to(program_id);
 	request.cookie = leconvert_uint32_to(cookie);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2207,6 +2515,12 @@ int red_get_program_identifier(RED *red, uint16_t program_id, uint16_t session_i
 	GetProgramIdentifier_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROGRAM_IDENTIFIER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2216,7 +2530,7 @@ int red_get_program_identifier(RED *red, uint16_t program_id, uint16_t session_i
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2234,6 +2548,12 @@ int red_get_program_root_directory(RED *red, uint16_t program_id, uint16_t sessi
 	GetProgramRootDirectory_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROGRAM_ROOT_DIRECTORY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2243,7 +2563,7 @@ int red_get_program_root_directory(RED *red, uint16_t program_id, uint16_t sessi
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2261,6 +2581,12 @@ int red_set_program_command(RED *red, uint16_t program_id, uint16_t executable_s
 	SetProgramCommand_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SET_PROGRAM_COMMAND, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2273,7 +2599,7 @@ int red_set_program_command(RED *red, uint16_t program_id, uint16_t executable_s
 	request.environment_list_id = leconvert_uint16_to(environment_list_id);
 	request.working_directory_string_id = leconvert_uint16_to(working_directory_string_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2290,6 +2616,12 @@ int red_get_program_command(RED *red, uint16_t program_id, uint16_t session_id, 
 	GetProgramCommand_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROGRAM_COMMAND, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2299,7 +2631,7 @@ int red_get_program_command(RED *red, uint16_t program_id, uint16_t session_id, 
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2320,6 +2652,12 @@ int red_set_program_stdio_redirection(RED *red, uint16_t program_id, uint8_t std
 	SetProgramStdioRedirection_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SET_PROGRAM_STDIO_REDIRECTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2334,7 +2672,7 @@ int red_set_program_stdio_redirection(RED *red, uint16_t program_id, uint8_t std
 	request.stderr_redirection = stderr_redirection;
 	request.stderr_file_name_string_id = leconvert_uint16_to(stderr_file_name_string_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2351,6 +2689,12 @@ int red_get_program_stdio_redirection(RED *red, uint16_t program_id, uint16_t se
 	GetProgramStdioRedirection_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROGRAM_STDIO_REDIRECTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2360,7 +2704,7 @@ int red_get_program_stdio_redirection(RED *red, uint16_t program_id, uint16_t se
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2383,6 +2727,12 @@ int red_set_program_schedule(RED *red, uint16_t program_id, uint8_t start_mode, 
 	SetProgramSchedule_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SET_PROGRAM_SCHEDULE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2395,7 +2745,7 @@ int red_set_program_schedule(RED *red, uint16_t program_id, uint8_t start_mode, 
 	request.start_interval = leconvert_uint32_to(start_interval);
 	request.start_fields_string_id = leconvert_uint16_to(start_fields_string_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2412,6 +2762,12 @@ int red_get_program_schedule(RED *red, uint16_t program_id, uint16_t session_id,
 	GetProgramSchedule_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROGRAM_SCHEDULE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2421,7 +2777,7 @@ int red_get_program_schedule(RED *red, uint16_t program_id, uint16_t session_id,
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2442,6 +2798,12 @@ int red_get_program_scheduler_state(RED *red, uint16_t program_id, uint16_t sess
 	GetProgramSchedulerState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_PROGRAM_SCHEDULER_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2451,7 +2813,7 @@ int red_get_program_scheduler_state(RED *red, uint16_t program_id, uint16_t sess
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2471,6 +2833,12 @@ int red_continue_program_schedule(RED *red, uint16_t program_id, uint8_t *ret_er
 	ContinueProgramSchedule_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_CONTINUE_PROGRAM_SCHEDULE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2479,7 +2847,7 @@ int red_continue_program_schedule(RED *red, uint16_t program_id, uint8_t *ret_er
 
 	request.program_id = leconvert_uint16_to(program_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2496,6 +2864,12 @@ int red_start_program(RED *red, uint16_t program_id, uint8_t *ret_error_code) {
 	StartProgram_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_START_PROGRAM, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2504,7 +2878,7 @@ int red_start_program(RED *red, uint16_t program_id, uint8_t *ret_error_code) {
 
 	request.program_id = leconvert_uint16_to(program_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2521,6 +2895,12 @@ int red_get_last_spawned_program_process(RED *red, uint16_t program_id, uint16_t
 	GetLastSpawnedProgramProcess_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_LAST_SPAWNED_PROGRAM_PROCESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2530,7 +2910,7 @@ int red_get_last_spawned_program_process(RED *red, uint16_t program_id, uint16_t
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2549,6 +2929,12 @@ int red_get_custom_program_option_names(RED *red, uint16_t program_id, uint16_t 
 	GetCustomProgramOptionNames_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_CUSTOM_PROGRAM_OPTION_NAMES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2558,7 +2944,7 @@ int red_get_custom_program_option_names(RED *red, uint16_t program_id, uint16_t 
 	request.program_id = leconvert_uint16_to(program_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2576,6 +2962,12 @@ int red_set_custom_program_option_value(RED *red, uint16_t program_id, uint16_t 
 	SetCustomProgramOptionValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_SET_CUSTOM_PROGRAM_OPTION_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2586,7 +2978,7 @@ int red_set_custom_program_option_value(RED *red, uint16_t program_id, uint16_t 
 	request.name_string_id = leconvert_uint16_to(name_string_id);
 	request.value_string_id = leconvert_uint16_to(value_string_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2603,6 +2995,12 @@ int red_get_custom_program_option_value(RED *red, uint16_t program_id, uint16_t 
 	GetCustomProgramOptionValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_GET_CUSTOM_PROGRAM_OPTION_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2613,7 +3011,7 @@ int red_get_custom_program_option_value(RED *red, uint16_t program_id, uint16_t 
 	request.name_string_id = leconvert_uint16_to(name_string_id);
 	request.session_id = leconvert_uint16_to(session_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2631,6 +3029,12 @@ int red_remove_custom_program_option(RED *red, uint16_t program_id, uint16_t nam
 	RemoveCustomProgramOption_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RED_FUNCTION_REMOVE_CUSTOM_PROGRAM_OPTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2640,7 +3044,7 @@ int red_remove_custom_program_option(RED *red, uint16_t program_id, uint16_t nam
 	request.program_id = leconvert_uint16_to(program_id);
 	request.name_string_id = leconvert_uint16_to(name_string_id);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2663,7 +3067,7 @@ int red_get_identity(RED *red, char ret_uid[8], char ret_connected_uid[8], char 
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

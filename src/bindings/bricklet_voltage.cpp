@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -36,7 +36,7 @@ typedef void (*AnalogValueReached_CallbackFunction)(uint16_t value, void *user_d
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -182,10 +182,17 @@ typedef struct {
 
 static void voltage_callback_wrapper_voltage(DevicePrivate *device_p, Packet *packet) {
 	Voltage_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE];
-	Voltage_Callback *callback = (Voltage_Callback *)packet;
+	void *user_data;
+	Voltage_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE];
+	if (packet->header.length != sizeof(Voltage_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Voltage_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE];
+	callback = (Voltage_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -198,10 +205,17 @@ static void voltage_callback_wrapper_voltage(DevicePrivate *device_p, Packet *pa
 
 static void voltage_callback_wrapper_analog_value(DevicePrivate *device_p, Packet *packet) {
 	AnalogValue_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE];
-	AnalogValue_Callback *callback = (AnalogValue_Callback *)packet;
+	void *user_data;
+	AnalogValue_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE];
+	if (packet->header.length != sizeof(AnalogValue_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AnalogValue_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE];
+	callback = (AnalogValue_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -214,10 +228,17 @@ static void voltage_callback_wrapper_analog_value(DevicePrivate *device_p, Packe
 
 static void voltage_callback_wrapper_voltage_reached(DevicePrivate *device_p, Packet *packet) {
 	VoltageReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE_REACHED];
-	VoltageReached_Callback *callback = (VoltageReached_Callback *)packet;
+	void *user_data;
+	VoltageReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE_REACHED];
+	if (packet->header.length != sizeof(VoltageReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (VoltageReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_VOLTAGE_REACHED];
+	callback = (VoltageReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -230,10 +251,17 @@ static void voltage_callback_wrapper_voltage_reached(DevicePrivate *device_p, Pa
 
 static void voltage_callback_wrapper_analog_value_reached(DevicePrivate *device_p, Packet *packet) {
 	AnalogValueReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE_REACHED];
-	AnalogValueReached_Callback *callback = (AnalogValueReached_Callback *)packet;
+	void *user_data;
+	AnalogValueReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE_REACHED];
+	if (packet->header.length != sizeof(AnalogValueReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AnalogValueReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + VOLTAGE_CALLBACK_ANALOG_VALUE_REACHED];
+	callback = (AnalogValueReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -245,9 +273,10 @@ static void voltage_callback_wrapper_analog_value_reached(DevicePrivate *device_
 }
 
 void voltage_create(Voltage *voltage, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(voltage, uid, ipcon->p, 2, 0, 1);
+	device_create(voltage, uid, ipcon_p, 2, 0, 1, VOLTAGE_DEVICE_IDENTIFIER);
 
 	device_p = voltage->p;
 
@@ -270,6 +299,7 @@ void voltage_create(Voltage *voltage, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[VOLTAGE_CALLBACK_VOLTAGE_REACHED] = voltage_callback_wrapper_voltage_reached;
 	device_p->callback_wrappers[VOLTAGE_CALLBACK_ANALOG_VALUE_REACHED] = voltage_callback_wrapper_analog_value_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void voltage_destroy(Voltage *voltage) {
@@ -288,7 +318,7 @@ int voltage_set_response_expected_all(Voltage *voltage, bool response_expected) 
 	return device_set_response_expected_all(voltage->p, response_expected);
 }
 
-void voltage_register_callback(Voltage *voltage, int16_t callback_id, void *function, void *user_data) {
+void voltage_register_callback(Voltage *voltage, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(voltage->p, callback_id, function, user_data);
 }
 
@@ -302,13 +332,19 @@ int voltage_get_voltage(Voltage *voltage, uint16_t *ret_voltage) {
 	GetVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_GET_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -325,13 +361,19 @@ int voltage_get_analog_value(Voltage *voltage, uint16_t *ret_value) {
 	GetAnalogValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_GET_ANALOG_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -347,6 +389,12 @@ int voltage_set_voltage_callback_period(Voltage *voltage, uint32_t period) {
 	SetVoltageCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -355,7 +403,7 @@ int voltage_set_voltage_callback_period(Voltage *voltage, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -366,13 +414,19 @@ int voltage_get_voltage_callback_period(Voltage *voltage, uint32_t *ret_period) 
 	GetVoltageCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_GET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -388,6 +442,12 @@ int voltage_set_analog_value_callback_period(Voltage *voltage, uint32_t period) 
 	SetAnalogValueCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -396,7 +456,7 @@ int voltage_set_analog_value_callback_period(Voltage *voltage, uint32_t period) 
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -407,13 +467,19 @@ int voltage_get_analog_value_callback_period(Voltage *voltage, uint32_t *ret_per
 	GetAnalogValueCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_GET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -429,6 +495,12 @@ int voltage_set_voltage_callback_threshold(Voltage *voltage, char option, uint16
 	SetVoltageCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -439,7 +511,7 @@ int voltage_set_voltage_callback_threshold(Voltage *voltage, char option, uint16
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -450,13 +522,19 @@ int voltage_get_voltage_callback_threshold(Voltage *voltage, char *ret_option, u
 	GetVoltageCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -474,6 +552,12 @@ int voltage_set_analog_value_callback_threshold(Voltage *voltage, char option, u
 	SetAnalogValueCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_SET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -484,7 +568,7 @@ int voltage_set_analog_value_callback_threshold(Voltage *voltage, char option, u
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -495,13 +579,19 @@ int voltage_get_analog_value_callback_threshold(Voltage *voltage, char *ret_opti
 	GetAnalogValueCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_GET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -519,6 +609,12 @@ int voltage_set_debounce_period(Voltage *voltage, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -527,7 +623,7 @@ int voltage_set_debounce_period(Voltage *voltage, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -538,13 +634,19 @@ int voltage_get_debounce_period(Voltage *voltage, uint32_t *ret_debounce) {
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), VOLTAGE_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -567,7 +669,7 @@ int voltage_get_identity(Voltage *voltage, char ret_uid[8], char ret_connected_u
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

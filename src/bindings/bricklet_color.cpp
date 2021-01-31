@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -36,7 +36,7 @@ typedef void (*ColorTemperature_CallbackFunction)(uint16_t color_temperature, vo
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -241,10 +241,17 @@ typedef struct {
 
 static void color_callback_wrapper_color(DevicePrivate *device_p, Packet *packet) {
 	Color_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR];
-	Color_Callback *callback = (Color_Callback *)packet;
+	void *user_data;
+	Color_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR];
+	if (packet->header.length != sizeof(Color_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Color_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR];
+	callback = (Color_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -260,10 +267,17 @@ static void color_callback_wrapper_color(DevicePrivate *device_p, Packet *packet
 
 static void color_callback_wrapper_color_reached(DevicePrivate *device_p, Packet *packet) {
 	ColorReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_REACHED];
-	ColorReached_Callback *callback = (ColorReached_Callback *)packet;
+	void *user_data;
+	ColorReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_REACHED];
+	if (packet->header.length != sizeof(ColorReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ColorReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_REACHED];
+	callback = (ColorReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -279,10 +293,17 @@ static void color_callback_wrapper_color_reached(DevicePrivate *device_p, Packet
 
 static void color_callback_wrapper_illuminance(DevicePrivate *device_p, Packet *packet) {
 	Illuminance_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_ILLUMINANCE];
-	Illuminance_Callback *callback = (Illuminance_Callback *)packet;
+	void *user_data;
+	Illuminance_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_ILLUMINANCE];
+	if (packet->header.length != sizeof(Illuminance_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Illuminance_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_ILLUMINANCE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_ILLUMINANCE];
+	callback = (Illuminance_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -295,10 +316,17 @@ static void color_callback_wrapper_illuminance(DevicePrivate *device_p, Packet *
 
 static void color_callback_wrapper_color_temperature(DevicePrivate *device_p, Packet *packet) {
 	ColorTemperature_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_TEMPERATURE];
-	ColorTemperature_Callback *callback = (ColorTemperature_Callback *)packet;
+	void *user_data;
+	ColorTemperature_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_TEMPERATURE];
+	if (packet->header.length != sizeof(ColorTemperature_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ColorTemperature_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_TEMPERATURE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + COLOR_CALLBACK_COLOR_TEMPERATURE];
+	callback = (ColorTemperature_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -310,9 +338,10 @@ static void color_callback_wrapper_color_temperature(DevicePrivate *device_p, Pa
 }
 
 void color_create(Color *color, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(color, uid, ipcon->p, 2, 0, 0);
+	device_create(color, uid, ipcon_p, 2, 0, 0, COLOR_DEVICE_IDENTIFIER);
 
 	device_p = color->p;
 
@@ -341,6 +370,7 @@ void color_create(Color *color, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[COLOR_CALLBACK_ILLUMINANCE] = color_callback_wrapper_illuminance;
 	device_p->callback_wrappers[COLOR_CALLBACK_COLOR_TEMPERATURE] = color_callback_wrapper_color_temperature;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void color_destroy(Color *color) {
@@ -359,7 +389,7 @@ int color_set_response_expected_all(Color *color, bool response_expected) {
 	return device_set_response_expected_all(color->p, response_expected);
 }
 
-void color_register_callback(Color *color, int16_t callback_id, void *function, void *user_data) {
+void color_register_callback(Color *color, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(color->p, callback_id, function, user_data);
 }
 
@@ -373,13 +403,19 @@ int color_get_color(Color *color, uint16_t *ret_r, uint16_t *ret_g, uint16_t *re
 	GetColor_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -398,6 +434,12 @@ int color_set_color_callback_period(Color *color, uint32_t period) {
 	SetColorCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_COLOR_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -406,7 +448,7 @@ int color_set_color_callback_period(Color *color, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -417,13 +459,19 @@ int color_get_color_callback_period(Color *color, uint32_t *ret_period) {
 	GetColorCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -438,6 +486,12 @@ int color_set_color_callback_threshold(Color *color, char option, uint16_t min_r
 	DevicePrivate *device_p = color->p;
 	SetColorCallbackThreshold_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_COLOR_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
@@ -455,7 +509,7 @@ int color_set_color_callback_threshold(Color *color, char option, uint16_t min_r
 	request.min_c = leconvert_uint16_to(min_c);
 	request.max_c = leconvert_uint16_to(max_c);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -466,13 +520,19 @@ int color_get_color_callback_threshold(Color *color, char *ret_option, uint16_t 
 	GetColorCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -496,6 +556,12 @@ int color_set_debounce_period(Color *color, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -504,7 +570,7 @@ int color_set_debounce_period(Color *color, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -515,13 +581,19 @@ int color_get_debounce_period(Color *color, uint32_t *ret_debounce) {
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -537,13 +609,19 @@ int color_light_on(Color *color) {
 	LightOn_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_LIGHT_ON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -553,13 +631,19 @@ int color_light_off(Color *color) {
 	LightOff_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_LIGHT_OFF, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -570,13 +654,19 @@ int color_is_light_on(Color *color, uint8_t *ret_light) {
 	IsLightOn_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_IS_LIGHT_ON, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -592,6 +682,12 @@ int color_set_config(Color *color, uint8_t gain, uint8_t integration_time) {
 	SetConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -601,7 +697,7 @@ int color_set_config(Color *color, uint8_t gain, uint8_t integration_time) {
 	request.gain = gain;
 	request.integration_time = integration_time;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -612,13 +708,19 @@ int color_get_config(Color *color, uint8_t *ret_gain, uint8_t *ret_integration_t
 	GetConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -636,13 +738,19 @@ int color_get_illuminance(Color *color, uint32_t *ret_illuminance) {
 	GetIlluminance_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_ILLUMINANCE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -659,13 +767,19 @@ int color_get_color_temperature(Color *color, uint16_t *ret_color_temperature) {
 	GetColorTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -681,6 +795,12 @@ int color_set_illuminance_callback_period(Color *color, uint32_t period) {
 	SetIlluminanceCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -689,7 +809,7 @@ int color_set_illuminance_callback_period(Color *color, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -700,13 +820,19 @@ int color_get_illuminance_callback_period(Color *color, uint32_t *ret_period) {
 	GetIlluminanceCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -722,6 +848,12 @@ int color_set_color_temperature_callback_period(Color *color, uint32_t period) {
 	SetColorTemperatureCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_SET_COLOR_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -730,7 +862,7 @@ int color_set_color_temperature_callback_period(Color *color, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -741,13 +873,19 @@ int color_get_color_temperature_callback_period(Color *color, uint32_t *ret_peri
 	GetColorTemperatureCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), COLOR_FUNCTION_GET_COLOR_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -770,7 +908,7 @@ int color_get_identity(Color *color, char ret_uid[8], char ret_connected_uid[8],
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

@@ -33,7 +33,8 @@ device_identifiers.h:   brick*.h ip*.h
 	echo "#ifndef DEVICE_IDENTIFIERS_H" >> $@
 	echo "#define DEVICE_IDENTIFIERS_H" >> $@
 	echo                                >> $@
-	grep -hw define brick*.h | grep DEVICE_IDENTIFIER | sort -n --key=3 >> $@
+	echo "#define TEST_DUMMY_DEVICE_IDENTIFIER 1" >> $@
+	grep -hw define brick*.h | grep "_DEVICE_IDENTIFIER " | sort -n --key=3 >> $@
 	echo          >> $@
 	echo "#endif" >> $@
 
@@ -49,6 +50,7 @@ device_table.h:   device_identifiers.h
 	echo "  int deviceIdentifier;"     >> $@
 	echo "} gAllDeviceIdentifiers[] =" >> $@
 	echo "  {"                         >> $@
+	echo "  { \"TEST_DUMMY\", TEST_DUMMY_DEVICE_IDENTIFIER }," >> $@
 	for i in `grep -hw define brick*.h | grep "DEVICE_IDENTIFIER " | sed "s/#define //" | sed "s/_DEVICE_IDENTIFIER [0-9]*//" | sort -u`; do printf '  {"%s", %s_DEVICE_IDENTIFIER },\n' $$i $$i >> $@; done
 	echo "  { 0, -1 } };" >> $@
 	echo          >> $@

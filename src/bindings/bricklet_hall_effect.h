@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -159,7 +159,7 @@ void hall_effect_destroy(HallEffect *hall_effect);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int hall_effect_get_response_expected(HallEffect *hall_effect, uint8_t function_id, bool *ret_response_expected);
@@ -175,7 +175,7 @@ int hall_effect_get_response_expected(HallEffect *hall_effect, uint8_t function_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int hall_effect_set_response_expected(HallEffect *hall_effect, uint8_t function_id, bool response_expected);
@@ -194,7 +194,7 @@ int hall_effect_set_response_expected_all(HallEffect *hall_effect, bool response
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void hall_effect_register_callback(HallEffect *hall_effect, int16_t callback_id, void *function, void *user_data);
+void hall_effect_register_callback(HallEffect *hall_effect, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletHallEffect
@@ -207,7 +207,7 @@ int hall_effect_get_api_version(HallEffect *hall_effect, uint8_t ret_api_version
 /**
  * \ingroup BrickletHallEffect
  *
- * Returns *true* if a magnetic field of 35 Gauss (3.5mT) or greater is detected.
+ * Returns *true* if a magnetic field of 3.5 millitesla or greater is detected.
  */
 int hall_effect_get_value(HallEffect *hall_effect, bool *ret_value);
 
@@ -229,24 +229,20 @@ int hall_effect_get_edge_count(HallEffect *hall_effect, bool reset_counter, uint
  * The edge type parameter configures if rising edges, falling edges or
  * both are counted. Possible edge types are:
  * 
- * * 0 = rising (default)
+ * * 0 = rising
  * * 1 = falling
  * * 2 = both
  * 
- * A magnetic field of 35 Gauss (3.5mT) or greater causes a falling edge and a
- * magnetic field of 25 Gauss (2.5mT) or smaller causes a rising edge.
+ * A magnetic field of 3.5 millitesla or greater causes a falling edge and a
+ * magnetic field of 2.5 millitesla or smaller causes a rising edge.
  * 
  * If a magnet comes near the Bricklet the signal goes low (falling edge), if
  * a magnet is removed from the vicinity the signal goes high (rising edge).
- * 
- * The debounce time is given in ms.
  * 
  * Configuring an edge counter resets its value to 0.
  * 
  * If you don't know what any of this means, just leave it at default. The
  * default configuration is very likely OK for you.
- * 
- * Default values: 0 (edge type) and 100ms (debounce time)
  */
 int hall_effect_set_edge_count_config(HallEffect *hall_effect, uint8_t edge_type, uint8_t debounce);
 
@@ -265,8 +261,6 @@ int hall_effect_get_edge_count_config(HallEffect *hall_effect, uint8_t *ret_edge
  * If *edges* is set to n, an interrupt is invoked for every n-th detected edge.
  * 
  * If *edges* is set to 0, the interrupt is disabled.
- * 
- * Default value is 0.
  */
 int hall_effect_set_edge_interrupt(HallEffect *hall_effect, uint32_t edges);
 
@@ -280,13 +274,11 @@ int hall_effect_get_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_edges)
 /**
  * \ingroup BrickletHallEffect
  *
- * Sets the period in ms with which the {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} callback is triggered
+ * Sets the period with which the {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link HALL_EFFECT_CALLBACK_EDGE_COUNT} callback is only triggered if the edge count has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int hall_effect_set_edge_count_callback_period(HallEffect *hall_effect, uint32_t period);
 
@@ -314,7 +306,9 @@ int hall_effect_edge_interrupt(HallEffect *hall_effect, uint32_t *ret_count, boo
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -237,7 +237,7 @@ void industrial_dual_analog_in_destroy(IndustrialDualAnalogIn *industrial_dual_a
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int industrial_dual_analog_in_get_response_expected(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t function_id, bool *ret_response_expected);
@@ -253,7 +253,7 @@ int industrial_dual_analog_in_get_response_expected(IndustrialDualAnalogIn *indu
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int industrial_dual_analog_in_set_response_expected(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t function_id, bool response_expected);
@@ -272,7 +272,7 @@ int industrial_dual_analog_in_set_response_expected_all(IndustrialDualAnalogIn *
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_dual_analog_in_register_callback(IndustrialDualAnalogIn *industrial_dual_analog_in, int16_t callback_id, void *function, void *user_data);
+void industrial_dual_analog_in_register_callback(IndustrialDualAnalogIn *industrial_dual_analog_in, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletIndustrialDualAnalogIn
@@ -285,7 +285,7 @@ int industrial_dual_analog_in_get_api_version(IndustrialDualAnalogIn *industrial
 /**
  * \ingroup BrickletIndustrialDualAnalogIn
  *
- * Returns the voltage for the given channel in mV.
+ * Returns the voltage for the given channel.
  * 
  * If you want to get the voltage periodically, it is recommended to use the
  * {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback and set the period with
@@ -296,13 +296,11 @@ int industrial_dual_analog_in_get_voltage(IndustrialDualAnalogIn *industrial_dua
 /**
  * \ingroup BrickletIndustrialDualAnalogIn
  *
- * Sets the period in ms with which the {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback is triggered
+ * Sets the period with which the {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback is triggered
  * periodically for the given channel. A value of 0 turns the callback off.
  * 
  * The {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int industrial_dual_analog_in_set_voltage_callback_period(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t channel, uint32_t period);
 
@@ -330,8 +328,6 @@ int industrial_dual_analog_in_get_voltage_callback_period(IndustrialDualAnalogIn
  *  "'<'",    "Callback is triggered when the voltage is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the voltage is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int industrial_dual_analog_in_set_voltage_callback_threshold(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t channel, char option, int32_t min, int32_t max);
 
@@ -345,7 +341,7 @@ int industrial_dual_analog_in_get_voltage_callback_threshold(IndustrialDualAnalo
 /**
  * \ingroup BrickletIndustrialDualAnalogIn
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED}
  * 
@@ -354,8 +350,6 @@ int industrial_dual_analog_in_get_voltage_callback_threshold(IndustrialDualAnalo
  * * {@link industrial_dual_analog_in_set_voltage_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int industrial_dual_analog_in_set_debounce_period(IndustrialDualAnalogIn *industrial_dual_analog_in, uint32_t debounce);
 
@@ -372,8 +366,6 @@ int industrial_dual_analog_in_get_debounce_period(IndustrialDualAnalogIn *indust
  * Sets the sample rate. The sample rate can be between 1 sample per second
  * and 976 samples per second. Decreasing the sample rate will also decrease the
  * noise on the data.
- * 
- * The default value is 6 (2 samples per second).
  */
 int industrial_dual_analog_in_set_sample_rate(IndustrialDualAnalogIn *industrial_dual_analog_in, uint8_t rate);
 
@@ -417,7 +409,9 @@ int industrial_dual_analog_in_get_adc_values(IndustrialDualAnalogIn *industrial_
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

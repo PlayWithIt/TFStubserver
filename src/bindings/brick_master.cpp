@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -40,7 +40,7 @@ typedef void (*USBVoltageReached_CallbackFunction)(uint16_t voltage, void *user_
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -1011,6 +1011,44 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	uint32_t config;
+	uint32_t parameter1;
+	uint32_t parameter2;
+	uint8_t data[52];
+} ATTRIBUTE_PACKED SetBrickletXMCFlashConfig_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t return_value;
+	uint8_t return_data[60];
+} ATTRIBUTE_PACKED SetBrickletXMCFlashConfig_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t data[64];
+} ATTRIBUTE_PACKED SetBrickletXMCFlashData_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint32_t return_data;
+} ATTRIBUTE_PACKED SetBrickletXMCFlashData_Response;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t bricklets_enabled;
+} ATTRIBUTE_PACKED SetBrickletsEnabled_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetBrickletsEnabled_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t bricklets_enabled;
+} ATTRIBUTE_PACKED GetBrickletsEnabled_Response;
+
+typedef struct {
+	PacketHeader header;
 	uint8_t enable_dynamic_baudrate;
 	uint32_t minimum_dynamic_baudrate;
 } ATTRIBUTE_PACKED SetSPITFPBaudrateConfig_Request;
@@ -1108,6 +1146,24 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	char port;
+	uint8_t offset;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED WriteBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	char port;
+	uint8_t offset;
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Response;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
@@ -1127,10 +1183,17 @@ typedef struct {
 
 static void master_callback_wrapper_stack_current(DevicePrivate *device_p, Packet *packet) {
 	StackCurrent_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT];
-	StackCurrent_Callback *callback = (StackCurrent_Callback *)packet;
+	void *user_data;
+	StackCurrent_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT];
+	if (packet->header.length != sizeof(StackCurrent_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (StackCurrent_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT];
+	callback = (StackCurrent_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -1143,10 +1206,17 @@ static void master_callback_wrapper_stack_current(DevicePrivate *device_p, Packe
 
 static void master_callback_wrapper_stack_voltage(DevicePrivate *device_p, Packet *packet) {
 	StackVoltage_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE];
-	StackVoltage_Callback *callback = (StackVoltage_Callback *)packet;
+	void *user_data;
+	StackVoltage_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE];
+	if (packet->header.length != sizeof(StackVoltage_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (StackVoltage_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE];
+	callback = (StackVoltage_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -1159,10 +1229,17 @@ static void master_callback_wrapper_stack_voltage(DevicePrivate *device_p, Packe
 
 static void master_callback_wrapper_usb_voltage(DevicePrivate *device_p, Packet *packet) {
 	USBVoltage_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE];
-	USBVoltage_Callback *callback = (USBVoltage_Callback *)packet;
+	void *user_data;
+	USBVoltage_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE];
+	if (packet->header.length != sizeof(USBVoltage_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (USBVoltage_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE];
+	callback = (USBVoltage_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -1175,10 +1252,17 @@ static void master_callback_wrapper_usb_voltage(DevicePrivate *device_p, Packet 
 
 static void master_callback_wrapper_stack_current_reached(DevicePrivate *device_p, Packet *packet) {
 	StackCurrentReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT_REACHED];
-	StackCurrentReached_Callback *callback = (StackCurrentReached_Callback *)packet;
+	void *user_data;
+	StackCurrentReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT_REACHED];
+	if (packet->header.length != sizeof(StackCurrentReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (StackCurrentReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_CURRENT_REACHED];
+	callback = (StackCurrentReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -1191,10 +1275,17 @@ static void master_callback_wrapper_stack_current_reached(DevicePrivate *device_
 
 static void master_callback_wrapper_stack_voltage_reached(DevicePrivate *device_p, Packet *packet) {
 	StackVoltageReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE_REACHED];
-	StackVoltageReached_Callback *callback = (StackVoltageReached_Callback *)packet;
+	void *user_data;
+	StackVoltageReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE_REACHED];
+	if (packet->header.length != sizeof(StackVoltageReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (StackVoltageReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_STACK_VOLTAGE_REACHED];
+	callback = (StackVoltageReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -1207,10 +1298,17 @@ static void master_callback_wrapper_stack_voltage_reached(DevicePrivate *device_
 
 static void master_callback_wrapper_usb_voltage_reached(DevicePrivate *device_p, Packet *packet) {
 	USBVoltageReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE_REACHED];
-	USBVoltageReached_Callback *callback = (USBVoltageReached_Callback *)packet;
+	void *user_data;
+	USBVoltageReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE_REACHED];
+	if (packet->header.length != sizeof(USBVoltageReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (USBVoltageReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MASTER_CALLBACK_USB_VOLTAGE_REACHED];
+	callback = (USBVoltageReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -1222,9 +1320,10 @@ static void master_callback_wrapper_usb_voltage_reached(DevicePrivate *device_p,
 }
 
 void master_create(Master *master, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(master, uid, ipcon->p, 2, 0, 9);
+	device_create(master, uid, ipcon_p, 2, 0, 10, MASTER_DEVICE_IDENTIFIER);
 
 	device_p = master->p;
 
@@ -1332,6 +1431,10 @@ void master_create(Master *master, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[MASTER_FUNCTION_GET_WIFI2_MESH_COMMON_STATUS] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_GET_WIFI2_MESH_CLIENT_STATUS] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_GET_WIFI2_MESH_AP_STATUS] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[MASTER_FUNCTION_SET_BRICKLET_XMC_FLASH_CONFIG] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[MASTER_FUNCTION_SET_BRICKLET_XMC_FLASH_DATA] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[MASTER_FUNCTION_SET_BRICKLETS_ENABLED] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MASTER_FUNCTION_GET_BRICKLETS_ENABLED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[MASTER_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_GET_SEND_TIMEOUT_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
@@ -1344,6 +1447,8 @@ void master_create(Master *master, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[MASTER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_GET_CHIP_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_RESET] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MASTER_FUNCTION_WRITE_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MASTER_FUNCTION_READ_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[MASTER_CALLBACK_STACK_CURRENT] = master_callback_wrapper_stack_current;
@@ -1353,6 +1458,7 @@ void master_create(Master *master, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[MASTER_CALLBACK_STACK_VOLTAGE_REACHED] = master_callback_wrapper_stack_voltage_reached;
 	device_p->callback_wrappers[MASTER_CALLBACK_USB_VOLTAGE_REACHED] = master_callback_wrapper_usb_voltage_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void master_destroy(Master *master) {
@@ -1371,7 +1477,7 @@ int master_set_response_expected_all(Master *master, bool response_expected) {
 	return device_set_response_expected_all(master->p, response_expected);
 }
 
-void master_register_callback(Master *master, int16_t callback_id, void *function, void *user_data) {
+void master_register_callback(Master *master, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(master->p, callback_id, function, user_data);
 }
 
@@ -1385,13 +1491,19 @@ int master_get_stack_voltage(Master *master, uint16_t *ret_voltage) {
 	GetStackVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_STACK_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1408,13 +1520,19 @@ int master_get_stack_current(Master *master, uint16_t *ret_current) {
 	GetStackCurrent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_STACK_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1430,6 +1548,12 @@ int master_set_extension_type(Master *master, uint8_t extension, uint32_t exttyp
 	SetExtensionType_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_EXTENSION_TYPE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1439,7 +1563,7 @@ int master_set_extension_type(Master *master, uint8_t extension, uint32_t exttyp
 	request.extension = extension;
 	request.exttype = leconvert_uint32_to(exttype);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1450,6 +1574,12 @@ int master_get_extension_type(Master *master, uint8_t extension, uint32_t *ret_e
 	GetExtensionType_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_EXTENSION_TYPE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1458,7 +1588,7 @@ int master_get_extension_type(Master *master, uint8_t extension, uint32_t *ret_e
 
 	request.extension = extension;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1475,13 +1605,19 @@ int master_is_chibi_present(Master *master, bool *ret_present) {
 	IsChibiPresent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_IS_CHIBI_PRESENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1497,6 +1633,12 @@ int master_set_chibi_address(Master *master, uint8_t address) {
 	SetChibiAddress_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_CHIBI_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1505,7 +1647,7 @@ int master_set_chibi_address(Master *master, uint8_t address) {
 
 	request.address = address;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1516,13 +1658,19 @@ int master_get_chibi_address(Master *master, uint8_t *ret_address) {
 	GetChibiAddress_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIBI_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1538,6 +1686,12 @@ int master_set_chibi_master_address(Master *master, uint8_t address) {
 	SetChibiMasterAddress_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_CHIBI_MASTER_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1546,7 +1700,7 @@ int master_set_chibi_master_address(Master *master, uint8_t address) {
 
 	request.address = address;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1557,13 +1711,19 @@ int master_get_chibi_master_address(Master *master, uint8_t *ret_address) {
 	GetChibiMasterAddress_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIBI_MASTER_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1579,6 +1739,12 @@ int master_set_chibi_slave_address(Master *master, uint8_t num, uint8_t address)
 	SetChibiSlaveAddress_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_CHIBI_SLAVE_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1588,7 +1754,7 @@ int master_set_chibi_slave_address(Master *master, uint8_t num, uint8_t address)
 	request.num = num;
 	request.address = address;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1599,6 +1765,12 @@ int master_get_chibi_slave_address(Master *master, uint8_t num, uint8_t *ret_add
 	GetChibiSlaveAddress_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIBI_SLAVE_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1607,7 +1779,7 @@ int master_get_chibi_slave_address(Master *master, uint8_t num, uint8_t *ret_add
 
 	request.num = num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1624,13 +1796,19 @@ int master_get_chibi_signal_strength(Master *master, uint8_t *ret_signal_strengt
 	GetChibiSignalStrength_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIBI_SIGNAL_STRENGTH, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1647,13 +1825,19 @@ int master_get_chibi_error_log(Master *master, uint16_t *ret_underrun, uint16_t 
 	GetChibiErrorLog_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIBI_ERROR_LOG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1672,6 +1856,12 @@ int master_set_chibi_frequency(Master *master, uint8_t frequency) {
 	SetChibiFrequency_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_CHIBI_FREQUENCY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1680,7 +1870,7 @@ int master_set_chibi_frequency(Master *master, uint8_t frequency) {
 
 	request.frequency = frequency;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1691,13 +1881,19 @@ int master_get_chibi_frequency(Master *master, uint8_t *ret_frequency) {
 	GetChibiFrequency_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIBI_FREQUENCY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1713,6 +1909,12 @@ int master_set_chibi_channel(Master *master, uint8_t channel) {
 	SetChibiChannel_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_CHIBI_CHANNEL, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1721,7 +1923,7 @@ int master_set_chibi_channel(Master *master, uint8_t channel) {
 
 	request.channel = channel;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1732,13 +1934,19 @@ int master_get_chibi_channel(Master *master, uint8_t *ret_channel) {
 	GetChibiChannel_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIBI_CHANNEL, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1755,13 +1963,19 @@ int master_is_rs485_present(Master *master, bool *ret_present) {
 	IsRS485Present_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_IS_RS485_PRESENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1777,6 +1991,12 @@ int master_set_rs485_address(Master *master, uint8_t address) {
 	SetRS485Address_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_RS485_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1785,7 +2005,7 @@ int master_set_rs485_address(Master *master, uint8_t address) {
 
 	request.address = address;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1796,13 +2016,19 @@ int master_get_rs485_address(Master *master, uint8_t *ret_address) {
 	GetRS485Address_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_RS485_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1818,6 +2044,12 @@ int master_set_rs485_slave_address(Master *master, uint8_t num, uint8_t address)
 	SetRS485SlaveAddress_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_RS485_SLAVE_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1827,7 +2059,7 @@ int master_set_rs485_slave_address(Master *master, uint8_t num, uint8_t address)
 	request.num = num;
 	request.address = address;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1838,6 +2070,12 @@ int master_get_rs485_slave_address(Master *master, uint8_t num, uint8_t *ret_add
 	GetRS485SlaveAddress_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_RS485_SLAVE_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1846,7 +2084,7 @@ int master_get_rs485_slave_address(Master *master, uint8_t num, uint8_t *ret_add
 
 	request.num = num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1863,13 +2101,19 @@ int master_get_rs485_error_log(Master *master, uint16_t *ret_crc_error) {
 	GetRS485ErrorLog_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_RS485_ERROR_LOG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1885,6 +2129,12 @@ int master_set_rs485_configuration(Master *master, uint32_t speed, char parity, 
 	SetRS485Configuration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_RS485_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1895,7 +2145,7 @@ int master_set_rs485_configuration(Master *master, uint32_t speed, char parity, 
 	request.parity = parity;
 	request.stopbits = stopbits;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1906,13 +2156,19 @@ int master_get_rs485_configuration(Master *master, uint32_t *ret_speed, char *re
 	GetRS485Configuration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_RS485_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1931,13 +2187,19 @@ int master_is_wifi_present(Master *master, bool *ret_present) {
 	IsWifiPresent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_IS_WIFI_PRESENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1953,6 +2215,12 @@ int master_set_wifi_configuration(Master *master, const char ssid[32], uint8_t c
 	SetWifiConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1967,7 +2235,7 @@ int master_set_wifi_configuration(Master *master, const char ssid[32], uint8_t c
 	memcpy(request.gateway, gateway, 4 * sizeof(uint8_t));
 	request.port = leconvert_uint16_to(port);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1978,13 +2246,19 @@ int master_get_wifi_configuration(Master *master, char ret_ssid[32], uint8_t *re
 	GetWifiConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2005,6 +2279,12 @@ int master_set_wifi_encryption(Master *master, uint8_t encryption, const char ke
 	SetWifiEncryption_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_ENCRYPTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2020,7 +2300,7 @@ int master_set_wifi_encryption(Master *master, uint8_t encryption, const char ke
 	request.client_certificate_length = leconvert_uint16_to(client_certificate_length);
 	request.private_key_length = leconvert_uint16_to(private_key_length);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2031,13 +2311,19 @@ int master_get_wifi_encryption(Master *master, uint8_t *ret_encryption, char ret
 	GetWifiEncryption_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_ENCRYPTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2060,13 +2346,19 @@ int master_get_wifi_status(Master *master, uint8_t ret_mac_address[6], uint8_t r
 	GetWifiStatus_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2091,13 +2383,19 @@ int master_refresh_wifi_status(Master *master) {
 	RefreshWifiStatus_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_REFRESH_WIFI_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2106,6 +2404,12 @@ int master_set_wifi_certificate(Master *master, uint16_t index, uint8_t data[32]
 	DevicePrivate *device_p = master->p;
 	SetWifiCertificate_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_CERTIFICATE, device_p->ipcon_p, device_p);
 
@@ -2117,7 +2421,7 @@ int master_set_wifi_certificate(Master *master, uint16_t index, uint8_t data[32]
 	memcpy(request.data, data, 32 * sizeof(uint8_t));
 	request.data_length = data_length;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2128,6 +2432,12 @@ int master_get_wifi_certificate(Master *master, uint16_t index, uint8_t ret_data
 	GetWifiCertificate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_CERTIFICATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2136,7 +2446,7 @@ int master_get_wifi_certificate(Master *master, uint16_t index, uint8_t ret_data
 
 	request.index = leconvert_uint16_to(index);
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2153,6 +2463,12 @@ int master_set_wifi_power_mode(Master *master, uint8_t mode) {
 	SetWifiPowerMode_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_POWER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2161,7 +2477,7 @@ int master_set_wifi_power_mode(Master *master, uint8_t mode) {
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2172,13 +2488,19 @@ int master_get_wifi_power_mode(Master *master, uint8_t *ret_mode) {
 	GetWifiPowerMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_POWER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2195,13 +2517,19 @@ int master_get_wifi_buffer_info(Master *master, uint32_t *ret_overflow, uint16_t
 	GetWifiBufferInfo_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_BUFFER_INFO, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2219,6 +2547,12 @@ int master_set_wifi_regulatory_domain(Master *master, uint8_t domain) {
 	SetWifiRegulatoryDomain_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_REGULATORY_DOMAIN, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2227,7 +2561,7 @@ int master_set_wifi_regulatory_domain(Master *master, uint8_t domain) {
 
 	request.domain = domain;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2238,13 +2572,19 @@ int master_get_wifi_regulatory_domain(Master *master, uint8_t *ret_domain) {
 	GetWifiRegulatoryDomain_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_REGULATORY_DOMAIN, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2261,13 +2601,19 @@ int master_get_usb_voltage(Master *master, uint16_t *ret_voltage) {
 	GetUSBVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_USB_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2283,6 +2629,12 @@ int master_set_long_wifi_key(Master *master, const char key[64]) {
 	SetLongWifiKey_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_LONG_WIFI_KEY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2292,7 +2644,7 @@ int master_set_long_wifi_key(Master *master, const char key[64]) {
 	memcpy(request.key, key, 64);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2303,13 +2655,19 @@ int master_get_long_wifi_key(Master *master, char ret_key[64]) {
 	GetLongWifiKey_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_LONG_WIFI_KEY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2325,6 +2683,12 @@ int master_set_wifi_hostname(Master *master, const char hostname[16]) {
 	SetWifiHostname_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_HOSTNAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2334,7 +2698,7 @@ int master_set_wifi_hostname(Master *master, const char hostname[16]) {
 	memcpy(request.hostname, hostname, 16);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2345,13 +2709,19 @@ int master_get_wifi_hostname(Master *master, char ret_hostname[16]) {
 	GetWifiHostname_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_HOSTNAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2367,6 +2737,12 @@ int master_set_stack_current_callback_period(Master *master, uint32_t period) {
 	SetStackCurrentCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2375,7 +2751,7 @@ int master_set_stack_current_callback_period(Master *master, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2386,13 +2762,19 @@ int master_get_stack_current_callback_period(Master *master, uint32_t *ret_perio
 	GetStackCurrentCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_STACK_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2408,6 +2790,12 @@ int master_set_stack_voltage_callback_period(Master *master, uint32_t period) {
 	SetStackVoltageCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2416,7 +2804,7 @@ int master_set_stack_voltage_callback_period(Master *master, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2427,13 +2815,19 @@ int master_get_stack_voltage_callback_period(Master *master, uint32_t *ret_perio
 	GetStackVoltageCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_STACK_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2449,6 +2843,12 @@ int master_set_usb_voltage_callback_period(Master *master, uint32_t period) {
 	SetUSBVoltageCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_USB_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2457,7 +2857,7 @@ int master_set_usb_voltage_callback_period(Master *master, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2468,13 +2868,19 @@ int master_get_usb_voltage_callback_period(Master *master, uint32_t *ret_period)
 	GetUSBVoltageCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_USB_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2490,6 +2896,12 @@ int master_set_stack_current_callback_threshold(Master *master, char option, uin
 	SetStackCurrentCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2500,7 +2912,7 @@ int master_set_stack_current_callback_threshold(Master *master, char option, uin
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2511,13 +2923,19 @@ int master_get_stack_current_callback_threshold(Master *master, char *ret_option
 	GetStackCurrentCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_STACK_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2535,6 +2953,12 @@ int master_set_stack_voltage_callback_threshold(Master *master, char option, uin
 	SetStackVoltageCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2545,7 +2969,7 @@ int master_set_stack_voltage_callback_threshold(Master *master, char option, uin
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2556,13 +2980,19 @@ int master_get_stack_voltage_callback_threshold(Master *master, char *ret_option
 	GetStackVoltageCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_STACK_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2580,6 +3010,12 @@ int master_set_usb_voltage_callback_threshold(Master *master, char option, uint1
 	SetUSBVoltageCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_USB_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2590,7 +3026,7 @@ int master_set_usb_voltage_callback_threshold(Master *master, char option, uint1
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2601,13 +3037,19 @@ int master_get_usb_voltage_callback_threshold(Master *master, char *ret_option, 
 	GetUSBVoltageCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_USB_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2625,6 +3067,12 @@ int master_set_debounce_period(Master *master, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2633,7 +3081,7 @@ int master_set_debounce_period(Master *master, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2644,13 +3092,19 @@ int master_get_debounce_period(Master *master, uint32_t *ret_debounce) {
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2667,13 +3121,19 @@ int master_is_ethernet_present(Master *master, bool *ret_present) {
 	IsEthernetPresent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_IS_ETHERNET_PRESENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2689,6 +3149,12 @@ int master_set_ethernet_configuration(Master *master, uint8_t connection, uint8_
 	SetEthernetConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_ETHERNET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2701,7 +3167,7 @@ int master_set_ethernet_configuration(Master *master, uint8_t connection, uint8_
 	memcpy(request.gateway, gateway, 4 * sizeof(uint8_t));
 	request.port = leconvert_uint16_to(port);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2712,13 +3178,19 @@ int master_get_ethernet_configuration(Master *master, uint8_t *ret_connection, u
 	GetEthernetConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_ETHERNET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2739,13 +3211,19 @@ int master_get_ethernet_status(Master *master, uint8_t ret_mac_address[6], uint8
 	GetEthernetStatus_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_ETHERNET_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2767,6 +3245,12 @@ int master_set_ethernet_hostname(Master *master, const char hostname[32]) {
 	SetEthernetHostname_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_ETHERNET_HOSTNAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2776,7 +3260,7 @@ int master_set_ethernet_hostname(Master *master, const char hostname[32]) {
 	memcpy(request.hostname, hostname, 32);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2786,6 +3270,12 @@ int master_set_ethernet_mac_address(Master *master, uint8_t mac_address[6]) {
 	SetEthernetMACAddress_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_ETHERNET_MAC_ADDRESS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2794,7 +3284,7 @@ int master_set_ethernet_mac_address(Master *master, uint8_t mac_address[6]) {
 
 	memcpy(request.mac_address, mac_address, 6 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2803,6 +3293,12 @@ int master_set_ethernet_websocket_configuration(Master *master, uint8_t sockets,
 	DevicePrivate *device_p = master->p;
 	SetEthernetWebsocketConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_ETHERNET_WEBSOCKET_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -2813,7 +3309,7 @@ int master_set_ethernet_websocket_configuration(Master *master, uint8_t sockets,
 	request.sockets = sockets;
 	request.port = leconvert_uint16_to(port);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2824,13 +3320,19 @@ int master_get_ethernet_websocket_configuration(Master *master, uint8_t *ret_soc
 	GetEthernetWebsocketConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_ETHERNET_WEBSOCKET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2847,6 +3349,12 @@ int master_set_ethernet_authentication_secret(Master *master, const char secret[
 	SetEthernetAuthenticationSecret_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_ETHERNET_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2856,7 +3364,7 @@ int master_set_ethernet_authentication_secret(Master *master, const char secret[
 	memcpy(request.secret, secret, 64);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2867,13 +3375,19 @@ int master_get_ethernet_authentication_secret(Master *master, char ret_secret[64
 	GetEthernetAuthenticationSecret_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_ETHERNET_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2889,6 +3403,12 @@ int master_set_wifi_authentication_secret(Master *master, const char secret[64])
 	SetWifiAuthenticationSecret_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -2898,7 +3418,7 @@ int master_set_wifi_authentication_secret(Master *master, const char secret[64])
 	memcpy(request.secret, secret, 64);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -2909,13 +3429,19 @@ int master_get_wifi_authentication_secret(Master *master, char ret_secret[64]) {
 	GetWifiAuthenticationSecret_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2932,13 +3458,19 @@ int master_get_connection_type(Master *master, uint8_t *ret_connection_type) {
 	GetConnectionType_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CONNECTION_TYPE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2955,13 +3487,19 @@ int master_is_wifi2_present(Master *master, bool *ret_present) {
 	IsWifi2Present_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_IS_WIFI2_PRESENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -2978,13 +3516,19 @@ int master_start_wifi2_bootloader(Master *master, int8_t *ret_result) {
 	StartWifi2Bootloader_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_START_WIFI2_BOOTLOADER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3001,6 +3545,12 @@ int master_write_wifi2_serial_port(Master *master, uint8_t data[60], uint8_t len
 	WriteWifi2SerialPort_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_WRITE_WIFI2_SERIAL_PORT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3010,7 +3560,7 @@ int master_write_wifi2_serial_port(Master *master, uint8_t data[60], uint8_t len
 	memcpy(request.data, data, 60 * sizeof(uint8_t));
 	request.length = length;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3027,6 +3577,12 @@ int master_read_wifi2_serial_port(Master *master, uint8_t length, uint8_t ret_da
 	ReadWifi2SerialPort_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_READ_WIFI2_SERIAL_PORT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3035,7 +3591,7 @@ int master_read_wifi2_serial_port(Master *master, uint8_t length, uint8_t ret_da
 
 	request.length = length;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3052,6 +3608,12 @@ int master_set_wifi2_authentication_secret(Master *master, const char secret[64]
 	SetWifi2AuthenticationSecret_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3061,7 +3623,7 @@ int master_set_wifi2_authentication_secret(Master *master, const char secret[64]
 	memcpy(request.secret, secret, 64);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3072,13 +3634,19 @@ int master_get_wifi2_authentication_secret(Master *master, char ret_secret[64]) 
 	GetWifi2AuthenticationSecret_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3094,6 +3662,12 @@ int master_set_wifi2_configuration(Master *master, uint16_t port, uint16_t webso
 	SetWifi2Configuration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3107,7 +3681,7 @@ int master_set_wifi2_configuration(Master *master, uint16_t port, uint16_t webso
 	request.sleep_mode = sleep_mode;
 	request.website = website;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3118,13 +3692,19 @@ int master_get_wifi2_configuration(Master *master, uint16_t *ret_port, uint16_t 
 	GetWifi2Configuration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3146,13 +3726,19 @@ int master_get_wifi2_status(Master *master, bool *ret_client_enabled, uint8_t *r
 	GetWifi2Status_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3184,6 +3770,12 @@ int master_set_wifi2_client_configuration(Master *master, bool enable, const cha
 	SetWifi2ClientConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_CLIENT_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3199,7 +3791,7 @@ int master_set_wifi2_client_configuration(Master *master, bool enable, const cha
 	memcpy(request.mac_address, mac_address, 6 * sizeof(uint8_t));
 	memcpy(request.bssid, bssid, 6 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3210,13 +3802,19 @@ int master_get_wifi2_client_configuration(Master *master, bool *ret_enable, char
 	GetWifi2ClientConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_CLIENT_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3238,6 +3836,12 @@ int master_set_wifi2_client_hostname(Master *master, const char hostname[32]) {
 	SetWifi2ClientHostname_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_CLIENT_HOSTNAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3247,7 +3851,7 @@ int master_set_wifi2_client_hostname(Master *master, const char hostname[32]) {
 	memcpy(request.hostname, hostname, 32);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3258,13 +3862,19 @@ int master_get_wifi2_client_hostname(Master *master, char ret_hostname[32]) {
 	GetWifi2ClientHostname_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_CLIENT_HOSTNAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3280,6 +3890,12 @@ int master_set_wifi2_client_password(Master *master, const char password[64]) {
 	SetWifi2ClientPassword_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_CLIENT_PASSWORD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3289,7 +3905,7 @@ int master_set_wifi2_client_password(Master *master, const char password[64]) {
 	memcpy(request.password, password, 64);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3300,13 +3916,19 @@ int master_get_wifi2_client_password(Master *master, char ret_password[64]) {
 	GetWifi2ClientPassword_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_CLIENT_PASSWORD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3321,6 +3943,12 @@ int master_set_wifi2_ap_configuration(Master *master, bool enable, const char ss
 	DevicePrivate *device_p = master->p;
 	SetWifi2APConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_AP_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -3339,7 +3967,7 @@ int master_set_wifi2_ap_configuration(Master *master, bool enable, const char ss
 	request.channel = channel;
 	memcpy(request.mac_address, mac_address, 6 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3350,13 +3978,19 @@ int master_get_wifi2_ap_configuration(Master *master, bool *ret_enable, char ret
 	GetWifi2APConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_AP_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3380,6 +4014,12 @@ int master_set_wifi2_ap_password(Master *master, const char password[64]) {
 	SetWifi2APPassword_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_AP_PASSWORD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3389,7 +4029,7 @@ int master_set_wifi2_ap_password(Master *master, const char password[64]) {
 	memcpy(request.password, password, 64);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3400,13 +4040,19 @@ int master_get_wifi2_ap_password(Master *master, char ret_password[64]) {
 	GetWifi2APPassword_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_AP_PASSWORD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3423,13 +4069,19 @@ int master_save_wifi2_configuration(Master *master, uint8_t *ret_result) {
 	SaveWifi2Configuration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SAVE_WIFI2_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3446,13 +4098,19 @@ int master_get_wifi2_firmware_version(Master *master, uint8_t ret_firmware_versi
 	GetWifi2FirmwareVersion_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_FIRMWARE_VERSION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3468,13 +4126,19 @@ int master_enable_wifi2_status_led(Master *master) {
 	EnableWifi2StatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_ENABLE_WIFI2_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3484,13 +4148,19 @@ int master_disable_wifi2_status_led(Master *master) {
 	DisableWifi2StatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_DISABLE_WIFI2_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3501,13 +4171,19 @@ int master_is_wifi2_status_led_enabled(Master *master, bool *ret_enabled) {
 	IsWifi2StatusLEDEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_IS_WIFI2_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3522,6 +4198,12 @@ int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t roo
 	DevicePrivate *device_p = master->p;
 	SetWifi2MeshConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_MESH_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -3540,7 +4222,7 @@ int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t roo
 	memcpy(request.gateway_ip, gateway_ip, 4 * sizeof(uint8_t));
 	request.gateway_port = leconvert_uint16_to(gateway_port);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3551,13 +4233,19 @@ int master_get_wifi2_mesh_configuration(Master *master, bool *ret_enable, uint8_
 	GetWifi2MeshConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_MESH_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3581,6 +4269,12 @@ int master_set_wifi2_mesh_router_ssid(Master *master, const char ssid[32]) {
 	SetWifi2MeshRouterSSID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_MESH_ROUTER_SSID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3590,7 +4284,7 @@ int master_set_wifi2_mesh_router_ssid(Master *master, const char ssid[32]) {
 	memcpy(request.ssid, ssid, 32);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3601,13 +4295,19 @@ int master_get_wifi2_mesh_router_ssid(Master *master, char ret_ssid[32]) {
 	GetWifi2MeshRouterSSID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_MESH_ROUTER_SSID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3623,6 +4323,12 @@ int master_set_wifi2_mesh_router_password(Master *master, const char password[64
 	SetWifi2MeshRouterPassword_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI2_MESH_ROUTER_PASSWORD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3632,7 +4338,7 @@ int master_set_wifi2_mesh_router_password(Master *master, const char password[64
 	memcpy(request.password, password, 64);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3643,13 +4349,19 @@ int master_get_wifi2_mesh_router_password(Master *master, char ret_password[64])
 	GetWifi2MeshRouterPassword_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_MESH_ROUTER_PASSWORD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3666,13 +4378,19 @@ int master_get_wifi2_mesh_common_status(Master *master, uint8_t *ret_status, boo
 	GetWifi2MeshCommonStatus_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_MESH_COMMON_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3694,13 +4412,19 @@ int master_get_wifi2_mesh_client_status(Master *master, char ret_hostname[32], u
 	GetWifi2MeshClientStatus_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_MESH_CLIENT_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3721,13 +4445,19 @@ int master_get_wifi2_mesh_ap_status(Master *master, char ret_ssid[32], uint8_t r
 	GetWifi2MeshAPStatus_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI2_MESH_AP_STATUS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3742,10 +4472,135 @@ int master_get_wifi2_mesh_ap_status(Master *master, char ret_ssid[32], uint8_t r
 	return ret;
 }
 
+int master_set_bricklet_xmc_flash_config(Master *master, uint32_t config, uint32_t parameter1, uint32_t parameter2, uint8_t data[52], uint32_t *ret_return_value, uint8_t ret_return_data[60]) {
+	DevicePrivate *device_p = master->p;
+	SetBrickletXMCFlashConfig_Request request;
+	SetBrickletXMCFlashConfig_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_BRICKLET_XMC_FLASH_CONFIG, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.config = leconvert_uint32_to(config);
+	request.parameter1 = leconvert_uint32_to(parameter1);
+	request.parameter2 = leconvert_uint32_to(parameter2);
+	memcpy(request.data, data, 52 * sizeof(uint8_t));
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_return_value = leconvert_uint32_from(response.return_value);
+	memcpy(ret_return_data, response.return_data, 60 * sizeof(uint8_t));
+
+	return ret;
+}
+
+int master_set_bricklet_xmc_flash_data(Master *master, uint8_t data[64], uint32_t *ret_return_data) {
+	DevicePrivate *device_p = master->p;
+	SetBrickletXMCFlashData_Request request;
+	SetBrickletXMCFlashData_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_BRICKLET_XMC_FLASH_DATA, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	memcpy(request.data, data, 64 * sizeof(uint8_t));
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_return_data = leconvert_uint32_from(response.return_data);
+
+	return ret;
+}
+
+int master_set_bricklets_enabled(Master *master, bool bricklets_enabled) {
+	DevicePrivate *device_p = master->p;
+	SetBrickletsEnabled_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_BRICKLETS_ENABLED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.bricklets_enabled = bricklets_enabled ? 1 : 0;
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int master_get_bricklets_enabled(Master *master, bool *ret_bricklets_enabled) {
+	DevicePrivate *device_p = master->p;
+	GetBrickletsEnabled_Request request;
+	GetBrickletsEnabled_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_BRICKLETS_ENABLED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_bricklets_enabled = response.bricklets_enabled != 0;
+
+	return ret;
+}
+
 int master_set_spitfp_baudrate_config(Master *master, bool enable_dynamic_baudrate, uint32_t minimum_dynamic_baudrate) {
 	DevicePrivate *device_p = master->p;
 	SetSPITFPBaudrateConfig_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
@@ -3756,7 +4611,7 @@ int master_set_spitfp_baudrate_config(Master *master, bool enable_dynamic_baudra
 	request.enable_dynamic_baudrate = enable_dynamic_baudrate ? 1 : 0;
 	request.minimum_dynamic_baudrate = leconvert_uint32_to(minimum_dynamic_baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3767,13 +4622,19 @@ int master_get_spitfp_baudrate_config(Master *master, bool *ret_enable_dynamic_b
 	GetSPITFPBaudrateConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3791,6 +4652,12 @@ int master_get_send_timeout_count(Master *master, uint8_t communication_method, 
 	GetSendTimeoutCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_SEND_TIMEOUT_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3799,7 +4666,7 @@ int master_get_send_timeout_count(Master *master, uint8_t communication_method, 
 
 	request.communication_method = communication_method;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3815,6 +4682,12 @@ int master_set_spitfp_baudrate(Master *master, char bricklet_port, uint32_t baud
 	SetSPITFPBaudrate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3824,7 +4697,7 @@ int master_set_spitfp_baudrate(Master *master, char bricklet_port, uint32_t baud
 	request.bricklet_port = bricklet_port;
 	request.baudrate = leconvert_uint32_to(baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3835,6 +4708,12 @@ int master_get_spitfp_baudrate(Master *master, char bricklet_port, uint32_t *ret
 	GetSPITFPBaudrate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3843,7 +4722,7 @@ int master_get_spitfp_baudrate(Master *master, char bricklet_port, uint32_t *ret
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3860,6 +4739,12 @@ int master_get_spitfp_error_count(Master *master, char bricklet_port, uint32_t *
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3868,7 +4753,7 @@ int master_get_spitfp_error_count(Master *master, char bricklet_port, uint32_t *
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3887,13 +4772,19 @@ int master_enable_status_led(Master *master) {
 	EnableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_ENABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3903,13 +4794,19 @@ int master_disable_status_led(Master *master) {
 	DisableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_DISABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -3920,13 +4817,19 @@ int master_is_status_led_enabled(Master *master, bool *ret_enabled) {
 	IsStatusLEDEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_IS_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3943,6 +4846,12 @@ int master_get_protocol1_bricklet_name(Master *master, char port, uint8_t *ret_p
 	GetProtocol1BrickletName_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -3951,7 +4860,7 @@ int master_get_protocol1_bricklet_name(Master *master, char port, uint8_t *ret_p
 
 	request.port = port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3970,13 +4879,19 @@ int master_get_chip_temperature(Master *master, int16_t *ret_temperature) {
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -3992,13 +4907,77 @@ int master_reset(Master *master) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int master_write_bricklet_plugin(Master *master, char port, uint8_t offset, uint8_t chunk[32]) {
+	DevicePrivate *device_p = master->p;
+	WriteBrickletPlugin_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_WRITE_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+	memcpy(request.chunk, chunk, 32 * sizeof(uint8_t));
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int master_read_bricklet_plugin(Master *master, char port, uint8_t offset, uint8_t ret_chunk[32]) {
+	DevicePrivate *device_p = master->p;
+	ReadBrickletPlugin_Request request;
+	ReadBrickletPlugin_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_READ_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	memcpy(ret_chunk, response.chunk, 32 * sizeof(uint8_t));
 
 	return ret;
 }
@@ -4015,7 +4994,7 @@ int master_get_identity(Master *master, char ret_uid[8], char ret_connected_uid[
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

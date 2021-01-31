@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*CurrentReached_CallbackFunction)(uint8_t sensor, int32_t current,
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -148,10 +148,17 @@ typedef struct {
 
 static void industrial_dual_0_20ma_callback_wrapper_current(DevicePrivate *device_p, Packet *packet) {
 	Current_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
-	Current_Callback *callback = (Current_Callback *)packet;
+	void *user_data;
+	Current_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
+	if (packet->header.length != sizeof(Current_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Current_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT];
+	callback = (Current_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -164,10 +171,17 @@ static void industrial_dual_0_20ma_callback_wrapper_current(DevicePrivate *devic
 
 static void industrial_dual_0_20ma_callback_wrapper_current_reached(DevicePrivate *device_p, Packet *packet) {
 	CurrentReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
-	CurrentReached_Callback *callback = (CurrentReached_Callback *)packet;
+	void *user_data;
+	CurrentReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
+	if (packet->header.length != sizeof(CurrentReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (CurrentReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED];
+	callback = (CurrentReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -179,9 +193,10 @@ static void industrial_dual_0_20ma_callback_wrapper_current_reached(DevicePrivat
 }
 
 void industrial_dual_0_20ma_create(IndustrialDual020mA *industrial_dual_0_20ma, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(industrial_dual_0_20ma, uid, ipcon->p, 2, 0, 0);
+	device_create(industrial_dual_0_20ma, uid, ipcon_p, 2, 0, 0, INDUSTRIAL_DUAL_0_20MA_DEVICE_IDENTIFIER);
 
 	device_p = industrial_dual_0_20ma->p;
 
@@ -199,6 +214,7 @@ void industrial_dual_0_20ma_create(IndustrialDual020mA *industrial_dual_0_20ma, 
 	device_p->callback_wrappers[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT] = industrial_dual_0_20ma_callback_wrapper_current;
 	device_p->callback_wrappers[INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED] = industrial_dual_0_20ma_callback_wrapper_current_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void industrial_dual_0_20ma_destroy(IndustrialDual020mA *industrial_dual_0_20ma) {
@@ -217,7 +233,7 @@ int industrial_dual_0_20ma_set_response_expected_all(IndustrialDual020mA *indust
 	return device_set_response_expected_all(industrial_dual_0_20ma->p, response_expected);
 }
 
-void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, int16_t callback_id, void *function, void *user_data) {
+void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(industrial_dual_0_20ma->p, callback_id, function, user_data);
 }
 
@@ -231,6 +247,12 @@ int industrial_dual_0_20ma_get_current(IndustrialDual020mA *industrial_dual_0_20
 	GetCurrent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -239,7 +261,7 @@ int industrial_dual_0_20ma_get_current(IndustrialDual020mA *industrial_dual_0_20
 
 	request.sensor = sensor;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -255,6 +277,12 @@ int industrial_dual_0_20ma_set_current_callback_period(IndustrialDual020mA *indu
 	SetCurrentCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -264,7 +292,7 @@ int industrial_dual_0_20ma_set_current_callback_period(IndustrialDual020mA *indu
 	request.sensor = sensor;
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -275,6 +303,12 @@ int industrial_dual_0_20ma_get_current_callback_period(IndustrialDual020mA *indu
 	GetCurrentCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_CURRENT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -283,7 +317,7 @@ int industrial_dual_0_20ma_get_current_callback_period(IndustrialDual020mA *indu
 
 	request.sensor = sensor;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -299,6 +333,12 @@ int industrial_dual_0_20ma_set_current_callback_threshold(IndustrialDual020mA *i
 	SetCurrentCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -310,7 +350,7 @@ int industrial_dual_0_20ma_set_current_callback_threshold(IndustrialDual020mA *i
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -321,6 +361,12 @@ int industrial_dual_0_20ma_get_current_callback_threshold(IndustrialDual020mA *i
 	GetCurrentCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_CURRENT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -329,7 +375,7 @@ int industrial_dual_0_20ma_get_current_callback_threshold(IndustrialDual020mA *i
 
 	request.sensor = sensor;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -347,6 +393,12 @@ int industrial_dual_0_20ma_set_debounce_period(IndustrialDual020mA *industrial_d
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -355,7 +407,7 @@ int industrial_dual_0_20ma_set_debounce_period(IndustrialDual020mA *industrial_d
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -366,13 +418,19 @@ int industrial_dual_0_20ma_get_debounce_period(IndustrialDual020mA *industrial_d
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -388,6 +446,12 @@ int industrial_dual_0_20ma_set_sample_rate(IndustrialDual020mA *industrial_dual_
 	SetSampleRate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_SET_SAMPLE_RATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -396,7 +460,7 @@ int industrial_dual_0_20ma_set_sample_rate(IndustrialDual020mA *industrial_dual_
 
 	request.rate = rate;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -407,13 +471,19 @@ int industrial_dual_0_20ma_get_sample_rate(IndustrialDual020mA *industrial_dual_
 	GetSampleRate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_0_20MA_FUNCTION_GET_SAMPLE_RATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -436,7 +506,7 @@ int industrial_dual_0_20ma_get_identity(IndustrialDual020mA *industrial_dual_0_2
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-11-28.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.23                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -650,7 +650,7 @@ void lcd_128x64_destroy(LCD128x64 *lcd_128x64);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int lcd_128x64_get_response_expected(LCD128x64 *lcd_128x64, uint8_t function_id, bool *ret_response_expected);
@@ -666,7 +666,7 @@ int lcd_128x64_get_response_expected(LCD128x64 *lcd_128x64, uint8_t function_id,
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int lcd_128x64_set_response_expected(LCD128x64 *lcd_128x64, uint8_t function_id, bool response_expected);
@@ -685,7 +685,7 @@ int lcd_128x64_set_response_expected_all(LCD128x64 *lcd_128x64, bool response_ex
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void lcd_128x64_register_callback(LCD128x64 *lcd_128x64, int16_t callback_id, void *function, void *user_data);
+void lcd_128x64_register_callback(LCD128x64 *lcd_128x64, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLCD128x64
@@ -700,9 +700,8 @@ int lcd_128x64_get_api_version(LCD128x64 *lcd_128x64, uint8_t ret_api_version[3]
  *
  * Writes pixels to the specified window.
  * 
- * The x-axis goes from 0 to 127 and the y-axis from 0 to 63. The pixels are written
- * into the window line by line top to bottom and each line is written from left to
- * right.
+ * The pixels are written into the window line by line top to bottom
+ * and each line is written from left to right.
  * 
  * If automatic draw is enabled (default) the pixels are directly written to
  * the screen. Only pixels that have actually changed are updated on the screen,
@@ -723,9 +722,8 @@ int lcd_128x64_write_pixels_low_level(LCD128x64 *lcd_128x64, uint8_t x_start, ui
  *
  * Reads pixels from the specified window.
  * 
- * The x-axis goes from 0 to 127 and the y-axis from 0 to 63. The pixels are read
- * from the window line by line top to bottom and each line is read from left to
- * right.
+ * The pixels are read from the window line by line top to bottom
+ * and each line is read from left to right.
  * 
  * If automatic draw is enabled (default) the pixels that are read are always the
  * same that are shown on the display.
@@ -742,6 +740,16 @@ int lcd_128x64_read_pixels_low_level(LCD128x64 *lcd_128x64, uint8_t x_start, uin
  * \ingroup BrickletLCD128x64
  *
  * Clears the complete content of the display.
+ * 
+ * If automatic draw is enabled (default) the pixels are directly cleared.
+ * 
+ * If automatic draw is disabled the the internal buffer is cleared and
+ * the buffer is transferred to the display only after {@link lcd_128x64_draw_buffered_frame}
+ * is called. This can be used to avoid flicker when drawing a complex frame in
+ * multiple steps.
+ * 
+ * Automatic draw can be configured with the {@link lcd_128x64_set_display_configuration}
+ * function.
  */
 int lcd_128x64_clear_display(LCD128x64 *lcd_128x64);
 
@@ -750,16 +758,10 @@ int lcd_128x64_clear_display(LCD128x64 *lcd_128x64);
  *
  * Sets the configuration of the display.
  * 
- * You can set a contrast value from 0 to 63, a backlight intensity value
- * from 0 to 100 and you can invert the color (white/black) of the display.
- * 
  * If automatic draw is set to *true*, the display is automatically updated with every
  * call of {@link lcd_128x64_write_pixels} and {@link lcd_128x64_write_line}. If it is set to false, the
  * changes are written into an internal buffer and only shown on the display after
  * a call of {@link lcd_128x64_draw_buffered_frame}.
- * 
- * The default values are contrast 14, backlight intensity 100, inverting off
- * and automatic draw on.
  */
 int lcd_128x64_set_display_configuration(LCD128x64 *lcd_128x64, uint8_t contrast, uint8_t backlight, bool invert, bool automatic_draw);
 
@@ -773,14 +775,25 @@ int lcd_128x64_get_display_configuration(LCD128x64 *lcd_128x64, uint8_t *ret_con
 /**
  * \ingroup BrickletLCD128x64
  *
- * Writes text to a specific line (0 to 7) with a specific position
- * (0 to 21). The text can have a maximum of 22 characters.
+ * Writes text to a specific line with a specific position.
  * 
  * For example: (1, 10, "Hello") will write *Hello* in the middle of the
  * second line of the display.
  * 
  * The display uses a special 5x7 pixel charset. You can view the characters
  * of the charset in Brick Viewer.
+ * 
+ * If automatic draw is enabled (default) the text is directly written to
+ * the screen. Only pixels that have actually changed are updated on the screen,
+ * the rest stays the same.
+ * 
+ * If automatic draw is disabled the text is written to an internal buffer and
+ * the buffer is transferred to the display only after {@link lcd_128x64_draw_buffered_frame}
+ * is called. This can be used to avoid flicker when drawing a complex frame in
+ * multiple steps.
+ * 
+ * Automatic draw can be configured with the {@link lcd_128x64_set_display_configuration}
+ * function.
  * 
  * This function is a 1:1 replacement for the function with the same name
  * in the LCD 20x4 Bricklet. You can draw text at a specific pixel position
@@ -808,17 +821,17 @@ int lcd_128x64_draw_buffered_frame(LCD128x64 *lcd_128x64, bool force_complete_re
  *
  * Returns the last valid touch position:
  * 
- * * Pressure: Amount of pressure applied by the user (0-300)
- * * X: Touch position on x-axis (0-127)
- * * Y: Touch position on y-axis (0-63)
- * * Age: Age of touch press in ms (how long ago it was)
+ * * Pressure: Amount of pressure applied by the user
+ * * X: Touch position on x-axis
+ * * Y: Touch position on y-axis
+ * * Age: Age of touch press (how long ago it was)
  */
 int lcd_128x64_get_touch_position(LCD128x64 *lcd_128x64, uint16_t *ret_pressure, uint16_t *ret_x, uint16_t *ret_y, uint32_t *ret_age);
 
 /**
  * \ingroup BrickletLCD128x64
  *
- * The period in ms is the period with which the {@link LCD_128X64_CALLBACK_TOUCH_POSITION} callback
+ * The period is the period with which the {@link LCD_128X64_CALLBACK_TOUCH_POSITION} callback
  * is triggered periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -827,8 +840,6 @@ int lcd_128x64_get_touch_position(LCD128x64 *lcd_128x64, uint16_t *ret_pressure,
  * 
  * If it is set to false, the callback is continuously triggered with the period,
  * independent of the value.
- * 
- * The default value is (0, false).
  */
 int lcd_128x64_set_touch_position_callback_configuration(LCD128x64 *lcd_128x64, uint32_t period, bool value_has_to_change);
 
@@ -851,14 +862,14 @@ int lcd_128x64_get_touch_position_callback_configuration(LCD128x64 *lcd_128x64, 
  * provided. You can use this vector do determine a more exact location of the gesture (e.g.
  * the swipe from top to bottom was on the left or right part of the screen).
  * 
- * The age parameter corresponds to the age of gesture in ms (how long ago it was).
+ * The age parameter corresponds to the age of gesture (how long ago it was).
  */
 int lcd_128x64_get_touch_gesture(LCD128x64 *lcd_128x64, uint8_t *ret_gesture, uint32_t *ret_duration, uint16_t *ret_pressure_max, uint16_t *ret_x_start, uint16_t *ret_y_start, uint16_t *ret_x_end, uint16_t *ret_y_end, uint32_t *ret_age);
 
 /**
  * \ingroup BrickletLCD128x64
  *
- * The period in ms is the period with which the {@link LCD_128X64_CALLBACK_TOUCH_GESTURE} callback
+ * The period is the period with which the {@link LCD_128X64_CALLBACK_TOUCH_GESTURE} callback
  * is triggered periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -867,8 +878,6 @@ int lcd_128x64_get_touch_gesture(LCD128x64 *lcd_128x64, uint8_t *ret_gesture, ui
  * 
  * If it is set to false, the callback is continuously triggered with the period,
  * independent of the value.
- * 
- * The default value is (0, false).
  */
 int lcd_128x64_set_touch_gesture_callback_configuration(LCD128x64 *lcd_128x64, uint32_t period, bool value_has_to_change);
 
@@ -883,9 +892,7 @@ int lcd_128x64_get_touch_gesture_callback_configuration(LCD128x64 *lcd_128x64, u
 /**
  * \ingroup BrickletLCD128x64
  *
- * Draws a white or black line from (x, y)-start to (x, y)-end. 
- * The x values have to be within the range of 0 to 127 and the y
- * values have t be within the range of 0 to 63.
+ * Draws a white or black line from (x, y)-start to (x, y)-end.
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -895,8 +902,6 @@ int lcd_128x64_draw_line(LCD128x64 *lcd_128x64, uint8_t position_x_start, uint8_
  * \ingroup BrickletLCD128x64
  *
  * Draws a white or black box from (x, y)-start to (x, y)-end.
- * The x values have to be within the range of 0 to 127 and the y
- * values have to be within the range of 0 to 63.
  * 
  * If you set fill to true, the box will be filled with the
  * color. Otherwise only the outline will be drawn.
@@ -908,10 +913,7 @@ int lcd_128x64_draw_box(LCD128x64 *lcd_128x64, uint8_t position_x_start, uint8_t
 /**
  * \ingroup BrickletLCD128x64
  *
- * Draws a text with up to 22 characters at the pixel position (x, y).
- * 
- * The x values have to be within the range of 0 to 127 and the y
- * values have to be within the range of 0 to 63.
+ * Draws a text at the pixel position (x, y).
  * 
  * You can use one of 9 different font sizes and draw the text in white or black.
  * 
@@ -922,17 +924,16 @@ int lcd_128x64_draw_text(LCD128x64 *lcd_128x64, uint8_t position_x, uint8_t posi
 /**
  * \ingroup BrickletLCD128x64
  *
- * Draws a clickable button at position (x, y) with the given text 
- * of up to 16 characters.
+ * Draws a clickable button at position (x, y) with the given text.
  * 
- * You can use up to 12 buttons (index 0-11).
+ * You can use up to 12 buttons.
  * 
  * The x position + width has to be within the range of 1 to 128 and the y
  * position + height has to be within the range of 1 to 64.
  * 
  * The minimum useful width/height of a button is 3.
  * 
- * You can enable a callback for a button press with 
+ * You can enable a callback for a button press with
  * {@link lcd_128x64_set_gui_button_pressed_callback_configuration}. The callback will
  * be triggered for press and release-events.
  * 
@@ -973,7 +974,7 @@ int lcd_128x64_remove_gui_button(LCD128x64 *lcd_128x64, uint8_t index);
 /**
  * \ingroup BrickletLCD128x64
  *
- * The period in ms is the period with which the {@link LCD_128X64_CALLBACK_GUI_BUTTON_PRESSED} callback
+ * The period is the period with which the {@link LCD_128X64_CALLBACK_GUI_BUTTON_PRESSED} callback
  * is triggered periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -982,8 +983,6 @@ int lcd_128x64_remove_gui_button(LCD128x64 *lcd_128x64, uint8_t index);
  * 
  * If it is set to false, the callback is continuously triggered with the period,
  * independent of the value.
- * 
- * The default value is (0, false).
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -1015,10 +1014,10 @@ int lcd_128x64_get_gui_button_pressed(LCD128x64 *lcd_128x64, uint8_t index, bool
  *
  * Draws a slider at position (x, y) with the given length.
  * 
- * You can use up to 6 sliders (index 0-5).
+ * You can use up to 6 sliders.
  * 
- * If you use the horizontal direction, the x position + length has to be 
- * within the range of 1 to 128 and the y position has to be within 
+ * If you use the horizontal direction, the x position + length has to be
+ * within the range of 1 to 128 and the y position has to be within
  * the range of 0 to 46.
  * 
  * If you use the vertical direction, the y position + length has to be
@@ -1027,11 +1026,11 @@ int lcd_128x64_get_gui_button_pressed(LCD128x64 *lcd_128x64, uint8_t index, bool
  * 
  * The minimum length of a slider is 8.
  * 
- * The parameter value is the start-position of the slider, it can 
+ * The parameter value is the start-position of the slider, it can
  * be between 0 and length-8.
  * 
- * You can enable a callback for the slider value with 
- * {@link lcd_128x64_set_gui_slider_value_callback_configuration}. 
+ * You can enable a callback for the slider value with
+ * {@link lcd_128x64_set_gui_slider_value_callback_configuration}.
  * 
  * The slider is drawn in a separate GUI buffer and it will
  * always stay on top of the graphics drawn with {@link lcd_128x64_write_pixels}. To
@@ -1067,7 +1066,7 @@ int lcd_128x64_remove_gui_slider(LCD128x64 *lcd_128x64, uint8_t index);
 /**
  * \ingroup BrickletLCD128x64
  *
- * The period in ms is the period with which the {@link LCD_128X64_CALLBACK_GUI_SLIDER_VALUE} callback
+ * The period is the period with which the {@link LCD_128X64_CALLBACK_GUI_SLIDER_VALUE} callback
  * is triggered periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -1076,8 +1075,6 @@ int lcd_128x64_remove_gui_slider(LCD128x64 *lcd_128x64, uint8_t index);
  * 
  * If it is set to false, the callback is continuously triggered with the period,
  * independent of the value.
- * 
- * The default value is (0, false).
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -1108,10 +1105,8 @@ int lcd_128x64_get_gui_slider_value(LCD128x64 *lcd_128x64, uint8_t index, uint8_
  * Sets the general configuration for tabs. You can configure the tabs to only
  * accept clicks or only swipes (gesture left/right and right/left) or both.
  * 
- * Additionally, if you set `Clear GUI` to true, all of the GUI elements (buttons, 
+ * Additionally, if you set `Clear GUI` to true, all of the GUI elements (buttons,
  * slider, graphs) will automatically be removed on every tab change.
- * 
- * By default click and swipe as well as automatic GUI clear is enabled.
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -1129,9 +1124,9 @@ int lcd_128x64_get_gui_tab_configuration(LCD128x64 *lcd_128x64, uint8_t *ret_cha
 /**
  * \ingroup BrickletLCD128x64
  *
- * Adds a text-tab with the given index. The text can have a length of up to 5 characters.
+ * Adds a text-tab with the given index.
  * 
- * You can use up to 10 tabs (index 0-9).
+ * You can use up to 10 tabs.
  * 
  * A text-tab with the same index as a icon-tab will overwrite the icon-tab.
  * 
@@ -1157,7 +1152,7 @@ int lcd_128x64_get_gui_tab_text(LCD128x64 *lcd_128x64, uint8_t index, bool *ret_
  * Adds a icon-tab with the given index. The icon can have a width of 28 pixels
  * with a height of 6 pixels. It is drawn line-by-line from left to right.
  * 
- * You can use up to 10 tabs (index 0-9).
+ * You can use up to 10 tabs.
  * 
  * A icon-tab with the same index as a text-tab will overwrite the text-tab.
  * 
@@ -1200,7 +1195,7 @@ int lcd_128x64_set_gui_tab_selected(LCD128x64 *lcd_128x64, uint8_t index);
 /**
  * \ingroup BrickletLCD128x64
  *
- * The period in ms is the period with which the {@link LCD_128X64_CALLBACK_GUI_TAB_SELECTED} callback
+ * The period is the period with which the {@link LCD_128X64_CALLBACK_GUI_TAB_SELECTED} callback
  * is triggered periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -1209,8 +1204,6 @@ int lcd_128x64_set_gui_tab_selected(LCD128x64 *lcd_128x64, uint8_t index);
  * 
  * If it is set to false, the callback is continuously triggered with the period,
  * independent of the value.
- * 
- * The default value is (0, false).
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -1230,6 +1223,7 @@ int lcd_128x64_get_gui_tab_selected_callback_configuration(LCD128x64 *lcd_128x64
  * \ingroup BrickletLCD128x64
  *
  * Returns the index of the currently selected tab.
+ * If there are not tabs, the returned index is -1.
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -1238,15 +1232,13 @@ int lcd_128x64_get_gui_tab_selected(LCD128x64 *lcd_128x64, int8_t *ret_index);
 /**
  * \ingroup BrickletLCD128x64
  *
- * Sets the configuration for up to four graphs (index 0-3).
+ * Sets the configuration for up to four graphs.
  * 
  * The graph type can be dot-, line- or bar-graph.
  * 
- * The x and y position are pixel positions. They have to be within
- * the range of (0, 0) to (127, 63). The maximum width is 118 and the
- * maximum height is 63.
+ * The x and y position are pixel positions.
  * 
- * You can add a text for the x and y axis with at most 4 characters each.
+ * You can add a text for the x and y axis.
  * The text is drawn at the inside of the graph and it can overwrite some
  * of the graph data. If you need the text outside of the graph you can
  * leave this text here empty and use {@link lcd_128x64_draw_text} to draw the caption
@@ -1277,7 +1269,7 @@ int lcd_128x64_get_gui_graph_configuration(LCD128x64 *lcd_128x64, uint8_t index,
 /**
  * \ingroup BrickletLCD128x64
  *
- * Sets the data for a graph with the given index. You have to configure the graph with 
+ * Sets the data for a graph with the given index. You have to configure the graph with
  * {@link lcd_128x64_set_gui_graph_configuration} before you can set the first data.
  * 
  * The graph will show the first n values of the data that you set, where
@@ -1434,7 +1426,7 @@ int lcd_128x64_get_status_led_config(LCD128x64 *lcd_128x64, uint8_t *ret_config)
 /**
  * \ingroup BrickletLCD128x64
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -1481,7 +1473,9 @@ int lcd_128x64_read_uid(LCD128x64 *lcd_128x64, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|
@@ -1493,9 +1487,8 @@ int lcd_128x64_get_identity(LCD128x64 *lcd_128x64, char ret_uid[8], char ret_con
  *
  * Writes pixels to the specified window.
  * 
- * The x-axis goes from 0 to 127 and the y-axis from 0 to 63. The pixels are written
- * into the window line by line top to bottom and each line is written from left to
- * right.
+ * The pixels are written into the window line by line top to bottom
+ * and each line is written from left to right.
  * 
  * If automatic draw is enabled (default) the pixels are directly written to
  * the screen. Only pixels that have actually changed are updated on the screen,
@@ -1516,9 +1509,8 @@ int lcd_128x64_write_pixels(LCD128x64 *lcd_128x64, uint8_t x_start, uint8_t y_st
  *
  * Reads pixels from the specified window.
  * 
- * The x-axis goes from 0 to 127 and the y-axis from 0 to 63. The pixels are read
- * from the window line by line top to bottom and each line is read from left to
- * right.
+ * The pixels are read from the window line by line top to bottom
+ * and each line is read from left to right.
  * 
  * If automatic draw is enabled (default) the pixels that are read are always the
  * same that are shown on the display.
@@ -1534,7 +1526,7 @@ int lcd_128x64_read_pixels(LCD128x64 *lcd_128x64, uint8_t x_start, uint8_t y_sta
 /**
  * \ingroup BrickletLCD128x64
  *
- * Sets the data for a graph with the given index. You have to configure the graph with 
+ * Sets the data for a graph with the given index. You have to configure the graph with
  * {@link lcd_128x64_set_gui_graph_configuration} before you can set the first data.
  * 
  * The graph will show the first n values of the data that you set, where

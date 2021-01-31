@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*SwitchingDone_CallbackFunction)(void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -122,10 +122,17 @@ typedef struct {
 
 static void remote_switch_callback_wrapper_switching_done(DevicePrivate *device_p, Packet *packet) {
 	SwitchingDone_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + REMOTE_SWITCH_CALLBACK_SWITCHING_DONE];
-	(void)packet;
+	void *user_data;
+	SwitchingDone_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + REMOTE_SWITCH_CALLBACK_SWITCHING_DONE];
+	if (packet->header.length != sizeof(SwitchingDone_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (SwitchingDone_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + REMOTE_SWITCH_CALLBACK_SWITCHING_DONE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + REMOTE_SWITCH_CALLBACK_SWITCHING_DONE];
+	callback = (SwitchingDone_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -135,9 +142,10 @@ static void remote_switch_callback_wrapper_switching_done(DevicePrivate *device_
 }
 
 void remote_switch_create(RemoteSwitch *remote_switch, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(remote_switch, uid, ipcon->p, 2, 0, 1);
+	device_create(remote_switch, uid, ipcon_p, 2, 0, 1, REMOTE_SWITCH_DEVICE_IDENTIFIER);
 
 	device_p = remote_switch->p;
 
@@ -153,6 +161,7 @@ void remote_switch_create(RemoteSwitch *remote_switch, const char *uid, IPConnec
 
 	device_p->callback_wrappers[REMOTE_SWITCH_CALLBACK_SWITCHING_DONE] = remote_switch_callback_wrapper_switching_done;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void remote_switch_destroy(RemoteSwitch *remote_switch) {
@@ -171,7 +180,7 @@ int remote_switch_set_response_expected_all(RemoteSwitch *remote_switch, bool re
 	return device_set_response_expected_all(remote_switch->p, response_expected);
 }
 
-void remote_switch_register_callback(RemoteSwitch *remote_switch, int16_t callback_id, void *function, void *user_data) {
+void remote_switch_register_callback(RemoteSwitch *remote_switch, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(remote_switch->p, callback_id, function, user_data);
 }
 
@@ -184,6 +193,12 @@ int remote_switch_switch_socket(RemoteSwitch *remote_switch, uint8_t house_code,
 	SwitchSocket_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -194,7 +209,7 @@ int remote_switch_switch_socket(RemoteSwitch *remote_switch, uint8_t house_code,
 	request.receiver_code = receiver_code;
 	request.switch_to = switch_to;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -205,13 +220,19 @@ int remote_switch_get_switching_state(RemoteSwitch *remote_switch, uint8_t *ret_
 	GetSwitchingState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_GET_SWITCHING_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -227,6 +248,12 @@ int remote_switch_set_repeats(RemoteSwitch *remote_switch, uint8_t repeats) {
 	SetRepeats_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_SET_REPEATS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -235,7 +262,7 @@ int remote_switch_set_repeats(RemoteSwitch *remote_switch, uint8_t repeats) {
 
 	request.repeats = repeats;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -246,13 +273,19 @@ int remote_switch_get_repeats(RemoteSwitch *remote_switch, uint8_t *ret_repeats)
 	GetRepeats_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_GET_REPEATS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -268,6 +301,12 @@ int remote_switch_switch_socket_a(RemoteSwitch *remote_switch, uint8_t house_cod
 	SwitchSocketA_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_A, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -278,7 +317,7 @@ int remote_switch_switch_socket_a(RemoteSwitch *remote_switch, uint8_t house_cod
 	request.receiver_code = receiver_code;
 	request.switch_to = switch_to;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -287,6 +326,12 @@ int remote_switch_switch_socket_b(RemoteSwitch *remote_switch, uint32_t address,
 	DevicePrivate *device_p = remote_switch->p;
 	SwitchSocketB_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_B, device_p->ipcon_p, device_p);
 
@@ -298,7 +343,7 @@ int remote_switch_switch_socket_b(RemoteSwitch *remote_switch, uint32_t address,
 	request.unit = unit;
 	request.switch_to = switch_to;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -307,6 +352,12 @@ int remote_switch_dim_socket_b(RemoteSwitch *remote_switch, uint32_t address, ui
 	DevicePrivate *device_p = remote_switch->p;
 	DimSocketB_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_DIM_SOCKET_B, device_p->ipcon_p, device_p);
 
@@ -318,7 +369,7 @@ int remote_switch_dim_socket_b(RemoteSwitch *remote_switch, uint32_t address, ui
 	request.unit = unit;
 	request.dim_value = dim_value;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -327,6 +378,12 @@ int remote_switch_switch_socket_c(RemoteSwitch *remote_switch, char system_code,
 	DevicePrivate *device_p = remote_switch->p;
 	SwitchSocketC_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), REMOTE_SWITCH_FUNCTION_SWITCH_SOCKET_C, device_p->ipcon_p, device_p);
 
@@ -338,7 +395,7 @@ int remote_switch_switch_socket_c(RemoteSwitch *remote_switch, char system_code,
 	request.device_code = device_code;
 	request.switch_to = switch_to;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -355,7 +412,7 @@ int remote_switch_get_identity(RemoteSwitch *remote_switch, char ret_uid[8], cha
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

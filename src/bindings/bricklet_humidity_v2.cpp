@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-11-28.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.23                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*Temperature_CallbackFunction)(int16_t temperature, void *user_dat
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -265,10 +265,17 @@ typedef struct {
 
 static void humidity_v2_callback_wrapper_humidity(DevicePrivate *device_p, Packet *packet) {
 	Humidity_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_HUMIDITY];
-	Humidity_Callback *callback = (Humidity_Callback *)packet;
+	void *user_data;
+	Humidity_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_HUMIDITY];
+	if (packet->header.length != sizeof(Humidity_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Humidity_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_HUMIDITY];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_HUMIDITY];
+	callback = (Humidity_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -281,10 +288,17 @@ static void humidity_v2_callback_wrapper_humidity(DevicePrivate *device_p, Packe
 
 static void humidity_v2_callback_wrapper_temperature(DevicePrivate *device_p, Packet *packet) {
 	Temperature_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_TEMPERATURE];
-	Temperature_Callback *callback = (Temperature_Callback *)packet;
+	void *user_data;
+	Temperature_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_TEMPERATURE];
+	if (packet->header.length != sizeof(Temperature_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Temperature_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_TEMPERATURE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_V2_CALLBACK_TEMPERATURE];
+	callback = (Temperature_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -296,9 +310,10 @@ static void humidity_v2_callback_wrapper_temperature(DevicePrivate *device_p, Pa
 }
 
 void humidity_v2_create(HumidityV2 *humidity_v2, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(humidity_v2, uid, ipcon->p, 2, 0, 2);
+	device_create(humidity_v2, uid, ipcon_p, 2, 0, 2, HUMIDITY_V2_DEVICE_IDENTIFIER);
 
 	device_p = humidity_v2->p;
 
@@ -330,6 +345,7 @@ void humidity_v2_create(HumidityV2 *humidity_v2, const char *uid, IPConnection *
 	device_p->callback_wrappers[HUMIDITY_V2_CALLBACK_HUMIDITY] = humidity_v2_callback_wrapper_humidity;
 	device_p->callback_wrappers[HUMIDITY_V2_CALLBACK_TEMPERATURE] = humidity_v2_callback_wrapper_temperature;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void humidity_v2_destroy(HumidityV2 *humidity_v2) {
@@ -348,7 +364,7 @@ int humidity_v2_set_response_expected_all(HumidityV2 *humidity_v2, bool response
 	return device_set_response_expected_all(humidity_v2->p, response_expected);
 }
 
-void humidity_v2_register_callback(HumidityV2 *humidity_v2, int16_t callback_id, void *function, void *user_data) {
+void humidity_v2_register_callback(HumidityV2 *humidity_v2, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(humidity_v2->p, callback_id, function, user_data);
 }
 
@@ -362,13 +378,19 @@ int humidity_v2_get_humidity(HumidityV2 *humidity_v2, uint16_t *ret_humidity) {
 	GetHumidity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_HUMIDITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -384,6 +406,12 @@ int humidity_v2_set_humidity_callback_configuration(HumidityV2 *humidity_v2, uin
 	SetHumidityCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_HUMIDITY_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -396,7 +424,7 @@ int humidity_v2_set_humidity_callback_configuration(HumidityV2 *humidity_v2, uin
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -407,13 +435,19 @@ int humidity_v2_get_humidity_callback_configuration(HumidityV2 *humidity_v2, uin
 	GetHumidityCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_HUMIDITY_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -434,13 +468,19 @@ int humidity_v2_get_temperature(HumidityV2 *humidity_v2, int16_t *ret_temperatur
 	GetTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -456,6 +496,12 @@ int humidity_v2_set_temperature_callback_configuration(HumidityV2 *humidity_v2, 
 	SetTemperatureCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_TEMPERATURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -468,7 +514,7 @@ int humidity_v2_set_temperature_callback_configuration(HumidityV2 *humidity_v2, 
 	request.min = leconvert_int16_to(min);
 	request.max = leconvert_int16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -479,13 +525,19 @@ int humidity_v2_get_temperature_callback_configuration(HumidityV2 *humidity_v2, 
 	GetTemperatureCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_TEMPERATURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -505,6 +557,12 @@ int humidity_v2_set_heater_configuration(HumidityV2 *humidity_v2, uint8_t heater
 	SetHeaterConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_HEATER_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -513,7 +571,7 @@ int humidity_v2_set_heater_configuration(HumidityV2 *humidity_v2, uint8_t heater
 
 	request.heater_config = heater_config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -524,13 +582,19 @@ int humidity_v2_get_heater_configuration(HumidityV2 *humidity_v2, uint8_t *ret_h
 	GetHeaterConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_HEATER_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -546,6 +610,12 @@ int humidity_v2_set_moving_average_configuration(HumidityV2 *humidity_v2, uint16
 	SetMovingAverageConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_MOVING_AVERAGE_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -555,7 +625,7 @@ int humidity_v2_set_moving_average_configuration(HumidityV2 *humidity_v2, uint16
 	request.moving_average_length_humidity = leconvert_uint16_to(moving_average_length_humidity);
 	request.moving_average_length_temperature = leconvert_uint16_to(moving_average_length_temperature);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -566,13 +636,19 @@ int humidity_v2_get_moving_average_configuration(HumidityV2 *humidity_v2, uint16
 	GetMovingAverageConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_MOVING_AVERAGE_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -589,6 +665,12 @@ int humidity_v2_set_samples_per_second(HumidityV2 *humidity_v2, uint8_t sps) {
 	SetSamplesPerSecond_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_SAMPLES_PER_SECOND, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -597,7 +679,7 @@ int humidity_v2_set_samples_per_second(HumidityV2 *humidity_v2, uint8_t sps) {
 
 	request.sps = sps;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -608,13 +690,19 @@ int humidity_v2_get_samples_per_second(HumidityV2 *humidity_v2, uint8_t *ret_sps
 	GetSamplesPerSecond_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_SAMPLES_PER_SECOND, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -631,13 +719,19 @@ int humidity_v2_get_spitfp_error_count(HumidityV2 *humidity_v2, uint32_t *ret_er
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -657,6 +751,12 @@ int humidity_v2_set_bootloader_mode(HumidityV2 *humidity_v2, uint8_t mode, uint8
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -665,7 +765,7 @@ int humidity_v2_set_bootloader_mode(HumidityV2 *humidity_v2, uint8_t mode, uint8
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -682,13 +782,19 @@ int humidity_v2_get_bootloader_mode(HumidityV2 *humidity_v2, uint8_t *ret_mode) 
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -704,6 +810,12 @@ int humidity_v2_set_write_firmware_pointer(HumidityV2 *humidity_v2, uint32_t poi
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -712,7 +824,7 @@ int humidity_v2_set_write_firmware_pointer(HumidityV2 *humidity_v2, uint32_t poi
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -723,6 +835,12 @@ int humidity_v2_write_firmware(HumidityV2 *humidity_v2, uint8_t data[64], uint8_
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -731,7 +849,7 @@ int humidity_v2_write_firmware(HumidityV2 *humidity_v2, uint8_t data[64], uint8_
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -747,6 +865,12 @@ int humidity_v2_set_status_led_config(HumidityV2 *humidity_v2, uint8_t config) {
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -755,7 +879,7 @@ int humidity_v2_set_status_led_config(HumidityV2 *humidity_v2, uint8_t config) {
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -766,13 +890,19 @@ int humidity_v2_get_status_led_config(HumidityV2 *humidity_v2, uint8_t *ret_conf
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -789,13 +919,19 @@ int humidity_v2_get_chip_temperature(HumidityV2 *humidity_v2, int16_t *ret_tempe
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -811,13 +947,19 @@ int humidity_v2_reset(HumidityV2 *humidity_v2) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -827,6 +969,12 @@ int humidity_v2_write_uid(HumidityV2 *humidity_v2, uint32_t uid) {
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -835,7 +983,7 @@ int humidity_v2_write_uid(HumidityV2 *humidity_v2, uint32_t uid) {
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -846,13 +994,19 @@ int humidity_v2_read_uid(HumidityV2 *humidity_v2, uint32_t *ret_uid) {
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_V2_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -875,7 +1029,7 @@ int humidity_v2_get_identity(HumidityV2 *humidity_v2, char ret_uid[8], char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

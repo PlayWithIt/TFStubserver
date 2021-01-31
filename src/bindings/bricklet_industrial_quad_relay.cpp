@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*MonoflopDone_CallbackFunction)(uint16_t selection_mask, uint16_t 
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -128,10 +128,17 @@ typedef struct {
 
 static void industrial_quad_relay_callback_wrapper_monoflop_done(DevicePrivate *device_p, Packet *packet) {
 	MonoflopDone_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE];
-	MonoflopDone_Callback *callback = (MonoflopDone_Callback *)packet;
+	void *user_data;
+	MonoflopDone_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE];
+	if (packet->header.length != sizeof(MonoflopDone_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (MonoflopDone_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE];
+	callback = (MonoflopDone_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -144,9 +151,10 @@ static void industrial_quad_relay_callback_wrapper_monoflop_done(DevicePrivate *
 }
 
 void industrial_quad_relay_create(IndustrialQuadRelay *industrial_quad_relay, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(industrial_quad_relay, uid, ipcon->p, 2, 0, 0);
+	device_create(industrial_quad_relay, uid, ipcon_p, 2, 0, 0, INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER);
 
 	device_p = industrial_quad_relay->p;
 
@@ -162,6 +170,7 @@ void industrial_quad_relay_create(IndustrialQuadRelay *industrial_quad_relay, co
 
 	device_p->callback_wrappers[INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE] = industrial_quad_relay_callback_wrapper_monoflop_done;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void industrial_quad_relay_destroy(IndustrialQuadRelay *industrial_quad_relay) {
@@ -180,7 +189,7 @@ int industrial_quad_relay_set_response_expected_all(IndustrialQuadRelay *industr
 	return device_set_response_expected_all(industrial_quad_relay->p, response_expected);
 }
 
-void industrial_quad_relay_register_callback(IndustrialQuadRelay *industrial_quad_relay, int16_t callback_id, void *function, void *user_data) {
+void industrial_quad_relay_register_callback(IndustrialQuadRelay *industrial_quad_relay, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(industrial_quad_relay->p, callback_id, function, user_data);
 }
 
@@ -193,6 +202,12 @@ int industrial_quad_relay_set_value(IndustrialQuadRelay *industrial_quad_relay, 
 	SetValue_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -201,7 +216,7 @@ int industrial_quad_relay_set_value(IndustrialQuadRelay *industrial_quad_relay, 
 
 	request.value_mask = leconvert_uint16_to(value_mask);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -212,13 +227,19 @@ int industrial_quad_relay_get_value(IndustrialQuadRelay *industrial_quad_relay, 
 	GetValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -234,6 +255,12 @@ int industrial_quad_relay_set_monoflop(IndustrialQuadRelay *industrial_quad_rela
 	SetMonoflop_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_MONOFLOP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -244,7 +271,7 @@ int industrial_quad_relay_set_monoflop(IndustrialQuadRelay *industrial_quad_rela
 	request.value_mask = leconvert_uint16_to(value_mask);
 	request.time = leconvert_uint32_to(time);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -255,6 +282,12 @@ int industrial_quad_relay_get_monoflop(IndustrialQuadRelay *industrial_quad_rela
 	GetMonoflop_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_MONOFLOP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -263,7 +296,7 @@ int industrial_quad_relay_get_monoflop(IndustrialQuadRelay *industrial_quad_rela
 
 	request.pin = pin;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -281,6 +314,12 @@ int industrial_quad_relay_set_group(IndustrialQuadRelay *industrial_quad_relay, 
 	SetGroup_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_GROUP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -289,7 +328,7 @@ int industrial_quad_relay_set_group(IndustrialQuadRelay *industrial_quad_relay, 
 
 	memcpy(request.group, group, 4 * sizeof(char));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -300,13 +339,19 @@ int industrial_quad_relay_get_group(IndustrialQuadRelay *industrial_quad_relay, 
 	GetGroup_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_GROUP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -323,13 +368,19 @@ int industrial_quad_relay_get_available_for_group(IndustrialQuadRelay *industria
 	GetAvailableForGroup_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_AVAILABLE_FOR_GROUP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -345,6 +396,12 @@ int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_qu
 	SetSelectedValues_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_SELECTED_VALUES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -354,7 +411,7 @@ int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_qu
 	request.selection_mask = leconvert_uint16_to(selection_mask);
 	request.value_mask = leconvert_uint16_to(value_mask);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -371,7 +428,7 @@ int industrial_quad_relay_get_identity(IndustrialQuadRelay *industrial_quad_rela
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -34,7 +34,7 @@ typedef void (*VelocityReached_CallbackFunction)(uint8_t servo_num, int16_t velo
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -398,6 +398,24 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	char port;
+	uint8_t offset;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED WriteBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	char port;
+	uint8_t offset;
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Response;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
@@ -417,10 +435,17 @@ typedef struct {
 
 static void servo_callback_wrapper_under_voltage(DevicePrivate *device_p, Packet *packet) {
 	UnderVoltage_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_UNDER_VOLTAGE];
-	UnderVoltage_Callback *callback = (UnderVoltage_Callback *)packet;
+	void *user_data;
+	UnderVoltage_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_UNDER_VOLTAGE];
+	if (packet->header.length != sizeof(UnderVoltage_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (UnderVoltage_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_UNDER_VOLTAGE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_UNDER_VOLTAGE];
+	callback = (UnderVoltage_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -433,10 +458,17 @@ static void servo_callback_wrapper_under_voltage(DevicePrivate *device_p, Packet
 
 static void servo_callback_wrapper_position_reached(DevicePrivate *device_p, Packet *packet) {
 	PositionReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_POSITION_REACHED];
-	PositionReached_Callback *callback = (PositionReached_Callback *)packet;
+	void *user_data;
+	PositionReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_POSITION_REACHED];
+	if (packet->header.length != sizeof(PositionReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (PositionReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_POSITION_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_POSITION_REACHED];
+	callback = (PositionReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -449,10 +481,17 @@ static void servo_callback_wrapper_position_reached(DevicePrivate *device_p, Pac
 
 static void servo_callback_wrapper_velocity_reached(DevicePrivate *device_p, Packet *packet) {
 	VelocityReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_VELOCITY_REACHED];
-	VelocityReached_Callback *callback = (VelocityReached_Callback *)packet;
+	void *user_data;
+	VelocityReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_VELOCITY_REACHED];
+	if (packet->header.length != sizeof(VelocityReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (VelocityReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_VELOCITY_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + SERVO_CALLBACK_VELOCITY_REACHED];
+	callback = (VelocityReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -464,9 +503,10 @@ static void servo_callback_wrapper_velocity_reached(DevicePrivate *device_p, Pac
 }
 
 void servo_create(Servo *servo, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(servo, uid, ipcon->p, 2, 0, 4);
+	device_create(servo, uid, ipcon_p, 2, 0, 4, SERVO_DEVICE_IDENTIFIER);
 
 	device_p = servo->p;
 
@@ -513,12 +553,15 @@ void servo_create(Servo *servo, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[SERVO_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_GET_CHIP_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_RESET] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[SERVO_FUNCTION_WRITE_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[SERVO_FUNCTION_READ_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[SERVO_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[SERVO_CALLBACK_UNDER_VOLTAGE] = servo_callback_wrapper_under_voltage;
 	device_p->callback_wrappers[SERVO_CALLBACK_POSITION_REACHED] = servo_callback_wrapper_position_reached;
 	device_p->callback_wrappers[SERVO_CALLBACK_VELOCITY_REACHED] = servo_callback_wrapper_velocity_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void servo_destroy(Servo *servo) {
@@ -537,7 +580,7 @@ int servo_set_response_expected_all(Servo *servo, bool response_expected) {
 	return device_set_response_expected_all(servo->p, response_expected);
 }
 
-void servo_register_callback(Servo *servo, int16_t callback_id, void *function, void *user_data) {
+void servo_register_callback(Servo *servo, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(servo->p, callback_id, function, user_data);
 }
 
@@ -550,6 +593,12 @@ int servo_enable(Servo *servo, uint8_t servo_num) {
 	Enable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_ENABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -558,7 +607,7 @@ int servo_enable(Servo *servo, uint8_t servo_num) {
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -568,6 +617,12 @@ int servo_disable(Servo *servo, uint8_t servo_num) {
 	Disable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_DISABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -576,7 +631,7 @@ int servo_disable(Servo *servo, uint8_t servo_num) {
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -587,6 +642,12 @@ int servo_is_enabled(Servo *servo, uint8_t servo_num, bool *ret_enabled) {
 	IsEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_IS_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -595,7 +656,7 @@ int servo_is_enabled(Servo *servo, uint8_t servo_num, bool *ret_enabled) {
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -611,6 +672,12 @@ int servo_set_position(Servo *servo, uint8_t servo_num, int16_t position) {
 	SetPosition_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -620,7 +687,7 @@ int servo_set_position(Servo *servo, uint8_t servo_num, int16_t position) {
 	request.servo_num = servo_num;
 	request.position = leconvert_int16_to(position);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -631,6 +698,12 @@ int servo_get_position(Servo *servo, uint8_t servo_num, int16_t *ret_position) {
 	GetPosition_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -639,7 +712,7 @@ int servo_get_position(Servo *servo, uint8_t servo_num, int16_t *ret_position) {
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -656,6 +729,12 @@ int servo_get_current_position(Servo *servo, uint8_t servo_num, int16_t *ret_pos
 	GetCurrentPosition_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_CURRENT_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -664,7 +743,7 @@ int servo_get_current_position(Servo *servo, uint8_t servo_num, int16_t *ret_pos
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -680,6 +759,12 @@ int servo_set_velocity(Servo *servo, uint8_t servo_num, uint16_t velocity) {
 	SetVelocity_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -689,7 +774,7 @@ int servo_set_velocity(Servo *servo, uint8_t servo_num, uint16_t velocity) {
 	request.servo_num = servo_num;
 	request.velocity = leconvert_uint16_to(velocity);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -700,6 +785,12 @@ int servo_get_velocity(Servo *servo, uint8_t servo_num, uint16_t *ret_velocity) 
 	GetVelocity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -708,7 +799,7 @@ int servo_get_velocity(Servo *servo, uint8_t servo_num, uint16_t *ret_velocity) 
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -725,6 +816,12 @@ int servo_get_current_velocity(Servo *servo, uint8_t servo_num, uint16_t *ret_ve
 	GetCurrentVelocity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_CURRENT_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -733,7 +830,7 @@ int servo_get_current_velocity(Servo *servo, uint8_t servo_num, uint16_t *ret_ve
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -749,6 +846,12 @@ int servo_set_acceleration(Servo *servo, uint8_t servo_num, uint16_t acceleratio
 	SetAcceleration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_ACCELERATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -758,7 +861,7 @@ int servo_set_acceleration(Servo *servo, uint8_t servo_num, uint16_t acceleratio
 	request.servo_num = servo_num;
 	request.acceleration = leconvert_uint16_to(acceleration);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -769,6 +872,12 @@ int servo_get_acceleration(Servo *servo, uint8_t servo_num, uint16_t *ret_accele
 	GetAcceleration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_ACCELERATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -777,7 +886,7 @@ int servo_get_acceleration(Servo *servo, uint8_t servo_num, uint16_t *ret_accele
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -793,6 +902,12 @@ int servo_set_output_voltage(Servo *servo, uint16_t voltage) {
 	SetOutputVoltage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_OUTPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -801,7 +916,7 @@ int servo_set_output_voltage(Servo *servo, uint16_t voltage) {
 
 	request.voltage = leconvert_uint16_to(voltage);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -812,13 +927,19 @@ int servo_get_output_voltage(Servo *servo, uint16_t *ret_voltage) {
 	GetOutputVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_OUTPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -834,6 +955,12 @@ int servo_set_pulse_width(Servo *servo, uint8_t servo_num, uint16_t min, uint16_
 	SetPulseWidth_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_PULSE_WIDTH, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -844,7 +971,7 @@ int servo_set_pulse_width(Servo *servo, uint8_t servo_num, uint16_t min, uint16_
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -855,6 +982,12 @@ int servo_get_pulse_width(Servo *servo, uint8_t servo_num, uint16_t *ret_min, ui
 	GetPulseWidth_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_PULSE_WIDTH, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -863,7 +996,7 @@ int servo_get_pulse_width(Servo *servo, uint8_t servo_num, uint16_t *ret_min, ui
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -880,6 +1013,12 @@ int servo_set_degree(Servo *servo, uint8_t servo_num, int16_t min, int16_t max) 
 	SetDegree_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_DEGREE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -890,7 +1029,7 @@ int servo_set_degree(Servo *servo, uint8_t servo_num, int16_t min, int16_t max) 
 	request.min = leconvert_int16_to(min);
 	request.max = leconvert_int16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -901,6 +1040,12 @@ int servo_get_degree(Servo *servo, uint8_t servo_num, int16_t *ret_min, int16_t 
 	GetDegree_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_DEGREE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -909,7 +1054,7 @@ int servo_get_degree(Servo *servo, uint8_t servo_num, int16_t *ret_min, int16_t 
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -926,6 +1071,12 @@ int servo_set_period(Servo *servo, uint8_t servo_num, uint16_t period) {
 	SetPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -935,7 +1086,7 @@ int servo_set_period(Servo *servo, uint8_t servo_num, uint16_t period) {
 	request.servo_num = servo_num;
 	request.period = leconvert_uint16_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -946,6 +1097,12 @@ int servo_get_period(Servo *servo, uint8_t servo_num, uint16_t *ret_period) {
 	GetPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -954,7 +1111,7 @@ int servo_get_period(Servo *servo, uint8_t servo_num, uint16_t *ret_period) {
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -971,6 +1128,12 @@ int servo_get_servo_current(Servo *servo, uint8_t servo_num, uint16_t *ret_curre
 	GetServoCurrent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_SERVO_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -979,7 +1142,7 @@ int servo_get_servo_current(Servo *servo, uint8_t servo_num, uint16_t *ret_curre
 
 	request.servo_num = servo_num;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -996,13 +1159,19 @@ int servo_get_overall_current(Servo *servo, uint16_t *ret_current) {
 	GetOverallCurrent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_OVERALL_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1019,13 +1188,19 @@ int servo_get_stack_input_voltage(Servo *servo, uint16_t *ret_voltage) {
 	GetStackInputVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_STACK_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1042,13 +1217,19 @@ int servo_get_external_input_voltage(Servo *servo, uint16_t *ret_voltage) {
 	GetExternalInputVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1064,6 +1245,12 @@ int servo_set_minimum_voltage(Servo *servo, uint16_t voltage) {
 	SetMinimumVoltage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1072,7 +1259,7 @@ int servo_set_minimum_voltage(Servo *servo, uint16_t voltage) {
 
 	request.voltage = leconvert_uint16_to(voltage);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1083,13 +1270,19 @@ int servo_get_minimum_voltage(Servo *servo, uint16_t *ret_voltage) {
 	GetMinimumVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1105,13 +1298,19 @@ int servo_enable_position_reached_callback(Servo *servo) {
 	EnablePositionReachedCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_ENABLE_POSITION_REACHED_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1121,13 +1320,19 @@ int servo_disable_position_reached_callback(Servo *servo) {
 	DisablePositionReachedCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_DISABLE_POSITION_REACHED_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1138,13 +1343,19 @@ int servo_is_position_reached_callback_enabled(Servo *servo, bool *ret_enabled) 
 	IsPositionReachedCallbackEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_IS_POSITION_REACHED_CALLBACK_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1160,13 +1371,19 @@ int servo_enable_velocity_reached_callback(Servo *servo) {
 	EnableVelocityReachedCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_ENABLE_VELOCITY_REACHED_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1176,13 +1393,19 @@ int servo_disable_velocity_reached_callback(Servo *servo) {
 	DisableVelocityReachedCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_DISABLE_VELOCITY_REACHED_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1193,13 +1416,19 @@ int servo_is_velocity_reached_callback_enabled(Servo *servo, bool *ret_enabled) 
 	IsVelocityReachedCallbackEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_IS_VELOCITY_REACHED_CALLBACK_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1215,6 +1444,12 @@ int servo_set_spitfp_baudrate_config(Servo *servo, bool enable_dynamic_baudrate,
 	SetSPITFPBaudrateConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1224,7 +1459,7 @@ int servo_set_spitfp_baudrate_config(Servo *servo, bool enable_dynamic_baudrate,
 	request.enable_dynamic_baudrate = enable_dynamic_baudrate ? 1 : 0;
 	request.minimum_dynamic_baudrate = leconvert_uint32_to(minimum_dynamic_baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1235,13 +1470,19 @@ int servo_get_spitfp_baudrate_config(Servo *servo, bool *ret_enable_dynamic_baud
 	GetSPITFPBaudrateConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1259,6 +1500,12 @@ int servo_get_send_timeout_count(Servo *servo, uint8_t communication_method, uin
 	GetSendTimeoutCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_SEND_TIMEOUT_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1267,7 +1514,7 @@ int servo_get_send_timeout_count(Servo *servo, uint8_t communication_method, uin
 
 	request.communication_method = communication_method;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1283,6 +1530,12 @@ int servo_set_spitfp_baudrate(Servo *servo, char bricklet_port, uint32_t baudrat
 	SetSPITFPBaudrate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_SET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1292,7 +1545,7 @@ int servo_set_spitfp_baudrate(Servo *servo, char bricklet_port, uint32_t baudrat
 	request.bricklet_port = bricklet_port;
 	request.baudrate = leconvert_uint32_to(baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1303,6 +1556,12 @@ int servo_get_spitfp_baudrate(Servo *servo, char bricklet_port, uint32_t *ret_ba
 	GetSPITFPBaudrate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1311,7 +1570,7 @@ int servo_get_spitfp_baudrate(Servo *servo, char bricklet_port, uint32_t *ret_ba
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1328,6 +1587,12 @@ int servo_get_spitfp_error_count(Servo *servo, char bricklet_port, uint32_t *ret
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1336,7 +1601,7 @@ int servo_get_spitfp_error_count(Servo *servo, char bricklet_port, uint32_t *ret
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1355,13 +1620,19 @@ int servo_enable_status_led(Servo *servo) {
 	EnableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_ENABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1371,13 +1642,19 @@ int servo_disable_status_led(Servo *servo) {
 	DisableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_DISABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1388,13 +1665,19 @@ int servo_is_status_led_enabled(Servo *servo, bool *ret_enabled) {
 	IsStatusLEDEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_IS_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1411,6 +1694,12 @@ int servo_get_protocol1_bricklet_name(Servo *servo, char port, uint8_t *ret_prot
 	GetProtocol1BrickletName_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1419,7 +1708,7 @@ int servo_get_protocol1_bricklet_name(Servo *servo, char port, uint8_t *ret_prot
 
 	request.port = port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1438,13 +1727,19 @@ int servo_get_chip_temperature(Servo *servo, int16_t *ret_temperature) {
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1460,13 +1755,77 @@ int servo_reset(Servo *servo) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int servo_write_bricklet_plugin(Servo *servo, char port, uint8_t offset, uint8_t chunk[32]) {
+	DevicePrivate *device_p = servo->p;
+	WriteBrickletPlugin_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_WRITE_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+	memcpy(request.chunk, chunk, 32 * sizeof(uint8_t));
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int servo_read_bricklet_plugin(Servo *servo, char port, uint8_t offset, uint8_t ret_chunk[32]) {
+	DevicePrivate *device_p = servo->p;
+	ReadBrickletPlugin_Request request;
+	ReadBrickletPlugin_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), SERVO_FUNCTION_READ_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	memcpy(ret_chunk, response.chunk, 32 * sizeof(uint8_t));
 
 	return ret;
 }
@@ -1483,7 +1842,7 @@ int servo_get_identity(Servo *servo, char ret_uid[8], char ret_connected_uid[8],
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

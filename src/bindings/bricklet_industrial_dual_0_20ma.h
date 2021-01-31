@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -202,7 +202,7 @@ void industrial_dual_0_20ma_destroy(IndustrialDual020mA *industrial_dual_0_20ma)
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int industrial_dual_0_20ma_get_response_expected(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t function_id, bool *ret_response_expected);
@@ -218,7 +218,7 @@ int industrial_dual_0_20ma_get_response_expected(IndustrialDual020mA *industrial
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int industrial_dual_0_20ma_set_response_expected(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t function_id, bool response_expected);
@@ -237,7 +237,7 @@ int industrial_dual_0_20ma_set_response_expected_all(IndustrialDual020mA *indust
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, int16_t callback_id, void *function, void *user_data);
+void industrial_dual_0_20ma_register_callback(IndustrialDual020mA *industrial_dual_0_20ma, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletIndustrialDual020mA
@@ -250,11 +250,10 @@ int industrial_dual_0_20ma_get_api_version(IndustrialDual020mA *industrial_dual_
 /**
  * \ingroup BrickletIndustrialDual020mA
  *
- * Returns the current of the specified sensor (0 or 1). The value is in nA
- * and between 0nA and 22505322nA (22.5mA).
+ * Returns the current of the specified sensor.
  * 
  * It is possible to detect if an IEC 60381-1 compatible sensor is connected
- * and if it works probably.
+ * and if it works properly.
  * 
  * If the returned current is below 4mA, there is likely no sensor connected
  * or the sensor may be defect. If the returned current is over 20mA, there might
@@ -269,13 +268,11 @@ int industrial_dual_0_20ma_get_current(IndustrialDual020mA *industrial_dual_0_20
 /**
  * \ingroup BrickletIndustrialDual020mA
  *
- * Sets the period in ms with which the {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} callback is triggered
+ * Sets the period with which the {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} callback is triggered
  * periodically for the given sensor. A value of 0 turns the callback off.
  * 
  * The {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT} callback is only triggered if the current has changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int industrial_dual_0_20ma_set_current_callback_period(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, uint32_t period);
 
@@ -303,8 +300,6 @@ int industrial_dual_0_20ma_get_current_callback_period(IndustrialDual020mA *indu
  *  "'<'",    "Callback is triggered when the current is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the current is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int industrial_dual_0_20ma_set_current_callback_threshold(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t sensor, char option, int32_t min, int32_t max);
 
@@ -318,7 +313,7 @@ int industrial_dual_0_20ma_get_current_callback_threshold(IndustrialDual020mA *i
 /**
  * \ingroup BrickletIndustrialDual020mA
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link INDUSTRIAL_DUAL_0_20MA_CALLBACK_CURRENT_REACHED}
  * 
@@ -327,8 +322,6 @@ int industrial_dual_0_20ma_get_current_callback_threshold(IndustrialDual020mA *i
  * * {@link industrial_dual_0_20ma_set_current_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int industrial_dual_0_20ma_set_debounce_period(IndustrialDual020mA *industrial_dual_0_20ma, uint32_t debounce);
 
@@ -353,8 +346,6 @@ int industrial_dual_0_20ma_get_debounce_period(IndustrialDual020mA *industrial_d
  *  "2",    "15 samples per second, 16 bit resolution"
  *  "3",    "4 samples per second, 18 bit resolution"
  * \endverbatim
- * 
- * The default value is 3 (4 samples per second with 18 bit resolution).
  */
 int industrial_dual_0_20ma_set_sample_rate(IndustrialDual020mA *industrial_dual_0_20ma, uint8_t rate);
 
@@ -372,7 +363,9 @@ int industrial_dual_0_20ma_get_sample_rate(IndustrialDual020mA *industrial_dual_
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

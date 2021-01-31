@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -154,7 +154,7 @@ void industrial_analog_out_destroy(IndustrialAnalogOut *industrial_analog_out);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int industrial_analog_out_get_response_expected(IndustrialAnalogOut *industrial_analog_out, uint8_t function_id, bool *ret_response_expected);
@@ -170,7 +170,7 @@ int industrial_analog_out_get_response_expected(IndustrialAnalogOut *industrial_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int industrial_analog_out_set_response_expected(IndustrialAnalogOut *industrial_analog_out, uint8_t function_id, bool response_expected);
@@ -220,7 +220,7 @@ int industrial_analog_out_is_enabled(IndustrialAnalogOut *industrial_analog_out,
 /**
  * \ingroup BrickletIndustrialAnalogOut
  *
- * Sets the output voltage in mV.
+ * Sets the output voltage.
  * 
  * The output voltage and output current are linked. Changing the output voltage
  * also changes the output current.
@@ -237,7 +237,7 @@ int industrial_analog_out_get_voltage(IndustrialAnalogOut *industrial_analog_out
 /**
  * \ingroup BrickletIndustrialAnalogOut
  *
- * Sets the output current in µA.
+ * Sets the output current.
  * 
  * The output current and output voltage are linked. Changing the output current
  * also changes the output voltage.
@@ -259,11 +259,11 @@ int industrial_analog_out_get_current(IndustrialAnalogOut *industrial_analog_out
  * Possible voltage ranges are:
  * 
  * * 0V to 5V
- * * 0V to 10V (default)
+ * * 0V to 10V
  * 
  * Possible current ranges are:
  * 
- * * 4mA to 20mA (default)
+ * * 4mA to 20mA
  * * 0mA to 20mA
  * * 0mA to 24mA
  * 
@@ -286,7 +286,9 @@ int industrial_analog_out_get_configuration(IndustrialAnalogOut *industrial_anal
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

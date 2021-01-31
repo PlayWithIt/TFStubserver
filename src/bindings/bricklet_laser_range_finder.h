@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -310,7 +310,7 @@ void laser_range_finder_destroy(LaserRangeFinder *laser_range_finder);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int laser_range_finder_get_response_expected(LaserRangeFinder *laser_range_finder, uint8_t function_id, bool *ret_response_expected);
@@ -326,7 +326,7 @@ int laser_range_finder_get_response_expected(LaserRangeFinder *laser_range_finde
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int laser_range_finder_set_response_expected(LaserRangeFinder *laser_range_finder, uint8_t function_id, bool response_expected);
@@ -345,7 +345,7 @@ int laser_range_finder_set_response_expected_all(LaserRangeFinder *laser_range_f
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void laser_range_finder_register_callback(LaserRangeFinder *laser_range_finder, int16_t callback_id, void *function, void *user_data);
+void laser_range_finder_register_callback(LaserRangeFinder *laser_range_finder, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLaserRangeFinder
@@ -358,8 +358,7 @@ int laser_range_finder_get_api_version(LaserRangeFinder *laser_range_finder, uin
 /**
  * \ingroup BrickletLaserRangeFinder
  *
- * Returns the measured distance. The value has a range of 0 to 4000
- * and is given in cm.
+ * Returns the measured distance.
  * 
  * Sensor hardware version 1 (see {@link laser_range_finder_get_sensor_hardware_version}) cannot
  * measure distance and velocity at the same time. Therefore, the distance mode
@@ -376,8 +375,7 @@ int laser_range_finder_get_distance(LaserRangeFinder *laser_range_finder, uint16
 /**
  * \ingroup BrickletLaserRangeFinder
  *
- * Returns the measured velocity. The value has a range of -12800 to 12700
- * and is given in 1/100 m/s.
+ * Returns the measured velocity.
  * 
  * Sensor hardware version 1 (see {@link laser_range_finder_get_sensor_hardware_version}) cannot
  * measure distance and velocity at the same time. Therefore, the velocity mode
@@ -396,13 +394,11 @@ int laser_range_finder_get_velocity(LaserRangeFinder *laser_range_finder, int16_
 /**
  * \ingroup BrickletLaserRangeFinder
  *
- * Sets the period in ms with which the {@link LASER_RANGE_FINDER_CALLBACK_DISTANCE} callback is triggered
+ * Sets the period with which the {@link LASER_RANGE_FINDER_CALLBACK_DISTANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link LASER_RANGE_FINDER_CALLBACK_DISTANCE} callback is only triggered if the distance value has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int laser_range_finder_set_distance_callback_period(LaserRangeFinder *laser_range_finder, uint32_t period);
 
@@ -416,13 +412,11 @@ int laser_range_finder_get_distance_callback_period(LaserRangeFinder *laser_rang
 /**
  * \ingroup BrickletLaserRangeFinder
  *
- * Sets the period in ms with which the {@link LASER_RANGE_FINDER_CALLBACK_VELOCITY} callback is triggered
+ * Sets the period with which the {@link LASER_RANGE_FINDER_CALLBACK_VELOCITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link LASER_RANGE_FINDER_CALLBACK_VELOCITY} callback is only triggered if the velocity value has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int laser_range_finder_set_velocity_callback_period(LaserRangeFinder *laser_range_finder, uint32_t period);
 
@@ -449,8 +443,6 @@ int laser_range_finder_get_velocity_callback_period(LaserRangeFinder *laser_rang
  *  "'<'",    "Callback is triggered when the distance value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the distance value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int laser_range_finder_set_distance_callback_threshold(LaserRangeFinder *laser_range_finder, char option, uint16_t min, uint16_t max);
 
@@ -477,8 +469,6 @@ int laser_range_finder_get_distance_callback_threshold(LaserRangeFinder *laser_r
  *  "'<'",    "Callback is triggered when the velocity is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the velocity is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int laser_range_finder_set_velocity_callback_threshold(LaserRangeFinder *laser_range_finder, char option, int16_t min, int16_t max);
 
@@ -492,7 +482,7 @@ int laser_range_finder_get_velocity_callback_threshold(LaserRangeFinder *laser_r
 /**
  * \ingroup BrickletLaserRangeFinder
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link LASER_RANGE_FINDER_CALLBACK_DISTANCE_REACHED},
  * * {@link LASER_RANGE_FINDER_CALLBACK_VELOCITY_REACHED},
@@ -503,8 +493,6 @@ int laser_range_finder_get_velocity_callback_threshold(LaserRangeFinder *laser_r
  * * {@link laser_range_finder_set_velocity_callback_threshold},
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int laser_range_finder_set_debounce_period(LaserRangeFinder *laser_range_finder, uint32_t debounce);
 
@@ -523,10 +511,6 @@ int laser_range_finder_get_debounce_period(LaserRangeFinder *laser_range_finder,
  * 
  * Setting the length to 0 will turn the averaging completely off. With less
  * averaging, there is more noise on the data.
- * 
- * The range for the averaging is 0-30.
- * 
- * The default value is 10.
  */
 int laser_range_finder_set_moving_average(LaserRangeFinder *laser_range_finder, uint8_t distance_average_length, uint8_t velocity_average_length);
 
@@ -551,13 +535,11 @@ int laser_range_finder_get_moving_average(LaserRangeFinder *laser_range_finder, 
  * 
  * The following modes are available:
  * 
- * * 0: Distance is measured with resolution 1.0 cm and range 0-400 cm
+ * * 0: Distance is measured with resolution 1.0 cm and range 0-4000 cm
  * * 1: Velocity is measured with resolution 0.1 m/s and range is 0-12.7 m/s
  * * 2: Velocity is measured with resolution 0.25 m/s and range is 0-31.75 m/s
  * * 3: Velocity is measured with resolution 0.5 m/s and range is 0-63.5 m/s
  * * 4: Velocity is measured with resolution 1.0 m/s and range is 0-127 m/s
- * 
- * The default mode is 0 (distance is measured).
  */
 int laser_range_finder_set_mode(LaserRangeFinder *laser_range_finder, uint8_t mode);
 
@@ -609,7 +591,7 @@ int laser_range_finder_get_sensor_hardware_version(LaserRangeFinder *laser_range
  *  version 3. Use {@link laser_range_finder_set_mode} for hardware version 1. You can check
  *  the sensor hardware version using {@link laser_range_finder_get_sensor_hardware_version}.
  * 
- * The **Aquisition Count** defines the number of times the Laser Range Finder Bricklet
+ * The **Acquisition Count** defines the number of times the Laser Range Finder Bricklet
  * will integrate acquisitions to find a correlation record peak. With a higher count,
  * the Bricklet can measure longer distances. With a lower count, the rate increases. The
  * allowed values are 1-255.
@@ -626,16 +608,13 @@ int laser_range_finder_get_sensor_hardware_version(LaserRangeFinder *laser_range
  * the distance to something with a very high reflection (e.g. mirror). Set this to 0 to
  * use the default algorithm. The other allowed values are 1-255.
  * 
- * Set the **Measurement Frequency** in Hz to force a fixed measurement rate. If set to 0,
+ * Set the **Measurement Frequency** to force a fixed measurement rate. If set to 0,
  * the Laser Range Finder Bricklet will use the optimal frequency according to the other
  * configurations and the actual measured distance. Since the rate is not fixed in this case,
  * the velocity measurement is not stable. For a stable velocity measurement you should
  * set a fixed measurement frequency. The lower the frequency, the higher is the resolution
  * of the calculated velocity. The allowed values are 10Hz-500Hz (and 0 to turn the fixed
  * frequency off).
- * 
- * The default values for Acquisition Count, Enable Quick Termination, Threshold Value and
- * Measurement Frequency are 128, false, 0 and 0.
  * 
  * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
@@ -657,7 +636,9 @@ int laser_range_finder_get_configuration(LaserRangeFinder *laser_range_finder, u
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

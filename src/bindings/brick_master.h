@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -551,6 +551,26 @@ typedef Device Master;
 /**
  * \ingroup BrickMaster
  */
+#define MASTER_FUNCTION_SET_BRICKLET_XMC_FLASH_CONFIG 111
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_BRICKLET_XMC_FLASH_DATA 112
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_BRICKLETS_ENABLED 113
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_BRICKLETS_ENABLED 114
+
+/**
+ * \ingroup BrickMaster
+ */
 #define MASTER_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG 231
 
 /**
@@ -611,6 +631,16 @@ typedef Device Master;
 /**
  * \ingroup BrickMaster
  */
+#define MASTER_FUNCTION_WRITE_BRICKLET_PLUGIN 246
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_READ_BRICKLET_PLUGIN 247
+
+/**
+ * \ingroup BrickMaster
+ */
 #define MASTER_FUNCTION_GET_IDENTITY 255
 
 /**
@@ -652,7 +682,7 @@ typedef Device Master;
  * 
  * This callback is triggered periodically with the period that is set by
  * {@link master_set_usb_voltage_callback_period}. The parameter is the USB
- * voltage in mV.
+ * voltage.
  * 
  * The {@link MASTER_CALLBACK_USB_VOLTAGE} callback is only triggered if the USB voltage has changed
  * since the last triggering.
@@ -670,7 +700,7 @@ typedef Device Master;
  * 
  * This callback is triggered when the threshold as set by
  * {@link master_set_stack_current_callback_threshold} is reached.
- * The parameter is the stack current in mA.
+ * The parameter is the stack current.
  * 
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link master_set_debounce_period}.
@@ -686,7 +716,7 @@ typedef Device Master;
  * 
  * This callback is triggered when the threshold as set by
  * {@link master_set_stack_voltage_callback_threshold} is reached.
- * The parameter is the stack voltage in mV.
+ * The parameter is the stack voltage.
  * 
  * If the threshold keeps being reached, the callback is triggered periodically
  * with the period as set by {@link master_set_debounce_period}.
@@ -1197,7 +1227,7 @@ void master_destroy(Master *master);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int master_get_response_expected(Master *master, uint8_t function_id, bool *ret_response_expected);
@@ -1213,7 +1243,7 @@ int master_get_response_expected(Master *master, uint8_t function_id, bool *ret_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int master_set_response_expected(Master *master, uint8_t function_id, bool response_expected);
@@ -1232,7 +1262,7 @@ int master_set_response_expected_all(Master *master, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void master_register_callback(Master *master, int16_t callback_id, void *function, void *user_data);
+void master_register_callback(Master *master, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickMaster
@@ -1245,18 +1275,24 @@ int master_get_api_version(Master *master, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickMaster
  *
- * Returns the stack voltage in mV. The stack voltage is the
+ * Returns the stack voltage. The stack voltage is the
  * voltage that is supplied via the stack, i.e. it is given by a
  * Step-Down or Step-Up Power Supply.
+ * 
+ * \note
+ *  It is not possible to measure voltages supplied per PoE or USB with this function.
  */
 int master_get_stack_voltage(Master *master, uint16_t *ret_voltage);
 
 /**
  * \ingroup BrickMaster
  *
- * Returns the stack current in mA. The stack current is the
+ * Returns the stack current. The stack current is the
  * current that is drawn via the stack, i.e. it is given by a
  * Step-Down or Step-Up Power Supply.
+ * 
+ * \note
+ *  It is not possible to measure the current drawn via PoE or USB with this function.
  */
 int master_get_stack_current(Master *master, uint16_t *ret_current);
 
@@ -1264,7 +1300,7 @@ int master_get_stack_current(Master *master, uint16_t *ret_current);
  * \ingroup BrickMaster
  *
  * Writes the extension type to the EEPROM of a specified extension.
- * The extension is either 0 or 1 (0 is the on the bottom, 1 is the one on top,
+ * The extension is either 0 or 1 (0 is the lower one, 1 is the upper one,
  * if only one extension is present use 0).
  * 
  * Possible extension types:
@@ -1294,14 +1330,15 @@ int master_get_extension_type(Master *master, uint8_t extension, uint32_t *ret_e
 /**
  * \ingroup BrickMaster
  *
- * Returns *true* if a Chibi Extension is available to be used by the Master Brick.
+ * Returns *true* if the Master Brick is at position 0 in the stack and a Chibi
+ * Extension is available.
  */
 int master_is_chibi_present(Master *master, bool *ret_present);
 
 /**
  * \ingroup BrickMaster
  *
- * Sets the address (1-255) belonging to the Chibi Extension.
+ * Sets the address belonging to the Chibi Extension.
  * 
  * It is possible to set the address with the Brick Viewer and it will be
  * saved in the EEPROM of the Chibi Extension, it does not
@@ -1319,7 +1356,7 @@ int master_get_chibi_address(Master *master, uint8_t *ret_address);
 /**
  * \ingroup BrickMaster
  *
- * Sets the address (1-255) of the Chibi Master. This address is used if the
+ * Sets the address of the Chibi Master. This address is used if the
  * Chibi Extension is used as slave (i.e. it does not have a USB connection).
  * 
  * It is possible to set the address with the Brick Viewer and it will be
@@ -1338,7 +1375,7 @@ int master_get_chibi_master_address(Master *master, uint8_t *ret_address);
 /**
  * \ingroup BrickMaster
  *
- * Sets up to 254 slave addresses. Valid addresses are in range 1-255. 0 has a
+ * Sets up to 254 slave addresses. 0 has a
  * special meaning, it is used as list terminator and not allowed as normal slave
  * address. The address numeration (via \c num parameter) has to be used
  * ascending from 0. For example: If you use the Chibi Extension in Master mode
@@ -1416,7 +1453,7 @@ int master_get_chibi_frequency(Master *master, uint8_t *ret_frequency);
  * different for different frequencies:
  * 
  * \verbatim
- *  "Frequency",             "Possible Channels"
+ *  "Frequency", "Possible Channels"
  * 
  *  "OQPSK 868MHz (Europe)", "0"
  *  "OQPSK 915MHz (US)",     "1, 2, 3, 4, 5, 6, 7, 8, 9, 10"
@@ -1440,7 +1477,8 @@ int master_get_chibi_channel(Master *master, uint8_t *ret_channel);
 /**
  * \ingroup BrickMaster
  *
- * Returns *true* if a RS485 Extension is available to be used by the Master Brick.
+ * Returns *true* if the Master Brick is at position 0 in the stack and a RS485
+ * Extension is available.
  */
 int master_is_rs485_present(Master *master, bool *ret_present);
 
@@ -1507,15 +1545,14 @@ int master_get_rs485_error_log(Master *master, uint16_t *ret_crc_error);
 /**
  * \ingroup BrickMaster
  *
- * Sets the configuration of the RS485 Extension. Speed is given in baud. The
+ * Sets the configuration of the RS485 Extension. The
  * Master Brick will try to match the given baud rate as exactly as possible.
- * The maximum recommended baud rate is 2000000 (2Mbit/s).
+ * The maximum recommended baud rate is 2000000 (2MBd).
  * Possible values for parity are 'n' (none), 'e' (even) and 'o' (odd).
- * Possible values for stop bits are 1 and 2.
  * 
  * If your RS485 is unstable (lost messages etc.), the first thing you should
  * try is to decrease the speed. On very large bus (e.g. 1km), you probably
- * should use a value in the range of 100000 (100kbit/s).
+ * should use a value in the range of 100000 (100kBd).
  * 
  * The values are stored in the EEPROM and only applied on startup. That means
  * you have to restart the Master Brick after configuration.
@@ -1532,7 +1569,8 @@ int master_get_rs485_configuration(Master *master, uint32_t *ret_speed, char *re
 /**
  * \ingroup BrickMaster
  *
- * Returns *true* if a WIFI Extension is available to be used by the Master Brick.
+ * Returns *true* if the Master Brick is at position 0 in the stack and a WIFI
+ * Extension is available.
  */
 int master_is_wifi_present(Master *master, bool *ret_present);
 
@@ -1559,8 +1597,7 @@ int master_is_wifi_present(Master *master, bool *ret_present);
  * ``connection`` is set to one of the DHCP options then ``ip``, ``subnet_mask``
  * and ``gateway`` are ignored, you can set them to 0.
  * 
- * The last parameter is the port that your program will connect to. The
- * default port, that is used by brickd, is 4223.
+ * The last parameter is the port that your program will connect to.
  * 
  * The values are stored in the EEPROM and only applied on startup. That means
  * you have to restart the Master Brick after configuration.
@@ -1603,7 +1640,7 @@ int master_get_wifi_configuration(Master *master, char ret_ssid[32], uint8_t *re
  * 
  * If you choose WPA Enterprise as encryption, you have to set ``eap_options`` and
  * the length of the certificates (for other encryption types these parameters
- * are ignored). The certificate length are given in byte and the certificates
+ * are ignored). The certificates
  * themselves can be set with {@link master_set_wifi_certificate}. ``eap_options`` consist
  * of the outer authentication (bits 1-2), inner authentication (bit 3) and
  * certificate type (bits 4-5):
@@ -1710,8 +1747,6 @@ int master_get_wifi_certificate(Master *master, uint16_t index, uint8_t ret_data
  *  "0", "Full Speed (high power consumption, high throughput)"
  *  "1", "Low Power (low power consumption, low throughput)"
  * \endverbatim
- * 
- * The default value is 0 (Full Speed).
  */
 int master_set_wifi_power_mode(Master *master, uint8_t mode);
 
@@ -1754,8 +1789,6 @@ int master_get_wifi_buffer_info(Master *master, uint32_t *ret_overflow, uint16_t
  *  "1", "ETSI: Channel 1-13 (Europe, Middle East, Africa)"
  *  "2", "TELEC: Channel 1-14 (Japan)"
  * \endverbatim
- * 
- * The default value is 1 (ETSI).
  */
 int master_set_wifi_regulatory_domain(Master *master, uint8_t domain);
 
@@ -1769,7 +1802,7 @@ int master_get_wifi_regulatory_domain(Master *master, uint8_t *ret_domain);
 /**
  * \ingroup BrickMaster
  *
- * Returns the USB voltage in mV. Does not work with hardware version 2.1.
+ * Returns the USB voltage. Does not work with hardware version 2.1.
  */
 int master_get_usb_voltage(Master *master, uint16_t *ret_voltage);
 
@@ -1826,13 +1859,11 @@ int master_get_wifi_hostname(Master *master, char ret_hostname[16]);
 /**
  * \ingroup BrickMaster
  *
- * Sets the period in ms with which the {@link MASTER_CALLBACK_STACK_CURRENT} callback is triggered
+ * Sets the period with which the {@link MASTER_CALLBACK_STACK_CURRENT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link MASTER_CALLBACK_STACK_CURRENT} callback is only triggered if the current has changed
  * since the last triggering.
- * 
- * The default value is 0.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -1850,13 +1881,11 @@ int master_get_stack_current_callback_period(Master *master, uint32_t *ret_perio
 /**
  * \ingroup BrickMaster
  *
- * Sets the period in ms with which the {@link MASTER_CALLBACK_STACK_VOLTAGE} callback is triggered
+ * Sets the period with which the {@link MASTER_CALLBACK_STACK_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link MASTER_CALLBACK_STACK_VOLTAGE} callback is only triggered if the voltage has changed
  * since the last triggering.
- * 
- * The default value is 0.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -1874,13 +1903,11 @@ int master_get_stack_voltage_callback_period(Master *master, uint32_t *ret_perio
 /**
  * \ingroup BrickMaster
  *
- * Sets the period in ms with which the {@link MASTER_CALLBACK_USB_VOLTAGE} callback is triggered
+ * Sets the period with which the {@link MASTER_CALLBACK_USB_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link MASTER_CALLBACK_USB_VOLTAGE} callback is only triggered if the voltage has changed
  * since the last triggering.
- * 
- * The default value is 0.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -1912,8 +1939,6 @@ int master_get_usb_voltage_callback_period(Master *master, uint32_t *ret_period)
  *  "'>'",    "Callback is triggered when the current is greater than the min value (max is ignored)"
  * \endverbatim
  * 
- * The default value is ('x', 0, 0).
- * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_stack_current_callback_threshold(Master *master, char option, uint16_t min, uint16_t max);
@@ -1943,8 +1968,6 @@ int master_get_stack_current_callback_threshold(Master *master, char *ret_option
  *  "'<'",    "Callback is triggered when the voltage is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the voltage is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -1976,8 +1999,6 @@ int master_get_stack_voltage_callback_threshold(Master *master, char *ret_option
  *  "'>'",    "Callback is triggered when the voltage is greater than the min value (max is ignored)"
  * \endverbatim
  * 
- * The default value is ('x', 0, 0).
- * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
 int master_set_usb_voltage_callback_threshold(Master *master, char option, uint16_t min, uint16_t max);
@@ -1994,7 +2015,7 @@ int master_get_usb_voltage_callback_threshold(Master *master, char *ret_option, 
 /**
  * \ingroup BrickMaster
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link MASTER_CALLBACK_STACK_CURRENT_REACHED},
  * * {@link MASTER_CALLBACK_STACK_VOLTAGE_REACHED},
@@ -2007,8 +2028,6 @@ int master_get_usb_voltage_callback_threshold(Master *master, char *ret_option, 
  * * {@link master_set_usb_voltage_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -2026,8 +2045,8 @@ int master_get_debounce_period(Master *master, uint32_t *ret_debounce);
 /**
  * \ingroup BrickMaster
  *
- * Returns *true* if a Ethernet Extension is available to be used by the Master
- * Brick.
+ * Returns *true* if the Master Brick is at position 0 in the stack and an Ethernet
+ * Extension is available.
  * 
  * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
@@ -2052,8 +2071,7 @@ int master_is_ethernet_present(Master *master, bool *ret_present);
  * to the DHCP options then ``ip``, ``subnet_mask`` and ``gateway`` are ignored,
  * you can set them to 0.
  * 
- * The last parameter is the port that your program will connect to. The
- * default port, that is used by brickd, is 4223.
+ * The last parameter is the port that your program will connect to.
  * 
  * The values are stored in the EEPROM and only applied on startup. That means
  * you have to restart the Master Brick after configuration.
@@ -2132,8 +2150,6 @@ int master_set_ethernet_mac_address(Master *master, uint8_t mac_address[6]);
  * you have to restart the Master Brick after configuration.
  * 
  * It is recommended to use the Brick Viewer to set the Ethernet configuration.
- * 
- * The default values are 3 for the socket connections and 4280 for the port.
  * 
  * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
@@ -2220,8 +2236,8 @@ int master_get_connection_type(Master *master, uint8_t *ret_connection_type);
 /**
  * \ingroup BrickMaster
  *
- * Returns *true* if a WIFI Extension 2.0 is available to be used by the Master
- * Brick.
+ * Returns *true* if the Master Brick is at position 0 in the stack and a WIFI
+ * Extension 2.0 is available.
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
@@ -2315,16 +2331,16 @@ int master_get_wifi2_authentication_secret(Master *master, char ret_secret[64]);
  * Sets the general configuration of the WIFI Extension 2.0.
  * 
  * The ``port`` parameter sets the port number that your programm will connect
- * to. The default value is 4223.
+ * to.
  * 
  * The ``websocket_port`` parameter sets the WebSocket port number that your
- * JavaScript programm will connect to. The default value is 4280.
+ * JavaScript programm will connect to.
  * 
  * The ``website_port`` parameter sets the port number for the website of the
- * WIFI Extension 2.0. The default value is 80.
+ * WIFI Extension 2.0.
  * 
  * The ``phy_mode`` parameter sets the specific wireless network mode to be used.
- * Possible values are B, G and N. The default value is G.
+ * Possible values are B, G and N.
  * 
  * The ``sleep_mode`` parameter is currently unused.
  * 
@@ -2370,7 +2386,7 @@ int master_get_wifi2_status(Master *master, bool *ret_client_enabled, uint8_t *r
  * Sets the client specific configuration of the WIFI Extension 2.0.
  * 
  * The ``enable`` parameter enables or disables the client part of the
- * WIFI Extension 2.0. The default value is *true*.
+ * WIFI Extension 2.0.
  * 
  * The ``ssid`` parameter sets the SSID (up to 32 characters) of the access point
  * to connect to.
@@ -2468,7 +2484,7 @@ int master_get_wifi2_client_password(Master *master, char ret_password[64]);
  * Sets the access point specific configuration of the WIFI Extension 2.0.
  * 
  * The ``enable`` parameter enables or disables the access point part of the
- * WIFI Extension 2.0. The default value is true.
+ * WIFI Extension 2.0.
  * 
  * The ``ssid`` parameter sets the SSID (up to 32 characters) of the access point.
  * 
@@ -2478,15 +2494,13 @@ int master_get_wifi2_client_password(Master *master, char ret_password[64]);
  * The default configuration is DHCP.
  * 
  * The ``encryption`` parameter sets the encryption mode to be used. Possible
- * values are Open (no encryption), WEP or WPA/WPA2 PSK. The default value is
- * WPA/WPA2 PSK. Use the {@link master_set_wifi2_ap_password} function to set the encryption
+ * values are Open (no encryption), WEP or WPA/WPA2 PSK.
+ * Use the {@link master_set_wifi2_ap_password} function to set the encryption
  * password.
  * 
  * The ``hidden`` parameter makes the access point hide or show its SSID.
- * The default value is *false*.
  * 
  * The ``channel`` parameter sets the channel (1 to 13) of the access point.
- * The default value is 1.
  * 
  * If the ``mac_address`` parameter is set to all zero then the factory MAC
  * address is used. Otherwise this parameter can be used to set a custom MAC
@@ -2514,7 +2528,7 @@ int master_get_wifi2_ap_configuration(Master *master, bool *ret_enable, char ret
 /**
  * \ingroup BrickMaster
  *
- * Sets the access point password (up to 63 chars) for the configured encryption
+ * Sets the access point password (at least 8 and up to 63 chars) for the configured encryption
  * mode, see {@link master_set_wifi2_ap_configuration}.
  * 
  * To apply configuration changes to the WIFI Extension 2.0 the
@@ -2557,7 +2571,7 @@ int master_save_wifi2_configuration(Master *master, uint8_t *ret_result);
 /**
  * \ingroup BrickMaster
  *
- * Returns the current version of the WIFI Extension 2.0 firmware (major, minor, revision).
+ * Returns the current version of the WIFI Extension 2.0 firmware.
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
@@ -2598,7 +2612,7 @@ int master_is_wifi2_status_led_enabled(Master *master, bool *ret_enabled);
  * Sets the mesh specific configuration of the WIFI Extension 2.0.
  * 
  * The ``enable`` parameter enables or disables the mesh part of the
- * WIFI Extension 2.0. The default value is *false*. The mesh part cannot be
+ * WIFI Extension 2.0. The mesh part cannot be
  * enabled together with the client and access-point part.
  * 
  * If the ``root_ip`` parameter is set to all zero then ``root_subnet_mask``
@@ -2738,12 +2752,69 @@ int master_get_wifi2_mesh_ap_status(Master *master, char ret_ssid[32], uint8_t r
 /**
  * \ingroup BrickMaster
  *
+ * This function is for internal use to flash the initial
+ * bootstrapper and bootloader to the Bricklets.
+ * 
+ * If you need to flash a boostrapper/bootloader (for exmaple
+ * because you made your own Bricklet from scratch) please
+ * take a look at our open source flash and test tool at
+ * `https://github.com/Tinkerforge/flash-test <https://github.com/Tinkerforge/flash-test>`__
+ * 
+ * Don't use this function directly.
+ * 
+ * .. versionadded:: 2.5.0$nbsp;(Firmware)
+ */
+int master_set_bricklet_xmc_flash_config(Master *master, uint32_t config, uint32_t parameter1, uint32_t parameter2, uint8_t data[52], uint32_t *ret_return_value, uint8_t ret_return_data[60]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * This function is for internal use to flash the initial
+ * bootstrapper and bootloader to the Bricklets.
+ * 
+ * If you need to flash a boostrapper/bootloader (for exmaple
+ * because you made your own Bricklet from scratch) please
+ * take a look at our open source flash and test tool at
+ * `https://github.com/Tinkerforge/flash-test <https://github.com/Tinkerforge/flash-test>`__
+ * 
+ * Don't use this function directly.
+ * 
+ * .. versionadded:: 2.5.0$nbsp;(Firmware)
+ */
+int master_set_bricklet_xmc_flash_data(Master *master, uint8_t data[64], uint32_t *ret_return_data);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * This function is only available in Master Brick hardware version >= 3.0.
+ * 
+ * Enables/disables all four Bricklets if set to true/false.
+ * 
+ * If you disable the Bricklets the power supply to the Bricklets will be disconnected.
+ * The Bricklets will lose all configurations if disabled.
+ * 
+ * .. versionadded:: 2.5.0$nbsp;(Firmware)
+ */
+int master_set_bricklets_enabled(Master *master, bool bricklets_enabled);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns *true* if the Bricklets are enabled, *false* otherwise.
+ * 
+ * .. versionadded:: 2.5.0$nbsp;(Firmware)
+ */
+int master_get_bricklets_enabled(Master *master, bool *ret_bricklets_enabled);
+
+/**
+ * \ingroup BrickMaster
+ *
  * The SPITF protocol can be used with a dynamic baudrate. If the dynamic baudrate is
  * enabled, the Brick will try to adapt the baudrate for the communication
  * between Bricks and Bricklets according to the amount of data that is transferred.
  * 
- * The baudrate will be increased exponentially if lots of data is send/received and
- * decreased linearly if little data is send/received.
+ * The baudrate will be increased exponentially if lots of data is sent/received and
+ * decreased linearly if little data is sent/received.
  * 
  * This lowers the baudrate in applications where little data is transferred (e.g.
  * a weather station) and increases the robustness. If there is lots of data to transfer
@@ -2756,10 +2827,6 @@ int master_get_wifi2_mesh_ap_status(Master *master, char ret_ssid[32], uint8_t r
  * The maximum value of the baudrate can be set per port with the function
  * {@link master_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
  * as set by {@link master_set_spitfp_baudrate} will be used statically.
- * 
- * The minimum dynamic baudrate has a value range of 400000 to 2000000 baud.
- * 
- * By default dynamic baudrate is enabled and the minimum dynamic baudrate is 400000.
  * 
  * .. versionadded:: 2.4.6$nbsp;(Firmware)
  */
@@ -2791,8 +2858,7 @@ int master_get_send_timeout_count(Master *master, uint8_t communication_method, 
 /**
  * \ingroup BrickMaster
  *
- * Sets the baudrate for a specific Bricklet port ('a' - 'd'). The
- * baudrate can be in the range 400000 to 2000000.
+ * Sets the baudrate for a specific Bricklet port.
  * 
  * If you want to increase the throughput of Bricklets you can increase
  * the baudrate. If you get a high error count because of high
@@ -2803,10 +2869,8 @@ int master_get_send_timeout_count(Master *master, uint8_t communication_method, 
  * function corresponds to the maximum baudrate (see {@link master_set_spitfp_baudrate_config}).
  * 
  * Regulatory testing is done with the default baudrate. If CE compatibility
- * or similar is necessary in you applications we recommend to not change
+ * or similar is necessary in your applications we recommend to not change
  * the baudrate.
- * 
- * The default baudrate for all ports is 1400000.
  * 
  * .. versionadded:: 2.4.3$nbsp;(Firmware)
  */
@@ -2891,11 +2955,11 @@ int master_get_protocol1_bricklet_name(Master *master, char port, uint8_t *ret_p
 /**
  * \ingroup BrickMaster
  *
- * Returns the temperature in °C/10 as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has an
- * accuracy of +-15%. Practically it is only useful as an indicator for
+ * accuracy of ±15%. Practically it is only useful as an indicator for
  * temperature changes.
  */
 int master_get_chip_temperature(Master *master, int16_t *ret_temperature);
@@ -2915,11 +2979,33 @@ int master_reset(Master *master);
 /**
  * \ingroup BrickMaster
  *
+ * Writes 32 bytes of firmware to the bricklet attached at the given port.
+ * The bytes are written to the position offset * 32.
+ * 
+ * This function is used by Brick Viewer during flashing. It should not be
+ * necessary to call it in a normal user program.
+ */
+int master_write_bricklet_plugin(Master *master, char port, uint8_t offset, uint8_t chunk[32]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Reads 32 bytes of firmware from the bricklet attached at the given port.
+ * The bytes are read starting at the position offset * 32.
+ * 
+ * This function is used by Brick Viewer during flashing. It should not be
+ * necessary to call it in a normal user program.
+ */
+int master_read_bricklet_plugin(Master *master, char port, uint8_t offset, uint8_t ret_chunk[32]);
+
+/**
+ * \ingroup BrickMaster
+ *
  * Returns the UID, the UID where the Brick is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be '0'-'8' (stack position).
+ * The position is the position in the stack from '0' (bottom) to '8' (top).
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

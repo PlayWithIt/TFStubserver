@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -128,7 +128,7 @@ void piezo_speaker_destroy(PiezoSpeaker *piezo_speaker);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int piezo_speaker_get_response_expected(PiezoSpeaker *piezo_speaker, uint8_t function_id, bool *ret_response_expected);
@@ -144,7 +144,7 @@ int piezo_speaker_get_response_expected(PiezoSpeaker *piezo_speaker, uint8_t fun
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int piezo_speaker_set_response_expected(PiezoSpeaker *piezo_speaker, uint8_t function_id, bool response_expected);
@@ -163,7 +163,7 @@ int piezo_speaker_set_response_expected_all(PiezoSpeaker *piezo_speaker, bool re
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void piezo_speaker_register_callback(PiezoSpeaker *piezo_speaker, int16_t callback_id, void *function, void *user_data);
+void piezo_speaker_register_callback(PiezoSpeaker *piezo_speaker, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletPiezoSpeaker
@@ -176,16 +176,11 @@ int piezo_speaker_get_api_version(PiezoSpeaker *piezo_speaker, uint8_t ret_api_v
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * Beeps with the given frequency for the duration in ms. For example:
- * If you set a duration of 1000, with a frequency value of 2000
- * the piezo buzzer will beep for one second with a frequency of
- * approximately 2 kHz.
+ * Beeps with the given frequency for the given duration.
  * 
  * .. versionchanged:: 2.0.2$nbsp;(Plugin)
  *    A duration of 0 stops the current beep if any, the frequency parameter is
  *    ignored. A duration of 4294967295 results in an infinite beep.
- * 
- * The *frequency* parameter can be set between 585 and 7100.
  * 
  * The Piezo Speaker Bricklet can only approximate the frequency, it will play
  * the best possible match by applying the calibration (see {@link piezo_speaker_calibrate}).
@@ -198,13 +193,10 @@ int piezo_speaker_beep(PiezoSpeaker *piezo_speaker, uint32_t duration, uint16_t 
  * Sets morse code that will be played by the piezo buzzer. The morse code
  * is given as a string consisting of "." (dot), "-" (minus) and " " (space)
  * for *dits*, *dahs* and *pauses*. Every other character is ignored.
- * The second parameter is the frequency (see {@link piezo_speaker_beep}).
  * 
  * For example: If you set the string "...---...", the piezo buzzer will beep
  * nine times with the durations "short short short long long long short
  * short short".
- * 
- * The maximum string size is 60.
  */
 int piezo_speaker_morse_code(PiezoSpeaker *piezo_speaker, const char morse[60], uint16_t frequency);
 
@@ -230,7 +222,9 @@ int piezo_speaker_calibrate(PiezoSpeaker *piezo_speaker, bool *ret_calibration);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

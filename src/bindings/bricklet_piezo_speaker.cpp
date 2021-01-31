@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*MorseCodeFinished_CallbackFunction)(void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -91,10 +91,17 @@ typedef struct {
 
 static void piezo_speaker_callback_wrapper_beep_finished(DevicePrivate *device_p, Packet *packet) {
 	BeepFinished_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_BEEP_FINISHED];
-	(void)packet;
+	void *user_data;
+	BeepFinished_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_BEEP_FINISHED];
+	if (packet->header.length != sizeof(BeepFinished_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (BeepFinished_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_BEEP_FINISHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_BEEP_FINISHED];
+	callback = (BeepFinished_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -105,10 +112,17 @@ static void piezo_speaker_callback_wrapper_beep_finished(DevicePrivate *device_p
 
 static void piezo_speaker_callback_wrapper_morse_code_finished(DevicePrivate *device_p, Packet *packet) {
 	MorseCodeFinished_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_MORSE_CODE_FINISHED];
-	(void)packet;
+	void *user_data;
+	MorseCodeFinished_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_MORSE_CODE_FINISHED];
+	if (packet->header.length != sizeof(MorseCodeFinished_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (MorseCodeFinished_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_MORSE_CODE_FINISHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + PIEZO_SPEAKER_CALLBACK_MORSE_CODE_FINISHED];
+	callback = (MorseCodeFinished_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -118,9 +132,10 @@ static void piezo_speaker_callback_wrapper_morse_code_finished(DevicePrivate *de
 }
 
 void piezo_speaker_create(PiezoSpeaker *piezo_speaker, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(piezo_speaker, uid, ipcon->p, 2, 0, 0);
+	device_create(piezo_speaker, uid, ipcon_p, 2, 0, 0, PIEZO_SPEAKER_DEVICE_IDENTIFIER);
 
 	device_p = piezo_speaker->p;
 
@@ -132,6 +147,7 @@ void piezo_speaker_create(PiezoSpeaker *piezo_speaker, const char *uid, IPConnec
 	device_p->callback_wrappers[PIEZO_SPEAKER_CALLBACK_BEEP_FINISHED] = piezo_speaker_callback_wrapper_beep_finished;
 	device_p->callback_wrappers[PIEZO_SPEAKER_CALLBACK_MORSE_CODE_FINISHED] = piezo_speaker_callback_wrapper_morse_code_finished;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void piezo_speaker_destroy(PiezoSpeaker *piezo_speaker) {
@@ -150,7 +166,7 @@ int piezo_speaker_set_response_expected_all(PiezoSpeaker *piezo_speaker, bool re
 	return device_set_response_expected_all(piezo_speaker->p, response_expected);
 }
 
-void piezo_speaker_register_callback(PiezoSpeaker *piezo_speaker, int16_t callback_id, void *function, void *user_data) {
+void piezo_speaker_register_callback(PiezoSpeaker *piezo_speaker, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(piezo_speaker->p, callback_id, function, user_data);
 }
 
@@ -163,6 +179,12 @@ int piezo_speaker_beep(PiezoSpeaker *piezo_speaker, uint32_t duration, uint16_t 
 	Beep_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), PIEZO_SPEAKER_FUNCTION_BEEP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -172,7 +194,7 @@ int piezo_speaker_beep(PiezoSpeaker *piezo_speaker, uint32_t duration, uint16_t 
 	request.duration = leconvert_uint32_to(duration);
 	request.frequency = leconvert_uint16_to(frequency);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -181,6 +203,12 @@ int piezo_speaker_morse_code(PiezoSpeaker *piezo_speaker, const char morse[60], 
 	DevicePrivate *device_p = piezo_speaker->p;
 	MorseCode_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), PIEZO_SPEAKER_FUNCTION_MORSE_CODE, device_p->ipcon_p, device_p);
 
@@ -192,7 +220,7 @@ int piezo_speaker_morse_code(PiezoSpeaker *piezo_speaker, const char morse[60], 
 
 	request.frequency = leconvert_uint16_to(frequency);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -203,13 +231,19 @@ int piezo_speaker_calibrate(PiezoSpeaker *piezo_speaker, bool *ret_calibration) 
 	Calibrate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), PIEZO_SPEAKER_FUNCTION_CALIBRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -232,7 +266,7 @@ int piezo_speaker_get_identity(PiezoSpeaker *piezo_speaker, char ret_uid[8], cha
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

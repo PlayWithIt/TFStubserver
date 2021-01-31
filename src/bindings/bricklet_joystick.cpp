@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -40,7 +40,7 @@ typedef void (*Released_CallbackFunction)(void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -221,10 +221,17 @@ typedef struct {
 
 static void joystick_callback_wrapper_position(DevicePrivate *device_p, Packet *packet) {
 	Position_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION];
-	Position_Callback *callback = (Position_Callback *)packet;
+	void *user_data;
+	Position_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION];
+	if (packet->header.length != sizeof(Position_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Position_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION];
+	callback = (Position_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -238,10 +245,17 @@ static void joystick_callback_wrapper_position(DevicePrivate *device_p, Packet *
 
 static void joystick_callback_wrapper_analog_value(DevicePrivate *device_p, Packet *packet) {
 	AnalogValue_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE];
-	AnalogValue_Callback *callback = (AnalogValue_Callback *)packet;
+	void *user_data;
+	AnalogValue_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE];
+	if (packet->header.length != sizeof(AnalogValue_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AnalogValue_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE];
+	callback = (AnalogValue_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -255,10 +269,17 @@ static void joystick_callback_wrapper_analog_value(DevicePrivate *device_p, Pack
 
 static void joystick_callback_wrapper_position_reached(DevicePrivate *device_p, Packet *packet) {
 	PositionReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION_REACHED];
-	PositionReached_Callback *callback = (PositionReached_Callback *)packet;
+	void *user_data;
+	PositionReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION_REACHED];
+	if (packet->header.length != sizeof(PositionReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (PositionReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_POSITION_REACHED];
+	callback = (PositionReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -272,10 +293,17 @@ static void joystick_callback_wrapper_position_reached(DevicePrivate *device_p, 
 
 static void joystick_callback_wrapper_analog_value_reached(DevicePrivate *device_p, Packet *packet) {
 	AnalogValueReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE_REACHED];
-	AnalogValueReached_Callback *callback = (AnalogValueReached_Callback *)packet;
+	void *user_data;
+	AnalogValueReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE_REACHED];
+	if (packet->header.length != sizeof(AnalogValueReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AnalogValueReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_ANALOG_VALUE_REACHED];
+	callback = (AnalogValueReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -289,10 +317,17 @@ static void joystick_callback_wrapper_analog_value_reached(DevicePrivate *device
 
 static void joystick_callback_wrapper_pressed(DevicePrivate *device_p, Packet *packet) {
 	Pressed_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_PRESSED];
-	(void)packet;
+	void *user_data;
+	Pressed_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_PRESSED];
+	if (packet->header.length != sizeof(Pressed_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Pressed_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_PRESSED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_PRESSED];
+	callback = (Pressed_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -303,10 +338,17 @@ static void joystick_callback_wrapper_pressed(DevicePrivate *device_p, Packet *p
 
 static void joystick_callback_wrapper_released(DevicePrivate *device_p, Packet *packet) {
 	Released_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_RELEASED];
-	(void)packet;
+	void *user_data;
+	Released_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_RELEASED];
+	if (packet->header.length != sizeof(Released_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Released_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_RELEASED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + JOYSTICK_CALLBACK_RELEASED];
+	callback = (Released_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -316,9 +358,10 @@ static void joystick_callback_wrapper_released(DevicePrivate *device_p, Packet *
 }
 
 void joystick_create(Joystick *joystick, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(joystick, uid, ipcon->p, 2, 0, 0);
+	device_create(joystick, uid, ipcon_p, 2, 0, 0, JOYSTICK_DEVICE_IDENTIFIER);
 
 	device_p = joystick->p;
 
@@ -345,6 +388,7 @@ void joystick_create(Joystick *joystick, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[JOYSTICK_CALLBACK_PRESSED] = joystick_callback_wrapper_pressed;
 	device_p->callback_wrappers[JOYSTICK_CALLBACK_RELEASED] = joystick_callback_wrapper_released;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void joystick_destroy(Joystick *joystick) {
@@ -363,7 +407,7 @@ int joystick_set_response_expected_all(Joystick *joystick, bool response_expecte
 	return device_set_response_expected_all(joystick->p, response_expected);
 }
 
-void joystick_register_callback(Joystick *joystick, int16_t callback_id, void *function, void *user_data) {
+void joystick_register_callback(Joystick *joystick, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(joystick->p, callback_id, function, user_data);
 }
 
@@ -377,13 +421,19 @@ int joystick_get_position(Joystick *joystick, int16_t *ret_x, int16_t *ret_y) {
 	GetPosition_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_GET_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -401,13 +451,19 @@ int joystick_is_pressed(Joystick *joystick, bool *ret_pressed) {
 	IsPressed_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_IS_PRESSED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -424,13 +480,19 @@ int joystick_get_analog_value(Joystick *joystick, uint16_t *ret_x, uint16_t *ret
 	GetAnalogValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_GET_ANALOG_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -447,13 +509,19 @@ int joystick_calibrate(Joystick *joystick) {
 	Calibrate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_CALIBRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -463,6 +531,12 @@ int joystick_set_position_callback_period(Joystick *joystick, uint32_t period) {
 	SetPositionCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_SET_POSITION_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -471,7 +545,7 @@ int joystick_set_position_callback_period(Joystick *joystick, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -482,13 +556,19 @@ int joystick_get_position_callback_period(Joystick *joystick, uint32_t *ret_peri
 	GetPositionCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_GET_POSITION_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -504,6 +584,12 @@ int joystick_set_analog_value_callback_period(Joystick *joystick, uint32_t perio
 	SetAnalogValueCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -512,7 +598,7 @@ int joystick_set_analog_value_callback_period(Joystick *joystick, uint32_t perio
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -523,13 +609,19 @@ int joystick_get_analog_value_callback_period(Joystick *joystick, uint32_t *ret_
 	GetAnalogValueCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_GET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -545,6 +637,12 @@ int joystick_set_position_callback_threshold(Joystick *joystick, char option, in
 	SetPositionCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_SET_POSITION_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -557,7 +655,7 @@ int joystick_set_position_callback_threshold(Joystick *joystick, char option, in
 	request.min_y = leconvert_int16_to(min_y);
 	request.max_y = leconvert_int16_to(max_y);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -568,13 +666,19 @@ int joystick_get_position_callback_threshold(Joystick *joystick, char *ret_optio
 	GetPositionCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_GET_POSITION_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -594,6 +698,12 @@ int joystick_set_analog_value_callback_threshold(Joystick *joystick, char option
 	SetAnalogValueCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_SET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -606,7 +716,7 @@ int joystick_set_analog_value_callback_threshold(Joystick *joystick, char option
 	request.min_y = leconvert_uint16_to(min_y);
 	request.max_y = leconvert_uint16_to(max_y);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -617,13 +727,19 @@ int joystick_get_analog_value_callback_threshold(Joystick *joystick, char *ret_o
 	GetAnalogValueCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_GET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -643,6 +759,12 @@ int joystick_set_debounce_period(Joystick *joystick, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -651,7 +773,7 @@ int joystick_set_debounce_period(Joystick *joystick, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -662,13 +784,19 @@ int joystick_get_debounce_period(Joystick *joystick, uint32_t *ret_debounce) {
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), JOYSTICK_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -691,7 +819,7 @@ int joystick_get_identity(Joystick *joystick, char ret_uid[8], char ret_connecte
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

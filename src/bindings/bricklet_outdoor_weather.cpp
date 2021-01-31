@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*SensorData_CallbackFunction)(uint8_t identifier, int16_t temperat
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -247,11 +247,18 @@ typedef struct {
 
 static void outdoor_weather_callback_wrapper_station_data(DevicePrivate *device_p, Packet *packet) {
 	StationData_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_STATION_DATA];
+	void *user_data;
+	StationData_Callback *callback;
 	bool unpacked_battery_low;
-	StationData_Callback *callback = (StationData_Callback *)packet;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_STATION_DATA];
+	if (packet->header.length != sizeof(StationData_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (StationData_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_STATION_DATA];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_STATION_DATA];
+	callback = (StationData_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -268,10 +275,17 @@ static void outdoor_weather_callback_wrapper_station_data(DevicePrivate *device_
 
 static void outdoor_weather_callback_wrapper_sensor_data(DevicePrivate *device_p, Packet *packet) {
 	SensorData_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA];
-	SensorData_Callback *callback = (SensorData_Callback *)packet;
+	void *user_data;
+	SensorData_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA];
+	if (packet->header.length != sizeof(SensorData_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (SensorData_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA];
+	callback = (SensorData_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -283,9 +297,10 @@ static void outdoor_weather_callback_wrapper_sensor_data(DevicePrivate *device_p
 }
 
 void outdoor_weather_create(OutdoorWeather *outdoor_weather, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(outdoor_weather, uid, ipcon->p, 2, 0, 0);
+	device_create(outdoor_weather, uid, ipcon_p, 2, 0, 0, OUTDOOR_WEATHER_DEVICE_IDENTIFIER);
 
 	device_p = outdoor_weather->p;
 
@@ -313,6 +328,7 @@ void outdoor_weather_create(OutdoorWeather *outdoor_weather, const char *uid, IP
 	device_p->callback_wrappers[OUTDOOR_WEATHER_CALLBACK_STATION_DATA] = outdoor_weather_callback_wrapper_station_data;
 	device_p->callback_wrappers[OUTDOOR_WEATHER_CALLBACK_SENSOR_DATA] = outdoor_weather_callback_wrapper_sensor_data;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void outdoor_weather_destroy(OutdoorWeather *outdoor_weather) {
@@ -331,7 +347,7 @@ int outdoor_weather_set_response_expected_all(OutdoorWeather *outdoor_weather, b
 	return device_set_response_expected_all(outdoor_weather->p, response_expected);
 }
 
-void outdoor_weather_register_callback(OutdoorWeather *outdoor_weather, int16_t callback_id, void *function, void *user_data) {
+void outdoor_weather_register_callback(OutdoorWeather *outdoor_weather, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(outdoor_weather->p, callback_id, function, user_data);
 }
 
@@ -345,13 +361,19 @@ int outdoor_weather_get_station_identifiers_low_level(OutdoorWeather *outdoor_we
 	GetStationIdentifiersLowLevel_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_STATION_IDENTIFIERS_LOW_LEVEL, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -370,13 +392,19 @@ int outdoor_weather_get_sensor_identifiers_low_level(OutdoorWeather *outdoor_wea
 	GetSensorIdentifiersLowLevel_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_SENSOR_IDENTIFIERS_LOW_LEVEL, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -395,6 +423,12 @@ int outdoor_weather_get_station_data(OutdoorWeather *outdoor_weather, uint8_t id
 	GetStationData_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_STATION_DATA, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -403,7 +437,7 @@ int outdoor_weather_get_station_data(OutdoorWeather *outdoor_weather, uint8_t id
 
 	request.identifier = identifier;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -427,6 +461,12 @@ int outdoor_weather_get_sensor_data(OutdoorWeather *outdoor_weather, uint8_t ide
 	GetSensorData_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_SENSOR_DATA, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -435,7 +475,7 @@ int outdoor_weather_get_sensor_data(OutdoorWeather *outdoor_weather, uint8_t ide
 
 	request.identifier = identifier;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -453,6 +493,12 @@ int outdoor_weather_set_station_callback_configuration(OutdoorWeather *outdoor_w
 	SetStationCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_SET_STATION_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -461,7 +507,7 @@ int outdoor_weather_set_station_callback_configuration(OutdoorWeather *outdoor_w
 
 	request.enable_callback = enable_callback ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -472,13 +518,19 @@ int outdoor_weather_get_station_callback_configuration(OutdoorWeather *outdoor_w
 	GetStationCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_STATION_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -494,6 +546,12 @@ int outdoor_weather_set_sensor_callback_configuration(OutdoorWeather *outdoor_we
 	SetSensorCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_SET_SENSOR_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -502,7 +560,7 @@ int outdoor_weather_set_sensor_callback_configuration(OutdoorWeather *outdoor_we
 
 	request.enable_callback = enable_callback ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -513,13 +571,19 @@ int outdoor_weather_get_sensor_callback_configuration(OutdoorWeather *outdoor_we
 	GetSensorCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_SENSOR_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -536,13 +600,19 @@ int outdoor_weather_get_spitfp_error_count(OutdoorWeather *outdoor_weather, uint
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -562,6 +632,12 @@ int outdoor_weather_set_bootloader_mode(OutdoorWeather *outdoor_weather, uint8_t
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -570,7 +646,7 @@ int outdoor_weather_set_bootloader_mode(OutdoorWeather *outdoor_weather, uint8_t
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -587,13 +663,19 @@ int outdoor_weather_get_bootloader_mode(OutdoorWeather *outdoor_weather, uint8_t
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -609,6 +691,12 @@ int outdoor_weather_set_write_firmware_pointer(OutdoorWeather *outdoor_weather, 
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -617,7 +705,7 @@ int outdoor_weather_set_write_firmware_pointer(OutdoorWeather *outdoor_weather, 
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -628,6 +716,12 @@ int outdoor_weather_write_firmware(OutdoorWeather *outdoor_weather, uint8_t data
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -636,7 +730,7 @@ int outdoor_weather_write_firmware(OutdoorWeather *outdoor_weather, uint8_t data
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -652,6 +746,12 @@ int outdoor_weather_set_status_led_config(OutdoorWeather *outdoor_weather, uint8
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -660,7 +760,7 @@ int outdoor_weather_set_status_led_config(OutdoorWeather *outdoor_weather, uint8
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -671,13 +771,19 @@ int outdoor_weather_get_status_led_config(OutdoorWeather *outdoor_weather, uint8
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -694,13 +800,19 @@ int outdoor_weather_get_chip_temperature(OutdoorWeather *outdoor_weather, int16_
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -716,13 +828,19 @@ int outdoor_weather_reset(OutdoorWeather *outdoor_weather) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -732,6 +850,12 @@ int outdoor_weather_write_uid(OutdoorWeather *outdoor_weather, uint32_t uid) {
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -740,7 +864,7 @@ int outdoor_weather_write_uid(OutdoorWeather *outdoor_weather, uint32_t uid) {
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -751,13 +875,19 @@ int outdoor_weather_read_uid(OutdoorWeather *outdoor_weather, uint32_t *ret_uid)
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OUTDOOR_WEATHER_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -780,7 +910,7 @@ int outdoor_weather_get_identity(OutdoorWeather *outdoor_weather, char ret_uid[8
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -798,7 +928,7 @@ int outdoor_weather_get_identity(OutdoorWeather *outdoor_weather, char ret_uid[8
 
 int outdoor_weather_get_station_identifiers(OutdoorWeather *outdoor_weather, uint8_t *ret_identifiers, uint16_t *ret_identifiers_length) {
 	DevicePrivate *device_p = outdoor_weather->p;
-	int ret;
+	int ret = 0;
 	uint16_t identifiers_length = 0;
 	uint16_t identifiers_chunk_offset;
 	uint8_t identifiers_chunk_data[60];
@@ -874,7 +1004,7 @@ unlock:
 
 int outdoor_weather_get_sensor_identifiers(OutdoorWeather *outdoor_weather, uint8_t *ret_identifiers, uint16_t *ret_identifiers_length) {
 	DevicePrivate *device_p = outdoor_weather->p;
-	int ret;
+	int ret = 0;
 	uint16_t identifiers_length = 0;
 	uint16_t identifiers_chunk_offset;
 	uint8_t identifiers_chunk_data[60];

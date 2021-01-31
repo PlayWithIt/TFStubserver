@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -105,6 +105,8 @@ typedef Device IndustrialDigitalIn4;
  *   currently pin 0 is high and pins 1-3 are low.
  * * (9, 14) or (0b1001, 0b1110) means that interrupts on pins 0 and 3
  *   occurred and currently pin 0 is low and pins 1-3 are high.
+ * 
+ * The interrupts use the grouping as set by {@link industrial_digital_in_4_set_group}.
  */
 #define INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT 9
 
@@ -174,7 +176,7 @@ void industrial_digital_in_4_destroy(IndustrialDigitalIn4 *industrial_digital_in
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int industrial_digital_in_4_get_response_expected(IndustrialDigitalIn4 *industrial_digital_in_4, uint8_t function_id, bool *ret_response_expected);
@@ -190,7 +192,7 @@ int industrial_digital_in_4_get_response_expected(IndustrialDigitalIn4 *industri
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int industrial_digital_in_4_set_response_expected(IndustrialDigitalIn4 *industrial_digital_in_4, uint8_t function_id, bool response_expected);
@@ -209,7 +211,7 @@ int industrial_digital_in_4_set_response_expected_all(IndustrialDigitalIn4 *indu
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_digital_in_4_register_callback(IndustrialDigitalIn4 *industrial_digital_in_4, int16_t callback_id, void *function, void *user_data);
+void industrial_digital_in_4_register_callback(IndustrialDigitalIn4 *industrial_digital_in_4, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletIndustrialDigitalIn4
@@ -229,7 +231,7 @@ int industrial_digital_in_4_get_api_version(IndustrialDigitalIn4 *industrial_dig
  * pins are low.
  * 
  * If no groups are used (see {@link industrial_digital_in_4_set_group}), the pins correspond to the
- * markings on the Digital In 4 Bricklet.
+ * markings on the IndustrialDigital In 4 Bricklet.
  * 
  * If groups are used, the pins correspond to the element in the group.
  * Element 1 in the group will get pins 0-3, element 2 pins 4-7, element 3
@@ -280,13 +282,11 @@ int industrial_digital_in_4_get_available_for_group(IndustrialDigitalIn4 *indust
 /**
  * \ingroup BrickletIndustrialDigitalIn4
  *
- * Sets the debounce period of the {@link INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT} callback in ms.
+ * Sets the debounce period of the {@link INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT} callback.
  * 
  * For example: If you set this value to 100, you will get the interrupt
  * maximal every 100ms. This is necessary if something that bounces is
  * connected to the Digital In 4 Bricklet, such as a button.
- * 
- * The default value is 100.
  */
 int industrial_digital_in_4_set_debounce_period(IndustrialDigitalIn4 *industrial_digital_in_4, uint32_t debounce);
 
@@ -329,6 +329,8 @@ int industrial_digital_in_4_get_interrupt(IndustrialDigitalIn4 *industrial_digit
  * If you set the reset counter to *true*, the count is set back to 0
  * directly after it is read.
  * 
+ * The edge counters use the grouping as set by {@link industrial_digital_in_4_set_group}.
+ * 
  * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int industrial_digital_in_4_get_edge_count(IndustrialDigitalIn4 *industrial_digital_in_4, uint8_t pin, bool reset_counter, uint32_t *ret_count);
@@ -342,18 +344,16 @@ int industrial_digital_in_4_get_edge_count(IndustrialDigitalIn4 *industrial_digi
  * The edge type parameter configures if rising edges, falling edges or
  * both are counted if the pin is configured for input. Possible edge types are:
  * 
- * * 0 = rising (default)
+ * * 0 = rising
  * * 1 = falling
  * * 2 = both
- * 
- * The debounce time is given in ms.
  * 
  * Configuring an edge counter resets its value to 0.
  * 
  * If you don't know what any of this means, just leave it at default. The
  * default configuration is very likely OK for you.
  * 
- * Default values: 0 (edge type) and 100ms (debounce time)
+ * The edge counters use the grouping as set by {@link industrial_digital_in_4_set_group}.
  * 
  * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
@@ -376,7 +376,9 @@ int industrial_digital_in_4_get_edge_count_config(IndustrialDigitalIn4 *industri
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -225,7 +225,7 @@ void voltage_destroy(Voltage *voltage);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int voltage_get_response_expected(Voltage *voltage, uint8_t function_id, bool *ret_response_expected);
@@ -241,7 +241,7 @@ int voltage_get_response_expected(Voltage *voltage, uint8_t function_id, bool *r
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int voltage_set_response_expected(Voltage *voltage, uint8_t function_id, bool response_expected);
@@ -260,7 +260,7 @@ int voltage_set_response_expected_all(Voltage *voltage, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void voltage_register_callback(Voltage *voltage, int16_t callback_id, void *function, void *user_data);
+void voltage_register_callback(Voltage *voltage, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletVoltage
@@ -273,8 +273,7 @@ int voltage_get_api_version(Voltage *voltage, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletVoltage
  *
- * Returns the voltage of the sensor. The value is in mV and
- * between 0mV and 50000mV.
+ * Returns the voltage of the sensor.
  * 
  * If you want to get the voltage periodically, it is recommended to use the
  * {@link VOLTAGE_CALLBACK_VOLTAGE} callback and set the period with
@@ -286,7 +285,6 @@ int voltage_get_voltage(Voltage *voltage, uint16_t *ret_voltage);
  * \ingroup BrickletVoltage
  *
  * Returns the value as read by a 12-bit analog-to-digital converter.
- * The value is between 0 and 4095.
  * 
  * \note
  *  The value returned by {@link voltage_get_voltage} is averaged over several samples
@@ -303,13 +301,11 @@ int voltage_get_analog_value(Voltage *voltage, uint16_t *ret_value);
 /**
  * \ingroup BrickletVoltage
  *
- * Sets the period in ms with which the {@link VOLTAGE_CALLBACK_VOLTAGE} callback is triggered
+ * Sets the period with which the {@link VOLTAGE_CALLBACK_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link VOLTAGE_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since
  * the last triggering.
- * 
- * The default value is 0.
  */
 int voltage_set_voltage_callback_period(Voltage *voltage, uint32_t period);
 
@@ -323,13 +319,11 @@ int voltage_get_voltage_callback_period(Voltage *voltage, uint32_t *ret_period);
 /**
  * \ingroup BrickletVoltage
  *
- * Sets the period in ms with which the {@link VOLTAGE_CALLBACK_ANALOG_VALUE} callback is triggered
+ * Sets the period with which the {@link VOLTAGE_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link VOLTAGE_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int voltage_set_analog_value_callback_period(Voltage *voltage, uint32_t period);
 
@@ -356,8 +350,6 @@ int voltage_get_analog_value_callback_period(Voltage *voltage, uint32_t *ret_per
  *  "'<'",    "Callback is triggered when the voltage is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the voltage is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int voltage_set_voltage_callback_threshold(Voltage *voltage, char option, uint16_t min, uint16_t max);
 
@@ -384,8 +376,6 @@ int voltage_get_voltage_callback_threshold(Voltage *voltage, char *ret_option, u
  *  "'<'",    "Callback is triggered when the analog value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the analog value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int voltage_set_analog_value_callback_threshold(Voltage *voltage, char option, uint16_t min, uint16_t max);
 
@@ -399,7 +389,7 @@ int voltage_get_analog_value_callback_threshold(Voltage *voltage, char *ret_opti
 /**
  * \ingroup BrickletVoltage
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link VOLTAGE_CALLBACK_VOLTAGE_REACHED},
  * * {@link VOLTAGE_CALLBACK_ANALOG_VALUE_REACHED}
@@ -410,8 +400,6 @@ int voltage_get_analog_value_callback_threshold(Voltage *voltage, char *ret_opti
  * * {@link voltage_set_analog_value_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int voltage_set_debounce_period(Voltage *voltage, uint32_t debounce);
 
@@ -429,7 +417,9 @@ int voltage_get_debounce_period(Voltage *voltage, uint32_t *ret_debounce);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

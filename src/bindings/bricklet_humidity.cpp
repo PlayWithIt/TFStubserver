@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -36,7 +36,7 @@ typedef void (*AnalogValueReached_CallbackFunction)(uint16_t value, void *user_d
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -182,10 +182,17 @@ typedef struct {
 
 static void humidity_callback_wrapper_humidity(DevicePrivate *device_p, Packet *packet) {
 	Humidity_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY];
-	Humidity_Callback *callback = (Humidity_Callback *)packet;
+	void *user_data;
+	Humidity_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY];
+	if (packet->header.length != sizeof(Humidity_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Humidity_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY];
+	callback = (Humidity_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -198,10 +205,17 @@ static void humidity_callback_wrapper_humidity(DevicePrivate *device_p, Packet *
 
 static void humidity_callback_wrapper_analog_value(DevicePrivate *device_p, Packet *packet) {
 	AnalogValue_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE];
-	AnalogValue_Callback *callback = (AnalogValue_Callback *)packet;
+	void *user_data;
+	AnalogValue_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE];
+	if (packet->header.length != sizeof(AnalogValue_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AnalogValue_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE];
+	callback = (AnalogValue_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -214,10 +228,17 @@ static void humidity_callback_wrapper_analog_value(DevicePrivate *device_p, Pack
 
 static void humidity_callback_wrapper_humidity_reached(DevicePrivate *device_p, Packet *packet) {
 	HumidityReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY_REACHED];
-	HumidityReached_Callback *callback = (HumidityReached_Callback *)packet;
+	void *user_data;
+	HumidityReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY_REACHED];
+	if (packet->header.length != sizeof(HumidityReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (HumidityReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_HUMIDITY_REACHED];
+	callback = (HumidityReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -230,10 +251,17 @@ static void humidity_callback_wrapper_humidity_reached(DevicePrivate *device_p, 
 
 static void humidity_callback_wrapper_analog_value_reached(DevicePrivate *device_p, Packet *packet) {
 	AnalogValueReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE_REACHED];
-	AnalogValueReached_Callback *callback = (AnalogValueReached_Callback *)packet;
+	void *user_data;
+	AnalogValueReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE_REACHED];
+	if (packet->header.length != sizeof(AnalogValueReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AnalogValueReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + HUMIDITY_CALLBACK_ANALOG_VALUE_REACHED];
+	callback = (AnalogValueReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -245,9 +273,10 @@ static void humidity_callback_wrapper_analog_value_reached(DevicePrivate *device
 }
 
 void humidity_create(Humidity *humidity, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(humidity, uid, ipcon->p, 2, 0, 1);
+	device_create(humidity, uid, ipcon_p, 2, 0, 1, HUMIDITY_DEVICE_IDENTIFIER);
 
 	device_p = humidity->p;
 
@@ -270,6 +299,7 @@ void humidity_create(Humidity *humidity, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[HUMIDITY_CALLBACK_HUMIDITY_REACHED] = humidity_callback_wrapper_humidity_reached;
 	device_p->callback_wrappers[HUMIDITY_CALLBACK_ANALOG_VALUE_REACHED] = humidity_callback_wrapper_analog_value_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void humidity_destroy(Humidity *humidity) {
@@ -288,7 +318,7 @@ int humidity_set_response_expected_all(Humidity *humidity, bool response_expecte
 	return device_set_response_expected_all(humidity->p, response_expected);
 }
 
-void humidity_register_callback(Humidity *humidity, int16_t callback_id, void *function, void *user_data) {
+void humidity_register_callback(Humidity *humidity, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(humidity->p, callback_id, function, user_data);
 }
 
@@ -302,13 +332,19 @@ int humidity_get_humidity(Humidity *humidity, uint16_t *ret_humidity) {
 	GetHumidity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_GET_HUMIDITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -325,13 +361,19 @@ int humidity_get_analog_value(Humidity *humidity, uint16_t *ret_value) {
 	GetAnalogValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_GET_ANALOG_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -347,6 +389,12 @@ int humidity_set_humidity_callback_period(Humidity *humidity, uint32_t period) {
 	SetHumidityCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_SET_HUMIDITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -355,7 +403,7 @@ int humidity_set_humidity_callback_period(Humidity *humidity, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -366,13 +414,19 @@ int humidity_get_humidity_callback_period(Humidity *humidity, uint32_t *ret_peri
 	GetHumidityCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_GET_HUMIDITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -388,6 +442,12 @@ int humidity_set_analog_value_callback_period(Humidity *humidity, uint32_t perio
 	SetAnalogValueCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_SET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -396,7 +456,7 @@ int humidity_set_analog_value_callback_period(Humidity *humidity, uint32_t perio
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -407,13 +467,19 @@ int humidity_get_analog_value_callback_period(Humidity *humidity, uint32_t *ret_
 	GetAnalogValueCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_GET_ANALOG_VALUE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -429,6 +495,12 @@ int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, ui
 	SetHumidityCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_SET_HUMIDITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -439,7 +511,7 @@ int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, ui
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -450,13 +522,19 @@ int humidity_get_humidity_callback_threshold(Humidity *humidity, char *ret_optio
 	GetHumidityCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_GET_HUMIDITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -474,6 +552,12 @@ int humidity_set_analog_value_callback_threshold(Humidity *humidity, char option
 	SetAnalogValueCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_SET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -484,7 +568,7 @@ int humidity_set_analog_value_callback_threshold(Humidity *humidity, char option
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -495,13 +579,19 @@ int humidity_get_analog_value_callback_threshold(Humidity *humidity, char *ret_o
 	GetAnalogValueCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_GET_ANALOG_VALUE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -519,6 +609,12 @@ int humidity_set_debounce_period(Humidity *humidity, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -527,7 +623,7 @@ int humidity_set_debounce_period(Humidity *humidity, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -538,13 +634,19 @@ int humidity_get_debounce_period(Humidity *humidity, uint32_t *ret_debounce) {
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), HUMIDITY_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -567,7 +669,7 @@ int humidity_get_identity(Humidity *humidity, char ret_uid[8], char ret_connecte
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

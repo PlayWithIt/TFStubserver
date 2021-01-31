@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -115,7 +115,7 @@ void solid_state_relay_destroy(SolidStateRelay *solid_state_relay);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int solid_state_relay_get_response_expected(SolidStateRelay *solid_state_relay, uint8_t function_id, bool *ret_response_expected);
@@ -131,7 +131,7 @@ int solid_state_relay_get_response_expected(SolidStateRelay *solid_state_relay, 
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int solid_state_relay_set_response_expected(SolidStateRelay *solid_state_relay, uint8_t function_id, bool response_expected);
@@ -150,7 +150,7 @@ int solid_state_relay_set_response_expected_all(SolidStateRelay *solid_state_rel
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void solid_state_relay_register_callback(SolidStateRelay *solid_state_relay, int16_t callback_id, void *function, void *user_data);
+void solid_state_relay_register_callback(SolidStateRelay *solid_state_relay, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletSolidStateRelay
@@ -165,9 +165,7 @@ int solid_state_relay_get_api_version(SolidStateRelay *solid_state_relay, uint8_
  *
  * Sets the state of the relays *true* means on and *false* means off.
  * 
- * Running monoflop timers will be overwritten if this function is called.
- * 
- * The default value is *false*.
+ * A running monoflop timer will be aborted if this function is called.
  */
 int solid_state_relay_set_state(SolidStateRelay *solid_state_relay, bool state);
 
@@ -182,7 +180,7 @@ int solid_state_relay_get_state(SolidStateRelay *solid_state_relay, bool *ret_st
  * \ingroup BrickletSolidStateRelay
  *
  * The first parameter  is the desired state of the relay (*true* means on
- * and *false* means off). The second parameter indicates the time (in ms) that
+ * and *false* means off). The second parameter indicates the time that
  * the relay should hold the state.
  * 
  * If this function is called with the parameters (true, 1500):
@@ -214,7 +212,9 @@ int solid_state_relay_get_monoflop(SolidStateRelay *solid_state_relay, bool *ret
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

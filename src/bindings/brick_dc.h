@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -191,6 +191,16 @@ typedef Device DC;
 /**
  * \ingroup BrickDC
  */
+#define DC_FUNCTION_WRITE_BRICKLET_PLUGIN 246
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_READ_BRICKLET_PLUGIN 247
+
+/**
+ * \ingroup BrickDC
+ */
 #define DC_FUNCTION_GET_IDENTITY 255
 
 /**
@@ -199,8 +209,7 @@ typedef Device DC;
  * Signature: \code void callback(uint16_t voltage, void *user_data) \endcode
  * 
  * This callback is triggered when the input voltage drops below the value set by
- * {@link dc_set_minimum_voltage}. The parameter is the current voltage given
- * in mV.
+ * {@link dc_set_minimum_voltage}. The parameter is the current voltage.
  */
 #define DC_CALLBACK_UNDER_VOLTAGE 21
 
@@ -359,7 +368,7 @@ void dc_destroy(DC *dc);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int dc_get_response_expected(DC *dc, uint8_t function_id, bool *ret_response_expected);
@@ -375,7 +384,7 @@ int dc_get_response_expected(DC *dc, uint8_t function_id, bool *ret_response_exp
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int dc_set_response_expected(DC *dc, uint8_t function_id, bool response_expected);
@@ -394,7 +403,7 @@ int dc_set_response_expected_all(DC *dc, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void dc_register_callback(DC *dc, int16_t callback_id, void *function, void *user_data);
+void dc_register_callback(DC *dc, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickDC
@@ -416,8 +425,6 @@ int dc_get_api_version(DC *dc, uint8_t ret_api_version[3]);
  * controlled, e.g. a velocity of 3277 sets a PWM with a 10% duty cycle.
  * You can not only control the duty cycle of the PWM but also the frequency,
  * see {@link dc_set_pwm_frequency}.
- * 
- * The default velocity is 0.
  */
 int dc_set_velocity(DC *dc, int16_t velocity);
 
@@ -450,8 +457,6 @@ int dc_get_current_velocity(DC *dc, int16_t *ret_velocity);
  * 
  * If acceleration is set to 0, there is no speed ramping, i.e. a new velocity
  * is immediately given to the motor.
- * 
- * The default acceleration is 10000.
  */
 int dc_set_acceleration(DC *dc, uint16_t acceleration);
 
@@ -465,23 +470,21 @@ int dc_get_acceleration(DC *dc, uint16_t *ret_acceleration);
 /**
  * \ingroup BrickDC
  *
- * Sets the frequency (in Hz) of the PWM with which the motor is driven.
- * The possible range of the frequency is 1-20000Hz. Often a high frequency
+ * Sets the frequency of the PWM with which the motor is driven.
+ * Often a high frequency
  * is less noisy and the motor runs smoother. However, with a low frequency
  * there are less switches and therefore fewer switching losses. Also with
  * most motors lower frequencies enable higher torque.
  * 
  * If you have no idea what all this means, just ignore this function and use
  * the default frequency, it will very likely work fine.
- * 
- * The default frequency is 15 kHz.
  */
 int dc_set_pwm_frequency(DC *dc, uint16_t frequency);
 
 /**
  * \ingroup BrickDC
  *
- * Returns the PWM frequency (in Hz) as set by {@link dc_set_pwm_frequency}.
+ * Returns the PWM frequency as set by {@link dc_set_pwm_frequency}.
  */
 int dc_get_pwm_frequency(DC *dc, uint16_t *ret_frequency);
 
@@ -502,7 +505,7 @@ int dc_full_brake(DC *dc);
 /**
  * \ingroup BrickDC
  *
- * Returns the stack input voltage in mV. The stack input voltage is the
+ * Returns the stack input voltage. The stack input voltage is the
  * voltage that is supplied via the stack, i.e. it is given by a
  * Step-Down or Step-Up Power Supply.
  */
@@ -511,7 +514,7 @@ int dc_get_stack_input_voltage(DC *dc, uint16_t *ret_voltage);
 /**
  * \ingroup BrickDC
  *
- * Returns the external input voltage in mV. The external input voltage is
+ * Returns the external input voltage. The external input voltage is
  * given via the black power input connector on the DC Brick.
  * 
  * If there is an external input voltage and a stack input voltage, the motor
@@ -529,7 +532,7 @@ int dc_get_external_input_voltage(DC *dc, uint16_t *ret_voltage);
 /**
  * \ingroup BrickDC
  *
- * Returns the current consumption of the motor in mA.
+ * Returns the current consumption of the motor.
  */
 int dc_get_current_consumption(DC *dc, uint16_t *ret_voltage);
 
@@ -546,6 +549,14 @@ int dc_enable(DC *dc);
  *
  * Disables the driver chip. The configurations are kept (velocity,
  * acceleration, etc) but the motor is not driven until it is enabled again.
+ * 
+ * \warning
+ *  Disabling the driver chip while the motor is still turning can damage the
+ *  driver chip. The motor should be stopped calling {@link dc_set_velocity} with 0
+ *  before disabling the motor power. The {@link dc_set_velocity} function will **not**
+ *  wait until the motor is actually stopped. You have to explicitly wait for the
+ *  appropriate time after calling the {@link dc_set_velocity} function before calling
+ *  the {@link dc_disable} function.
  */
 int dc_disable(DC *dc);
 
@@ -559,13 +570,11 @@ int dc_is_enabled(DC *dc, bool *ret_enabled);
 /**
  * \ingroup BrickDC
  *
- * Sets the minimum voltage in mV, below which the {@link DC_CALLBACK_UNDER_VOLTAGE} callback
+ * Sets the minimum voltage, below which the {@link DC_CALLBACK_UNDER_VOLTAGE} callback
  * is triggered. The minimum possible value that works with the DC Brick is 6V.
  * You can use this function to detect the discharge of a battery that is used
  * to drive the motor. If you have a fixed power supply, you likely do not need
  * this functionality.
- * 
- * The default value is 6V.
  */
 int dc_set_minimum_voltage(DC *dc, uint16_t voltage);
 
@@ -594,8 +603,6 @@ int dc_get_minimum_voltage(DC *dc, uint16_t *ret_voltage);
  * In Drive/Coast mode, the motor is always either driving or freewheeling.
  * Advantages are: Less current consumption and less demands on the motor and
  * driver chip.
- * 
- * The default value is 0 = Drive/Brake.
  */
 int dc_set_drive_mode(DC *dc, uint8_t mode);
 
@@ -609,10 +616,8 @@ int dc_get_drive_mode(DC *dc, uint8_t *ret_mode);
 /**
  * \ingroup BrickDC
  *
- * Sets a period in ms with which the {@link DC_CALLBACK_CURRENT_VELOCITY} callback is triggered.
+ * Sets a period with which the {@link DC_CALLBACK_CURRENT_VELOCITY} callback is triggered.
  * A period of 0 turns the callback off.
- * 
- * The default value is 0.
  */
 int dc_set_current_velocity_period(DC *dc, uint16_t period);
 
@@ -630,8 +635,8 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period);
  * enabled, the Brick will try to adapt the baudrate for the communication
  * between Bricks and Bricklets according to the amount of data that is transferred.
  * 
- * The baudrate will be increased exponentially if lots of data is send/received and
- * decreased linearly if little data is send/received.
+ * The baudrate will be increased exponentially if lots of data is sent/received and
+ * decreased linearly if little data is sent/received.
  * 
  * This lowers the baudrate in applications where little data is transferred (e.g.
  * a weather station) and increases the robustness. If there is lots of data to transfer
@@ -644,10 +649,6 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period);
  * The maximum value of the baudrate can be set per port with the function
  * {@link dc_set_spitfp_baudrate}. If the dynamic baudrate is disabled, the baudrate
  * as set by {@link dc_set_spitfp_baudrate} will be used statically.
- * 
- * The minimum dynamic baudrate has a value range of 400000 to 2000000 baud.
- * 
- * By default dynamic baudrate is enabled and the minimum dynamic baudrate is 400000.
  * 
  * .. versionadded:: 2.3.5$nbsp;(Firmware)
  */
@@ -679,8 +680,7 @@ int dc_get_send_timeout_count(DC *dc, uint8_t communication_method, uint32_t *re
 /**
  * \ingroup BrickDC
  *
- * Sets the baudrate for a specific Bricklet port ('a' - 'd'). The
- * baudrate can be in the range 400000 to 2000000.
+ * Sets the baudrate for a specific Bricklet port.
  * 
  * If you want to increase the throughput of Bricklets you can increase
  * the baudrate. If you get a high error count because of high
@@ -691,10 +691,8 @@ int dc_get_send_timeout_count(DC *dc, uint8_t communication_method, uint32_t *re
  * function corresponds to the maximum baudrate (see {@link dc_set_spitfp_baudrate_config}).
  * 
  * Regulatory testing is done with the default baudrate. If CE compatibility
- * or similar is necessary in you applications we recommend to not change
+ * or similar is necessary in your applications we recommend to not change
  * the baudrate.
- * 
- * The default baudrate for all ports is 1400000.
  * 
  * .. versionadded:: 2.3.3$nbsp;(Firmware)
  */
@@ -779,11 +777,11 @@ int dc_get_protocol1_bricklet_name(DC *dc, char port, uint8_t *ret_protocol_vers
 /**
  * \ingroup BrickDC
  *
- * Returns the temperature in °C/10 as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has an
- * accuracy of +-15%. Practically it is only useful as an indicator for
+ * accuracy of ±15%. Practically it is only useful as an indicator for
  * temperature changes.
  */
 int dc_get_chip_temperature(DC *dc, int16_t *ret_temperature);
@@ -803,11 +801,33 @@ int dc_reset(DC *dc);
 /**
  * \ingroup BrickDC
  *
+ * Writes 32 bytes of firmware to the bricklet attached at the given port.
+ * The bytes are written to the position offset * 32.
+ * 
+ * This function is used by Brick Viewer during flashing. It should not be
+ * necessary to call it in a normal user program.
+ */
+int dc_write_bricklet_plugin(DC *dc, char port, uint8_t offset, uint8_t chunk[32]);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Reads 32 bytes of firmware from the bricklet attached at the given port.
+ * The bytes are read starting at the position offset * 32.
+ * 
+ * This function is used by Brick Viewer during flashing. It should not be
+ * necessary to call it in a normal user program.
+ */
+int dc_read_bricklet_plugin(DC *dc, char port, uint8_t offset, uint8_t ret_chunk[32]);
+
+/**
+ * \ingroup BrickDC
+ *
  * Returns the UID, the UID where the Brick is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be '0'-'8' (stack position).
+ * The position is the position in the stack from '0' (bottom) to '8' (top).
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

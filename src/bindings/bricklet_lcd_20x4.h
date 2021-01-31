@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -174,7 +174,7 @@ void lcd_20x4_destroy(LCD20x4 *lcd_20x4);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int lcd_20x4_get_response_expected(LCD20x4 *lcd_20x4, uint8_t function_id, bool *ret_response_expected);
@@ -190,7 +190,7 @@ int lcd_20x4_get_response_expected(LCD20x4 *lcd_20x4, uint8_t function_id, bool 
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int lcd_20x4_set_response_expected(LCD20x4 *lcd_20x4, uint8_t function_id, bool response_expected);
@@ -209,7 +209,7 @@ int lcd_20x4_set_response_expected_all(LCD20x4 *lcd_20x4, bool response_expected
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void lcd_20x4_register_callback(LCD20x4 *lcd_20x4, int16_t callback_id, void *function, void *user_data);
+void lcd_20x4_register_callback(LCD20x4 *lcd_20x4, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLCD20x4
@@ -222,8 +222,8 @@ int lcd_20x4_get_api_version(LCD20x4 *lcd_20x4, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletLCD20x4
  *
- * Writes text to a specific line (0 to 3) with a specific position
- * (0 to 19). The text can have a maximum of 20 characters.
+ * Writes text to a specific line with a specific position.
+ * The text can have a maximum of 20 characters.
  * 
  * For example: (0, 7, "Hello") will write *Hello* in the middle of the
  * first line of the display.
@@ -271,8 +271,6 @@ int lcd_20x4_is_backlight_on(LCD20x4 *lcd_20x4, bool *ret_backlight);
  * should be blinking (shown as a blinking block). The cursor position
  * is one character behind the the last text written with
  * {@link lcd_20x4_write_line}.
- * 
- * The default is (*false*, *false*).
  */
 int lcd_20x4_set_config(LCD20x4 *lcd_20x4, bool cursor, bool blinking);
 
@@ -312,7 +310,8 @@ int lcd_20x4_is_button_pressed(LCD20x4 *lcd_20x4, uint8_t button, bool *ret_pres
  * * ``character[7] = 0b00000000`` (decimal value 0)
  * 
  * The characters can later be written with {@link lcd_20x4_write_line} by using the
- * characters with the byte representation 8 ("\x08") to 15 ("\x0F").
+ * characters with the byte representation 8 ("\\x08" or "\\u0008") to 15
+ * ("\\x0F" or "\\u000F").
  * 
  * You can play around with the custom characters in Brick Viewer version
  * since 2.0.1.
@@ -360,7 +359,7 @@ int lcd_20x4_get_default_text(LCD20x4 *lcd_20x4, uint8_t line, char ret_text[20]
 /**
  * \ingroup BrickletLCD20x4
  *
- * Sets the default text counter in ms. This counter is decremented each
+ * Sets the default text counter. This counter is decremented each
  * ms by the LCD firmware. If the counter reaches 0, the default text
  * (see {@link lcd_20x4_set_default_text}) is shown on the LCD.
  * 
@@ -373,8 +372,6 @@ int lcd_20x4_get_default_text(LCD20x4 *lcd_20x4, uint8_t line, char ret_text[20]
  * controlling program crashes.
  * 
  * A negative counter turns the default text functionality off.
- * 
- * The default is -1.
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -396,7 +393,9 @@ int lcd_20x4_get_default_text_counter(LCD20x4 *lcd_20x4, int32_t *ret_counter);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

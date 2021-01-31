@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -36,7 +36,7 @@ typedef void (*AltitudeReached_CallbackFunction)(int32_t altitude, void *user_da
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -204,6 +204,20 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	uint8_t mode;
+} ATTRIBUTE_PACKED SetI2CMode_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetI2CMode_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t mode;
+} ATTRIBUTE_PACKED GetI2CMode_Response;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
@@ -223,10 +237,17 @@ typedef struct {
 
 static void barometer_callback_wrapper_air_pressure(DevicePrivate *device_p, Packet *packet) {
 	AirPressure_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE];
-	AirPressure_Callback *callback = (AirPressure_Callback *)packet;
+	void *user_data;
+	AirPressure_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE];
+	if (packet->header.length != sizeof(AirPressure_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AirPressure_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE];
+	callback = (AirPressure_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -239,10 +260,17 @@ static void barometer_callback_wrapper_air_pressure(DevicePrivate *device_p, Pac
 
 static void barometer_callback_wrapper_altitude(DevicePrivate *device_p, Packet *packet) {
 	Altitude_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE];
-	Altitude_Callback *callback = (Altitude_Callback *)packet;
+	void *user_data;
+	Altitude_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE];
+	if (packet->header.length != sizeof(Altitude_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Altitude_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE];
+	callback = (Altitude_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -255,10 +283,17 @@ static void barometer_callback_wrapper_altitude(DevicePrivate *device_p, Packet 
 
 static void barometer_callback_wrapper_air_pressure_reached(DevicePrivate *device_p, Packet *packet) {
 	AirPressureReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE_REACHED];
-	AirPressureReached_Callback *callback = (AirPressureReached_Callback *)packet;
+	void *user_data;
+	AirPressureReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE_REACHED];
+	if (packet->header.length != sizeof(AirPressureReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AirPressureReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_AIR_PRESSURE_REACHED];
+	callback = (AirPressureReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -271,10 +306,17 @@ static void barometer_callback_wrapper_air_pressure_reached(DevicePrivate *devic
 
 static void barometer_callback_wrapper_altitude_reached(DevicePrivate *device_p, Packet *packet) {
 	AltitudeReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE_REACHED];
-	AltitudeReached_Callback *callback = (AltitudeReached_Callback *)packet;
+	void *user_data;
+	AltitudeReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE_REACHED];
+	if (packet->header.length != sizeof(AltitudeReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AltitudeReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + BAROMETER_CALLBACK_ALTITUDE_REACHED];
+	callback = (AltitudeReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -286,9 +328,10 @@ static void barometer_callback_wrapper_altitude_reached(DevicePrivate *device_p,
 }
 
 void barometer_create(Barometer *barometer, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(barometer, uid, ipcon->p, 2, 0, 1);
+	device_create(barometer, uid, ipcon_p, 2, 0, 2, BAROMETER_DEVICE_IDENTIFIER);
 
 	device_p = barometer->p;
 
@@ -309,6 +352,8 @@ void barometer_create(Barometer *barometer, const char *uid, IPConnection *ipcon
 	device_p->response_expected[BAROMETER_FUNCTION_GET_REFERENCE_AIR_PRESSURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[BAROMETER_FUNCTION_SET_AVERAGING] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[BAROMETER_FUNCTION_GET_AVERAGING] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[BAROMETER_FUNCTION_SET_I2C_MODE] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[BAROMETER_FUNCTION_GET_I2C_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[BAROMETER_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[BAROMETER_CALLBACK_AIR_PRESSURE] = barometer_callback_wrapper_air_pressure;
@@ -316,6 +361,7 @@ void barometer_create(Barometer *barometer, const char *uid, IPConnection *ipcon
 	device_p->callback_wrappers[BAROMETER_CALLBACK_AIR_PRESSURE_REACHED] = barometer_callback_wrapper_air_pressure_reached;
 	device_p->callback_wrappers[BAROMETER_CALLBACK_ALTITUDE_REACHED] = barometer_callback_wrapper_altitude_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void barometer_destroy(Barometer *barometer) {
@@ -334,7 +380,7 @@ int barometer_set_response_expected_all(Barometer *barometer, bool response_expe
 	return device_set_response_expected_all(barometer->p, response_expected);
 }
 
-void barometer_register_callback(Barometer *barometer, int16_t callback_id, void *function, void *user_data) {
+void barometer_register_callback(Barometer *barometer, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(barometer->p, callback_id, function, user_data);
 }
 
@@ -348,13 +394,19 @@ int barometer_get_air_pressure(Barometer *barometer, int32_t *ret_air_pressure) 
 	GetAirPressure_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_AIR_PRESSURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -371,13 +423,19 @@ int barometer_get_altitude(Barometer *barometer, int32_t *ret_altitude) {
 	GetAltitude_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_ALTITUDE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -393,6 +451,12 @@ int barometer_set_air_pressure_callback_period(Barometer *barometer, uint32_t pe
 	SetAirPressureCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_AIR_PRESSURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -401,7 +465,7 @@ int barometer_set_air_pressure_callback_period(Barometer *barometer, uint32_t pe
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -412,13 +476,19 @@ int barometer_get_air_pressure_callback_period(Barometer *barometer, uint32_t *r
 	GetAirPressureCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_AIR_PRESSURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -434,6 +504,12 @@ int barometer_set_altitude_callback_period(Barometer *barometer, uint32_t period
 	SetAltitudeCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_ALTITUDE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -442,7 +518,7 @@ int barometer_set_altitude_callback_period(Barometer *barometer, uint32_t period
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -453,13 +529,19 @@ int barometer_get_altitude_callback_period(Barometer *barometer, uint32_t *ret_p
 	GetAltitudeCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_ALTITUDE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -475,6 +557,12 @@ int barometer_set_air_pressure_callback_threshold(Barometer *barometer, char opt
 	SetAirPressureCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_AIR_PRESSURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -485,7 +573,7 @@ int barometer_set_air_pressure_callback_threshold(Barometer *barometer, char opt
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -496,13 +584,19 @@ int barometer_get_air_pressure_callback_threshold(Barometer *barometer, char *re
 	GetAirPressureCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_AIR_PRESSURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -520,6 +614,12 @@ int barometer_set_altitude_callback_threshold(Barometer *barometer, char option,
 	SetAltitudeCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_ALTITUDE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -530,7 +630,7 @@ int barometer_set_altitude_callback_threshold(Barometer *barometer, char option,
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -541,13 +641,19 @@ int barometer_get_altitude_callback_threshold(Barometer *barometer, char *ret_op
 	GetAltitudeCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_ALTITUDE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -565,6 +671,12 @@ int barometer_set_debounce_period(Barometer *barometer, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -573,7 +685,7 @@ int barometer_set_debounce_period(Barometer *barometer, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -584,13 +696,19 @@ int barometer_get_debounce_period(Barometer *barometer, uint32_t *ret_debounce) 
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -606,6 +724,12 @@ int barometer_set_reference_air_pressure(Barometer *barometer, int32_t air_press
 	SetReferenceAirPressure_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_REFERENCE_AIR_PRESSURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -614,7 +738,7 @@ int barometer_set_reference_air_pressure(Barometer *barometer, int32_t air_press
 
 	request.air_pressure = leconvert_int32_to(air_pressure);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -625,13 +749,19 @@ int barometer_get_chip_temperature(Barometer *barometer, int16_t *ret_temperatur
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -648,13 +778,19 @@ int barometer_get_reference_air_pressure(Barometer *barometer, int32_t *ret_air_
 	GetReferenceAirPressure_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_REFERENCE_AIR_PRESSURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -670,6 +806,12 @@ int barometer_set_averaging(Barometer *barometer, uint8_t moving_average_pressur
 	SetAveraging_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_AVERAGING, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -680,7 +822,7 @@ int barometer_set_averaging(Barometer *barometer, uint8_t moving_average_pressur
 	request.average_pressure = average_pressure;
 	request.average_temperature = average_temperature;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -691,13 +833,19 @@ int barometer_get_averaging(Barometer *barometer, uint8_t *ret_moving_average_pr
 	GetAveraging_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_AVERAGING, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -706,6 +854,59 @@ int barometer_get_averaging(Barometer *barometer, uint8_t *ret_moving_average_pr
 	*ret_moving_average_pressure = response.moving_average_pressure;
 	*ret_average_pressure = response.average_pressure;
 	*ret_average_temperature = response.average_temperature;
+
+	return ret;
+}
+
+int barometer_set_i2c_mode(Barometer *barometer, uint8_t mode) {
+	DevicePrivate *device_p = barometer->p;
+	SetI2CMode_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_SET_I2C_MODE, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.mode = mode;
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int barometer_get_i2c_mode(Barometer *barometer, uint8_t *ret_mode) {
+	DevicePrivate *device_p = barometer->p;
+	GetI2CMode_Request request;
+	GetI2CMode_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), BAROMETER_FUNCTION_GET_I2C_MODE, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_mode = response.mode;
 
 	return ret;
 }
@@ -722,7 +923,7 @@ int barometer_get_identity(Barometer *barometer, char ret_uid[8], char ret_conne
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

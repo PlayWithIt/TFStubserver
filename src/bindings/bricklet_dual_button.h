@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -165,7 +165,7 @@ void dual_button_destroy(DualButton *dual_button);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int dual_button_get_response_expected(DualButton *dual_button, uint8_t function_id, bool *ret_response_expected);
@@ -181,7 +181,7 @@ int dual_button_get_response_expected(DualButton *dual_button, uint8_t function_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int dual_button_set_response_expected(DualButton *dual_button, uint8_t function_id, bool response_expected);
@@ -200,7 +200,7 @@ int dual_button_set_response_expected_all(DualButton *dual_button, bool response
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void dual_button_register_callback(DualButton *dual_button, int16_t callback_id, void *function, void *user_data);
+void dual_button_register_callback(DualButton *dual_button, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletDualButton
@@ -225,8 +225,6 @@ int dual_button_get_api_version(DualButton *dual_button, uint8_t ret_api_version
  * If you just want to set one of the LEDs and don't know the current state
  * of the other LED, you can get the state with {@link dual_button_get_led_state} or you
  * can use {@link dual_button_set_selected_led_state}.
- * 
- * The default value is (1, 1).
  */
 int dual_button_set_led_state(DualButton *dual_button, uint8_t led_l, uint8_t led_r);
 
@@ -263,7 +261,9 @@ int dual_button_set_selected_led_state(DualButton *dual_button, uint8_t led, uin
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

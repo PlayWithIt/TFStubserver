@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*VoltageReached_CallbackFunction)(uint8_t channel, int32_t voltage
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -173,10 +173,17 @@ typedef struct {
 
 static void industrial_dual_analog_in_callback_wrapper_voltage(DevicePrivate *device_p, Packet *packet) {
 	Voltage_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE];
-	Voltage_Callback *callback = (Voltage_Callback *)packet;
+	void *user_data;
+	Voltage_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE];
+	if (packet->header.length != sizeof(Voltage_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Voltage_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE];
+	callback = (Voltage_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -189,10 +196,17 @@ static void industrial_dual_analog_in_callback_wrapper_voltage(DevicePrivate *de
 
 static void industrial_dual_analog_in_callback_wrapper_voltage_reached(DevicePrivate *device_p, Packet *packet) {
 	VoltageReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
-	VoltageReached_Callback *callback = (VoltageReached_Callback *)packet;
+	void *user_data;
+	VoltageReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
+	if (packet->header.length != sizeof(VoltageReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (VoltageReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED];
+	callback = (VoltageReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -204,9 +218,10 @@ static void industrial_dual_analog_in_callback_wrapper_voltage_reached(DevicePri
 }
 
 void industrial_dual_analog_in_create(IndustrialDualAnalogIn *industrial_dual_analog_in, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(industrial_dual_analog_in, uid, ipcon->p, 2, 0, 0);
+	device_create(industrial_dual_analog_in, uid, ipcon_p, 2, 0, 0, INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER);
 
 	device_p = industrial_dual_analog_in->p;
 
@@ -227,6 +242,7 @@ void industrial_dual_analog_in_create(IndustrialDualAnalogIn *industrial_dual_an
 	device_p->callback_wrappers[INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE] = industrial_dual_analog_in_callback_wrapper_voltage;
 	device_p->callback_wrappers[INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED] = industrial_dual_analog_in_callback_wrapper_voltage_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void industrial_dual_analog_in_destroy(IndustrialDualAnalogIn *industrial_dual_analog_in) {
@@ -245,7 +261,7 @@ int industrial_dual_analog_in_set_response_expected_all(IndustrialDualAnalogIn *
 	return device_set_response_expected_all(industrial_dual_analog_in->p, response_expected);
 }
 
-void industrial_dual_analog_in_register_callback(IndustrialDualAnalogIn *industrial_dual_analog_in, int16_t callback_id, void *function, void *user_data) {
+void industrial_dual_analog_in_register_callback(IndustrialDualAnalogIn *industrial_dual_analog_in, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(industrial_dual_analog_in->p, callback_id, function, user_data);
 }
 
@@ -259,6 +275,12 @@ int industrial_dual_analog_in_get_voltage(IndustrialDualAnalogIn *industrial_dua
 	GetVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -267,7 +289,7 @@ int industrial_dual_analog_in_get_voltage(IndustrialDualAnalogIn *industrial_dua
 
 	request.channel = channel;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -283,6 +305,12 @@ int industrial_dual_analog_in_set_voltage_callback_period(IndustrialDualAnalogIn
 	SetVoltageCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -292,7 +320,7 @@ int industrial_dual_analog_in_set_voltage_callback_period(IndustrialDualAnalogIn
 	request.channel = channel;
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -303,6 +331,12 @@ int industrial_dual_analog_in_get_voltage_callback_period(IndustrialDualAnalogIn
 	GetVoltageCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -311,7 +345,7 @@ int industrial_dual_analog_in_get_voltage_callback_period(IndustrialDualAnalogIn
 
 	request.channel = channel;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -327,6 +361,12 @@ int industrial_dual_analog_in_set_voltage_callback_threshold(IndustrialDualAnalo
 	SetVoltageCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -338,7 +378,7 @@ int industrial_dual_analog_in_set_voltage_callback_threshold(IndustrialDualAnalo
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -349,6 +389,12 @@ int industrial_dual_analog_in_get_voltage_callback_threshold(IndustrialDualAnalo
 	GetVoltageCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -357,7 +403,7 @@ int industrial_dual_analog_in_get_voltage_callback_threshold(IndustrialDualAnalo
 
 	request.channel = channel;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -375,6 +421,12 @@ int industrial_dual_analog_in_set_debounce_period(IndustrialDualAnalogIn *indust
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -383,7 +435,7 @@ int industrial_dual_analog_in_set_debounce_period(IndustrialDualAnalogIn *indust
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -394,13 +446,19 @@ int industrial_dual_analog_in_get_debounce_period(IndustrialDualAnalogIn *indust
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -416,6 +474,12 @@ int industrial_dual_analog_in_set_sample_rate(IndustrialDualAnalogIn *industrial
 	SetSampleRate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_SAMPLE_RATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -424,7 +488,7 @@ int industrial_dual_analog_in_set_sample_rate(IndustrialDualAnalogIn *industrial
 
 	request.rate = rate;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -435,13 +499,19 @@ int industrial_dual_analog_in_get_sample_rate(IndustrialDualAnalogIn *industrial
 	GetSampleRate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_SAMPLE_RATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -458,6 +528,12 @@ int industrial_dual_analog_in_set_calibration(IndustrialDualAnalogIn *industrial
 	int ret;
 	int i;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_CALIBRATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -467,7 +543,7 @@ int industrial_dual_analog_in_set_calibration(IndustrialDualAnalogIn *industrial
 	for (i = 0; i < 2; i++) request.offset[i] = leconvert_int32_to(offset[i]);
 	for (i = 0; i < 2; i++) request.gain[i] = leconvert_int32_to(gain[i]);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -479,13 +555,19 @@ int industrial_dual_analog_in_get_calibration(IndustrialDualAnalogIn *industrial
 	int ret;
 	int i;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_CALIBRATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -504,13 +586,19 @@ int industrial_dual_analog_in_get_adc_values(IndustrialDualAnalogIn *industrial_
 	int ret;
 	int i;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_ADC_VALUES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -533,7 +621,7 @@ int industrial_dual_analog_in_get_identity(IndustrialDualAnalogIn *industrial_du
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

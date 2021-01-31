@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -225,7 +225,7 @@ void humidity_destroy(Humidity *humidity);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int humidity_get_response_expected(Humidity *humidity, uint8_t function_id, bool *ret_response_expected);
@@ -241,7 +241,7 @@ int humidity_get_response_expected(Humidity *humidity, uint8_t function_id, bool
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int humidity_set_response_expected(Humidity *humidity, uint8_t function_id, bool response_expected);
@@ -260,7 +260,7 @@ int humidity_set_response_expected_all(Humidity *humidity, bool response_expecte
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void humidity_register_callback(Humidity *humidity, int16_t callback_id, void *function, void *user_data);
+void humidity_register_callback(Humidity *humidity, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletHumidity
@@ -273,9 +273,7 @@ int humidity_get_api_version(Humidity *humidity, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletHumidity
  *
- * Returns the humidity of the sensor. The value
- * has a range of 0 to 1000 and is given in %RH/10 (Relative Humidity),
- * i.e. a value of 421 means that a humidity of 42.1 %RH is measured.
+ * Returns the humidity of the sensor.
  * 
  * If you want to get the humidity periodically, it is recommended to use the
  * {@link HUMIDITY_CALLBACK_HUMIDITY} callback and set the period with
@@ -287,7 +285,6 @@ int humidity_get_humidity(Humidity *humidity, uint16_t *ret_humidity);
  * \ingroup BrickletHumidity
  *
  * Returns the value as read by a 12-bit analog-to-digital converter.
- * The value is between 0 and 4095.
  * 
  * \note
  *  The value returned by {@link humidity_get_humidity} is averaged over several samples
@@ -307,13 +304,11 @@ int humidity_get_analog_value(Humidity *humidity, uint16_t *ret_value);
 /**
  * \ingroup BrickletHumidity
  *
- * Sets the period in ms with which the {@link HUMIDITY_CALLBACK_HUMIDITY} callback is triggered
+ * Sets the period with which the {@link HUMIDITY_CALLBACK_HUMIDITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link HUMIDITY_CALLBACK_HUMIDITY} callback is only triggered if the humidity has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int humidity_set_humidity_callback_period(Humidity *humidity, uint32_t period);
 
@@ -327,13 +322,11 @@ int humidity_get_humidity_callback_period(Humidity *humidity, uint32_t *ret_peri
 /**
  * \ingroup BrickletHumidity
  *
- * Sets the period in ms with which the {@link HUMIDITY_CALLBACK_ANALOG_VALUE} callback is triggered
+ * Sets the period with which the {@link HUMIDITY_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link HUMIDITY_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int humidity_set_analog_value_callback_period(Humidity *humidity, uint32_t period);
 
@@ -360,8 +353,6 @@ int humidity_get_analog_value_callback_period(Humidity *humidity, uint32_t *ret_
  *  "'<'",    "Callback is triggered when the humidity is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the humidity is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, uint16_t min, uint16_t max);
 
@@ -388,8 +379,6 @@ int humidity_get_humidity_callback_threshold(Humidity *humidity, char *ret_optio
  *  "'<'",    "Callback is triggered when the analog value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the analog value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int humidity_set_analog_value_callback_threshold(Humidity *humidity, char option, uint16_t min, uint16_t max);
 
@@ -403,7 +392,7 @@ int humidity_get_analog_value_callback_threshold(Humidity *humidity, char *ret_o
 /**
  * \ingroup BrickletHumidity
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link HUMIDITY_CALLBACK_HUMIDITY_REACHED},
  * * {@link HUMIDITY_CALLBACK_ANALOG_VALUE_REACHED}
@@ -414,8 +403,6 @@ int humidity_get_analog_value_callback_threshold(Humidity *humidity, char *ret_o
  * * {@link humidity_set_analog_value_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int humidity_set_debounce_period(Humidity *humidity, uint32_t debounce);
 
@@ -433,7 +420,9 @@ int humidity_get_debounce_period(Humidity *humidity, uint32_t *ret_debounce);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

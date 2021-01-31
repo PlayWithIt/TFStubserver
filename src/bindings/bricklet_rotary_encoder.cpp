@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -36,7 +36,7 @@ typedef void (*Released_CallbackFunction)(void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -149,10 +149,17 @@ typedef struct {
 
 static void rotary_encoder_callback_wrapper_count(DevicePrivate *device_p, Packet *packet) {
 	Count_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT];
-	Count_Callback *callback = (Count_Callback *)packet;
+	void *user_data;
+	Count_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT];
+	if (packet->header.length != sizeof(Count_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Count_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT];
+	callback = (Count_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -165,10 +172,17 @@ static void rotary_encoder_callback_wrapper_count(DevicePrivate *device_p, Packe
 
 static void rotary_encoder_callback_wrapper_count_reached(DevicePrivate *device_p, Packet *packet) {
 	CountReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT_REACHED];
-	CountReached_Callback *callback = (CountReached_Callback *)packet;
+	void *user_data;
+	CountReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT_REACHED];
+	if (packet->header.length != sizeof(CountReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (CountReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_COUNT_REACHED];
+	callback = (CountReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -181,10 +195,17 @@ static void rotary_encoder_callback_wrapper_count_reached(DevicePrivate *device_
 
 static void rotary_encoder_callback_wrapper_pressed(DevicePrivate *device_p, Packet *packet) {
 	Pressed_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_PRESSED];
-	(void)packet;
+	void *user_data;
+	Pressed_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_PRESSED];
+	if (packet->header.length != sizeof(Pressed_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Pressed_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_PRESSED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_PRESSED];
+	callback = (Pressed_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -195,10 +216,17 @@ static void rotary_encoder_callback_wrapper_pressed(DevicePrivate *device_p, Pac
 
 static void rotary_encoder_callback_wrapper_released(DevicePrivate *device_p, Packet *packet) {
 	Released_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_RELEASED];
-	(void)packet;
+	void *user_data;
+	Released_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_RELEASED];
+	if (packet->header.length != sizeof(Released_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Released_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_RELEASED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + ROTARY_ENCODER_CALLBACK_RELEASED];
+	callback = (Released_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -208,9 +236,10 @@ static void rotary_encoder_callback_wrapper_released(DevicePrivate *device_p, Pa
 }
 
 void rotary_encoder_create(RotaryEncoder *rotary_encoder, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(rotary_encoder, uid, ipcon->p, 2, 0, 0);
+	device_create(rotary_encoder, uid, ipcon_p, 2, 0, 0, ROTARY_ENCODER_DEVICE_IDENTIFIER);
 
 	device_p = rotary_encoder->p;
 
@@ -229,6 +258,7 @@ void rotary_encoder_create(RotaryEncoder *rotary_encoder, const char *uid, IPCon
 	device_p->callback_wrappers[ROTARY_ENCODER_CALLBACK_PRESSED] = rotary_encoder_callback_wrapper_pressed;
 	device_p->callback_wrappers[ROTARY_ENCODER_CALLBACK_RELEASED] = rotary_encoder_callback_wrapper_released;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void rotary_encoder_destroy(RotaryEncoder *rotary_encoder) {
@@ -247,7 +277,7 @@ int rotary_encoder_set_response_expected_all(RotaryEncoder *rotary_encoder, bool
 	return device_set_response_expected_all(rotary_encoder->p, response_expected);
 }
 
-void rotary_encoder_register_callback(RotaryEncoder *rotary_encoder, int16_t callback_id, void *function, void *user_data) {
+void rotary_encoder_register_callback(RotaryEncoder *rotary_encoder, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(rotary_encoder->p, callback_id, function, user_data);
 }
 
@@ -261,6 +291,12 @@ int rotary_encoder_get_count(RotaryEncoder *rotary_encoder, bool reset, int32_t 
 	GetCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_GET_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -269,7 +305,7 @@ int rotary_encoder_get_count(RotaryEncoder *rotary_encoder, bool reset, int32_t 
 
 	request.reset = reset ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -285,6 +321,12 @@ int rotary_encoder_set_count_callback_period(RotaryEncoder *rotary_encoder, uint
 	SetCountCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_SET_COUNT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -293,7 +335,7 @@ int rotary_encoder_set_count_callback_period(RotaryEncoder *rotary_encoder, uint
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -304,13 +346,19 @@ int rotary_encoder_get_count_callback_period(RotaryEncoder *rotary_encoder, uint
 	GetCountCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_GET_COUNT_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -326,6 +374,12 @@ int rotary_encoder_set_count_callback_threshold(RotaryEncoder *rotary_encoder, c
 	SetCountCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_SET_COUNT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -336,7 +390,7 @@ int rotary_encoder_set_count_callback_threshold(RotaryEncoder *rotary_encoder, c
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -347,13 +401,19 @@ int rotary_encoder_get_count_callback_threshold(RotaryEncoder *rotary_encoder, c
 	GetCountCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_GET_COUNT_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -371,6 +431,12 @@ int rotary_encoder_set_debounce_period(RotaryEncoder *rotary_encoder, uint32_t d
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -379,7 +445,7 @@ int rotary_encoder_set_debounce_period(RotaryEncoder *rotary_encoder, uint32_t d
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -390,13 +456,19 @@ int rotary_encoder_get_debounce_period(RotaryEncoder *rotary_encoder, uint32_t *
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -413,13 +485,19 @@ int rotary_encoder_is_pressed(RotaryEncoder *rotary_encoder, bool *ret_pressed) 
 	IsPressed_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), ROTARY_ENCODER_FUNCTION_IS_PRESSED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -442,7 +520,7 @@ int rotary_encoder_get_identity(RotaryEncoder *rotary_encoder, char ret_uid[8], 
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

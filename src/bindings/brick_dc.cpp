@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -36,7 +36,7 @@ typedef void (*CurrentVelocity_CallbackFunction)(int16_t velocity, void *user_da
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -304,6 +304,24 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	char port;
+	uint8_t offset;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED WriteBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	char port;
+	uint8_t offset;
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Response;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
@@ -323,10 +341,17 @@ typedef struct {
 
 static void dc_callback_wrapper_under_voltage(DevicePrivate *device_p, Packet *packet) {
 	UnderVoltage_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_UNDER_VOLTAGE];
-	UnderVoltage_Callback *callback = (UnderVoltage_Callback *)packet;
+	void *user_data;
+	UnderVoltage_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_UNDER_VOLTAGE];
+	if (packet->header.length != sizeof(UnderVoltage_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (UnderVoltage_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_UNDER_VOLTAGE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_UNDER_VOLTAGE];
+	callback = (UnderVoltage_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -339,10 +364,17 @@ static void dc_callback_wrapper_under_voltage(DevicePrivate *device_p, Packet *p
 
 static void dc_callback_wrapper_emergency_shutdown(DevicePrivate *device_p, Packet *packet) {
 	EmergencyShutdown_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_EMERGENCY_SHUTDOWN];
-	(void)packet;
+	void *user_data;
+	EmergencyShutdown_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_EMERGENCY_SHUTDOWN];
+	if (packet->header.length != sizeof(EmergencyShutdown_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (EmergencyShutdown_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_EMERGENCY_SHUTDOWN];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_EMERGENCY_SHUTDOWN];
+	callback = (EmergencyShutdown_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -353,10 +385,17 @@ static void dc_callback_wrapper_emergency_shutdown(DevicePrivate *device_p, Pack
 
 static void dc_callback_wrapper_velocity_reached(DevicePrivate *device_p, Packet *packet) {
 	VelocityReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_VELOCITY_REACHED];
-	VelocityReached_Callback *callback = (VelocityReached_Callback *)packet;
+	void *user_data;
+	VelocityReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_VELOCITY_REACHED];
+	if (packet->header.length != sizeof(VelocityReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (VelocityReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_VELOCITY_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_VELOCITY_REACHED];
+	callback = (VelocityReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -369,10 +408,17 @@ static void dc_callback_wrapper_velocity_reached(DevicePrivate *device_p, Packet
 
 static void dc_callback_wrapper_current_velocity(DevicePrivate *device_p, Packet *packet) {
 	CurrentVelocity_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_CURRENT_VELOCITY];
-	CurrentVelocity_Callback *callback = (CurrentVelocity_Callback *)packet;
+	void *user_data;
+	CurrentVelocity_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_CURRENT_VELOCITY];
+	if (packet->header.length != sizeof(CurrentVelocity_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (CurrentVelocity_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_CURRENT_VELOCITY];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DC_CALLBACK_CURRENT_VELOCITY];
+	callback = (CurrentVelocity_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -384,9 +430,10 @@ static void dc_callback_wrapper_current_velocity(DevicePrivate *device_p, Packet
 }
 
 void dc_create(DC *dc, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(dc, uid, ipcon->p, 2, 0, 3);
+	device_create(dc, uid, ipcon_p, 2, 0, 3, DC_DEVICE_IDENTIFIER);
 
 	device_p = dc->p;
 
@@ -422,6 +469,8 @@ void dc_create(DC *dc, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[DC_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_GET_CHIP_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_RESET] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[DC_FUNCTION_WRITE_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[DC_FUNCTION_READ_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[DC_CALLBACK_UNDER_VOLTAGE] = dc_callback_wrapper_under_voltage;
@@ -429,6 +478,7 @@ void dc_create(DC *dc, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[DC_CALLBACK_VELOCITY_REACHED] = dc_callback_wrapper_velocity_reached;
 	device_p->callback_wrappers[DC_CALLBACK_CURRENT_VELOCITY] = dc_callback_wrapper_current_velocity;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void dc_destroy(DC *dc) {
@@ -447,7 +497,7 @@ int dc_set_response_expected_all(DC *dc, bool response_expected) {
 	return device_set_response_expected_all(dc->p, response_expected);
 }
 
-void dc_register_callback(DC *dc, int16_t callback_id, void *function, void *user_data) {
+void dc_register_callback(DC *dc, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(dc->p, callback_id, function, user_data);
 }
 
@@ -460,6 +510,12 @@ int dc_set_velocity(DC *dc, int16_t velocity) {
 	SetVelocity_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -468,7 +524,7 @@ int dc_set_velocity(DC *dc, int16_t velocity) {
 
 	request.velocity = leconvert_int16_to(velocity);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -479,13 +535,19 @@ int dc_get_velocity(DC *dc, int16_t *ret_velocity) {
 	GetVelocity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -502,13 +564,19 @@ int dc_get_current_velocity(DC *dc, int16_t *ret_velocity) {
 	GetCurrentVelocity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CURRENT_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -524,6 +592,12 @@ int dc_set_acceleration(DC *dc, uint16_t acceleration) {
 	SetAcceleration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_ACCELERATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -532,7 +606,7 @@ int dc_set_acceleration(DC *dc, uint16_t acceleration) {
 
 	request.acceleration = leconvert_uint16_to(acceleration);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -543,13 +617,19 @@ int dc_get_acceleration(DC *dc, uint16_t *ret_acceleration) {
 	GetAcceleration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_ACCELERATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -565,6 +645,12 @@ int dc_set_pwm_frequency(DC *dc, uint16_t frequency) {
 	SetPWMFrequency_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_PWM_FREQUENCY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -573,7 +659,7 @@ int dc_set_pwm_frequency(DC *dc, uint16_t frequency) {
 
 	request.frequency = leconvert_uint16_to(frequency);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -584,13 +670,19 @@ int dc_get_pwm_frequency(DC *dc, uint16_t *ret_frequency) {
 	GetPWMFrequency_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_PWM_FREQUENCY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -606,13 +698,19 @@ int dc_full_brake(DC *dc) {
 	FullBrake_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_FULL_BRAKE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -623,13 +721,19 @@ int dc_get_stack_input_voltage(DC *dc, uint16_t *ret_voltage) {
 	GetStackInputVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -646,13 +750,19 @@ int dc_get_external_input_voltage(DC *dc, uint16_t *ret_voltage) {
 	GetExternalInputVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -669,13 +779,19 @@ int dc_get_current_consumption(DC *dc, uint16_t *ret_voltage) {
 	GetCurrentConsumption_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CURRENT_CONSUMPTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -691,13 +807,19 @@ int dc_enable(DC *dc) {
 	Enable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_ENABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -707,13 +829,19 @@ int dc_disable(DC *dc) {
 	Disable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_DISABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -724,13 +852,19 @@ int dc_is_enabled(DC *dc, bool *ret_enabled) {
 	IsEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_IS_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -746,6 +880,12 @@ int dc_set_minimum_voltage(DC *dc, uint16_t voltage) {
 	SetMinimumVoltage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -754,7 +894,7 @@ int dc_set_minimum_voltage(DC *dc, uint16_t voltage) {
 
 	request.voltage = leconvert_uint16_to(voltage);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -765,13 +905,19 @@ int dc_get_minimum_voltage(DC *dc, uint16_t *ret_voltage) {
 	GetMinimumVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -787,6 +933,12 @@ int dc_set_drive_mode(DC *dc, uint8_t mode) {
 	SetDriveMode_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_DRIVE_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -795,7 +947,7 @@ int dc_set_drive_mode(DC *dc, uint8_t mode) {
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -806,13 +958,19 @@ int dc_get_drive_mode(DC *dc, uint8_t *ret_mode) {
 	GetDriveMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_DRIVE_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -828,6 +986,12 @@ int dc_set_current_velocity_period(DC *dc, uint16_t period) {
 	SetCurrentVelocityPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_CURRENT_VELOCITY_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -836,7 +1000,7 @@ int dc_set_current_velocity_period(DC *dc, uint16_t period) {
 
 	request.period = leconvert_uint16_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -847,13 +1011,19 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period) {
 	GetCurrentVelocityPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CURRENT_VELOCITY_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -869,6 +1039,12 @@ int dc_set_spitfp_baudrate_config(DC *dc, bool enable_dynamic_baudrate, uint32_t
 	SetSPITFPBaudrateConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -878,7 +1054,7 @@ int dc_set_spitfp_baudrate_config(DC *dc, bool enable_dynamic_baudrate, uint32_t
 	request.enable_dynamic_baudrate = enable_dynamic_baudrate ? 1 : 0;
 	request.minimum_dynamic_baudrate = leconvert_uint32_to(minimum_dynamic_baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -889,13 +1065,19 @@ int dc_get_spitfp_baudrate_config(DC *dc, bool *ret_enable_dynamic_baudrate, uin
 	GetSPITFPBaudrateConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -913,6 +1095,12 @@ int dc_get_send_timeout_count(DC *dc, uint8_t communication_method, uint32_t *re
 	GetSendTimeoutCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SEND_TIMEOUT_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -921,7 +1109,7 @@ int dc_get_send_timeout_count(DC *dc, uint8_t communication_method, uint32_t *re
 
 	request.communication_method = communication_method;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -937,6 +1125,12 @@ int dc_set_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t baudrate) {
 	SetSPITFPBaudrate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_SET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -946,7 +1140,7 @@ int dc_set_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t baudrate) {
 	request.bricklet_port = bricklet_port;
 	request.baudrate = leconvert_uint32_to(baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -957,6 +1151,12 @@ int dc_get_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t *ret_baudrate) {
 	GetSPITFPBaudrate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -965,7 +1165,7 @@ int dc_get_spitfp_baudrate(DC *dc, char bricklet_port, uint32_t *ret_baudrate) {
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -982,6 +1182,12 @@ int dc_get_spitfp_error_count(DC *dc, char bricklet_port, uint32_t *ret_error_co
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -990,7 +1196,7 @@ int dc_get_spitfp_error_count(DC *dc, char bricklet_port, uint32_t *ret_error_co
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1009,13 +1215,19 @@ int dc_enable_status_led(DC *dc) {
 	EnableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_ENABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1025,13 +1237,19 @@ int dc_disable_status_led(DC *dc) {
 	DisableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_DISABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1042,13 +1260,19 @@ int dc_is_status_led_enabled(DC *dc, bool *ret_enabled) {
 	IsStatusLEDEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_IS_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1065,6 +1289,12 @@ int dc_get_protocol1_bricklet_name(DC *dc, char port, uint8_t *ret_protocol_vers
 	GetProtocol1BrickletName_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1073,7 +1303,7 @@ int dc_get_protocol1_bricklet_name(DC *dc, char port, uint8_t *ret_protocol_vers
 
 	request.port = port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1092,13 +1322,19 @@ int dc_get_chip_temperature(DC *dc, int16_t *ret_temperature) {
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1114,13 +1350,77 @@ int dc_reset(DC *dc) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int dc_write_bricklet_plugin(DC *dc, char port, uint8_t offset, uint8_t chunk[32]) {
+	DevicePrivate *device_p = dc->p;
+	WriteBrickletPlugin_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_WRITE_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+	memcpy(request.chunk, chunk, 32 * sizeof(uint8_t));
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int dc_read_bricklet_plugin(DC *dc, char port, uint8_t offset, uint8_t ret_chunk[32]) {
+	DevicePrivate *device_p = dc->p;
+	ReadBrickletPlugin_Request request;
+	ReadBrickletPlugin_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_READ_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	memcpy(ret_chunk, response.chunk, 32 * sizeof(uint8_t));
 
 	return ret;
 }
@@ -1137,7 +1437,7 @@ int dc_get_identity(DC *dc, char ret_uid[8], char ret_connected_uid[8], char *re
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

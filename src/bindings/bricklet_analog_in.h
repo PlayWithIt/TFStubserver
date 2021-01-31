@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -275,7 +275,7 @@ void analog_in_destroy(AnalogIn *analog_in);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int analog_in_get_response_expected(AnalogIn *analog_in, uint8_t function_id, bool *ret_response_expected);
@@ -291,7 +291,7 @@ int analog_in_get_response_expected(AnalogIn *analog_in, uint8_t function_id, bo
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int analog_in_set_response_expected(AnalogIn *analog_in, uint8_t function_id, bool response_expected);
@@ -310,7 +310,7 @@ int analog_in_set_response_expected_all(AnalogIn *analog_in, bool response_expec
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void analog_in_register_callback(AnalogIn *analog_in, int16_t callback_id, void *function, void *user_data);
+void analog_in_register_callback(AnalogIn *analog_in, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletAnalogIn
@@ -323,8 +323,7 @@ int analog_in_get_api_version(AnalogIn *analog_in, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletAnalogIn
  *
- * Returns the voltage of the sensor. The value is in mV and
- * between 0V and 45V. The resolution between 0 and 6V is about 2mV.
+ * Returns the voltage of the sensor. The resolution between 0 and 6V is about 2mV.
  * Between 6 and 45V the resolution is about 10mV.
  * 
  * If you want to get the voltage periodically, it is recommended to use the
@@ -337,7 +336,6 @@ int analog_in_get_voltage(AnalogIn *analog_in, uint16_t *ret_voltage);
  * \ingroup BrickletAnalogIn
  *
  * Returns the value as read by a 12-bit analog-to-digital converter.
- * The value is between 0 and 4095.
  * 
  * \note
  *  The value returned by {@link analog_in_get_voltage} is averaged over several samples
@@ -354,13 +352,11 @@ int analog_in_get_analog_value(AnalogIn *analog_in, uint16_t *ret_value);
 /**
  * \ingroup BrickletAnalogIn
  *
- * Sets the period in ms with which the {@link ANALOG_IN_CALLBACK_VOLTAGE} callback is triggered
+ * Sets the period with which the {@link ANALOG_IN_CALLBACK_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link ANALOG_IN_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since
  * the last triggering.
- * 
- * The default value is 0.
  */
 int analog_in_set_voltage_callback_period(AnalogIn *analog_in, uint32_t period);
 
@@ -374,13 +370,11 @@ int analog_in_get_voltage_callback_period(AnalogIn *analog_in, uint32_t *ret_per
 /**
  * \ingroup BrickletAnalogIn
  *
- * Sets the period in ms with which the {@link ANALOG_IN_CALLBACK_ANALOG_VALUE} callback is triggered
+ * Sets the period with which the {@link ANALOG_IN_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link ANALOG_IN_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int analog_in_set_analog_value_callback_period(AnalogIn *analog_in, uint32_t period);
 
@@ -407,8 +401,6 @@ int analog_in_get_analog_value_callback_period(AnalogIn *analog_in, uint32_t *re
  *  "'<'",    "Callback is triggered when the voltage is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the voltage is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int analog_in_set_voltage_callback_threshold(AnalogIn *analog_in, char option, uint16_t min, uint16_t max);
 
@@ -435,8 +427,6 @@ int analog_in_get_voltage_callback_threshold(AnalogIn *analog_in, char *ret_opti
  *  "'<'",    "Callback is triggered when the analog value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the analog value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int analog_in_set_analog_value_callback_threshold(AnalogIn *analog_in, char option, uint16_t min, uint16_t max);
 
@@ -450,7 +440,7 @@ int analog_in_get_analog_value_callback_threshold(AnalogIn *analog_in, char *ret
 /**
  * \ingroup BrickletAnalogIn
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link ANALOG_IN_CALLBACK_VOLTAGE_REACHED},
  * * {@link ANALOG_IN_CALLBACK_ANALOG_VALUE_REACHED}
@@ -461,8 +451,6 @@ int analog_in_get_analog_value_callback_threshold(AnalogIn *analog_in, char *ret
  * * {@link analog_in_set_analog_value_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int analog_in_set_debounce_period(AnalogIn *analog_in, uint32_t debounce);
 
@@ -484,8 +472,6 @@ int analog_in_get_debounce_period(AnalogIn *analog_in, uint32_t *ret_debounce);
  * * 3: 0V - 36.30V, ~8.86mV resolution
  * * 4: 0V - 45.00V, ~11.25mV resolution
  * * 5: 0V - 3.3V, ~0.81mV resolution, new in version 2.0.3$nbsp;(Plugin)
- * 
- * The default measurement range is 0.
  * 
  * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
@@ -509,8 +495,6 @@ int analog_in_get_range(AnalogIn *analog_in, uint8_t *ret_range);
  * averaging is off, there is more noise on the data, but the data is without
  * delay.
  * 
- * The default value is 50.
- * 
  * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int analog_in_set_averaging(AnalogIn *analog_in, uint8_t average);
@@ -531,7 +515,9 @@ int analog_in_get_averaging(AnalogIn *analog_in, uint8_t *ret_average);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

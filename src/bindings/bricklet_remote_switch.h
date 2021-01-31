@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -154,7 +154,7 @@ void remote_switch_destroy(RemoteSwitch *remote_switch);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int remote_switch_get_response_expected(RemoteSwitch *remote_switch, uint8_t function_id, bool *ret_response_expected);
@@ -170,7 +170,7 @@ int remote_switch_get_response_expected(RemoteSwitch *remote_switch, uint8_t fun
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int remote_switch_set_response_expected(RemoteSwitch *remote_switch, uint8_t function_id, bool response_expected);
@@ -189,7 +189,7 @@ int remote_switch_set_response_expected_all(RemoteSwitch *remote_switch, bool re
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void remote_switch_register_callback(RemoteSwitch *remote_switch, int16_t callback_id, void *function, void *user_data);
+void remote_switch_register_callback(RemoteSwitch *remote_switch, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletRemoteSwitch
@@ -211,7 +211,7 @@ int remote_switch_switch_socket(RemoteSwitch *remote_switch, uint8_t house_code,
  *
  * Returns the current switching state. If the current state is busy, the
  * Bricklet is currently sending a code to switch a socket. It will not
- * accept any calls of {@link remote_switch_switch_socket} until the state changes to ready.
+ * accept any requests to switch sockets until the state changes to ready.
  * 
  * How long the switching takes is dependent on the number of repeats, see
  * {@link remote_switch_set_repeats}.
@@ -221,14 +221,12 @@ int remote_switch_get_switching_state(RemoteSwitch *remote_switch, uint8_t *ret_
 /**
  * \ingroup BrickletRemoteSwitch
  *
- * Sets the number of times the code is send when of the {@link remote_switch_switch_socket}
+ * Sets the number of times the code is sent when one of the switch socket
  * functions is called. The repeats basically correspond to the amount of time
  * that a button of the remote is pressed.
  * 
  * Some dimmers are controlled by the length of a button pressed,
  * this can be simulated by increasing the repeats.
- * 
- * The default value is 5.
  */
 int remote_switch_set_repeats(RemoteSwitch *remote_switch, uint8_t repeats);
 
@@ -245,8 +243,6 @@ int remote_switch_get_repeats(RemoteSwitch *remote_switch, uint8_t *ret_repeats)
  * To switch a type A socket you have to give the house code, receiver code and the
  * state (on or off) you want to switch to.
  * 
- * The house code and receiver code have a range of 0 to 31 (5bit).
- * 
  * A detailed description on how you can figure out the house and receiver code
  * can be found :ref:`here <remote_switch_bricklet_type_a_house_and_receiver_code>`.
  * 
@@ -260,9 +256,7 @@ int remote_switch_switch_socket_a(RemoteSwitch *remote_switch, uint8_t house_cod
  * To switch a type B socket you have to give the address, unit and the state
  * (on or off) you want to switch to.
  * 
- * The address has a range of 0 to 67108863 (26bit) and the unit has a range
- * of 0 to 15 (4bit). To switch all devices with the same address use 255 for
- * the unit.
+ * To switch all devices with the same address use 255 for the unit.
  * 
  * A detailed description on how you can teach a socket the address and unit can
  * be found :ref:`here <remote_switch_bricklet_type_b_address_and_unit>`.
@@ -277,9 +271,6 @@ int remote_switch_switch_socket_b(RemoteSwitch *remote_switch, uint32_t address,
  * To control a type B dimmer you have to give the address, unit and the
  * dim value you want to set the dimmer to.
  * 
- * The address has a range of 0 to 67108863 (26bit), the unit and the dim value
- * has a range of 0 to 15 (4bit).
- * 
  * A detailed description on how you can teach a dimmer the address and unit can
  * be found :ref:`here <remote_switch_bricklet_type_b_address_and_unit>`.
  * 
@@ -292,9 +283,6 @@ int remote_switch_dim_socket_b(RemoteSwitch *remote_switch, uint32_t address, ui
  *
  * To switch a type C socket you have to give the system code, device code and the
  * state (on or off) you want to switch to.
- * 
- * The system code has a range of 'A' to 'P' (4bit) and the device code has a
- * range of 1 to 16 (4bit).
  * 
  * A detailed description on how you can figure out the system and device code
  * can be found :ref:`here <remote_switch_bricklet_type_c_system_and_device_code>`.
@@ -310,7 +298,9 @@ int remote_switch_switch_socket_c(RemoteSwitch *remote_switch, char system_code,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -242,7 +242,7 @@ void load_cell_destroy(LoadCell *load_cell);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int load_cell_get_response_expected(LoadCell *load_cell, uint8_t function_id, bool *ret_response_expected);
@@ -258,7 +258,7 @@ int load_cell_get_response_expected(LoadCell *load_cell, uint8_t function_id, bo
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int load_cell_set_response_expected(LoadCell *load_cell, uint8_t function_id, bool response_expected);
@@ -277,7 +277,7 @@ int load_cell_set_response_expected_all(LoadCell *load_cell, bool response_expec
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void load_cell_register_callback(LoadCell *load_cell, int16_t callback_id, void *function, void *user_data);
+void load_cell_register_callback(LoadCell *load_cell, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLoadCell
@@ -290,7 +290,7 @@ int load_cell_get_api_version(LoadCell *load_cell, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletLoadCell
  *
- * Returns the currently measured weight in grams.
+ * Returns the currently measured weight.
  * 
  * If you want to get the weight periodically, it is recommended
  * to use the {@link LOAD_CELL_CALLBACK_WEIGHT} callback and set the period with
@@ -301,13 +301,11 @@ int load_cell_get_weight(LoadCell *load_cell, int32_t *ret_weight);
 /**
  * \ingroup BrickletLoadCell
  *
- * Sets the period in ms with which the {@link LOAD_CELL_CALLBACK_WEIGHT} callback is triggered
+ * Sets the period with which the {@link LOAD_CELL_CALLBACK_WEIGHT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link LOAD_CELL_CALLBACK_WEIGHT} callback is only triggered if the weight has changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int load_cell_set_weight_callback_period(LoadCell *load_cell, uint32_t period);
 
@@ -334,8 +332,6 @@ int load_cell_get_weight_callback_period(LoadCell *load_cell, uint32_t *ret_peri
  *  "'<'",    "Callback is triggered when the weight is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the weight is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int load_cell_set_weight_callback_threshold(LoadCell *load_cell, char option, int32_t min, int32_t max);
 
@@ -349,7 +345,7 @@ int load_cell_get_weight_callback_threshold(LoadCell *load_cell, char *ret_optio
 /**
  * \ingroup BrickletLoadCell
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link LOAD_CELL_CALLBACK_WEIGHT_REACHED}
  * 
@@ -358,8 +354,6 @@ int load_cell_get_weight_callback_threshold(LoadCell *load_cell, char *ret_optio
  * * {@link load_cell_set_weight_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int load_cell_set_debounce_period(LoadCell *load_cell, uint32_t debounce);
 
@@ -378,10 +372,6 @@ int load_cell_get_debounce_period(LoadCell *load_cell, uint32_t *ret_debounce);
  * 
  * Setting the length to 1 will turn the averaging off. With less
  * averaging, there is more noise on the data.
- * 
- * The range for the averaging is 1-40.
- * 
- * The default value is 4.
  */
 int load_cell_set_moving_average(LoadCell *load_cell, uint8_t average);
 
@@ -419,8 +409,7 @@ int load_cell_is_led_on(LoadCell *load_cell, bool *ret_on);
  * To calibrate your Load Cell Bricklet you have to
  * 
  * * empty the scale and call this function with 0 and
- * * add a known weight to the scale and call this function with the weight in
- *   grams.
+ * * add a known weight to the scale and call this function with the weight.
  * 
  * The calibration is saved in the EEPROM of the Bricklet and only
  * needs to be done once.
@@ -458,8 +447,6 @@ int load_cell_tare(LoadCell *load_cell);
  * 
  * We recommend to use the Brick Viewer for configuration, you don't need
  * to call this function in your source code.
- * 
- * The default rate is 10Hz and the default gain is 128x.
  */
 int load_cell_set_configuration(LoadCell *load_cell, uint8_t rate, uint8_t gain);
 
@@ -477,7 +464,9 @@ int load_cell_get_configuration(LoadCell *load_cell, uint8_t *ret_rate, uint8_t 
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

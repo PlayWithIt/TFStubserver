@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -135,7 +135,7 @@ void industrial_quad_relay_destroy(IndustrialQuadRelay *industrial_quad_relay);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int industrial_quad_relay_get_response_expected(IndustrialQuadRelay *industrial_quad_relay, uint8_t function_id, bool *ret_response_expected);
@@ -151,7 +151,7 @@ int industrial_quad_relay_get_response_expected(IndustrialQuadRelay *industrial_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int industrial_quad_relay_set_response_expected(IndustrialQuadRelay *industrial_quad_relay, uint8_t function_id, bool response_expected);
@@ -170,7 +170,7 @@ int industrial_quad_relay_set_response_expected_all(IndustrialQuadRelay *industr
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void industrial_quad_relay_register_callback(IndustrialQuadRelay *industrial_quad_relay, int16_t callback_id, void *function, void *user_data);
+void industrial_quad_relay_register_callback(IndustrialQuadRelay *industrial_quad_relay, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletIndustrialQuadRelay
@@ -190,11 +190,13 @@ int industrial_quad_relay_get_api_version(IndustrialQuadRelay *industrial_quad_r
  * the other pins.
  * 
  * If no groups are used (see {@link industrial_quad_relay_set_group}), the pins correspond to the
- * markings on the Quad Relay Bricklet.
+ * markings on the Industrial Quad Relay Bricklet.
  * 
  * If groups are used, the pins correspond to the element in the group.
  * Element 1 in the group will get pins 0-3, element 2 pins 4-7, element 3
  * pins 8-11 and element 4 pins 12-15.
+ * 
+ * All running monoflop timers will be aborted if this function is called.
  */
 int industrial_quad_relay_set_value(IndustrialQuadRelay *industrial_quad_relay, uint16_t value_mask);
 
@@ -214,7 +216,7 @@ int industrial_quad_relay_get_value(IndustrialQuadRelay *industrial_quad_relay, 
  * The second parameter is a bitmask with the desired value of the specified
  * pins. A 1 in the bitmask means relay closed and a 0 means relay open.
  * 
- * The third parameter indicates the time (in ms) that the pins should hold
+ * The third parameter indicates the time that the pins should hold
  * the value.
  * 
  * If this function is called with the parameters (9, 1, 1500) or
@@ -288,11 +290,14 @@ int industrial_quad_relay_get_available_for_group(IndustrialQuadRelay *industria
  * pin 0, open the relay of pin 1 and leave the others untouched.
  * 
  * If no groups are used (see {@link industrial_quad_relay_set_group}), the pins correspond to the
- * markings on the Quad Relay Bricklet.
+ * markings on the Industrial Quad Relay Bricklet.
  * 
  * If groups are used, the pins correspond to the element in the group.
  * Element 1 in the group will get pins 0-3, element 2 pins 4-7, element 3
  * pins 8-11 and element 4 pins 12-15.
+ * 
+ * Running monoflop timers for the selected relays will be aborted if this function
+ * is called.
  */
 int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_quad_relay, uint16_t selection_mask, uint16_t value_mask);
 
@@ -303,7 +308,9 @@ int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_qu
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

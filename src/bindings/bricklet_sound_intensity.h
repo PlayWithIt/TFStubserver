@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -172,7 +172,7 @@ void sound_intensity_destroy(SoundIntensity *sound_intensity);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int sound_intensity_get_response_expected(SoundIntensity *sound_intensity, uint8_t function_id, bool *ret_response_expected);
@@ -188,7 +188,7 @@ int sound_intensity_get_response_expected(SoundIntensity *sound_intensity, uint8
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int sound_intensity_set_response_expected(SoundIntensity *sound_intensity, uint8_t function_id, bool response_expected);
@@ -207,7 +207,7 @@ int sound_intensity_set_response_expected_all(SoundIntensity *sound_intensity, b
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void sound_intensity_register_callback(SoundIntensity *sound_intensity, int16_t callback_id, void *function, void *user_data);
+void sound_intensity_register_callback(SoundIntensity *sound_intensity, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletSoundIntensity
@@ -220,8 +220,7 @@ int sound_intensity_get_api_version(SoundIntensity *sound_intensity, uint8_t ret
 /**
  * \ingroup BrickletSoundIntensity
  *
- * Returns the current sound intensity. The value has a range of
- * 0 to 4095.
+ * Returns the current sound intensity.
  * 
  * The value corresponds to the
  * `upper envelop <https://en.wikipedia.org/wiki/Envelope_(waves)>`__
@@ -236,13 +235,11 @@ int sound_intensity_get_intensity(SoundIntensity *sound_intensity, uint16_t *ret
 /**
  * \ingroup BrickletSoundIntensity
  *
- * Sets the period in ms with which the {@link SOUND_INTENSITY_CALLBACK_INTENSITY} callback is triggered
+ * Sets the period with which the {@link SOUND_INTENSITY_CALLBACK_INTENSITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link SOUND_INTENSITY_CALLBACK_INTENSITY} callback is only triggered if the intensity has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int sound_intensity_set_intensity_callback_period(SoundIntensity *sound_intensity, uint32_t period);
 
@@ -269,8 +266,6 @@ int sound_intensity_get_intensity_callback_period(SoundIntensity *sound_intensit
  *  "'<'",    "Callback is triggered when the intensity is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the intensity is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int sound_intensity_set_intensity_callback_threshold(SoundIntensity *sound_intensity, char option, uint16_t min, uint16_t max);
 
@@ -284,7 +279,7 @@ int sound_intensity_get_intensity_callback_threshold(SoundIntensity *sound_inten
 /**
  * \ingroup BrickletSoundIntensity
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED}
  * 
@@ -293,8 +288,6 @@ int sound_intensity_get_intensity_callback_threshold(SoundIntensity *sound_inten
  * * {@link sound_intensity_set_intensity_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int sound_intensity_set_debounce_period(SoundIntensity *sound_intensity, uint32_t debounce);
 
@@ -312,7 +305,9 @@ int sound_intensity_get_debounce_period(SoundIntensity *sound_intensity, uint32_
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

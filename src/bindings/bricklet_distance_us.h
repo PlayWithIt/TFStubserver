@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -182,7 +182,7 @@ void distance_us_destroy(DistanceUS *distance_us);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int distance_us_get_response_expected(DistanceUS *distance_us, uint8_t function_id, bool *ret_response_expected);
@@ -198,7 +198,7 @@ int distance_us_get_response_expected(DistanceUS *distance_us, uint8_t function_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int distance_us_set_response_expected(DistanceUS *distance_us, uint8_t function_id, bool response_expected);
@@ -217,7 +217,7 @@ int distance_us_set_response_expected_all(DistanceUS *distance_us, bool response
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void distance_us_register_callback(DistanceUS *distance_us, int16_t callback_id, void *function, void *user_data);
+void distance_us_register_callback(DistanceUS *distance_us, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletDistanceUS
@@ -230,8 +230,8 @@ int distance_us_get_api_version(DistanceUS *distance_us, uint8_t ret_api_version
 /**
  * \ingroup BrickletDistanceUS
  *
- * Returns the current distance value measured by the sensor. The value has a
- * range of 0 to 4095. A small value corresponds to a small distance, a big
+ * Returns the current distance value measured by the sensor.
+ * A small value corresponds to a small distance, a big
  * value corresponds to a big distance. The relation between the measured distance
  * value and the actual distance is affected by the 5V supply voltage (deviations
  * in the supply voltage result in deviations in the distance values) and is
@@ -246,13 +246,11 @@ int distance_us_get_distance_value(DistanceUS *distance_us, uint16_t *ret_distan
 /**
  * \ingroup BrickletDistanceUS
  *
- * Sets the period in ms with which the {@link DISTANCE_US_CALLBACK_DISTANCE} callback is triggered
+ * Sets the period with which the {@link DISTANCE_US_CALLBACK_DISTANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * Der {@link DISTANCE_US_CALLBACK_DISTANCE} callback is only triggered if the distance value has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int distance_us_set_distance_callback_period(DistanceUS *distance_us, uint32_t period);
 
@@ -279,8 +277,6 @@ int distance_us_get_distance_callback_period(DistanceUS *distance_us, uint32_t *
  *  "'<'",    "Callback is triggered when the distance value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the distance value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int distance_us_set_distance_callback_threshold(DistanceUS *distance_us, char option, uint16_t min, uint16_t max);
 
@@ -294,7 +290,7 @@ int distance_us_get_distance_callback_threshold(DistanceUS *distance_us, char *r
 /**
  * \ingroup BrickletDistanceUS
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link DISTANCE_US_CALLBACK_DISTANCE_REACHED},
  * 
@@ -303,8 +299,6 @@ int distance_us_get_distance_callback_threshold(DistanceUS *distance_us, char *r
  * * {@link distance_us_set_distance_callback_threshold},
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int distance_us_set_debounce_period(DistanceUS *distance_us, uint32_t debounce);
 
@@ -323,10 +317,6 @@ int distance_us_get_debounce_period(DistanceUS *distance_us, uint32_t *ret_debou
  * 
  * Setting the length to 0 will turn the averaging completely off. With less
  * averaging, there is more noise on the data.
- * 
- * The range for the averaging is 0-100.
- * 
- * The default value is 20.
  */
 int distance_us_set_moving_average(DistanceUS *distance_us, uint8_t average);
 
@@ -344,7 +334,9 @@ int distance_us_get_moving_average(DistanceUS *distance_us, uint8_t *ret_average
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

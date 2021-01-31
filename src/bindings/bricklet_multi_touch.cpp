@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*TouchState_CallbackFunction)(uint16_t state, void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -106,10 +106,17 @@ typedef struct {
 
 static void multi_touch_callback_wrapper_touch_state(DevicePrivate *device_p, Packet *packet) {
 	TouchState_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MULTI_TOUCH_CALLBACK_TOUCH_STATE];
-	TouchState_Callback *callback = (TouchState_Callback *)packet;
+	void *user_data;
+	TouchState_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MULTI_TOUCH_CALLBACK_TOUCH_STATE];
+	if (packet->header.length != sizeof(TouchState_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (TouchState_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MULTI_TOUCH_CALLBACK_TOUCH_STATE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MULTI_TOUCH_CALLBACK_TOUCH_STATE];
+	callback = (TouchState_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -121,9 +128,10 @@ static void multi_touch_callback_wrapper_touch_state(DevicePrivate *device_p, Pa
 }
 
 void multi_touch_create(MultiTouch *multi_touch, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(multi_touch, uid, ipcon->p, 2, 0, 0);
+	device_create(multi_touch, uid, ipcon_p, 2, 0, 0, MULTI_TOUCH_DEVICE_IDENTIFIER);
 
 	device_p = multi_touch->p;
 
@@ -137,6 +145,7 @@ void multi_touch_create(MultiTouch *multi_touch, const char *uid, IPConnection *
 
 	device_p->callback_wrappers[MULTI_TOUCH_CALLBACK_TOUCH_STATE] = multi_touch_callback_wrapper_touch_state;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void multi_touch_destroy(MultiTouch *multi_touch) {
@@ -155,7 +164,7 @@ int multi_touch_set_response_expected_all(MultiTouch *multi_touch, bool response
 	return device_set_response_expected_all(multi_touch->p, response_expected);
 }
 
-void multi_touch_register_callback(MultiTouch *multi_touch, int16_t callback_id, void *function, void *user_data) {
+void multi_touch_register_callback(MultiTouch *multi_touch, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(multi_touch->p, callback_id, function, user_data);
 }
 
@@ -169,13 +178,19 @@ int multi_touch_get_touch_state(MultiTouch *multi_touch, uint16_t *ret_state) {
 	GetTouchState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MULTI_TOUCH_FUNCTION_GET_TOUCH_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -191,13 +206,19 @@ int multi_touch_recalibrate(MultiTouch *multi_touch) {
 	Recalibrate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MULTI_TOUCH_FUNCTION_RECALIBRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -207,6 +228,12 @@ int multi_touch_set_electrode_config(MultiTouch *multi_touch, uint16_t enabled_e
 	SetElectrodeConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MULTI_TOUCH_FUNCTION_SET_ELECTRODE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -215,7 +242,7 @@ int multi_touch_set_electrode_config(MultiTouch *multi_touch, uint16_t enabled_e
 
 	request.enabled_electrodes = leconvert_uint16_to(enabled_electrodes);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -226,13 +253,19 @@ int multi_touch_get_electrode_config(MultiTouch *multi_touch, uint16_t *ret_enab
 	GetElectrodeConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MULTI_TOUCH_FUNCTION_GET_ELECTRODE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -248,6 +281,12 @@ int multi_touch_set_electrode_sensitivity(MultiTouch *multi_touch, uint8_t sensi
 	SetElectrodeSensitivity_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MULTI_TOUCH_FUNCTION_SET_ELECTRODE_SENSITIVITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -256,7 +295,7 @@ int multi_touch_set_electrode_sensitivity(MultiTouch *multi_touch, uint8_t sensi
 
 	request.sensitivity = sensitivity;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -267,13 +306,19 @@ int multi_touch_get_electrode_sensitivity(MultiTouch *multi_touch, uint8_t *ret_
 	GetElectrodeSensitivity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MULTI_TOUCH_FUNCTION_GET_ELECTRODE_SENSITIVITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -296,7 +341,7 @@ int multi_touch_get_identity(MultiTouch *multi_touch, char ret_uid[8], char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

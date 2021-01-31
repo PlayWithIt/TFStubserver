@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -119,7 +119,7 @@ typedef Device LEDStrip;
  * Signature: \code void callback(uint16_t length, void *user_data) \endcode
  * 
  * This callback is triggered directly after a new frame is rendered. The
- * parameter is the number of LEDs in that frame.
+ * parameter is the number of RGB or RGBW LEDs in that frame.
  * 
  * You should send the data for the next frame directly after this callback
  * was triggered.
@@ -354,7 +354,7 @@ void led_strip_destroy(LEDStrip *led_strip);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int led_strip_get_response_expected(LEDStrip *led_strip, uint8_t function_id, bool *ret_response_expected);
@@ -370,7 +370,7 @@ int led_strip_get_response_expected(LEDStrip *led_strip, uint8_t function_id, bo
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int led_strip_set_response_expected(LEDStrip *led_strip, uint8_t function_id, bool response_expected);
@@ -389,7 +389,7 @@ int led_strip_set_response_expected_all(LEDStrip *led_strip, bool response_expec
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void led_strip_register_callback(LEDStrip *led_strip, int16_t callback_id, void *function, void *user_data);
+void led_strip_register_callback(LEDStrip *led_strip, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLEDStrip
@@ -402,15 +402,11 @@ int led_strip_get_api_version(LEDStrip *led_strip, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Sets the RGB values for the LEDs with the given *length* starting
- * from *index*.
+ * Sets *length* RGB values for the LEDs starting from *index*.
  * 
  * To make the colors show correctly you need to configure the chip type
  * ({@link led_strip_set_chip_type}) and a 3-channel channel mapping ({@link led_strip_set_channel_mapping})
  * according to the connected LEDs.
- * 
- * The maximum length is 16, the index goes from 0 to 319 and the rgb values
- * have 8 bits each.
  * 
  * Example: If you set
  * 
@@ -450,8 +446,8 @@ int led_strip_set_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns RGB value with the given *length* starting from the
- * given *index*.
+ * Returns *length* R, G and B values starting from the
+ * given LED *index*.
  * 
  * The values are the last values that were set by {@link led_strip_set_rgb_values}.
  */
@@ -460,36 +456,33 @@ int led_strip_get_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
 /**
  * \ingroup BrickletLEDStrip
  *
- * Sets the frame duration in ms.
+ * Sets the frame duration.
  * 
  * Example: If you want to achieve 20 frames per second, you should
  * set the frame duration to 50ms (50ms * 20 = 1 second).
  * 
  * For an explanation of the general approach see {@link led_strip_set_rgb_values}.
- * 
- * Default value: 100ms (10 frames per second).
  */
 int led_strip_set_frame_duration(LEDStrip *led_strip, uint16_t duration);
 
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns the frame duration in ms as set by {@link led_strip_set_frame_duration}.
+ * Returns the frame duration as set by {@link led_strip_set_frame_duration}.
  */
 int led_strip_get_frame_duration(LEDStrip *led_strip, uint16_t *ret_duration);
 
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns the current supply voltage of the LEDs. The voltage is given in mV.
+ * Returns the current supply voltage of the LEDs.
  */
 int led_strip_get_supply_voltage(LEDStrip *led_strip, uint16_t *ret_voltage);
 
 /**
  * \ingroup BrickletLEDStrip
  *
- * Sets the frequency of the clock in Hz. The range is 10000Hz (10kHz) up to
- * 2000000Hz (2MHz).
+ * Sets the frequency of the clock.
  * 
  * The Bricklet will choose the nearest achievable frequency, which may
  * be off by a few Hz. You can get the exact frequency that is used by
@@ -501,8 +494,6 @@ int led_strip_get_supply_voltage(LEDStrip *led_strip, uint16_t *ret_voltage);
  * 
  * With a decreasing frequency your maximum frames per second will decrease
  * too.
- * 
- * The default value is 1.66MHz.
  * 
  * \note
  *  The frequency in firmware version 2.0.0 is fixed at 2MHz.
@@ -532,8 +523,6 @@ int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency);
  * * LPD8806 and
  * * APA102 / DotStar.
  * 
- * The default value is WS2801 (2801).
- * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
 int led_strip_set_chip_type(LEDStrip *led_strip, uint16_t chip);
@@ -550,8 +539,7 @@ int led_strip_get_chip_type(LEDStrip *led_strip, uint16_t *ret_chip);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Sets the RGBW values for the LEDs with the given *length* starting
- * from *index*.
+ * Sets *length* RGBW values for the LEDs starting from *index*.
  * 
  * To make the colors show correctly you need to configure the chip type
  * ({@link led_strip_set_chip_type}) and a 4-channel channel mapping ({@link led_strip_set_channel_mapping})
@@ -611,8 +599,7 @@ int led_strip_set_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t lengt
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns RGBW values with the given *length* starting from the
- * given *index*.
+ * Returns *length* RGBW values starting from the given *index*.
  * 
  * The values are the last values that were set by {@link led_strip_set_rgbw_values}.
  * 
@@ -642,8 +629,6 @@ int led_strip_get_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t lengt
  * results. Vice-versa if a 4-channel mapping is selected then
  * {@link led_strip_set_rgbw_values} has to be used. Calling {@link led_strip_set_rgb_values} with a
  * 4-channel mapping will produce incorrect results.
- * 
- * The default value is BGR (36).
  * 
  * .. versionadded:: 2.0.6$nbsp;(Plugin)
  */
@@ -696,7 +681,9 @@ int led_strip_is_frame_rendered_callback_enabled(LEDStrip *led_strip, bool *ret_
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

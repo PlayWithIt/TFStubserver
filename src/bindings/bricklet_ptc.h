@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -299,7 +299,7 @@ void ptc_destroy(PTC *ptc);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int ptc_get_response_expected(PTC *ptc, uint8_t function_id, bool *ret_response_expected);
@@ -315,7 +315,7 @@ int ptc_get_response_expected(PTC *ptc, uint8_t function_id, bool *ret_response_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int ptc_set_response_expected(PTC *ptc, uint8_t function_id, bool response_expected);
@@ -334,7 +334,7 @@ int ptc_set_response_expected_all(PTC *ptc, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void ptc_register_callback(PTC *ptc, int16_t callback_id, void *function, void *user_data);
+void ptc_register_callback(PTC *ptc, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletPTC
@@ -347,9 +347,7 @@ int ptc_get_api_version(PTC *ptc, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletPTC
  *
- * Returns the temperature of connected sensor. The value
- * has a range of -246 to 849 °C and is given in °C/100,
- * e.g. a value of 4223 means that a temperature of 42.23 °C is measured.
+ * Returns the temperature of connected sensor.
  * 
  * If you want to get the temperature periodically, it is recommended
  * to use the {@link PTC_CALLBACK_TEMPERATURE} callback and set the period with
@@ -376,13 +374,11 @@ int ptc_get_resistance(PTC *ptc, int32_t *ret_resistance);
 /**
  * \ingroup BrickletPTC
  *
- * Sets the period in ms with which the {@link PTC_CALLBACK_TEMPERATURE} callback is triggered
+ * Sets the period with which the {@link PTC_CALLBACK_TEMPERATURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link PTC_CALLBACK_TEMPERATURE} callback is only triggered if the temperature has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int ptc_set_temperature_callback_period(PTC *ptc, uint32_t period);
 
@@ -396,13 +392,11 @@ int ptc_get_temperature_callback_period(PTC *ptc, uint32_t *ret_period);
 /**
  * \ingroup BrickletPTC
  *
- * Sets the period in ms with which the {@link PTC_CALLBACK_RESISTANCE} callback is triggered
+ * Sets the period with which the {@link PTC_CALLBACK_RESISTANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link PTC_CALLBACK_RESISTANCE} callback is only triggered if the resistance has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int ptc_set_resistance_callback_period(PTC *ptc, uint32_t period);
 
@@ -429,8 +423,6 @@ int ptc_get_resistance_callback_period(PTC *ptc, uint32_t *ret_period);
  *  "'<'",    "Callback is triggered when the temperature is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the temperature is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int ptc_set_temperature_callback_threshold(PTC *ptc, char option, int32_t min, int32_t max);
 
@@ -457,8 +449,6 @@ int ptc_get_temperature_callback_threshold(PTC *ptc, char *ret_option, int32_t *
  *  "'<'",    "Callback is triggered when the temperature is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the temperature is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int ptc_set_resistance_callback_threshold(PTC *ptc, char option, int32_t min, int32_t max);
 
@@ -472,7 +462,7 @@ int ptc_get_resistance_callback_threshold(PTC *ptc, char *ret_option, int32_t *r
 /**
  * \ingroup BrickletPTC
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link PTC_CALLBACK_TEMPERATURE_REACHED},
  * * {@link PTC_CALLBACK_RESISTANCE_REACHED}
@@ -483,8 +473,6 @@ int ptc_get_resistance_callback_threshold(PTC *ptc, char *ret_option, int32_t *r
  * * {@link ptc_set_resistance_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int ptc_set_debounce_period(PTC *ptc, uint32_t debounce);
 
@@ -502,8 +490,6 @@ int ptc_get_debounce_period(PTC *ptc, uint32_t *ret_debounce);
  * Noise from 50Hz or 60Hz power sources (including
  * harmonics of the AC power's fundamental frequency) is
  * attenuated by 82dB.
- * 
- * Default value is 0 = 50Hz.
  */
 int ptc_set_noise_rejection_filter(PTC *ptc, uint8_t filter);
 
@@ -532,8 +518,6 @@ int ptc_is_sensor_connected(PTC *ptc, bool *ret_connected);
  * Sets the wire mode of the sensor. Possible values are 2, 3 and 4 which
  * correspond to 2-, 3- and 4-wire sensors. The value has to match the jumper
  * configuration on the Bricklet.
- * 
- * The default value is 2 = 2-wire.
  */
 int ptc_set_wire_mode(PTC *ptc, uint8_t mode);
 
@@ -549,8 +533,6 @@ int ptc_get_wire_mode(PTC *ptc, uint8_t *ret_mode);
  *
  * If you enable this callback, the {@link PTC_CALLBACK_SENSOR_CONNECTED} callback is triggered
  * every time a Pt sensor is connected/disconnected.
- * 
- * By default this callback is disabled.
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
@@ -572,7 +554,9 @@ int ptc_get_sensor_connected_callback_configuration(PTC *ptc, bool *ret_enabled)
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

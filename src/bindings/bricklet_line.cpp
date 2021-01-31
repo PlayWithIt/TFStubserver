@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*ReflectivityReached_CallbackFunction)(uint16_t reflectivity, void
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -127,10 +127,17 @@ typedef struct {
 
 static void line_callback_wrapper_reflectivity(DevicePrivate *device_p, Packet *packet) {
 	Reflectivity_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY];
-	Reflectivity_Callback *callback = (Reflectivity_Callback *)packet;
+	void *user_data;
+	Reflectivity_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY];
+	if (packet->header.length != sizeof(Reflectivity_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Reflectivity_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY];
+	callback = (Reflectivity_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -143,10 +150,17 @@ static void line_callback_wrapper_reflectivity(DevicePrivate *device_p, Packet *
 
 static void line_callback_wrapper_reflectivity_reached(DevicePrivate *device_p, Packet *packet) {
 	ReflectivityReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY_REACHED];
-	ReflectivityReached_Callback *callback = (ReflectivityReached_Callback *)packet;
+	void *user_data;
+	ReflectivityReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY_REACHED];
+	if (packet->header.length != sizeof(ReflectivityReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (ReflectivityReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LINE_CALLBACK_REFLECTIVITY_REACHED];
+	callback = (ReflectivityReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -158,9 +172,10 @@ static void line_callback_wrapper_reflectivity_reached(DevicePrivate *device_p, 
 }
 
 void line_create(Line *line, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(line, uid, ipcon->p, 2, 0, 0);
+	device_create(line, uid, ipcon_p, 2, 0, 0, LINE_DEVICE_IDENTIFIER);
 
 	device_p = line->p;
 
@@ -176,6 +191,7 @@ void line_create(Line *line, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[LINE_CALLBACK_REFLECTIVITY] = line_callback_wrapper_reflectivity;
 	device_p->callback_wrappers[LINE_CALLBACK_REFLECTIVITY_REACHED] = line_callback_wrapper_reflectivity_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void line_destroy(Line *line) {
@@ -194,7 +210,7 @@ int line_set_response_expected_all(Line *line, bool response_expected) {
 	return device_set_response_expected_all(line->p, response_expected);
 }
 
-void line_register_callback(Line *line, int16_t callback_id, void *function, void *user_data) {
+void line_register_callback(Line *line, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(line->p, callback_id, function, user_data);
 }
 
@@ -208,13 +224,19 @@ int line_get_reflectivity(Line *line, uint16_t *ret_reflectivity) {
 	GetReflectivity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LINE_FUNCTION_GET_REFLECTIVITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -230,6 +252,12 @@ int line_set_reflectivity_callback_period(Line *line, uint32_t period) {
 	SetReflectivityCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LINE_FUNCTION_SET_REFLECTIVITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -238,7 +266,7 @@ int line_set_reflectivity_callback_period(Line *line, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -249,13 +277,19 @@ int line_get_reflectivity_callback_period(Line *line, uint32_t *ret_period) {
 	GetReflectivityCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LINE_FUNCTION_GET_REFLECTIVITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -271,6 +305,12 @@ int line_set_reflectivity_callback_threshold(Line *line, char option, uint16_t m
 	SetReflectivityCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LINE_FUNCTION_SET_REFLECTIVITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -281,7 +321,7 @@ int line_set_reflectivity_callback_threshold(Line *line, char option, uint16_t m
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -292,13 +332,19 @@ int line_get_reflectivity_callback_threshold(Line *line, char *ret_option, uint1
 	GetReflectivityCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LINE_FUNCTION_GET_REFLECTIVITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -316,6 +362,12 @@ int line_set_debounce_period(Line *line, uint32_t debounce) {
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LINE_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -324,7 +376,7 @@ int line_set_debounce_period(Line *line, uint32_t debounce) {
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -335,13 +387,19 @@ int line_get_debounce_period(Line *line, uint32_t *ret_debounce) {
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LINE_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -364,7 +422,7 @@ int line_get_identity(Line *line, char ret_uid[8], char ret_connected_uid[8], ch
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

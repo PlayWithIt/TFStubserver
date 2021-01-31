@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -172,7 +172,7 @@ void uv_light_destroy(UVLight *uv_light);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int uv_light_get_response_expected(UVLight *uv_light, uint8_t function_id, bool *ret_response_expected);
@@ -188,7 +188,7 @@ int uv_light_get_response_expected(UVLight *uv_light, uint8_t function_id, bool 
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int uv_light_set_response_expected(UVLight *uv_light, uint8_t function_id, bool response_expected);
@@ -207,7 +207,7 @@ int uv_light_set_response_expected_all(UVLight *uv_light, bool response_expected
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void uv_light_register_callback(UVLight *uv_light, int16_t callback_id, void *function, void *user_data);
+void uv_light_register_callback(UVLight *uv_light, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletUVLight
@@ -220,8 +220,8 @@ int uv_light_get_api_version(UVLight *uv_light, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletUVLight
  *
- * Returns the UV light intensity of the sensor, the intensity is given
- * in 1/10 mW/m². The sensor has already weighted the intensity with the erythemal
+ * Returns the UV light intensity of the sensor.
+ * The sensor has already weighted the intensity with the erythemal
  * action spectrum to get the skin-affecting irradiation.
  * 
  * To get UV index you just have to divide the value by 250. For example, a UV
@@ -236,13 +236,11 @@ int uv_light_get_uv_light(UVLight *uv_light, uint32_t *ret_uv_light);
 /**
  * \ingroup BrickletUVLight
  *
- * Sets the period in ms with which the {@link UV_LIGHT_CALLBACK_UV_LIGHT} callback is triggered
+ * Sets the period with which the {@link UV_LIGHT_CALLBACK_UV_LIGHT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link UV_LIGHT_CALLBACK_UV_LIGHT} callback is only triggered if the intensity has changed since
  * the last triggering.
- * 
- * The default value is 0.
  */
 int uv_light_set_uv_light_callback_period(UVLight *uv_light, uint32_t period);
 
@@ -269,8 +267,6 @@ int uv_light_get_uv_light_callback_period(UVLight *uv_light, uint32_t *ret_perio
  *  "'<'",    "Callback is triggered when the intensity is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the intensity is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int uv_light_set_uv_light_callback_threshold(UVLight *uv_light, char option, uint32_t min, uint32_t max);
 
@@ -284,7 +280,7 @@ int uv_light_get_uv_light_callback_threshold(UVLight *uv_light, char *ret_option
 /**
  * \ingroup BrickletUVLight
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link UV_LIGHT_CALLBACK_UV_LIGHT_REACHED},
  * 
@@ -293,8 +289,6 @@ int uv_light_get_uv_light_callback_threshold(UVLight *uv_light, char *ret_option
  * * {@link uv_light_set_uv_light_callback_threshold},
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int uv_light_set_debounce_period(UVLight *uv_light, uint32_t debounce);
 
@@ -312,7 +306,9 @@ int uv_light_get_debounce_period(UVLight *uv_light, uint32_t *ret_debounce);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

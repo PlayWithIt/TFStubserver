@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -102,8 +102,8 @@ typedef Device AmbientLight;
  * {@link ambient_light_set_illuminance_callback_period}. The parameter is the illuminance of the
  * ambient light sensor.
  * 
- * The {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed since the
- * last triggering.
+ * The {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed
+ * since the last triggering.
  */
 #define AMBIENT_LIGHT_CALLBACK_ILLUMINANCE 13
 
@@ -116,8 +116,8 @@ typedef Device AmbientLight;
  * {@link ambient_light_set_analog_value_callback_period}. The parameter is the analog value of the
  * ambient light sensor.
  * 
- * The {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has changed since the
- * last triggering.
+ * The {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
+ * changed since the last triggering.
  */
 #define AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE 14
 
@@ -225,7 +225,7 @@ void ambient_light_destroy(AmbientLight *ambient_light);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int ambient_light_get_response_expected(AmbientLight *ambient_light, uint8_t function_id, bool *ret_response_expected);
@@ -241,7 +241,7 @@ int ambient_light_get_response_expected(AmbientLight *ambient_light, uint8_t fun
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int ambient_light_set_response_expected(AmbientLight *ambient_light, uint8_t function_id, bool response_expected);
@@ -260,7 +260,7 @@ int ambient_light_set_response_expected_all(AmbientLight *ambient_light, bool re
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void ambient_light_register_callback(AmbientLight *ambient_light, int16_t callback_id, void *function, void *user_data);
+void ambient_light_register_callback(AmbientLight *ambient_light, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletAmbientLight
@@ -273,9 +273,7 @@ int ambient_light_get_api_version(AmbientLight *ambient_light, uint8_t ret_api_v
 /**
  * \ingroup BrickletAmbientLight
  *
- * Returns the illuminance of the ambient light sensor. The value
- * has a range of 0 to 9000 and is given in lux/10, i.e. a value
- * of 4500 means that an illuminance of 450lux is measured.
+ * Returns the illuminance of the ambient light sensor.
  * 
  * If you want to get the illuminance periodically, it is recommended to use the
  * {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback and set the period with
@@ -287,7 +285,6 @@ int ambient_light_get_illuminance(AmbientLight *ambient_light, uint16_t *ret_ill
  * \ingroup BrickletAmbientLight
  *
  * Returns the value as read by a 12-bit analog-to-digital converter.
- * The value is between 0 and 4095.
  * 
  * \note
  *  The value returned by {@link ambient_light_get_illuminance} is averaged over several samples
@@ -308,13 +305,11 @@ int ambient_light_get_analog_value(AmbientLight *ambient_light, uint16_t *ret_va
 /**
  * \ingroup BrickletAmbientLight
  *
- * Sets the period in ms with which the {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is triggered
+ * Sets the period with which the {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * The {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed since the
- * last triggering.
- * 
- * The default value is 0.
+ * The {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed
+ * since the last triggering.
  */
 int ambient_light_set_illuminance_callback_period(AmbientLight *ambient_light, uint32_t period);
 
@@ -328,13 +323,11 @@ int ambient_light_get_illuminance_callback_period(AmbientLight *ambient_light, u
 /**
  * \ingroup BrickletAmbientLight
  *
- * Sets the period in ms with which the {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is triggered
+ * Sets the period with which the {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
- * The {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has changed since the
- * last triggering.
- * 
- * The default value is 0.
+ * The {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE} callback is only triggered if the analog value has
+ * changed since the last triggering.
  */
 int ambient_light_set_analog_value_callback_period(AmbientLight *ambient_light, uint32_t period);
 
@@ -361,8 +354,6 @@ int ambient_light_get_analog_value_callback_period(AmbientLight *ambient_light, 
  *  "'<'",    "Callback is triggered when the illuminance is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the illuminance is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int ambient_light_set_illuminance_callback_threshold(AmbientLight *ambient_light, char option, uint16_t min, uint16_t max);
 
@@ -389,8 +380,6 @@ int ambient_light_get_illuminance_callback_threshold(AmbientLight *ambient_light
  *  "'<'",    "Callback is triggered when the analog value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the analog value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int ambient_light_set_analog_value_callback_threshold(AmbientLight *ambient_light, char option, uint16_t min, uint16_t max);
 
@@ -404,7 +393,7 @@ int ambient_light_get_analog_value_callback_threshold(AmbientLight *ambient_ligh
 /**
  * \ingroup BrickletAmbientLight
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED},
  * * {@link AMBIENT_LIGHT_CALLBACK_ANALOG_VALUE_REACHED}
@@ -415,8 +404,6 @@ int ambient_light_get_analog_value_callback_threshold(AmbientLight *ambient_ligh
  * * {@link ambient_light_set_analog_value_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int ambient_light_set_debounce_period(AmbientLight *ambient_light, uint32_t debounce);
 
@@ -434,7 +421,9 @@ int ambient_light_get_debounce_period(AmbientLight *ambient_light, uint32_t *ret
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*TemperatureReached_CallbackFunction)(int16_t temperature, void *u
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -141,10 +141,17 @@ typedef struct {
 
 static void temperature_callback_wrapper_temperature(DevicePrivate *device_p, Packet *packet) {
 	Temperature_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE];
-	Temperature_Callback *callback = (Temperature_Callback *)packet;
+	void *user_data;
+	Temperature_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE];
+	if (packet->header.length != sizeof(Temperature_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Temperature_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE];
+	callback = (Temperature_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -157,10 +164,17 @@ static void temperature_callback_wrapper_temperature(DevicePrivate *device_p, Pa
 
 static void temperature_callback_wrapper_temperature_reached(DevicePrivate *device_p, Packet *packet) {
 	TemperatureReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE_REACHED];
-	TemperatureReached_Callback *callback = (TemperatureReached_Callback *)packet;
+	void *user_data;
+	TemperatureReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE_REACHED];
+	if (packet->header.length != sizeof(TemperatureReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (TemperatureReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TEMPERATURE_CALLBACK_TEMPERATURE_REACHED];
+	callback = (TemperatureReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -172,9 +186,10 @@ static void temperature_callback_wrapper_temperature_reached(DevicePrivate *devi
 }
 
 void temperature_create(Temperature *temperature, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(temperature, uid, ipcon->p, 2, 0, 1);
+	device_create(temperature, uid, ipcon_p, 2, 0, 1, TEMPERATURE_DEVICE_IDENTIFIER);
 
 	device_p = temperature->p;
 
@@ -192,6 +207,7 @@ void temperature_create(Temperature *temperature, const char *uid, IPConnection 
 	device_p->callback_wrappers[TEMPERATURE_CALLBACK_TEMPERATURE] = temperature_callback_wrapper_temperature;
 	device_p->callback_wrappers[TEMPERATURE_CALLBACK_TEMPERATURE_REACHED] = temperature_callback_wrapper_temperature_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void temperature_destroy(Temperature *temperature) {
@@ -210,7 +226,7 @@ int temperature_set_response_expected_all(Temperature *temperature, bool respons
 	return device_set_response_expected_all(temperature->p, response_expected);
 }
 
-void temperature_register_callback(Temperature *temperature, int16_t callback_id, void *function, void *user_data) {
+void temperature_register_callback(Temperature *temperature, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(temperature->p, callback_id, function, user_data);
 }
 
@@ -224,13 +240,19 @@ int temperature_get_temperature(Temperature *temperature, int16_t *ret_temperatu
 	GetTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_GET_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -246,6 +268,12 @@ int temperature_set_temperature_callback_period(Temperature *temperature, uint32
 	SetTemperatureCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_SET_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -254,7 +282,7 @@ int temperature_set_temperature_callback_period(Temperature *temperature, uint32
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -265,13 +293,19 @@ int temperature_get_temperature_callback_period(Temperature *temperature, uint32
 	GetTemperatureCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_GET_TEMPERATURE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -287,6 +321,12 @@ int temperature_set_temperature_callback_threshold(Temperature *temperature, cha
 	SetTemperatureCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_SET_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -297,7 +337,7 @@ int temperature_set_temperature_callback_threshold(Temperature *temperature, cha
 	request.min = leconvert_int16_to(min);
 	request.max = leconvert_int16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -308,13 +348,19 @@ int temperature_get_temperature_callback_threshold(Temperature *temperature, cha
 	GetTemperatureCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_GET_TEMPERATURE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -332,6 +378,12 @@ int temperature_set_debounce_period(Temperature *temperature, uint32_t debounce)
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -340,7 +392,7 @@ int temperature_set_debounce_period(Temperature *temperature, uint32_t debounce)
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -351,13 +403,19 @@ int temperature_get_debounce_period(Temperature *temperature, uint32_t *ret_debo
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -373,6 +431,12 @@ int temperature_set_i2c_mode(Temperature *temperature, uint8_t mode) {
 	SetI2CMode_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_SET_I2C_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -381,7 +445,7 @@ int temperature_set_i2c_mode(Temperature *temperature, uint8_t mode) {
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -392,13 +456,19 @@ int temperature_get_i2c_mode(Temperature *temperature, uint8_t *ret_mode) {
 	GetI2CMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TEMPERATURE_FUNCTION_GET_I2C_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -421,7 +491,7 @@ int temperature_get_identity(Temperature *temperature, char ret_uid[8], char ret
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

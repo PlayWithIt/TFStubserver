@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -116,6 +116,16 @@ typedef Device Barometer;
 /**
  * \ingroup BrickletBarometer
  */
+#define BAROMETER_FUNCTION_SET_I2C_MODE 22
+
+/**
+ * \ingroup BrickletBarometer
+ */
+#define BAROMETER_FUNCTION_GET_I2C_MODE 23
+
+/**
+ * \ingroup BrickletBarometer
+ */
 #define BAROMETER_FUNCTION_GET_IDENTITY 255
 
 /**
@@ -202,6 +212,16 @@ typedef Device Barometer;
 
 /**
  * \ingroup BrickletBarometer
+ */
+#define BAROMETER_I2C_MODE_FAST 0
+
+/**
+ * \ingroup BrickletBarometer
+ */
+#define BAROMETER_I2C_MODE_SLOW 1
+
+/**
+ * \ingroup BrickletBarometer
  *
  * This constant is used to identify a Barometer Bricklet.
  *
@@ -250,7 +270,7 @@ void barometer_destroy(Barometer *barometer);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int barometer_get_response_expected(Barometer *barometer, uint8_t function_id, bool *ret_response_expected);
@@ -266,7 +286,7 @@ int barometer_get_response_expected(Barometer *barometer, uint8_t function_id, b
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int barometer_set_response_expected(Barometer *barometer, uint8_t function_id, bool response_expected);
@@ -285,7 +305,7 @@ int barometer_set_response_expected_all(Barometer *barometer, bool response_expe
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void barometer_register_callback(Barometer *barometer, int16_t callback_id, void *function, void *user_data);
+void barometer_register_callback(Barometer *barometer, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletBarometer
@@ -298,9 +318,7 @@ int barometer_get_api_version(Barometer *barometer, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletBarometer
  *
- * Returns the air pressure of the air pressure sensor. The value
- * has a range of 10000 to 1200000 and is given in mbar/1000, i.e. a value
- * of 1001092 means that an air pressure of 1001.092 mbar is measured.
+ * Returns the air pressure of the air pressure sensor.
  * 
  * If you want to get the air pressure periodically, it is recommended to use the
  * {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback and set the period with
@@ -311,8 +329,8 @@ int barometer_get_air_pressure(Barometer *barometer, int32_t *ret_air_pressure);
 /**
  * \ingroup BrickletBarometer
  *
- * Returns the relative altitude of the air pressure sensor. The value is given in
- * cm and is calculated based on the difference between the current air pressure
+ * Returns the relative altitude of the air pressure sensor. The value is
+ * calculated based on the difference between the current air pressure
  * and the reference air pressure that can be set with {@link barometer_set_reference_air_pressure}.
  * 
  * If you want to get the altitude periodically, it is recommended to use the
@@ -324,13 +342,11 @@ int barometer_get_altitude(Barometer *barometer, int32_t *ret_altitude);
 /**
  * \ingroup BrickletBarometer
  *
- * Sets the period in ms with which the {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback is triggered
+ * Sets the period with which the {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link BAROMETER_CALLBACK_AIR_PRESSURE} callback is only triggered if the air pressure has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int barometer_set_air_pressure_callback_period(Barometer *barometer, uint32_t period);
 
@@ -344,13 +360,11 @@ int barometer_get_air_pressure_callback_period(Barometer *barometer, uint32_t *r
 /**
  * \ingroup BrickletBarometer
  *
- * Sets the period in ms with which the {@link BAROMETER_CALLBACK_ALTITUDE} callback is triggered
+ * Sets the period with which the {@link BAROMETER_CALLBACK_ALTITUDE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link BAROMETER_CALLBACK_ALTITUDE} callback is only triggered if the altitude has changed since
  * the last triggering.
- * 
- * The default value is 0.
  */
 int barometer_set_altitude_callback_period(Barometer *barometer, uint32_t period);
 
@@ -377,8 +391,6 @@ int barometer_get_altitude_callback_period(Barometer *barometer, uint32_t *ret_p
  *  "'<'",    "Callback is triggered when the air pressure is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the air pressure is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int barometer_set_air_pressure_callback_threshold(Barometer *barometer, char option, int32_t min, int32_t max);
 
@@ -405,8 +417,6 @@ int barometer_get_air_pressure_callback_threshold(Barometer *barometer, char *re
  *  "'<'",    "Callback is triggered when the altitude is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the altitude is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int barometer_set_altitude_callback_threshold(Barometer *barometer, char option, int32_t min, int32_t max);
 
@@ -420,7 +430,7 @@ int barometer_get_altitude_callback_threshold(Barometer *barometer, char *ret_op
 /**
  * \ingroup BrickletBarometer
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link BAROMETER_CALLBACK_AIR_PRESSURE_REACHED},
  * * {@link BAROMETER_CALLBACK_ALTITUDE_REACHED}
@@ -431,8 +441,6 @@ int barometer_get_altitude_callback_threshold(Barometer *barometer, char *ret_op
  * * {@link barometer_set_altitude_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int barometer_set_debounce_period(Barometer *barometer, uint32_t debounce);
 
@@ -446,8 +454,7 @@ int barometer_get_debounce_period(Barometer *barometer, uint32_t *ret_debounce);
 /**
  * \ingroup BrickletBarometer
  *
- * Sets the reference air pressure in mbar/1000 for the altitude calculation.
- * Valid values are between 10000 and 1200000.
+ * Sets the reference air pressure for the altitude calculation.
  * Setting the reference to the current air pressure results in a calculated
  * altitude of 0cm. Passing 0 is a shortcut for passing the current air pressure as
  * reference.
@@ -456,17 +463,13 @@ int barometer_get_debounce_period(Barometer *barometer, uint32_t *ret_debounce);
  * `QNH <https://en.wikipedia.org/wiki/QNH>`__ and
  * `QFE <https://en.wikipedia.org/wiki/Mean_sea_level_pressure#Mean_sea_level_pressure>`__
  * used in aviation.
- * 
- * The default value is 1013.25mbar.
  */
 int barometer_set_reference_air_pressure(Barometer *barometer, int32_t air_pressure);
 
 /**
  * \ingroup BrickletBarometer
  *
- * Returns the temperature of the air pressure sensor. The value
- * has a range of -4000 to 8500 and is given in °C/100, i.e. a value
- * of 2007 means that a temperature of 20.07 °C is measured.
+ * Returns the temperature of the air pressure sensor.
  * 
  * This temperature is used internally for temperature compensation of the air
  * pressure measurement. It is not as accurate as the temperature measured by the
@@ -491,17 +494,11 @@ int barometer_get_reference_air_pressure(Barometer *barometer, int32_t *ret_air_
  * for the pressure. The moving average is calculated from the normal
  * averages.  There is no moving average for the temperature.
  * 
- * The maximum length for the pressure average is 10, for the
- * temperature average is 255 and for the moving average is 25.
- * 
  * Setting the all three parameters to 0 will turn the averaging
  * completely off. If the averaging is off, there is lots of noise
  * on the data, but the data is without delay. Thus we recommend
  * to turn the averaging off if the Barometer Bricklet data is
  * to be used for sensor fusion with other sensors.
- * 
- * The default values are 10 for the normal averages and 25 for the
- * moving average.
  * 
  * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
@@ -519,11 +516,41 @@ int barometer_get_averaging(Barometer *barometer, uint8_t *ret_moving_average_pr
 /**
  * \ingroup BrickletBarometer
  *
+ * Sets the I2C mode. Possible modes are:
+ * 
+ * * 0: Fast (400kHz)
+ * * 1: Slow (100kHz)
+ * 
+ * If you have problems with obvious outliers in the
+ * Barometer Bricklet measurements, they may be caused by EMI issues.
+ * In this case it may be helpful to lower the I2C speed.
+ * 
+ * It is however not recommended to lower the I2C speed in applications where
+ * a high throughput needs to be achieved.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
+ */
+int barometer_set_i2c_mode(Barometer *barometer, uint8_t mode);
+
+/**
+ * \ingroup BrickletBarometer
+ *
+ * Returns the I2C mode as set by {@link barometer_set_i2c_mode}.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
+ */
+int barometer_get_i2c_mode(Barometer *barometer, uint8_t *ret_mode);
+
+/**
+ * \ingroup BrickletBarometer
+ *
  * Returns the UID, the UID where the Bricklet is connected to,
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

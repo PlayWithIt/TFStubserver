@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*IlluminanceReached_CallbackFunction)(uint32_t illuminance, void *
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -143,10 +143,17 @@ typedef struct {
 
 static void ambient_light_v2_callback_wrapper_illuminance(DevicePrivate *device_p, Packet *packet) {
 	Illuminance_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
-	Illuminance_Callback *callback = (Illuminance_Callback *)packet;
+	void *user_data;
+	Illuminance_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
+	if (packet->header.length != sizeof(Illuminance_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Illuminance_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE];
+	callback = (Illuminance_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -159,10 +166,17 @@ static void ambient_light_v2_callback_wrapper_illuminance(DevicePrivate *device_
 
 static void ambient_light_v2_callback_wrapper_illuminance_reached(DevicePrivate *device_p, Packet *packet) {
 	IlluminanceReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
-	IlluminanceReached_Callback *callback = (IlluminanceReached_Callback *)packet;
+	void *user_data;
+	IlluminanceReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
+	if (packet->header.length != sizeof(IlluminanceReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (IlluminanceReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED];
+	callback = (IlluminanceReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -174,9 +188,10 @@ static void ambient_light_v2_callback_wrapper_illuminance_reached(DevicePrivate 
 }
 
 void ambient_light_v2_create(AmbientLightV2 *ambient_light_v2, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(ambient_light_v2, uid, ipcon->p, 2, 0, 1);
+	device_create(ambient_light_v2, uid, ipcon_p, 2, 0, 1, AMBIENT_LIGHT_V2_DEVICE_IDENTIFIER);
 
 	device_p = ambient_light_v2->p;
 
@@ -194,6 +209,7 @@ void ambient_light_v2_create(AmbientLightV2 *ambient_light_v2, const char *uid, 
 	device_p->callback_wrappers[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE] = ambient_light_v2_callback_wrapper_illuminance;
 	device_p->callback_wrappers[AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED] = ambient_light_v2_callback_wrapper_illuminance_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void ambient_light_v2_destroy(AmbientLightV2 *ambient_light_v2) {
@@ -212,7 +228,7 @@ int ambient_light_v2_set_response_expected_all(AmbientLightV2 *ambient_light_v2,
 	return device_set_response_expected_all(ambient_light_v2->p, response_expected);
 }
 
-void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, int16_t callback_id, void *function, void *user_data) {
+void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(ambient_light_v2->p, callback_id, function, user_data);
 }
 
@@ -226,13 +242,19 @@ int ambient_light_v2_get_illuminance(AmbientLightV2 *ambient_light_v2, uint32_t 
 	GetIlluminance_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -248,6 +270,12 @@ int ambient_light_v2_set_illuminance_callback_period(AmbientLightV2 *ambient_lig
 	SetIlluminanceCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -256,7 +284,7 @@ int ambient_light_v2_set_illuminance_callback_period(AmbientLightV2 *ambient_lig
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -267,13 +295,19 @@ int ambient_light_v2_get_illuminance_callback_period(AmbientLightV2 *ambient_lig
 	GetIlluminanceCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -289,6 +323,12 @@ int ambient_light_v2_set_illuminance_callback_threshold(AmbientLightV2 *ambient_
 	SetIlluminanceCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -299,7 +339,7 @@ int ambient_light_v2_set_illuminance_callback_threshold(AmbientLightV2 *ambient_
 	request.min = leconvert_uint32_to(min);
 	request.max = leconvert_uint32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -310,13 +350,19 @@ int ambient_light_v2_get_illuminance_callback_threshold(AmbientLightV2 *ambient_
 	GetIlluminanceCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -334,6 +380,12 @@ int ambient_light_v2_set_debounce_period(AmbientLightV2 *ambient_light_v2, uint3
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -342,7 +394,7 @@ int ambient_light_v2_set_debounce_period(AmbientLightV2 *ambient_light_v2, uint3
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -353,13 +405,19 @@ int ambient_light_v2_get_debounce_period(AmbientLightV2 *ambient_light_v2, uint3
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -375,6 +433,12 @@ int ambient_light_v2_set_configuration(AmbientLightV2 *ambient_light_v2, uint8_t
 	SetConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_SET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -384,7 +448,7 @@ int ambient_light_v2_set_configuration(AmbientLightV2 *ambient_light_v2, uint8_t
 	request.illuminance_range = illuminance_range;
 	request.integration_time = integration_time;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -395,13 +459,19 @@ int ambient_light_v2_get_configuration(AmbientLightV2 *ambient_light_v2, uint8_t
 	GetConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AMBIENT_LIGHT_V2_FUNCTION_GET_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -425,7 +495,7 @@ int ambient_light_v2_get_identity(AmbientLightV2 *ambient_light_v2, char ret_uid
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

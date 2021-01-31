@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*FrameRendered_CallbackFunction)(uint16_t length, void *user_data)
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -193,10 +193,17 @@ typedef struct {
 
 static void led_strip_callback_wrapper_frame_rendered(DevicePrivate *device_p, Packet *packet) {
 	FrameRendered_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LED_STRIP_CALLBACK_FRAME_RENDERED];
-	FrameRendered_Callback *callback = (FrameRendered_Callback *)packet;
+	void *user_data;
+	FrameRendered_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LED_STRIP_CALLBACK_FRAME_RENDERED];
+	if (packet->header.length != sizeof(FrameRendered_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (FrameRendered_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + LED_STRIP_CALLBACK_FRAME_RENDERED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + LED_STRIP_CALLBACK_FRAME_RENDERED];
+	callback = (FrameRendered_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -208,9 +215,10 @@ static void led_strip_callback_wrapper_frame_rendered(DevicePrivate *device_p, P
 }
 
 void led_strip_create(LEDStrip *led_strip, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(led_strip, uid, ipcon->p, 2, 0, 3);
+	device_create(led_strip, uid, ipcon_p, 2, 0, 3, LED_STRIP_DEVICE_IDENTIFIER);
 
 	device_p = led_strip->p;
 
@@ -234,6 +242,7 @@ void led_strip_create(LEDStrip *led_strip, const char *uid, IPConnection *ipcon)
 
 	device_p->callback_wrappers[LED_STRIP_CALLBACK_FRAME_RENDERED] = led_strip_callback_wrapper_frame_rendered;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void led_strip_destroy(LEDStrip *led_strip) {
@@ -252,7 +261,7 @@ int led_strip_set_response_expected_all(LEDStrip *led_strip, bool response_expec
 	return device_set_response_expected_all(led_strip->p, response_expected);
 }
 
-void led_strip_register_callback(LEDStrip *led_strip, int16_t callback_id, void *function, void *user_data) {
+void led_strip_register_callback(LEDStrip *led_strip, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(led_strip->p, callback_id, function, user_data);
 }
 
@@ -264,6 +273,12 @@ int led_strip_set_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
 	DevicePrivate *device_p = led_strip->p;
 	SetRGBValues_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_SET_RGB_VALUES, device_p->ipcon_p, device_p);
 
@@ -277,7 +292,7 @@ int led_strip_set_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
 	memcpy(request.g, g, 16 * sizeof(uint8_t));
 	memcpy(request.b, b, 16 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -288,6 +303,12 @@ int led_strip_get_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
 	GetRGBValues_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_RGB_VALUES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -297,7 +318,7 @@ int led_strip_get_rgb_values(LEDStrip *led_strip, uint16_t index, uint8_t length
 	request.index = leconvert_uint16_to(index);
 	request.length = length;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -315,6 +336,12 @@ int led_strip_set_frame_duration(LEDStrip *led_strip, uint16_t duration) {
 	SetFrameDuration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_SET_FRAME_DURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -323,7 +350,7 @@ int led_strip_set_frame_duration(LEDStrip *led_strip, uint16_t duration) {
 
 	request.duration = leconvert_uint16_to(duration);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -334,13 +361,19 @@ int led_strip_get_frame_duration(LEDStrip *led_strip, uint16_t *ret_duration) {
 	GetFrameDuration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_FRAME_DURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -357,13 +390,19 @@ int led_strip_get_supply_voltage(LEDStrip *led_strip, uint16_t *ret_voltage) {
 	GetSupplyVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_SUPPLY_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -379,6 +418,12 @@ int led_strip_set_clock_frequency(LEDStrip *led_strip, uint32_t frequency) {
 	SetClockFrequency_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_SET_CLOCK_FREQUENCY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -387,7 +432,7 @@ int led_strip_set_clock_frequency(LEDStrip *led_strip, uint32_t frequency) {
 
 	request.frequency = leconvert_uint32_to(frequency);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -398,13 +443,19 @@ int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency) 
 	GetClockFrequency_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_CLOCK_FREQUENCY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -420,6 +471,12 @@ int led_strip_set_chip_type(LEDStrip *led_strip, uint16_t chip) {
 	SetChipType_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_SET_CHIP_TYPE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -428,7 +485,7 @@ int led_strip_set_chip_type(LEDStrip *led_strip, uint16_t chip) {
 
 	request.chip = leconvert_uint16_to(chip);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -439,13 +496,19 @@ int led_strip_get_chip_type(LEDStrip *led_strip, uint16_t *ret_chip) {
 	GetChipType_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_CHIP_TYPE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -461,6 +524,12 @@ int led_strip_set_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t lengt
 	SetRGBWValues_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_SET_RGBW_VALUES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -474,7 +543,7 @@ int led_strip_set_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t lengt
 	memcpy(request.b, b, 12 * sizeof(uint8_t));
 	memcpy(request.w, w, 12 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -485,6 +554,12 @@ int led_strip_get_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t lengt
 	GetRGBWValues_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_RGBW_VALUES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -494,7 +569,7 @@ int led_strip_get_rgbw_values(LEDStrip *led_strip, uint16_t index, uint8_t lengt
 	request.index = leconvert_uint16_to(index);
 	request.length = length;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -513,6 +588,12 @@ int led_strip_set_channel_mapping(LEDStrip *led_strip, uint8_t mapping) {
 	SetChannelMapping_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_SET_CHANNEL_MAPPING, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -521,7 +602,7 @@ int led_strip_set_channel_mapping(LEDStrip *led_strip, uint8_t mapping) {
 
 	request.mapping = mapping;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -532,13 +613,19 @@ int led_strip_get_channel_mapping(LEDStrip *led_strip, uint8_t *ret_mapping) {
 	GetChannelMapping_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_CHANNEL_MAPPING, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -554,13 +641,19 @@ int led_strip_enable_frame_rendered_callback(LEDStrip *led_strip) {
 	EnableFrameRenderedCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_ENABLE_FRAME_RENDERED_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -570,13 +663,19 @@ int led_strip_disable_frame_rendered_callback(LEDStrip *led_strip) {
 	DisableFrameRenderedCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_DISABLE_FRAME_RENDERED_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -587,13 +686,19 @@ int led_strip_is_frame_rendered_callback_enabled(LEDStrip *led_strip, bool *ret_
 	IsFrameRenderedCallbackEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_IS_FRAME_RENDERED_CALLBACK_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -616,7 +721,7 @@ int led_strip_get_identity(LEDStrip *led_strip, char ret_uid[8], char ret_connec
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

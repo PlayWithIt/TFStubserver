@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -120,7 +120,7 @@ void dual_relay_destroy(DualRelay *dual_relay);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int dual_relay_get_response_expected(DualRelay *dual_relay, uint8_t function_id, bool *ret_response_expected);
@@ -136,7 +136,7 @@ int dual_relay_get_response_expected(DualRelay *dual_relay, uint8_t function_id,
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int dual_relay_set_response_expected(DualRelay *dual_relay, uint8_t function_id, bool response_expected);
@@ -155,7 +155,7 @@ int dual_relay_set_response_expected_all(DualRelay *dual_relay, bool response_ex
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void dual_relay_register_callback(DualRelay *dual_relay, int16_t callback_id, void *function, void *user_data);
+void dual_relay_register_callback(DualRelay *dual_relay, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletDualRelay
@@ -175,9 +175,7 @@ int dual_relay_get_api_version(DualRelay *dual_relay, uint8_t ret_api_version[3]
  * of the other relay, you can get the state with {@link dual_relay_get_state} or you
  * can use {@link dual_relay_set_selected_state}.
  * 
- * Running monoflop timers will be overwritten if this function is called.
- * 
- * The default value is (*false*, *false*).
+ * All running monoflop timers will be aborted if this function is called.
  */
 int dual_relay_set_state(DualRelay *dual_relay, bool relay1, bool relay2);
 
@@ -193,7 +191,7 @@ int dual_relay_get_state(DualRelay *dual_relay, bool *ret_relay1, bool *ret_rela
  *
  * The first parameter can be 1 or 2 (relay 1 or relay 2). The second parameter
  * is the desired state of the relay (*true* means on and *false* means off).
- * The third parameter indicates the time (in ms) that the relay should hold
+ * The third parameter indicates the time that the relay should hold
  * the state.
  * 
  * If this function is called with the parameters (1, true, 1500):
@@ -223,6 +221,8 @@ int dual_relay_get_monoflop(DualRelay *dual_relay, uint8_t relay, bool *ret_stat
  *
  * Sets the state of the selected relay (1 or 2), *true* means on and *false* means off.
  * 
+ * A running monoflop timer for the selected relay will be aborted if this function is called.
+ * 
  * The other relay remains untouched.
  */
 int dual_relay_set_selected_state(DualRelay *dual_relay, uint8_t relay, bool state);
@@ -234,7 +234,9 @@ int dual_relay_set_selected_state(DualRelay *dual_relay, uint8_t relay, bool sta
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

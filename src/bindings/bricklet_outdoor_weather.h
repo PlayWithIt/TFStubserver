@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -151,7 +151,7 @@ typedef Device OutdoorWeather;
  * Reports the sensor data every time a new data packet is received.
  * See {@link outdoor_weather_get_sensor_data} for information about the data.
  * 
- * For each station the callback will be called about every 45 seconds.
+ * For each sensor the callback will be called about every 45 seconds.
  * 
  * Turn the callback on/off with {@link outdoor_weather_set_sensor_callback_configuration}
  * (by default it is turned off).
@@ -369,7 +369,7 @@ void outdoor_weather_destroy(OutdoorWeather *outdoor_weather);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int outdoor_weather_get_response_expected(OutdoorWeather *outdoor_weather, uint8_t function_id, bool *ret_response_expected);
@@ -385,7 +385,7 @@ int outdoor_weather_get_response_expected(OutdoorWeather *outdoor_weather, uint8
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int outdoor_weather_set_response_expected(OutdoorWeather *outdoor_weather, uint8_t function_id, bool response_expected);
@@ -404,7 +404,7 @@ int outdoor_weather_set_response_expected_all(OutdoorWeather *outdoor_weather, b
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void outdoor_weather_register_callback(OutdoorWeather *outdoor_weather, int16_t callback_id, void *function, void *user_data);
+void outdoor_weather_register_callback(OutdoorWeather *outdoor_weather, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletOutdoorWeather
@@ -422,6 +422,9 @@ int outdoor_weather_get_api_version(OutdoorWeather *outdoor_weather, uint8_t ret
  * that have been seen since the startup of the Bricklet.
  * 
  * Each station gives itself a random identifier on first startup.
+ * 
+ * Since firmware version 2.0.2 a station is removed from the list if no data was received for
+ * 12 hours.
  */
 int outdoor_weather_get_station_identifiers_low_level(OutdoorWeather *outdoor_weather, uint16_t *ret_identifiers_length, uint16_t *ret_identifiers_chunk_offset, uint8_t ret_identifiers_chunk_data[60]);
 
@@ -433,6 +436,9 @@ int outdoor_weather_get_station_identifiers_low_level(OutdoorWeather *outdoor_we
  * that have been seen since the startup of the Bricklet.
  * 
  * Each sensor gives itself a random identifier on first startup.
+ * 
+ * Since firmware version 2.0.2 a sensor is removed from the list if no data was received for
+ * 12 hours.
  */
 int outdoor_weather_get_sensor_identifiers_low_level(OutdoorWeather *outdoor_weather, uint16_t *ret_identifiers_length, uint16_t *ret_identifiers_chunk_offset, uint8_t ret_identifiers_chunk_data[60]);
 
@@ -444,14 +450,14 @@ int outdoor_weather_get_sensor_identifiers_low_level(OutdoorWeather *outdoor_wea
  * 
  * The return values are:
  * 
- * * Temperature in °C/10,
- * * Humidity in %RH,
- * * Wind Speed in m/10s,
- * * Gust Speed in m/10s,
- * * Rain Fall in mm/10,
- * * Wind Direction (N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW),
- * * Battery Low (true or false) and
- * * Last Change (time in seconds since the reception of this data).
+ * * Temperature,
+ * * Humidity,
+ * * Wind Speed,
+ * * Gust Speed,
+ * * Rain Fall (accumulated since station power-up),
+ * * Wind Direction,
+ * * Battery Low (true if battery is low) and
+ * * Last Change (seconds since the reception of this data).
  */
 int outdoor_weather_get_station_data(OutdoorWeather *outdoor_weather, uint8_t identifier, int16_t *ret_temperature, uint8_t *ret_humidity, uint32_t *ret_wind_speed, uint32_t *ret_gust_speed, uint32_t *ret_rain, uint8_t *ret_wind_direction, bool *ret_battery_low, uint16_t *ret_last_change);
 
@@ -463,16 +469,16 @@ int outdoor_weather_get_station_data(OutdoorWeather *outdoor_weather, uint8_t id
  * 
  * The return values are:
  * 
- * * Temperature in °C/10,
- * * Humidity in %RH and
- * * Last Change (time in seconds since the last reception of data).
+ * * Temperature,
+ * * Humidity and
+ * * Last Change (seconds since the last reception of data).
  */
 int outdoor_weather_get_sensor_data(OutdoorWeather *outdoor_weather, uint8_t identifier, int16_t *ret_temperature, uint8_t *ret_humidity, uint16_t *ret_last_change);
 
 /**
  * \ingroup BrickletOutdoorWeather
  *
- * Turns callback for station data on or off. Default is off.
+ * Turns callback for station data on or off.
  */
 int outdoor_weather_set_station_callback_configuration(OutdoorWeather *outdoor_weather, bool enable_callback);
 
@@ -486,7 +492,7 @@ int outdoor_weather_get_station_callback_configuration(OutdoorWeather *outdoor_w
 /**
  * \ingroup BrickletOutdoorWeather
  *
- * Turns callback for sensor data on or off. Default is off.
+ * Turns callback for sensor data on or off.
  */
 int outdoor_weather_set_sensor_callback_configuration(OutdoorWeather *outdoor_weather, bool enable_callback);
 
@@ -585,7 +591,7 @@ int outdoor_weather_get_status_led_config(OutdoorWeather *outdoor_weather, uint8
 /**
  * \ingroup BrickletOutdoorWeather
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -632,7 +638,9 @@ int outdoor_weather_read_uid(OutdoorWeather *outdoor_weather, uint32_t *ret_uid)
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|
@@ -647,6 +655,9 @@ int outdoor_weather_get_identity(OutdoorWeather *outdoor_weather, char ret_uid[8
  * that have been seen since the startup of the Bricklet.
  * 
  * Each station gives itself a random identifier on first startup.
+ * 
+ * Since firmware version 2.0.2 a station is removed from the list if no data was received for
+ * 12 hours.
  */
 int outdoor_weather_get_station_identifiers(OutdoorWeather *outdoor_weather, uint8_t *ret_identifiers, uint16_t *ret_identifiers_length);
 
@@ -658,6 +669,9 @@ int outdoor_weather_get_station_identifiers(OutdoorWeather *outdoor_weather, uin
  * that have been seen since the startup of the Bricklet.
  * 
  * Each sensor gives itself a random identifier on first startup.
+ * 
+ * Since firmware version 2.0.2 a sensor is removed from the list if no data was received for
+ * 12 hours.
  */
 int outdoor_weather_get_sensor_identifiers(OutdoorWeather *outdoor_weather, uint8_t *ret_identifiers, uint16_t *ret_identifiers_length);
 

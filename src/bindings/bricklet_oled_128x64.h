@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletOLED128x64
  *
- * 3.3cm (1.3") OLED with 128x64 pixels
+ * 3.3cm (1.3") OLED display with 128x64 pixels
  */
 typedef Device OLED128x64;
 
@@ -114,7 +114,7 @@ void oled_128x64_destroy(OLED128x64 *oled_128x64);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int oled_128x64_get_response_expected(OLED128x64 *oled_128x64, uint8_t function_id, bool *ret_response_expected);
@@ -130,7 +130,7 @@ int oled_128x64_get_response_expected(OLED128x64 *oled_128x64, uint8_t function_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int oled_128x64_set_response_expected(OLED128x64 *oled_128x64, uint8_t function_id, bool response_expected);
@@ -183,8 +183,6 @@ int oled_128x64_write(OLED128x64 *oled_128x64, uint8_t data[64]);
  *
  * Sets the window in which you can write with {@link oled_128x64_write}. One row
  * has a height of 8 pixels.
- * 
- * The columns have a range of 0 to 127 and the rows have a range of 0 to 7.
  */
 int oled_128x64_new_window(OLED128x64 *oled_128x64, uint8_t column_from, uint8_t column_to, uint8_t row_from, uint8_t row_to);
 
@@ -202,8 +200,6 @@ int oled_128x64_clear_display(OLED128x64 *oled_128x64);
  * 
  * You can set a contrast value from 0 to 255 and you can invert the color
  * (black/white) of the display.
- * 
- * The default values are contrast 143 and inverting off.
  */
 int oled_128x64_set_display_configuration(OLED128x64 *oled_128x64, uint8_t contrast, bool invert);
 
@@ -217,8 +213,8 @@ int oled_128x64_get_display_configuration(OLED128x64 *oled_128x64, uint8_t *ret_
 /**
  * \ingroup BrickletOLED128x64
  *
- * Writes text to a specific line (0 to 7) with a specific position
- * (0 to 25). The text can have a maximum of 26 characters.
+ * Writes text to a specific line with a specific position.
+ * The text can have a maximum of 26 characters.
  * 
  * For example: (1, 10, "Hello") will write *Hello* in the middle of the
  * second line of the display.
@@ -238,7 +234,9 @@ int oled_128x64_write_line(OLED128x64 *oled_128x64, uint8_t line, uint8_t positi
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

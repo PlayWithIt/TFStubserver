@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletMotionDetectorV2
  *
- * Passive infrared (PIR) motion sensor, 12m range
+ * Passive infrared (PIR) motion sensor with 12m range and dimmable backlight
  */
 typedef Device MotionDetectorV2;
 
@@ -269,7 +269,7 @@ void motion_detector_v2_destroy(MotionDetectorV2 *motion_detector_v2);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int motion_detector_v2_get_response_expected(MotionDetectorV2 *motion_detector_v2, uint8_t function_id, bool *ret_response_expected);
@@ -285,7 +285,7 @@ int motion_detector_v2_get_response_expected(MotionDetectorV2 *motion_detector_v
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int motion_detector_v2_set_response_expected(MotionDetectorV2 *motion_detector_v2, uint8_t function_id, bool response_expected);
@@ -304,7 +304,7 @@ int motion_detector_v2_set_response_expected_all(MotionDetectorV2 *motion_detect
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void motion_detector_v2_register_callback(MotionDetectorV2 *motion_detector_v2, int16_t callback_id, void *function, void *user_data);
+void motion_detector_v2_register_callback(MotionDetectorV2 *motion_detector_v2, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletMotionDetectorV2
@@ -317,10 +317,8 @@ int motion_detector_v2_get_api_version(MotionDetectorV2 *motion_detector_v2, uin
 /**
  * \ingroup BrickletMotionDetectorV2
  *
- * Returns 1 if a motion was detected. How long this returns 1 after a motion
- * was detected can be adjusted with one of the small potentiometers on the
- * Motion Detector Bricklet, see :ref:`here
- * <motion_detector_bricklet_sensitivity_delay_block_time>`.
+ * Returns 1 if a motion was detected. It returns 1 approx. for 1.8 seconds
+ * until the sensor checks for a new movement.
  * 
  * There is also a blue LED on the Bricklet that is on as long as the Bricklet is
  * in the "motion detected" state.
@@ -330,7 +328,7 @@ int motion_detector_v2_get_motion_detected(MotionDetectorV2 *motion_detector_v2,
 /**
  * \ingroup BrickletMotionDetectorV2
  *
- * Sets the sensitivity of the PIR sensor. The range is 0-100. At full
+ * Sets the sensitivity of the PIR sensor. At full
  * sensitivity (100), the Bricklet can detect motion in a range of approximately 12m.
  * 
  * The actual range depends on many things in the environment (e.g. reflections) and the
@@ -338,8 +336,6 @@ int motion_detector_v2_get_motion_detected(MotionDetectorV2 *motion_detector_v2,
  * of 10m a cat may only be detected at 2m distance with the same setting.
  * 
  * So you will have to find a good sensitivity for your application by trial and error.
- * 
- * The default value is 50.
  */
 int motion_detector_v2_set_sensitivity(MotionDetectorV2 *motion_detector_v2, uint8_t sensitivity);
 
@@ -357,8 +353,6 @@ int motion_detector_v2_get_sensitivity(MotionDetectorV2 *motion_detector_v2, uin
  * three LEDs. The brightness of each LED can be controlled with a 8-bit value
  * (0-255). A value of 0 turns the LED off and a value of 255 turns the LED
  * to full brightness.
- * 
- * The default value is 0, 0, 0.
  */
 int motion_detector_v2_set_indicator(MotionDetectorV2 *motion_detector_v2, uint8_t top_left, uint8_t top_right, uint8_t bottom);
 
@@ -457,7 +451,7 @@ int motion_detector_v2_get_status_led_config(MotionDetectorV2 *motion_detector_v
 /**
  * \ingroup BrickletMotionDetectorV2
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -504,7 +498,9 @@ int motion_detector_v2_read_uid(MotionDetectorV2 *motion_detector_v2, uint32_t *
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

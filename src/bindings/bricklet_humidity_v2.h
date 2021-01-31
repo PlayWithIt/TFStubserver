@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-11-28.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.23                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -363,7 +363,7 @@ void humidity_v2_destroy(HumidityV2 *humidity_v2);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int humidity_v2_get_response_expected(HumidityV2 *humidity_v2, uint8_t function_id, bool *ret_response_expected);
@@ -379,7 +379,7 @@ int humidity_v2_get_response_expected(HumidityV2 *humidity_v2, uint8_t function_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int humidity_v2_set_response_expected(HumidityV2 *humidity_v2, uint8_t function_id, bool response_expected);
@@ -398,7 +398,7 @@ int humidity_v2_set_response_expected_all(HumidityV2 *humidity_v2, bool response
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void humidity_v2_register_callback(HumidityV2 *humidity_v2, int16_t callback_id, void *function, void *user_data);
+void humidity_v2_register_callback(HumidityV2 *humidity_v2, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletHumidityV2
@@ -411,9 +411,7 @@ int humidity_v2_get_api_version(HumidityV2 *humidity_v2, uint8_t ret_api_version
 /**
  * \ingroup BrickletHumidityV2
  *
- * Returns the humidity measured by the sensor. The value
- * has a range of 0 to 10000 and is given in %RH/100 (Relative Humidity),
- * i.e. a value of 4223 means that a humidity of 42.23 %RH is measured.
+ * Returns the humidity measured by the sensor.
  * 
  * 
  * If you want to get the value periodically, it is recommended to use the
@@ -425,7 +423,7 @@ int humidity_v2_get_humidity(HumidityV2 *humidity_v2, uint16_t *ret_humidity);
 /**
  * \ingroup BrickletHumidityV2
  *
- * The period in ms is the period with which the {@link HUMIDITY_V2_CALLBACK_HUMIDITY} callback is triggered
+ * The period is the period with which the {@link HUMIDITY_V2_CALLBACK_HUMIDITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -452,8 +450,6 @@ int humidity_v2_get_humidity(HumidityV2 *humidity_v2, uint16_t *ret_humidity);
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int humidity_v2_set_humidity_callback_configuration(HumidityV2 *humidity_v2, uint32_t period, bool value_has_to_change, char option, uint16_t min, uint16_t max);
 
@@ -467,9 +463,7 @@ int humidity_v2_get_humidity_callback_configuration(HumidityV2 *humidity_v2, uin
 /**
  * \ingroup BrickletHumidityV2
  *
- * Returns the temperature measured by the sensor. The value
- * has a range of -4000 to 16500 and is given in °C/100,
- * i.e. a value of 3200 means that a temperature of 32.00 °C is measured.
+ * Returns the temperature measured by the sensor.
  * 
  * 
  * If you want to get the value periodically, it is recommended to use the
@@ -481,7 +475,7 @@ int humidity_v2_get_temperature(HumidityV2 *humidity_v2, int16_t *ret_temperatur
 /**
  * \ingroup BrickletHumidityV2
  *
- * The period in ms is the period with which the {@link HUMIDITY_V2_CALLBACK_TEMPERATURE} callback is triggered
+ * The period is the period with which the {@link HUMIDITY_V2_CALLBACK_TEMPERATURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -508,8 +502,6 @@ int humidity_v2_get_temperature(HumidityV2 *humidity_v2, int16_t *ret_temperatur
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int humidity_v2_set_temperature_callback_configuration(HumidityV2 *humidity_v2, uint32_t period, bool value_has_to_change, char option, int16_t min, int16_t max);
 
@@ -525,8 +517,6 @@ int humidity_v2_get_temperature_callback_configuration(HumidityV2 *humidity_v2, 
  *
  * Enables/disables the heater. The heater can be used to dry the sensor in
  * extremely wet conditions.
- * 
- * By default the heater is disabled.
  */
 int humidity_v2_set_heater_configuration(HumidityV2 *humidity_v2, uint8_t heater_config);
 
@@ -546,13 +536,9 @@ int humidity_v2_get_heater_configuration(HumidityV2 *humidity_v2, uint8_t *ret_h
  * Setting the length to 1 will turn the averaging off. With less
  * averaging, there is more noise on the data.
  * 
- * The range for the averaging is 1-1000.
- * 
  * New data is gathered every 50ms*. With a moving average of length 1000 the resulting
  * averaging window has a length of 50s. If you want to do long term measurements the longest
  * moving average will give the cleanest results.
- * 
- * The default value is 5.
  * 
  * \* In firmware version 2.0.3 we added the {@link humidity_v2_set_samples_per_second} function. It
  * configures the measurement frequency. Since high frequencies can result in self-heating
@@ -574,7 +560,7 @@ int humidity_v2_get_moving_average_configuration(HumidityV2 *humidity_v2, uint16
  * Sets the samples per second that are gathered by the humidity/temperature sensor HDC1080.
  * 
  * We added this function since we found out that a high measurement frequency can lead to
- * self-heating of the sensor. Which can distort the temperature measurement. 
+ * self-heating of the sensor. Which can distort the temperature measurement.
  * 
  * If you don't need a lot of measurements, you can use the lowest available measurement
  * frequency of 0.1 samples per second for the least amount of self-heating.
@@ -682,7 +668,7 @@ int humidity_v2_get_status_led_config(HumidityV2 *humidity_v2, uint8_t *ret_conf
 /**
  * \ingroup BrickletHumidityV2
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -729,7 +715,9 @@ int humidity_v2_read_uid(HumidityV2 *humidity_v2, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

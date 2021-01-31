@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -172,7 +172,7 @@ void line_destroy(Line *line);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int line_get_response_expected(Line *line, uint8_t function_id, bool *ret_response_expected);
@@ -188,7 +188,7 @@ int line_get_response_expected(Line *line, uint8_t function_id, bool *ret_respon
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int line_set_response_expected(Line *line, uint8_t function_id, bool response_expected);
@@ -207,7 +207,7 @@ int line_set_response_expected_all(Line *line, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void line_register_callback(Line *line, int16_t callback_id, void *function, void *user_data);
+void line_register_callback(Line *line, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLine
@@ -235,13 +235,11 @@ int line_get_reflectivity(Line *line, uint16_t *ret_reflectivity);
 /**
  * \ingroup BrickletLine
  *
- * Sets the period in ms with which the {@link LINE_CALLBACK_REFLECTIVITY} callback is triggered
+ * Sets the period with which the {@link LINE_CALLBACK_REFLECTIVITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link LINE_CALLBACK_REFLECTIVITY} callback is only triggered if the reflectivity has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int line_set_reflectivity_callback_period(Line *line, uint32_t period);
 
@@ -268,8 +266,6 @@ int line_get_reflectivity_callback_period(Line *line, uint32_t *ret_period);
  *  "'<'",    "Callback is triggered when the reflectivity is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the reflectivity is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int line_set_reflectivity_callback_threshold(Line *line, char option, uint16_t min, uint16_t max);
 
@@ -283,7 +279,7 @@ int line_get_reflectivity_callback_threshold(Line *line, char *ret_option, uint1
 /**
  * \ingroup BrickletLine
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link LINE_CALLBACK_REFLECTIVITY_REACHED}
  * 
@@ -292,8 +288,6 @@ int line_get_reflectivity_callback_threshold(Line *line, char *ret_option, uint1
  * * {@link line_set_reflectivity_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int line_set_debounce_period(Line *line, uint32_t debounce);
 
@@ -311,7 +305,9 @@ int line_get_debounce_period(Line *line, uint32_t *ret_debounce);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

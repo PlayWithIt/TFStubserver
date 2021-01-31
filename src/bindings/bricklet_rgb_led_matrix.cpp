@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*FrameStarted_CallbackFunction)(uint32_t frame_number, void *user_
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -221,10 +221,17 @@ typedef struct {
 
 static void rgb_led_matrix_callback_wrapper_frame_started(DevicePrivate *device_p, Packet *packet) {
 	FrameStarted_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RGB_LED_MATRIX_CALLBACK_FRAME_STARTED];
-	FrameStarted_Callback *callback = (FrameStarted_Callback *)packet;
+	void *user_data;
+	FrameStarted_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RGB_LED_MATRIX_CALLBACK_FRAME_STARTED];
+	if (packet->header.length != sizeof(FrameStarted_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (FrameStarted_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + RGB_LED_MATRIX_CALLBACK_FRAME_STARTED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + RGB_LED_MATRIX_CALLBACK_FRAME_STARTED];
+	callback = (FrameStarted_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -236,9 +243,10 @@ static void rgb_led_matrix_callback_wrapper_frame_started(DevicePrivate *device_
 }
 
 void rgb_led_matrix_create(RGBLEDMatrix *rgb_led_matrix, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(rgb_led_matrix, uid, ipcon->p, 2, 0, 0);
+	device_create(rgb_led_matrix, uid, ipcon_p, 2, 0, 0, RGB_LED_MATRIX_DEVICE_IDENTIFIER);
 
 	device_p = rgb_led_matrix->p;
 
@@ -267,6 +275,7 @@ void rgb_led_matrix_create(RGBLEDMatrix *rgb_led_matrix, const char *uid, IPConn
 
 	device_p->callback_wrappers[RGB_LED_MATRIX_CALLBACK_FRAME_STARTED] = rgb_led_matrix_callback_wrapper_frame_started;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void rgb_led_matrix_destroy(RGBLEDMatrix *rgb_led_matrix) {
@@ -285,7 +294,7 @@ int rgb_led_matrix_set_response_expected_all(RGBLEDMatrix *rgb_led_matrix, bool 
 	return device_set_response_expected_all(rgb_led_matrix->p, response_expected);
 }
 
-void rgb_led_matrix_register_callback(RGBLEDMatrix *rgb_led_matrix, int16_t callback_id, void *function, void *user_data) {
+void rgb_led_matrix_register_callback(RGBLEDMatrix *rgb_led_matrix, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(rgb_led_matrix->p, callback_id, function, user_data);
 }
 
@@ -298,6 +307,12 @@ int rgb_led_matrix_set_red(RGBLEDMatrix *rgb_led_matrix, uint8_t red[64]) {
 	SetRed_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_SET_RED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -306,7 +321,7 @@ int rgb_led_matrix_set_red(RGBLEDMatrix *rgb_led_matrix, uint8_t red[64]) {
 
 	memcpy(request.red, red, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -317,13 +332,19 @@ int rgb_led_matrix_get_red(RGBLEDMatrix *rgb_led_matrix, uint8_t ret_red[64]) {
 	GetRed_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_RED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -339,6 +360,12 @@ int rgb_led_matrix_set_green(RGBLEDMatrix *rgb_led_matrix, uint8_t green[64]) {
 	SetGreen_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_SET_GREEN, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -347,7 +374,7 @@ int rgb_led_matrix_set_green(RGBLEDMatrix *rgb_led_matrix, uint8_t green[64]) {
 
 	memcpy(request.green, green, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -358,13 +385,19 @@ int rgb_led_matrix_get_green(RGBLEDMatrix *rgb_led_matrix, uint8_t ret_green[64]
 	GetGreen_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_GREEN, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -380,6 +413,12 @@ int rgb_led_matrix_set_blue(RGBLEDMatrix *rgb_led_matrix, uint8_t blue[64]) {
 	SetBlue_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_SET_BLUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -388,7 +427,7 @@ int rgb_led_matrix_set_blue(RGBLEDMatrix *rgb_led_matrix, uint8_t blue[64]) {
 
 	memcpy(request.blue, blue, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -399,13 +438,19 @@ int rgb_led_matrix_get_blue(RGBLEDMatrix *rgb_led_matrix, uint8_t ret_blue[64]) 
 	GetBlue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_BLUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -421,6 +466,12 @@ int rgb_led_matrix_set_frame_duration(RGBLEDMatrix *rgb_led_matrix, uint16_t fra
 	SetFrameDuration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_SET_FRAME_DURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -429,7 +480,7 @@ int rgb_led_matrix_set_frame_duration(RGBLEDMatrix *rgb_led_matrix, uint16_t fra
 
 	request.frame_duration = leconvert_uint16_to(frame_duration);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -440,13 +491,19 @@ int rgb_led_matrix_get_frame_duration(RGBLEDMatrix *rgb_led_matrix, uint16_t *re
 	GetFrameDuration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_FRAME_DURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -462,13 +519,19 @@ int rgb_led_matrix_draw_frame(RGBLEDMatrix *rgb_led_matrix) {
 	DrawFrame_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_DRAW_FRAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -479,13 +542,19 @@ int rgb_led_matrix_get_supply_voltage(RGBLEDMatrix *rgb_led_matrix, uint16_t *re
 	GetSupplyVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_SUPPLY_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -502,13 +571,19 @@ int rgb_led_matrix_get_spitfp_error_count(RGBLEDMatrix *rgb_led_matrix, uint32_t
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -528,6 +603,12 @@ int rgb_led_matrix_set_bootloader_mode(RGBLEDMatrix *rgb_led_matrix, uint8_t mod
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -536,7 +617,7 @@ int rgb_led_matrix_set_bootloader_mode(RGBLEDMatrix *rgb_led_matrix, uint8_t mod
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -553,13 +634,19 @@ int rgb_led_matrix_get_bootloader_mode(RGBLEDMatrix *rgb_led_matrix, uint8_t *re
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -575,6 +662,12 @@ int rgb_led_matrix_set_write_firmware_pointer(RGBLEDMatrix *rgb_led_matrix, uint
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -583,7 +676,7 @@ int rgb_led_matrix_set_write_firmware_pointer(RGBLEDMatrix *rgb_led_matrix, uint
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -594,6 +687,12 @@ int rgb_led_matrix_write_firmware(RGBLEDMatrix *rgb_led_matrix, uint8_t data[64]
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -602,7 +701,7 @@ int rgb_led_matrix_write_firmware(RGBLEDMatrix *rgb_led_matrix, uint8_t data[64]
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -618,6 +717,12 @@ int rgb_led_matrix_set_status_led_config(RGBLEDMatrix *rgb_led_matrix, uint8_t c
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -626,7 +731,7 @@ int rgb_led_matrix_set_status_led_config(RGBLEDMatrix *rgb_led_matrix, uint8_t c
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -637,13 +742,19 @@ int rgb_led_matrix_get_status_led_config(RGBLEDMatrix *rgb_led_matrix, uint8_t *
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -660,13 +771,19 @@ int rgb_led_matrix_get_chip_temperature(RGBLEDMatrix *rgb_led_matrix, int16_t *r
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -682,13 +799,19 @@ int rgb_led_matrix_reset(RGBLEDMatrix *rgb_led_matrix) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -698,6 +821,12 @@ int rgb_led_matrix_write_uid(RGBLEDMatrix *rgb_led_matrix, uint32_t uid) {
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -706,7 +835,7 @@ int rgb_led_matrix_write_uid(RGBLEDMatrix *rgb_led_matrix, uint32_t uid) {
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -717,13 +846,19 @@ int rgb_led_matrix_read_uid(RGBLEDMatrix *rgb_led_matrix, uint32_t *ret_uid) {
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), RGB_LED_MATRIX_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -746,7 +881,7 @@ int rgb_led_matrix_get_identity(RGBLEDMatrix *rgb_led_matrix, char ret_uid[8], c
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

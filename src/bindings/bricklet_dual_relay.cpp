@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*MonoflopDone_CallbackFunction)(uint8_t relay, bool state, void *u
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -107,11 +107,18 @@ typedef struct {
 
 static void dual_relay_callback_wrapper_monoflop_done(DevicePrivate *device_p, Packet *packet) {
 	MonoflopDone_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUAL_RELAY_CALLBACK_MONOFLOP_DONE];
+	void *user_data;
+	MonoflopDone_Callback *callback;
 	bool unpacked_state;
-	MonoflopDone_Callback *callback = (MonoflopDone_Callback *)packet;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUAL_RELAY_CALLBACK_MONOFLOP_DONE];
+	if (packet->header.length != sizeof(MonoflopDone_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (MonoflopDone_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUAL_RELAY_CALLBACK_MONOFLOP_DONE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUAL_RELAY_CALLBACK_MONOFLOP_DONE];
+	callback = (MonoflopDone_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -122,9 +129,10 @@ static void dual_relay_callback_wrapper_monoflop_done(DevicePrivate *device_p, P
 }
 
 void dual_relay_create(DualRelay *dual_relay, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(dual_relay, uid, ipcon->p, 2, 0, 0);
+	device_create(dual_relay, uid, ipcon_p, 2, 0, 0, DUAL_RELAY_DEVICE_IDENTIFIER);
 
 	device_p = dual_relay->p;
 
@@ -137,6 +145,7 @@ void dual_relay_create(DualRelay *dual_relay, const char *uid, IPConnection *ipc
 
 	device_p->callback_wrappers[DUAL_RELAY_CALLBACK_MONOFLOP_DONE] = dual_relay_callback_wrapper_monoflop_done;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void dual_relay_destroy(DualRelay *dual_relay) {
@@ -155,7 +164,7 @@ int dual_relay_set_response_expected_all(DualRelay *dual_relay, bool response_ex
 	return device_set_response_expected_all(dual_relay->p, response_expected);
 }
 
-void dual_relay_register_callback(DualRelay *dual_relay, int16_t callback_id, void *function, void *user_data) {
+void dual_relay_register_callback(DualRelay *dual_relay, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(dual_relay->p, callback_id, function, user_data);
 }
 
@@ -168,6 +177,12 @@ int dual_relay_set_state(DualRelay *dual_relay, bool relay1, bool relay2) {
 	SetState_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_RELAY_FUNCTION_SET_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -177,7 +192,7 @@ int dual_relay_set_state(DualRelay *dual_relay, bool relay1, bool relay2) {
 	request.relay1 = relay1 ? 1 : 0;
 	request.relay2 = relay2 ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -188,13 +203,19 @@ int dual_relay_get_state(DualRelay *dual_relay, bool *ret_relay1, bool *ret_rela
 	GetState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_RELAY_FUNCTION_GET_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -211,6 +232,12 @@ int dual_relay_set_monoflop(DualRelay *dual_relay, uint8_t relay, bool state, ui
 	SetMonoflop_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_RELAY_FUNCTION_SET_MONOFLOP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -221,7 +248,7 @@ int dual_relay_set_monoflop(DualRelay *dual_relay, uint8_t relay, bool state, ui
 	request.state = state ? 1 : 0;
 	request.time = leconvert_uint32_to(time);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -232,6 +259,12 @@ int dual_relay_get_monoflop(DualRelay *dual_relay, uint8_t relay, bool *ret_stat
 	GetMonoflop_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_RELAY_FUNCTION_GET_MONOFLOP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -240,7 +273,7 @@ int dual_relay_get_monoflop(DualRelay *dual_relay, uint8_t relay, bool *ret_stat
 
 	request.relay = relay;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -258,6 +291,12 @@ int dual_relay_set_selected_state(DualRelay *dual_relay, uint8_t relay, bool sta
 	SetSelectedState_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUAL_RELAY_FUNCTION_SET_SELECTED_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -267,7 +306,7 @@ int dual_relay_set_selected_state(DualRelay *dual_relay, uint8_t relay, bool sta
 	request.relay = relay;
 	request.state = state ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -284,7 +323,7 @@ int dual_relay_get_identity(DualRelay *dual_relay, char ret_uid[8], char ret_con
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

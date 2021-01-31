@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -99,7 +99,7 @@ void analog_out_v2_destroy(AnalogOutV2 *analog_out_v2);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int analog_out_v2_get_response_expected(AnalogOutV2 *analog_out_v2, uint8_t function_id, bool *ret_response_expected);
@@ -115,7 +115,7 @@ int analog_out_v2_get_response_expected(AnalogOutV2 *analog_out_v2, uint8_t func
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int analog_out_v2_set_response_expected(AnalogOutV2 *analog_out_v2, uint8_t function_id, bool response_expected);
@@ -140,7 +140,7 @@ int analog_out_v2_get_api_version(AnalogOutV2 *analog_out_v2, uint8_t ret_api_ve
 /**
  * \ingroup BrickletAnalogOutV2
  *
- * Sets the voltage in mV. The possible range is 0V to 12V (0-12000).
+ * Sets the voltage.
  */
 int analog_out_v2_set_output_voltage(AnalogOutV2 *analog_out_v2, uint16_t voltage);
 
@@ -154,7 +154,7 @@ int analog_out_v2_get_output_voltage(AnalogOutV2 *analog_out_v2, uint16_t *ret_v
 /**
  * \ingroup BrickletAnalogOutV2
  *
- * Returns the input voltage in mV.
+ * Returns the input voltage.
  */
 int analog_out_v2_get_input_voltage(AnalogOutV2 *analog_out_v2, uint16_t *ret_voltage);
 
@@ -165,7 +165,9 @@ int analog_out_v2_get_input_voltage(AnalogOutV2 *analog_out_v2, uint16_t *ret_vo
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

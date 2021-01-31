@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -987,7 +987,7 @@ void red_destroy(RED *red);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int red_get_response_expected(RED *red, uint8_t function_id, bool *ret_response_expected);
@@ -1003,7 +1003,7 @@ int red_get_response_expected(RED *red, uint8_t function_id, bool *ret_response_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int red_set_response_expected(RED *red, uint8_t function_id, bool response_expected);
@@ -1022,7 +1022,7 @@ int red_set_response_expected_all(RED *red, bool response_expected);
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void red_register_callback(RED *red, int16_t callback_id, void *function, void *user_data);
+void red_register_callback(RED *red, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickRED
@@ -1097,7 +1097,7 @@ int red_truncate_string(RED *red, uint16_t string_id, uint32_t length, uint8_t *
 /**
  * \ingroup BrickRED
  *
- * Returns the length of a string object in bytes and the resulting error code.
+ * Returns the length of a string object and the resulting error code.
  */
 int red_get_string_length(RED *red, uint16_t string_id, uint8_t *ret_error_code, uint32_t *ret_length);
 
@@ -1361,7 +1361,7 @@ int red_write_file_async(RED *red, uint16_t file_id, uint8_t buffer[61], uint8_t
 /**
  * \ingroup BrickRED
  *
- * Set the current seek position of a file object in bytes relative to ``origin``.
+ * Set the current seek position of a file object relative to ``origin``.
  * 
  * Possible file origins are:
  * 
@@ -1379,7 +1379,7 @@ int red_set_file_position(RED *red, uint16_t file_id, int64_t offset, uint8_t or
 /**
  * \ingroup BrickRED
  *
- * Returns the current seek position of a file object in bytes and returns the
+ * Returns the current seek position of a file object and returns the
  * resulting error code.
  * 
  * If the file object was created by {@link red_create_pipe} then it has no seek
@@ -1698,7 +1698,7 @@ int red_remove_custom_program_option(RED *red, uint16_t program_id, uint16_t nam
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be '0'-'8' (stack position).
+ * The position is the position in the stack from '0' (bottom) to '8' (top).
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

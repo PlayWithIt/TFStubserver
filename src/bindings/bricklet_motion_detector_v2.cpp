@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*DetectionCycleEnded_CallbackFunction)(void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -198,10 +198,17 @@ typedef struct {
 
 static void motion_detector_v2_callback_wrapper_motion_detected(DevicePrivate *device_p, Packet *packet) {
 	MotionDetected_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_MOTION_DETECTED];
-	(void)packet;
+	void *user_data;
+	MotionDetected_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_MOTION_DETECTED];
+	if (packet->header.length != sizeof(MotionDetected_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (MotionDetected_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_MOTION_DETECTED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_MOTION_DETECTED];
+	callback = (MotionDetected_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -212,10 +219,17 @@ static void motion_detector_v2_callback_wrapper_motion_detected(DevicePrivate *d
 
 static void motion_detector_v2_callback_wrapper_detection_cycle_ended(DevicePrivate *device_p, Packet *packet) {
 	DetectionCycleEnded_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_DETECTION_CYCLE_ENDED];
-	(void)packet;
+	void *user_data;
+	DetectionCycleEnded_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_DETECTION_CYCLE_ENDED];
+	if (packet->header.length != sizeof(DetectionCycleEnded_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (DetectionCycleEnded_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_DETECTION_CYCLE_ENDED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + MOTION_DETECTOR_V2_CALLBACK_DETECTION_CYCLE_ENDED];
+	callback = (DetectionCycleEnded_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -225,9 +239,10 @@ static void motion_detector_v2_callback_wrapper_detection_cycle_ended(DevicePriv
 }
 
 void motion_detector_v2_create(MotionDetectorV2 *motion_detector_v2, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(motion_detector_v2, uid, ipcon->p, 2, 0, 0);
+	device_create(motion_detector_v2, uid, ipcon_p, 2, 0, 0, MOTION_DETECTOR_V2_DEVICE_IDENTIFIER);
 
 	device_p = motion_detector_v2->p;
 
@@ -252,6 +267,7 @@ void motion_detector_v2_create(MotionDetectorV2 *motion_detector_v2, const char 
 	device_p->callback_wrappers[MOTION_DETECTOR_V2_CALLBACK_MOTION_DETECTED] = motion_detector_v2_callback_wrapper_motion_detected;
 	device_p->callback_wrappers[MOTION_DETECTOR_V2_CALLBACK_DETECTION_CYCLE_ENDED] = motion_detector_v2_callback_wrapper_detection_cycle_ended;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void motion_detector_v2_destroy(MotionDetectorV2 *motion_detector_v2) {
@@ -270,7 +286,7 @@ int motion_detector_v2_set_response_expected_all(MotionDetectorV2 *motion_detect
 	return device_set_response_expected_all(motion_detector_v2->p, response_expected);
 }
 
-void motion_detector_v2_register_callback(MotionDetectorV2 *motion_detector_v2, int16_t callback_id, void *function, void *user_data) {
+void motion_detector_v2_register_callback(MotionDetectorV2 *motion_detector_v2, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(motion_detector_v2->p, callback_id, function, user_data);
 }
 
@@ -284,13 +300,19 @@ int motion_detector_v2_get_motion_detected(MotionDetectorV2 *motion_detector_v2,
 	GetMotionDetected_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_GET_MOTION_DETECTED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -306,6 +328,12 @@ int motion_detector_v2_set_sensitivity(MotionDetectorV2 *motion_detector_v2, uin
 	SetSensitivity_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_SET_SENSITIVITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -314,7 +342,7 @@ int motion_detector_v2_set_sensitivity(MotionDetectorV2 *motion_detector_v2, uin
 
 	request.sensitivity = sensitivity;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -325,13 +353,19 @@ int motion_detector_v2_get_sensitivity(MotionDetectorV2 *motion_detector_v2, uin
 	GetSensitivity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_GET_SENSITIVITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -347,6 +381,12 @@ int motion_detector_v2_set_indicator(MotionDetectorV2 *motion_detector_v2, uint8
 	SetIndicator_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_SET_INDICATOR, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -357,7 +397,7 @@ int motion_detector_v2_set_indicator(MotionDetectorV2 *motion_detector_v2, uint8
 	request.top_right = top_right;
 	request.bottom = bottom;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -368,13 +408,19 @@ int motion_detector_v2_get_indicator(MotionDetectorV2 *motion_detector_v2, uint8
 	GetIndicator_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_GET_INDICATOR, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -393,13 +439,19 @@ int motion_detector_v2_get_spitfp_error_count(MotionDetectorV2 *motion_detector_
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -419,6 +471,12 @@ int motion_detector_v2_set_bootloader_mode(MotionDetectorV2 *motion_detector_v2,
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -427,7 +485,7 @@ int motion_detector_v2_set_bootloader_mode(MotionDetectorV2 *motion_detector_v2,
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -444,13 +502,19 @@ int motion_detector_v2_get_bootloader_mode(MotionDetectorV2 *motion_detector_v2,
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -466,6 +530,12 @@ int motion_detector_v2_set_write_firmware_pointer(MotionDetectorV2 *motion_detec
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -474,7 +544,7 @@ int motion_detector_v2_set_write_firmware_pointer(MotionDetectorV2 *motion_detec
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -485,6 +555,12 @@ int motion_detector_v2_write_firmware(MotionDetectorV2 *motion_detector_v2, uint
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -493,7 +569,7 @@ int motion_detector_v2_write_firmware(MotionDetectorV2 *motion_detector_v2, uint
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -509,6 +585,12 @@ int motion_detector_v2_set_status_led_config(MotionDetectorV2 *motion_detector_v
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -517,7 +599,7 @@ int motion_detector_v2_set_status_led_config(MotionDetectorV2 *motion_detector_v
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -528,13 +610,19 @@ int motion_detector_v2_get_status_led_config(MotionDetectorV2 *motion_detector_v
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -551,13 +639,19 @@ int motion_detector_v2_get_chip_temperature(MotionDetectorV2 *motion_detector_v2
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -573,13 +667,19 @@ int motion_detector_v2_reset(MotionDetectorV2 *motion_detector_v2) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -589,6 +689,12 @@ int motion_detector_v2_write_uid(MotionDetectorV2 *motion_detector_v2, uint32_t 
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -597,7 +703,7 @@ int motion_detector_v2_write_uid(MotionDetectorV2 *motion_detector_v2, uint32_t 
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -608,13 +714,19 @@ int motion_detector_v2_read_uid(MotionDetectorV2 *motion_detector_v2, uint32_t *
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), MOTION_DETECTOR_V2_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -637,7 +749,7 @@ int motion_detector_v2_get_identity(MotionDetectorV2 *motion_detector_v2, char r
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

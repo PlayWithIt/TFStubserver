@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -195,7 +195,7 @@ void rotary_encoder_destroy(RotaryEncoder *rotary_encoder);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int rotary_encoder_get_response_expected(RotaryEncoder *rotary_encoder, uint8_t function_id, bool *ret_response_expected);
@@ -211,7 +211,7 @@ int rotary_encoder_get_response_expected(RotaryEncoder *rotary_encoder, uint8_t 
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int rotary_encoder_set_response_expected(RotaryEncoder *rotary_encoder, uint8_t function_id, bool response_expected);
@@ -230,7 +230,7 @@ int rotary_encoder_set_response_expected_all(RotaryEncoder *rotary_encoder, bool
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void rotary_encoder_register_callback(RotaryEncoder *rotary_encoder, int16_t callback_id, void *function, void *user_data);
+void rotary_encoder_register_callback(RotaryEncoder *rotary_encoder, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletRotaryEncoder
@@ -257,13 +257,11 @@ int rotary_encoder_get_count(RotaryEncoder *rotary_encoder, bool reset, int32_t 
 /**
  * \ingroup BrickletRotaryEncoder
  *
- * Sets the period in ms with which the {@link ROTARY_ENCODER_CALLBACK_COUNT} callback is triggered
+ * Sets the period with which the {@link ROTARY_ENCODER_CALLBACK_COUNT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link ROTARY_ENCODER_CALLBACK_COUNT} callback is only triggered if the count has changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int rotary_encoder_set_count_callback_period(RotaryEncoder *rotary_encoder, uint32_t period);
 
@@ -290,8 +288,6 @@ int rotary_encoder_get_count_callback_period(RotaryEncoder *rotary_encoder, uint
  *  "'<'",    "Callback is triggered when the count is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the count is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int rotary_encoder_set_count_callback_threshold(RotaryEncoder *rotary_encoder, char option, int32_t min, int32_t max);
 
@@ -305,7 +301,7 @@ int rotary_encoder_get_count_callback_threshold(RotaryEncoder *rotary_encoder, c
 /**
  * \ingroup BrickletRotaryEncoder
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link ROTARY_ENCODER_CALLBACK_COUNT_REACHED}
  * 
@@ -314,8 +310,6 @@ int rotary_encoder_get_count_callback_threshold(RotaryEncoder *rotary_encoder, c
  * * {@link rotary_encoder_set_count_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int rotary_encoder_set_debounce_period(RotaryEncoder *rotary_encoder, uint32_t debounce);
 
@@ -343,7 +337,9 @@ int rotary_encoder_is_pressed(RotaryEncoder *rotary_encoder, bool *ret_pressed);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

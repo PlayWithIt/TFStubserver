@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -182,7 +182,7 @@ void moisture_destroy(Moisture *moisture);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int moisture_get_response_expected(Moisture *moisture, uint8_t function_id, bool *ret_response_expected);
@@ -198,7 +198,7 @@ int moisture_get_response_expected(Moisture *moisture, uint8_t function_id, bool
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int moisture_set_response_expected(Moisture *moisture, uint8_t function_id, bool response_expected);
@@ -217,7 +217,7 @@ int moisture_set_response_expected_all(Moisture *moisture, bool response_expecte
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void moisture_register_callback(Moisture *moisture, int16_t callback_id, void *function, void *user_data);
+void moisture_register_callback(Moisture *moisture, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletMoisture
@@ -230,8 +230,8 @@ int moisture_get_api_version(Moisture *moisture, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletMoisture
  *
- * Returns the current moisture value. The value has a range of
- * 0 to 4095. A small value corresponds to little moisture, a big
+ * Returns the current moisture value.
+ * A small value corresponds to little moisture, a big
  * value corresponds to much moisture.
  * 
  * If you want to get the moisture value periodically, it is recommended
@@ -243,13 +243,11 @@ int moisture_get_moisture_value(Moisture *moisture, uint16_t *ret_moisture);
 /**
  * \ingroup BrickletMoisture
  *
- * Sets the period in ms with which the {@link MOISTURE_CALLBACK_MOISTURE} callback is triggered
+ * Sets the period with which the {@link MOISTURE_CALLBACK_MOISTURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link MOISTURE_CALLBACK_MOISTURE} callback is only triggered if the moisture value has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int moisture_set_moisture_callback_period(Moisture *moisture, uint32_t period);
 
@@ -276,8 +274,6 @@ int moisture_get_moisture_callback_period(Moisture *moisture, uint32_t *ret_peri
  *  "'<'",    "Callback is triggered when the moisture value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the moisture value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int moisture_set_moisture_callback_threshold(Moisture *moisture, char option, uint16_t min, uint16_t max);
 
@@ -291,7 +287,7 @@ int moisture_get_moisture_callback_threshold(Moisture *moisture, char *ret_optio
 /**
  * \ingroup BrickletMoisture
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link MOISTURE_CALLBACK_MOISTURE_REACHED}
  * 
@@ -300,8 +296,6 @@ int moisture_get_moisture_callback_threshold(Moisture *moisture, char *ret_optio
  * * {@link moisture_set_moisture_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int moisture_set_debounce_period(Moisture *moisture, uint32_t debounce);
 
@@ -320,10 +314,6 @@ int moisture_get_debounce_period(Moisture *moisture, uint32_t *ret_debounce);
  * 
  * Setting the length to 0 will turn the averaging completely off. With less
  * averaging, there is more noise on the data.
- * 
- * The range for the averaging is 0-100.
- * 
- * The default value is 100.
  */
 int moisture_set_moving_average(Moisture *moisture, uint8_t average);
 
@@ -341,7 +331,9 @@ int moisture_get_moving_average(Moisture *moisture, uint8_t *ret_average);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

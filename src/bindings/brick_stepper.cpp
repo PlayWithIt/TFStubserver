@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -36,7 +36,7 @@ typedef void (*NewState_CallbackFunction)(uint8_t state_new, uint8_t state_previ
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -432,6 +432,24 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	char port;
+	uint8_t offset;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED WriteBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	char port;
+	uint8_t offset;
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t chunk[32];
+} ATTRIBUTE_PACKED ReadBrickletPlugin_Response;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetIdentity_Request;
 
 typedef struct {
@@ -451,10 +469,17 @@ typedef struct {
 
 static void stepper_callback_wrapper_under_voltage(DevicePrivate *device_p, Packet *packet) {
 	UnderVoltage_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_UNDER_VOLTAGE];
-	UnderVoltage_Callback *callback = (UnderVoltage_Callback *)packet;
+	void *user_data;
+	UnderVoltage_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_UNDER_VOLTAGE];
+	if (packet->header.length != sizeof(UnderVoltage_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (UnderVoltage_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_UNDER_VOLTAGE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_UNDER_VOLTAGE];
+	callback = (UnderVoltage_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -467,10 +492,17 @@ static void stepper_callback_wrapper_under_voltage(DevicePrivate *device_p, Pack
 
 static void stepper_callback_wrapper_position_reached(DevicePrivate *device_p, Packet *packet) {
 	PositionReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_POSITION_REACHED];
-	PositionReached_Callback *callback = (PositionReached_Callback *)packet;
+	void *user_data;
+	PositionReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_POSITION_REACHED];
+	if (packet->header.length != sizeof(PositionReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (PositionReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_POSITION_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_POSITION_REACHED];
+	callback = (PositionReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -483,10 +515,17 @@ static void stepper_callback_wrapper_position_reached(DevicePrivate *device_p, P
 
 static void stepper_callback_wrapper_all_data(DevicePrivate *device_p, Packet *packet) {
 	AllData_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_ALL_DATA];
-	AllData_Callback *callback = (AllData_Callback *)packet;
+	void *user_data;
+	AllData_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_ALL_DATA];
+	if (packet->header.length != sizeof(AllData_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AllData_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_ALL_DATA];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_ALL_DATA];
+	callback = (AllData_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -504,10 +543,17 @@ static void stepper_callback_wrapper_all_data(DevicePrivate *device_p, Packet *p
 
 static void stepper_callback_wrapper_new_state(DevicePrivate *device_p, Packet *packet) {
 	NewState_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_NEW_STATE];
-	NewState_Callback *callback = (NewState_Callback *)packet;
+	void *user_data;
+	NewState_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_NEW_STATE];
+	if (packet->header.length != sizeof(NewState_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (NewState_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_NEW_STATE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + STEPPER_CALLBACK_NEW_STATE];
+	callback = (NewState_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -517,9 +563,10 @@ static void stepper_callback_wrapper_new_state(DevicePrivate *device_p, Packet *
 }
 
 void stepper_create(Stepper *stepper, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(stepper, uid, ipcon->p, 2, 0, 4);
+	device_create(stepper, uid, ipcon_p, 2, 0, 4, STEPPER_DEVICE_IDENTIFIER);
 
 	device_p = stepper->p;
 
@@ -572,6 +619,8 @@ void stepper_create(Stepper *stepper, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[STEPPER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[STEPPER_FUNCTION_GET_CHIP_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[STEPPER_FUNCTION_RESET] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[STEPPER_FUNCTION_WRITE_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[STEPPER_FUNCTION_READ_BRICKLET_PLUGIN] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[STEPPER_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[STEPPER_CALLBACK_UNDER_VOLTAGE] = stepper_callback_wrapper_under_voltage;
@@ -579,6 +628,7 @@ void stepper_create(Stepper *stepper, const char *uid, IPConnection *ipcon) {
 	device_p->callback_wrappers[STEPPER_CALLBACK_ALL_DATA] = stepper_callback_wrapper_all_data;
 	device_p->callback_wrappers[STEPPER_CALLBACK_NEW_STATE] = stepper_callback_wrapper_new_state;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void stepper_destroy(Stepper *stepper) {
@@ -597,7 +647,7 @@ int stepper_set_response_expected_all(Stepper *stepper, bool response_expected) 
 	return device_set_response_expected_all(stepper->p, response_expected);
 }
 
-void stepper_register_callback(Stepper *stepper, int16_t callback_id, void *function, void *user_data) {
+void stepper_register_callback(Stepper *stepper, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(stepper->p, callback_id, function, user_data);
 }
 
@@ -610,6 +660,12 @@ int stepper_set_max_velocity(Stepper *stepper, uint16_t velocity) {
 	SetMaxVelocity_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_MAX_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -618,7 +674,7 @@ int stepper_set_max_velocity(Stepper *stepper, uint16_t velocity) {
 
 	request.velocity = leconvert_uint16_to(velocity);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -629,13 +685,19 @@ int stepper_get_max_velocity(Stepper *stepper, uint16_t *ret_velocity) {
 	GetMaxVelocity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_MAX_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -652,13 +714,19 @@ int stepper_get_current_velocity(Stepper *stepper, uint16_t *ret_velocity) {
 	GetCurrentVelocity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_CURRENT_VELOCITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -674,6 +742,12 @@ int stepper_set_speed_ramping(Stepper *stepper, uint16_t acceleration, uint16_t 
 	SetSpeedRamping_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_SPEED_RAMPING, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -683,7 +757,7 @@ int stepper_set_speed_ramping(Stepper *stepper, uint16_t acceleration, uint16_t 
 	request.acceleration = leconvert_uint16_to(acceleration);
 	request.deacceleration = leconvert_uint16_to(deacceleration);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -694,13 +768,19 @@ int stepper_get_speed_ramping(Stepper *stepper, uint16_t *ret_acceleration, uint
 	GetSpeedRamping_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_SPEED_RAMPING, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -717,13 +797,19 @@ int stepper_full_brake(Stepper *stepper) {
 	FullBrake_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_FULL_BRAKE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -733,6 +819,12 @@ int stepper_set_current_position(Stepper *stepper, int32_t position) {
 	SetCurrentPosition_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_CURRENT_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -741,7 +833,7 @@ int stepper_set_current_position(Stepper *stepper, int32_t position) {
 
 	request.position = leconvert_int32_to(position);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -752,13 +844,19 @@ int stepper_get_current_position(Stepper *stepper, int32_t *ret_position) {
 	GetCurrentPosition_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_CURRENT_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -774,6 +872,12 @@ int stepper_set_target_position(Stepper *stepper, int32_t position) {
 	SetTargetPosition_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_TARGET_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -782,7 +886,7 @@ int stepper_set_target_position(Stepper *stepper, int32_t position) {
 
 	request.position = leconvert_int32_to(position);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -793,13 +897,19 @@ int stepper_get_target_position(Stepper *stepper, int32_t *ret_position) {
 	GetTargetPosition_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_TARGET_POSITION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -815,6 +925,12 @@ int stepper_set_steps(Stepper *stepper, int32_t steps) {
 	SetSteps_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_STEPS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -823,7 +939,7 @@ int stepper_set_steps(Stepper *stepper, int32_t steps) {
 
 	request.steps = leconvert_int32_to(steps);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -834,13 +950,19 @@ int stepper_get_steps(Stepper *stepper, int32_t *ret_steps) {
 	GetSteps_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_STEPS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -857,13 +979,19 @@ int stepper_get_remaining_steps(Stepper *stepper, int32_t *ret_steps) {
 	GetRemainingSteps_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_REMAINING_STEPS, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -879,6 +1007,12 @@ int stepper_set_step_mode(Stepper *stepper, uint8_t mode) {
 	SetStepMode_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_STEP_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -887,7 +1021,7 @@ int stepper_set_step_mode(Stepper *stepper, uint8_t mode) {
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -898,13 +1032,19 @@ int stepper_get_step_mode(Stepper *stepper, uint8_t *ret_mode) {
 	GetStepMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_STEP_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -920,13 +1060,19 @@ int stepper_drive_forward(Stepper *stepper) {
 	DriveForward_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_DRIVE_FORWARD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -936,13 +1082,19 @@ int stepper_drive_backward(Stepper *stepper) {
 	DriveBackward_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_DRIVE_BACKWARD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -952,13 +1104,19 @@ int stepper_stop(Stepper *stepper) {
 	Stop_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_STOP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -969,13 +1127,19 @@ int stepper_get_stack_input_voltage(Stepper *stepper, uint16_t *ret_voltage) {
 	GetStackInputVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_STACK_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -992,13 +1156,19 @@ int stepper_get_external_input_voltage(Stepper *stepper, uint16_t *ret_voltage) 
 	GetExternalInputVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1015,13 +1185,19 @@ int stepper_get_current_consumption(Stepper *stepper, uint16_t *ret_current) {
 	GetCurrentConsumption_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_CURRENT_CONSUMPTION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1037,6 +1213,12 @@ int stepper_set_motor_current(Stepper *stepper, uint16_t current) {
 	SetMotorCurrent_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_MOTOR_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1045,7 +1227,7 @@ int stepper_set_motor_current(Stepper *stepper, uint16_t current) {
 
 	request.current = leconvert_uint16_to(current);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1056,13 +1238,19 @@ int stepper_get_motor_current(Stepper *stepper, uint16_t *ret_current) {
 	GetMotorCurrent_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_MOTOR_CURRENT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1078,13 +1266,19 @@ int stepper_enable(Stepper *stepper) {
 	Enable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_ENABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1094,13 +1288,19 @@ int stepper_disable(Stepper *stepper) {
 	Disable_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_DISABLE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1111,13 +1311,19 @@ int stepper_is_enabled(Stepper *stepper, bool *ret_enabled) {
 	IsEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_IS_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1133,6 +1339,12 @@ int stepper_set_decay(Stepper *stepper, uint16_t decay) {
 	SetDecay_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_DECAY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1141,7 +1353,7 @@ int stepper_set_decay(Stepper *stepper, uint16_t decay) {
 
 	request.decay = leconvert_uint16_to(decay);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1152,13 +1364,19 @@ int stepper_get_decay(Stepper *stepper, uint16_t *ret_decay) {
 	GetDecay_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_DECAY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1174,6 +1392,12 @@ int stepper_set_minimum_voltage(Stepper *stepper, uint16_t voltage) {
 	SetMinimumVoltage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1182,7 +1406,7 @@ int stepper_set_minimum_voltage(Stepper *stepper, uint16_t voltage) {
 
 	request.voltage = leconvert_uint16_to(voltage);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1193,13 +1417,19 @@ int stepper_get_minimum_voltage(Stepper *stepper, uint16_t *ret_voltage) {
 	GetMinimumVoltage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_MINIMUM_VOLTAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1215,6 +1445,12 @@ int stepper_set_sync_rect(Stepper *stepper, bool sync_rect) {
 	SetSyncRect_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_SYNC_RECT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1223,7 +1459,7 @@ int stepper_set_sync_rect(Stepper *stepper, bool sync_rect) {
 
 	request.sync_rect = sync_rect ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1234,13 +1470,19 @@ int stepper_is_sync_rect(Stepper *stepper, bool *ret_sync_rect) {
 	IsSyncRect_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_IS_SYNC_RECT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1256,6 +1498,12 @@ int stepper_set_time_base(Stepper *stepper, uint32_t time_base) {
 	SetTimeBase_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_TIME_BASE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1264,7 +1512,7 @@ int stepper_set_time_base(Stepper *stepper, uint32_t time_base) {
 
 	request.time_base = leconvert_uint32_to(time_base);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1275,13 +1523,19 @@ int stepper_get_time_base(Stepper *stepper, uint32_t *ret_time_base) {
 	GetTimeBase_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_TIME_BASE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1298,13 +1552,19 @@ int stepper_get_all_data(Stepper *stepper, uint16_t *ret_current_velocity, int32
 	GetAllData_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_ALL_DATA, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1325,6 +1585,12 @@ int stepper_set_all_data_period(Stepper *stepper, uint32_t period) {
 	SetAllDataPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_ALL_DATA_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1333,7 +1599,7 @@ int stepper_set_all_data_period(Stepper *stepper, uint32_t period) {
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1344,13 +1610,19 @@ int stepper_get_all_data_period(Stepper *stepper, uint32_t *ret_period) {
 	GetAllDataPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_ALL_DATA_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1366,6 +1638,12 @@ int stepper_set_spitfp_baudrate_config(Stepper *stepper, bool enable_dynamic_bau
 	SetSPITFPBaudrateConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1375,7 +1653,7 @@ int stepper_set_spitfp_baudrate_config(Stepper *stepper, bool enable_dynamic_bau
 	request.enable_dynamic_baudrate = enable_dynamic_baudrate ? 1 : 0;
 	request.minimum_dynamic_baudrate = leconvert_uint32_to(minimum_dynamic_baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1386,13 +1664,19 @@ int stepper_get_spitfp_baudrate_config(Stepper *stepper, bool *ret_enable_dynami
 	GetSPITFPBaudrateConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_SPITFP_BAUDRATE_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1410,6 +1694,12 @@ int stepper_get_send_timeout_count(Stepper *stepper, uint8_t communication_metho
 	GetSendTimeoutCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_SEND_TIMEOUT_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1418,7 +1708,7 @@ int stepper_get_send_timeout_count(Stepper *stepper, uint8_t communication_metho
 
 	request.communication_method = communication_method;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1434,6 +1724,12 @@ int stepper_set_spitfp_baudrate(Stepper *stepper, char bricklet_port, uint32_t b
 	SetSPITFPBaudrate_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_SET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1443,7 +1739,7 @@ int stepper_set_spitfp_baudrate(Stepper *stepper, char bricklet_port, uint32_t b
 	request.bricklet_port = bricklet_port;
 	request.baudrate = leconvert_uint32_to(baudrate);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1454,6 +1750,12 @@ int stepper_get_spitfp_baudrate(Stepper *stepper, char bricklet_port, uint32_t *
 	GetSPITFPBaudrate_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_SPITFP_BAUDRATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1462,7 +1764,7 @@ int stepper_get_spitfp_baudrate(Stepper *stepper, char bricklet_port, uint32_t *
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1479,6 +1781,12 @@ int stepper_get_spitfp_error_count(Stepper *stepper, char bricklet_port, uint32_
 	GetSPITFPErrorCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1487,7 +1795,7 @@ int stepper_get_spitfp_error_count(Stepper *stepper, char bricklet_port, uint32_
 
 	request.bricklet_port = bricklet_port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1506,13 +1814,19 @@ int stepper_enable_status_led(Stepper *stepper) {
 	EnableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_ENABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1522,13 +1836,19 @@ int stepper_disable_status_led(Stepper *stepper) {
 	DisableStatusLED_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_DISABLE_STATUS_LED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1539,13 +1859,19 @@ int stepper_is_status_led_enabled(Stepper *stepper, bool *ret_enabled) {
 	IsStatusLEDEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_IS_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1562,6 +1888,12 @@ int stepper_get_protocol1_bricklet_name(Stepper *stepper, char port, uint8_t *re
 	GetProtocol1BrickletName_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1570,7 +1902,7 @@ int stepper_get_protocol1_bricklet_name(Stepper *stepper, char port, uint8_t *re
 
 	request.port = port;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1589,13 +1921,19 @@ int stepper_get_chip_temperature(Stepper *stepper, int16_t *ret_temperature) {
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1611,13 +1949,77 @@ int stepper_reset(Stepper *stepper) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int stepper_write_bricklet_plugin(Stepper *stepper, char port, uint8_t offset, uint8_t chunk[32]) {
+	DevicePrivate *device_p = stepper->p;
+	WriteBrickletPlugin_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_WRITE_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+	memcpy(request.chunk, chunk, 32 * sizeof(uint8_t));
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int stepper_read_bricklet_plugin(Stepper *stepper, char port, uint8_t offset, uint8_t ret_chunk[32]) {
+	DevicePrivate *device_p = stepper->p;
+	ReadBrickletPlugin_Request request;
+	ReadBrickletPlugin_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), STEPPER_FUNCTION_READ_BRICKLET_PLUGIN, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.port = port;
+	request.offset = offset;
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	memcpy(ret_chunk, response.chunk, 32 * sizeof(uint8_t));
 
 	return ret;
 }
@@ -1634,7 +2036,7 @@ int stepper_get_identity(Stepper *stepper, char ret_uid[8], char ret_connected_u
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

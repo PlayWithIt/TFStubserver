@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -28,7 +28,7 @@ extern "C" {
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -97,9 +97,10 @@ typedef struct {
 #undef ATTRIBUTE_PACKED
 
 void oled_128x64_create(OLED128x64 *oled_128x64, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(oled_128x64, uid, ipcon->p, 2, 0, 0);
+	device_create(oled_128x64, uid, ipcon_p, 2, 0, 0, OLED_128X64_DEVICE_IDENTIFIER);
 
 	device_p = oled_128x64->p;
 
@@ -111,6 +112,7 @@ void oled_128x64_create(OLED128x64 *oled_128x64, const char *uid, IPConnection *
 	device_p->response_expected[OLED_128X64_FUNCTION_WRITE_LINE] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[OLED_128X64_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void oled_128x64_destroy(OLED128x64 *oled_128x64) {
@@ -139,6 +141,12 @@ int oled_128x64_write(OLED128x64 *oled_128x64, uint8_t data[64]) {
 	Write_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OLED_128X64_FUNCTION_WRITE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -147,7 +155,7 @@ int oled_128x64_write(OLED128x64 *oled_128x64, uint8_t data[64]) {
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -156,6 +164,12 @@ int oled_128x64_new_window(OLED128x64 *oled_128x64, uint8_t column_from, uint8_t
 	DevicePrivate *device_p = oled_128x64->p;
 	NewWindow_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), OLED_128X64_FUNCTION_NEW_WINDOW, device_p->ipcon_p, device_p);
 
@@ -168,7 +182,7 @@ int oled_128x64_new_window(OLED128x64 *oled_128x64, uint8_t column_from, uint8_t
 	request.row_from = row_from;
 	request.row_to = row_to;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -178,13 +192,19 @@ int oled_128x64_clear_display(OLED128x64 *oled_128x64) {
 	ClearDisplay_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OLED_128X64_FUNCTION_CLEAR_DISPLAY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -193,6 +213,12 @@ int oled_128x64_set_display_configuration(OLED128x64 *oled_128x64, uint8_t contr
 	DevicePrivate *device_p = oled_128x64->p;
 	SetDisplayConfiguration_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), OLED_128X64_FUNCTION_SET_DISPLAY_CONFIGURATION, device_p->ipcon_p, device_p);
 
@@ -203,7 +229,7 @@ int oled_128x64_set_display_configuration(OLED128x64 *oled_128x64, uint8_t contr
 	request.contrast = contrast;
 	request.invert = invert ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -214,13 +240,19 @@ int oled_128x64_get_display_configuration(OLED128x64 *oled_128x64, uint8_t *ret_
 	GetDisplayConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OLED_128X64_FUNCTION_GET_DISPLAY_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -237,6 +269,12 @@ int oled_128x64_write_line(OLED128x64 *oled_128x64, uint8_t line, uint8_t positi
 	WriteLine_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), OLED_128X64_FUNCTION_WRITE_LINE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -248,7 +286,7 @@ int oled_128x64_write_line(OLED128x64 *oled_128x64, uint8_t line, uint8_t positi
 	memcpy(request.text, text, 26);
 
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -265,7 +303,7 @@ int oled_128x64_get_identity(OLED128x64 *oled_128x64, char ret_uid[8], char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

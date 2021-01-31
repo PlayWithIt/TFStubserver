@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*DustDensityReached_CallbackFunction)(uint16_t dust_density, void 
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -141,10 +141,17 @@ typedef struct {
 
 static void dust_detector_callback_wrapper_dust_density(DevicePrivate *device_p, Packet *packet) {
 	DustDensity_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY];
-	DustDensity_Callback *callback = (DustDensity_Callback *)packet;
+	void *user_data;
+	DustDensity_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY];
+	if (packet->header.length != sizeof(DustDensity_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (DustDensity_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY];
+	callback = (DustDensity_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -157,10 +164,17 @@ static void dust_detector_callback_wrapper_dust_density(DevicePrivate *device_p,
 
 static void dust_detector_callback_wrapper_dust_density_reached(DevicePrivate *device_p, Packet *packet) {
 	DustDensityReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED];
-	DustDensityReached_Callback *callback = (DustDensityReached_Callback *)packet;
+	void *user_data;
+	DustDensityReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED];
+	if (packet->header.length != sizeof(DustDensityReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (DustDensityReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED];
+	callback = (DustDensityReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -172,9 +186,10 @@ static void dust_detector_callback_wrapper_dust_density_reached(DevicePrivate *d
 }
 
 void dust_detector_create(DustDetector *dust_detector, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(dust_detector, uid, ipcon->p, 2, 0, 0);
+	device_create(dust_detector, uid, ipcon_p, 2, 0, 0, DUST_DETECTOR_DEVICE_IDENTIFIER);
 
 	device_p = dust_detector->p;
 
@@ -192,6 +207,7 @@ void dust_detector_create(DustDetector *dust_detector, const char *uid, IPConnec
 	device_p->callback_wrappers[DUST_DETECTOR_CALLBACK_DUST_DENSITY] = dust_detector_callback_wrapper_dust_density;
 	device_p->callback_wrappers[DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED] = dust_detector_callback_wrapper_dust_density_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void dust_detector_destroy(DustDetector *dust_detector) {
@@ -210,7 +226,7 @@ int dust_detector_set_response_expected_all(DustDetector *dust_detector, bool re
 	return device_set_response_expected_all(dust_detector->p, response_expected);
 }
 
-void dust_detector_register_callback(DustDetector *dust_detector, int16_t callback_id, void *function, void *user_data) {
+void dust_detector_register_callback(DustDetector *dust_detector, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(dust_detector->p, callback_id, function, user_data);
 }
 
@@ -224,13 +240,19 @@ int dust_detector_get_dust_density(DustDetector *dust_detector, uint16_t *ret_du
 	GetDustDensity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_GET_DUST_DENSITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -246,6 +268,12 @@ int dust_detector_set_dust_density_callback_period(DustDetector *dust_detector, 
 	SetDustDensityCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_SET_DUST_DENSITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -254,7 +282,7 @@ int dust_detector_set_dust_density_callback_period(DustDetector *dust_detector, 
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -265,13 +293,19 @@ int dust_detector_get_dust_density_callback_period(DustDetector *dust_detector, 
 	GetDustDensityCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_GET_DUST_DENSITY_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -287,6 +321,12 @@ int dust_detector_set_dust_density_callback_threshold(DustDetector *dust_detecto
 	SetDustDensityCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_SET_DUST_DENSITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -297,7 +337,7 @@ int dust_detector_set_dust_density_callback_threshold(DustDetector *dust_detecto
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -308,13 +348,19 @@ int dust_detector_get_dust_density_callback_threshold(DustDetector *dust_detecto
 	GetDustDensityCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_GET_DUST_DENSITY_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -332,6 +378,12 @@ int dust_detector_set_debounce_period(DustDetector *dust_detector, uint32_t debo
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -340,7 +392,7 @@ int dust_detector_set_debounce_period(DustDetector *dust_detector, uint32_t debo
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -351,13 +403,19 @@ int dust_detector_get_debounce_period(DustDetector *dust_detector, uint32_t *ret
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -373,6 +431,12 @@ int dust_detector_set_moving_average(DustDetector *dust_detector, uint8_t averag
 	SetMovingAverage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_SET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -381,7 +445,7 @@ int dust_detector_set_moving_average(DustDetector *dust_detector, uint8_t averag
 
 	request.average = average;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -392,13 +456,19 @@ int dust_detector_get_moving_average(DustDetector *dust_detector, uint8_t *ret_a
 	GetMovingAverage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DUST_DETECTOR_FUNCTION_GET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -421,7 +491,7 @@ int dust_detector_get_identity(DustDetector *dust_detector, char ret_uid[8], cha
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

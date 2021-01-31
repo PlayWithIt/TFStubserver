@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -192,7 +192,7 @@ void temperature_destroy(Temperature *temperature);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int temperature_get_response_expected(Temperature *temperature, uint8_t function_id, bool *ret_response_expected);
@@ -208,7 +208,7 @@ int temperature_get_response_expected(Temperature *temperature, uint8_t function
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int temperature_set_response_expected(Temperature *temperature, uint8_t function_id, bool response_expected);
@@ -227,7 +227,7 @@ int temperature_set_response_expected_all(Temperature *temperature, bool respons
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void temperature_register_callback(Temperature *temperature, int16_t callback_id, void *function, void *user_data);
+void temperature_register_callback(Temperature *temperature, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletTemperature
@@ -240,9 +240,7 @@ int temperature_get_api_version(Temperature *temperature, uint8_t ret_api_versio
 /**
  * \ingroup BrickletTemperature
  *
- * Returns the temperature of the sensor. The value
- * has a range of -2500 to 8500 and is given in °C/100,
- * e.g. a value of 4223 means that a temperature of 42.23 °C is measured.
+ * Returns the temperature of the sensor.
  * 
  * If you want to get the temperature periodically, it is recommended
  * to use the {@link TEMPERATURE_CALLBACK_TEMPERATURE} callback and set the period with
@@ -253,13 +251,11 @@ int temperature_get_temperature(Temperature *temperature, int16_t *ret_temperatu
 /**
  * \ingroup BrickletTemperature
  *
- * Sets the period in ms with which the {@link TEMPERATURE_CALLBACK_TEMPERATURE} callback is triggered
+ * Sets the period with which the {@link TEMPERATURE_CALLBACK_TEMPERATURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link TEMPERATURE_CALLBACK_TEMPERATURE} callback is only triggered if the temperature has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int temperature_set_temperature_callback_period(Temperature *temperature, uint32_t period);
 
@@ -286,8 +282,6 @@ int temperature_get_temperature_callback_period(Temperature *temperature, uint32
  *  "'<'",    "Callback is triggered when the temperature is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the temperature is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int temperature_set_temperature_callback_threshold(Temperature *temperature, char option, int16_t min, int16_t max);
 
@@ -301,7 +295,7 @@ int temperature_get_temperature_callback_threshold(Temperature *temperature, cha
 /**
  * \ingroup BrickletTemperature
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link TEMPERATURE_CALLBACK_TEMPERATURE_REACHED}
  * 
@@ -310,8 +304,6 @@ int temperature_get_temperature_callback_threshold(Temperature *temperature, cha
  * * {@link temperature_set_temperature_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int temperature_set_debounce_period(Temperature *temperature, uint32_t debounce);
 
@@ -327,7 +319,7 @@ int temperature_get_debounce_period(Temperature *temperature, uint32_t *ret_debo
  *
  * Sets the I2C mode. Possible modes are:
  * 
- * * 0: Fast (400kHz, default)
+ * * 0: Fast (400kHz)
  * * 1: Slow (100kHz)
  * 
  * If you have problems with obvious outliers in the
@@ -357,7 +349,9 @@ int temperature_get_i2c_mode(Temperature *temperature, uint8_t *ret_mode);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

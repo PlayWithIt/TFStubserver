@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -469,7 +469,7 @@ void led_strip_v2_destroy(LEDStripV2 *led_strip_v2);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int led_strip_v2_get_response_expected(LEDStripV2 *led_strip_v2, uint8_t function_id, bool *ret_response_expected);
@@ -485,7 +485,7 @@ int led_strip_v2_get_response_expected(LEDStripV2 *led_strip_v2, uint8_t functio
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int led_strip_v2_set_response_expected(LEDStripV2 *led_strip_v2, uint8_t function_id, bool response_expected);
@@ -504,7 +504,7 @@ int led_strip_v2_set_response_expected_all(LEDStripV2 *led_strip_v2, bool respon
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void led_strip_v2_register_callback(LEDStripV2 *led_strip_v2, int16_t callback_id, void *function, void *user_data);
+void led_strip_v2_register_callback(LEDStripV2 *led_strip_v2, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletLEDStripV2
@@ -518,7 +518,7 @@ int led_strip_v2_get_api_version(LEDStripV2 *led_strip_v2, uint8_t ret_api_versi
  * \ingroup BrickletLEDStripV2
  *
  * Sets the RGB(W) values for the LEDs starting from *index*.
- * You can set at most 2048 RGB values or 1536 RGBW values.
+ * You can set at most 2048 RGB values or 1536 RGBW values (6144 byte each).
  * 
  * To make the colors show correctly you need to configure the chip type
  * (see {@link led_strip_v2_set_chip_type}) and a channel mapping (see {@link led_strip_v2_set_channel_mapping})
@@ -548,14 +548,20 @@ int led_strip_v2_set_led_values_low_level(LEDStripV2 *led_strip_v2, uint16_t ind
 /**
  * \ingroup BrickletLEDStripV2
  *
- * Returns the RGB(W) values as set by {@link led_strip_v2_set_led_values}.
+ * Returns *length* RGB(W) values starting from the
+ * given *index*.
+ * 
+ * If the channel mapping has 3 colors, you will get the data in the sequence
+ * RGBRGBRGB... if the channel mapping has 4 colors you will get the data in the
+ * sequence RGBWRGBWRGBW...
+ * (assuming you start at an index divisible by 3 (RGB) or 4 (RGBW)).
  */
 int led_strip_v2_get_led_values_low_level(LEDStripV2 *led_strip_v2, uint16_t index, uint16_t length, uint16_t *ret_value_length, uint16_t *ret_value_chunk_offset, uint8_t ret_value_chunk_data[60]);
 
 /**
  * \ingroup BrickletLEDStripV2
  *
- * Sets the frame duration in ms.
+ * Sets the frame duration.
  * 
  * Example: If you want to achieve 20 frames per second, you should
  * set the frame duration to 50ms (50ms * 20 = 1 second).
@@ -569,22 +575,21 @@ int led_strip_v2_set_frame_duration(LEDStripV2 *led_strip_v2, uint16_t duration)
 /**
  * \ingroup BrickletLEDStripV2
  *
- * Returns the frame duration in ms as set by {@link led_strip_v2_set_frame_duration}.
+ * Returns the frame duration as set by {@link led_strip_v2_set_frame_duration}.
  */
 int led_strip_v2_get_frame_duration(LEDStripV2 *led_strip_v2, uint16_t *ret_duration);
 
 /**
  * \ingroup BrickletLEDStripV2
  *
- * Returns the current supply voltage of the LEDs. The voltage is given in mV.
+ * Returns the current supply voltage of the LEDs.
  */
 int led_strip_v2_get_supply_voltage(LEDStripV2 *led_strip_v2, uint16_t *ret_voltage);
 
 /**
  * \ingroup BrickletLEDStripV2
  *
- * Sets the frequency of the clock in Hz. The range is 10000Hz (10kHz) up to
- * 2000000Hz (2MHz).
+ * Sets the frequency of the clock.
  * 
  * The Bricklet will choose the nearest achievable frequency, which may
  * be off by a few Hz. You can get the exact frequency that is used by
@@ -596,8 +601,6 @@ int led_strip_v2_get_supply_voltage(LEDStripV2 *led_strip_v2, uint16_t *ret_volt
  * 
  * With a decreasing frequency your maximum frames per second will decrease
  * too.
- * 
- * The default value is 1.66MHz.
  */
 int led_strip_v2_set_clock_frequency(LEDStripV2 *led_strip_v2, uint32_t frequency);
 
@@ -617,10 +620,9 @@ int led_strip_v2_get_clock_frequency(LEDStripV2 *led_strip_v2, uint32_t *ret_fre
  * * WS2811,
  * * WS2812 / SK6812 / NeoPixel RGB,
  * * SK6812RGBW / NeoPixel RGBW (Chip Type = WS2812),
+ * * WS2813 / WS2815 (Chip Type = WS2812)
  * * LPD8806 and
  * * APA102 / DotStar.
- * 
- * The default value is WS2801 (2801).
  */
 int led_strip_v2_set_chip_type(LEDStripV2 *led_strip_v2, uint16_t chip);
 
@@ -649,8 +651,6 @@ int led_strip_v2_get_chip_type(LEDStripV2 *led_strip_v2, uint16_t *ret_chip);
  * making them 4-channel chips. Internally the brightness channel is the first
  * channel, therefore one of the Wxyz channel mappings should be used. Then
  * the W channel controls the brightness.
- * 
- * The default value is BGR (36).
  */
 int led_strip_v2_set_channel_mapping(LEDStripV2 *led_strip_v2, uint8_t mapping);
 
@@ -665,8 +665,6 @@ int led_strip_v2_get_channel_mapping(LEDStripV2 *led_strip_v2, uint8_t *ret_mapp
  * \ingroup BrickletLEDStripV2
  *
  * Enables/disables the {@link LED_STRIP_V2_CALLBACK_FRAME_STARTED} callback.
- * 
- * By default the callback is enabled.
  */
 int led_strip_v2_set_frame_started_callback_configuration(LEDStripV2 *led_strip_v2, bool enable);
 
@@ -766,7 +764,7 @@ int led_strip_v2_get_status_led_config(LEDStripV2 *led_strip_v2, uint8_t *ret_co
 /**
  * \ingroup BrickletLEDStripV2
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -813,7 +811,9 @@ int led_strip_v2_read_uid(LEDStripV2 *led_strip_v2, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|
@@ -824,7 +824,7 @@ int led_strip_v2_get_identity(LEDStripV2 *led_strip_v2, char ret_uid[8], char re
  * \ingroup BrickletLEDStripV2
  *
  * Sets the RGB(W) values for the LEDs starting from *index*.
- * You can set at most 2048 RGB values or 1536 RGBW values.
+ * You can set at most 2048 RGB values or 1536 RGBW values (6144 byte each).
  * 
  * To make the colors show correctly you need to configure the chip type
  * (see {@link led_strip_v2_set_chip_type}) and a channel mapping (see {@link led_strip_v2_set_channel_mapping})
@@ -854,7 +854,13 @@ int led_strip_v2_set_led_values(LEDStripV2 *led_strip_v2, uint16_t index, uint8_
 /**
  * \ingroup BrickletLEDStripV2
  *
- * Returns the RGB(W) values as set by {@link led_strip_v2_set_led_values}.
+ * Returns *length* RGB(W) values starting from the
+ * given *index*.
+ * 
+ * If the channel mapping has 3 colors, you will get the data in the sequence
+ * RGBRGBRGB... if the channel mapping has 4 colors you will get the data in the
+ * sequence RGBWRGBWRGBW...
+ * (assuming you start at an index divisible by 3 (RGB) or 4 (RGBW)).
  */
 int led_strip_v2_get_led_values(LEDStripV2 *led_strip_v2, uint16_t index, uint16_t length, uint8_t *ret_value, uint16_t *ret_value_length);
 

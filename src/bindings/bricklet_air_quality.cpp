@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-11-28.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.23                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -38,7 +38,7 @@ typedef void (*AirPressure_CallbackFunction)(int32_t air_pressure, void *user_da
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -241,6 +241,24 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+} ATTRIBUTE_PACKED RemoveCalibration_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t duration;
+} ATTRIBUTE_PACKED SetBackgroundCalibrationDuration_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetBackgroundCalibrationDuration_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t duration;
+} ATTRIBUTE_PACKED GetBackgroundCalibrationDuration_Response;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetSPITFPErrorCount_Request;
 
 typedef struct {
@@ -347,10 +365,17 @@ typedef struct {
 
 static void air_quality_callback_wrapper_all_values(DevicePrivate *device_p, Packet *packet) {
 	AllValues_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_ALL_VALUES];
-	AllValues_Callback *callback = (AllValues_Callback *)packet;
+	void *user_data;
+	AllValues_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_ALL_VALUES];
+	if (packet->header.length != sizeof(AllValues_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AllValues_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_ALL_VALUES];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_ALL_VALUES];
+	callback = (AllValues_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -366,10 +391,17 @@ static void air_quality_callback_wrapper_all_values(DevicePrivate *device_p, Pac
 
 static void air_quality_callback_wrapper_iaq_index(DevicePrivate *device_p, Packet *packet) {
 	IAQIndex_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_IAQ_INDEX];
-	IAQIndex_Callback *callback = (IAQIndex_Callback *)packet;
+	void *user_data;
+	IAQIndex_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_IAQ_INDEX];
+	if (packet->header.length != sizeof(IAQIndex_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (IAQIndex_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_IAQ_INDEX];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_IAQ_INDEX];
+	callback = (IAQIndex_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -382,10 +414,17 @@ static void air_quality_callback_wrapper_iaq_index(DevicePrivate *device_p, Pack
 
 static void air_quality_callback_wrapper_temperature(DevicePrivate *device_p, Packet *packet) {
 	Temperature_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_TEMPERATURE];
-	Temperature_Callback *callback = (Temperature_Callback *)packet;
+	void *user_data;
+	Temperature_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_TEMPERATURE];
+	if (packet->header.length != sizeof(Temperature_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Temperature_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_TEMPERATURE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_TEMPERATURE];
+	callback = (Temperature_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -398,10 +437,17 @@ static void air_quality_callback_wrapper_temperature(DevicePrivate *device_p, Pa
 
 static void air_quality_callback_wrapper_humidity(DevicePrivate *device_p, Packet *packet) {
 	Humidity_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_HUMIDITY];
-	Humidity_Callback *callback = (Humidity_Callback *)packet;
+	void *user_data;
+	Humidity_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_HUMIDITY];
+	if (packet->header.length != sizeof(Humidity_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Humidity_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_HUMIDITY];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_HUMIDITY];
+	callback = (Humidity_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -414,10 +460,17 @@ static void air_quality_callback_wrapper_humidity(DevicePrivate *device_p, Packe
 
 static void air_quality_callback_wrapper_air_pressure(DevicePrivate *device_p, Packet *packet) {
 	AirPressure_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_AIR_PRESSURE];
-	AirPressure_Callback *callback = (AirPressure_Callback *)packet;
+	void *user_data;
+	AirPressure_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_AIR_PRESSURE];
+	if (packet->header.length != sizeof(AirPressure_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (AirPressure_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_AIR_PRESSURE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + AIR_QUALITY_CALLBACK_AIR_PRESSURE];
+	callback = (AirPressure_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -429,9 +482,10 @@ static void air_quality_callback_wrapper_air_pressure(DevicePrivate *device_p, P
 }
 
 void air_quality_create(AirQuality *air_quality, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(air_quality, uid, ipcon->p, 2, 0, 0);
+	device_create(air_quality, uid, ipcon_p, 2, 0, 1, AIR_QUALITY_DEVICE_IDENTIFIER);
 
 	device_p = air_quality->p;
 
@@ -452,6 +506,9 @@ void air_quality_create(AirQuality *air_quality, const char *uid, IPConnection *
 	device_p->response_expected[AIR_QUALITY_FUNCTION_GET_AIR_PRESSURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[AIR_QUALITY_FUNCTION_SET_AIR_PRESSURE_CALLBACK_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[AIR_QUALITY_FUNCTION_GET_AIR_PRESSURE_CALLBACK_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[AIR_QUALITY_FUNCTION_REMOVE_CALIBRATION] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[AIR_QUALITY_FUNCTION_SET_BACKGROUND_CALIBRATION_DURATION] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[AIR_QUALITY_FUNCTION_GET_BACKGROUND_CALIBRATION_DURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[AIR_QUALITY_FUNCTION_GET_SPITFP_ERROR_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[AIR_QUALITY_FUNCTION_SET_BOOTLOADER_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[AIR_QUALITY_FUNCTION_GET_BOOTLOADER_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
@@ -471,6 +528,7 @@ void air_quality_create(AirQuality *air_quality, const char *uid, IPConnection *
 	device_p->callback_wrappers[AIR_QUALITY_CALLBACK_HUMIDITY] = air_quality_callback_wrapper_humidity;
 	device_p->callback_wrappers[AIR_QUALITY_CALLBACK_AIR_PRESSURE] = air_quality_callback_wrapper_air_pressure;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void air_quality_destroy(AirQuality *air_quality) {
@@ -489,7 +547,7 @@ int air_quality_set_response_expected_all(AirQuality *air_quality, bool response
 	return device_set_response_expected_all(air_quality->p, response_expected);
 }
 
-void air_quality_register_callback(AirQuality *air_quality, int16_t callback_id, void *function, void *user_data) {
+void air_quality_register_callback(AirQuality *air_quality, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(air_quality->p, callback_id, function, user_data);
 }
 
@@ -503,13 +561,19 @@ int air_quality_get_all_values(AirQuality *air_quality, int32_t *ret_iaq_index, 
 	GetAllValues_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_ALL_VALUES, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -529,6 +593,12 @@ int air_quality_set_temperature_offset(AirQuality *air_quality, int32_t offset) 
 	SetTemperatureOffset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_TEMPERATURE_OFFSET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -537,7 +607,7 @@ int air_quality_set_temperature_offset(AirQuality *air_quality, int32_t offset) 
 
 	request.offset = leconvert_int32_to(offset);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -548,13 +618,19 @@ int air_quality_get_temperature_offset(AirQuality *air_quality, int32_t *ret_off
 	GetTemperatureOffset_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_TEMPERATURE_OFFSET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -570,6 +646,12 @@ int air_quality_set_all_values_callback_configuration(AirQuality *air_quality, u
 	SetAllValuesCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_ALL_VALUES_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -579,7 +661,7 @@ int air_quality_set_all_values_callback_configuration(AirQuality *air_quality, u
 	request.period = leconvert_uint32_to(period);
 	request.value_has_to_change = value_has_to_change ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -590,13 +672,19 @@ int air_quality_get_all_values_callback_configuration(AirQuality *air_quality, u
 	GetAllValuesCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_ALL_VALUES_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -614,13 +702,19 @@ int air_quality_get_iaq_index(AirQuality *air_quality, int32_t *ret_iaq_index, u
 	GetIAQIndex_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_IAQ_INDEX, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -637,6 +731,12 @@ int air_quality_set_iaq_index_callback_configuration(AirQuality *air_quality, ui
 	SetIAQIndexCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_IAQ_INDEX_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -646,7 +746,7 @@ int air_quality_set_iaq_index_callback_configuration(AirQuality *air_quality, ui
 	request.period = leconvert_uint32_to(period);
 	request.value_has_to_change = value_has_to_change ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -657,13 +757,19 @@ int air_quality_get_iaq_index_callback_configuration(AirQuality *air_quality, ui
 	GetIAQIndexCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_IAQ_INDEX_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -681,13 +787,19 @@ int air_quality_get_temperature(AirQuality *air_quality, int32_t *ret_temperatur
 	GetTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -703,6 +815,12 @@ int air_quality_set_temperature_callback_configuration(AirQuality *air_quality, 
 	SetTemperatureCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_TEMPERATURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -715,7 +833,7 @@ int air_quality_set_temperature_callback_configuration(AirQuality *air_quality, 
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -726,13 +844,19 @@ int air_quality_get_temperature_callback_configuration(AirQuality *air_quality, 
 	GetTemperatureCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_TEMPERATURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -753,13 +877,19 @@ int air_quality_get_humidity(AirQuality *air_quality, int32_t *ret_humidity) {
 	GetHumidity_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_HUMIDITY, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -775,6 +905,12 @@ int air_quality_set_humidity_callback_configuration(AirQuality *air_quality, uin
 	SetHumidityCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_HUMIDITY_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -787,7 +923,7 @@ int air_quality_set_humidity_callback_configuration(AirQuality *air_quality, uin
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -798,13 +934,19 @@ int air_quality_get_humidity_callback_configuration(AirQuality *air_quality, uin
 	GetHumidityCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_HUMIDITY_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -825,13 +967,19 @@ int air_quality_get_air_pressure(AirQuality *air_quality, int32_t *ret_air_press
 	GetAirPressure_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_AIR_PRESSURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -847,6 +995,12 @@ int air_quality_set_air_pressure_callback_configuration(AirQuality *air_quality,
 	SetAirPressureCallbackConfiguration_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_AIR_PRESSURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -859,7 +1013,7 @@ int air_quality_set_air_pressure_callback_configuration(AirQuality *air_quality,
 	request.min = leconvert_int32_to(min);
 	request.max = leconvert_int32_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -870,13 +1024,19 @@ int air_quality_get_air_pressure_callback_configuration(AirQuality *air_quality,
 	GetAirPressureCallbackConfiguration_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_AIR_PRESSURE_CALLBACK_CONFIGURATION, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -891,11 +1051,92 @@ int air_quality_get_air_pressure_callback_configuration(AirQuality *air_quality,
 	return ret;
 }
 
+int air_quality_remove_calibration(AirQuality *air_quality) {
+	DevicePrivate *device_p = air_quality->p;
+	RemoveCalibration_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_REMOVE_CALIBRATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int air_quality_set_background_calibration_duration(AirQuality *air_quality, uint8_t duration) {
+	DevicePrivate *device_p = air_quality->p;
+	SetBackgroundCalibrationDuration_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_BACKGROUND_CALIBRATION_DURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.duration = duration;
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int air_quality_get_background_calibration_duration(AirQuality *air_quality, uint8_t *ret_duration) {
+	DevicePrivate *device_p = air_quality->p;
+	GetBackgroundCalibrationDuration_Request request;
+	GetBackgroundCalibrationDuration_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_BACKGROUND_CALIBRATION_DURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_duration = response.duration;
+
+	return ret;
+}
+
 int air_quality_get_spitfp_error_count(AirQuality *air_quality, uint32_t *ret_error_count_ack_checksum, uint32_t *ret_error_count_message_checksum, uint32_t *ret_error_count_frame, uint32_t *ret_error_count_overflow) {
 	DevicePrivate *device_p = air_quality->p;
 	GetSPITFPErrorCount_Request request;
 	GetSPITFPErrorCount_Response response;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_SPITFP_ERROR_COUNT, device_p->ipcon_p, device_p);
 
@@ -903,7 +1144,7 @@ int air_quality_get_spitfp_error_count(AirQuality *air_quality, uint32_t *ret_er
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -923,6 +1164,12 @@ int air_quality_set_bootloader_mode(AirQuality *air_quality, uint8_t mode, uint8
 	SetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -931,7 +1178,7 @@ int air_quality_set_bootloader_mode(AirQuality *air_quality, uint8_t mode, uint8
 
 	request.mode = mode;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -948,13 +1195,19 @@ int air_quality_get_bootloader_mode(AirQuality *air_quality, uint8_t *ret_mode) 
 	GetBootloaderMode_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_BOOTLOADER_MODE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -970,6 +1223,12 @@ int air_quality_set_write_firmware_pointer(AirQuality *air_quality, uint32_t poi
 	SetWriteFirmwarePointer_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_WRITE_FIRMWARE_POINTER, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -978,7 +1237,7 @@ int air_quality_set_write_firmware_pointer(AirQuality *air_quality, uint32_t poi
 
 	request.pointer = leconvert_uint32_to(pointer);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -989,6 +1248,12 @@ int air_quality_write_firmware(AirQuality *air_quality, uint8_t data[64], uint8_
 	WriteFirmware_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_WRITE_FIRMWARE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -997,7 +1262,7 @@ int air_quality_write_firmware(AirQuality *air_quality, uint8_t data[64], uint8_
 
 	memcpy(request.data, data, 64 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1013,6 +1278,12 @@ int air_quality_set_status_led_config(AirQuality *air_quality, uint8_t config) {
 	SetStatusLEDConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_SET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1021,7 +1292,7 @@ int air_quality_set_status_led_config(AirQuality *air_quality, uint8_t config) {
 
 	request.config = config;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1032,13 +1303,19 @@ int air_quality_get_status_led_config(AirQuality *air_quality, uint8_t *ret_conf
 	GetStatusLEDConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_STATUS_LED_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1055,13 +1332,19 @@ int air_quality_get_chip_temperature(AirQuality *air_quality, int16_t *ret_tempe
 	GetChipTemperature_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_GET_CHIP_TEMPERATURE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1077,13 +1360,19 @@ int air_quality_reset(AirQuality *air_quality) {
 	Reset_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_RESET, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1093,6 +1382,12 @@ int air_quality_write_uid(AirQuality *air_quality, uint32_t uid) {
 	WriteUID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_WRITE_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -1101,7 +1396,7 @@ int air_quality_write_uid(AirQuality *air_quality, uint32_t uid) {
 
 	request.uid = leconvert_uint32_to(uid);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -1112,13 +1407,19 @@ int air_quality_read_uid(AirQuality *air_quality, uint32_t *ret_uid) {
 	ReadUID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), AIR_QUALITY_FUNCTION_READ_UID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -1141,7 +1442,7 @@ int air_quality_get_identity(AirQuality *air_quality, char ret_uid[8], char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

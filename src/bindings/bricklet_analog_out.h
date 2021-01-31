@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -124,7 +124,7 @@ void analog_out_destroy(AnalogOut *analog_out);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int analog_out_get_response_expected(AnalogOut *analog_out, uint8_t function_id, bool *ret_response_expected);
@@ -140,7 +140,7 @@ int analog_out_get_response_expected(AnalogOut *analog_out, uint8_t function_id,
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int analog_out_set_response_expected(AnalogOut *analog_out, uint8_t function_id, bool response_expected);
@@ -165,10 +165,8 @@ int analog_out_get_api_version(AnalogOut *analog_out, uint8_t ret_api_version[3]
 /**
  * \ingroup BrickletAnalogOut
  *
- * Sets the voltage in mV. The possible range is 0V to 5V (0-5000).
- * Calling this function will set the mode to 0 (see {@link analog_out_set_mode}).
- * 
- * The default value is 0 (with mode 1).
+ * Sets the voltage. Calling this function will set
+ * the mode to 0 (see {@link analog_out_set_mode}).
  */
 int analog_out_set_voltage(AnalogOut *analog_out, uint16_t voltage);
 
@@ -189,10 +187,8 @@ int analog_out_get_voltage(AnalogOut *analog_out, uint16_t *ret_voltage);
  * * 2: 100k Ohm resistor to ground
  * * 3: 500k Ohm resistor to ground
  * 
- * Setting the mode to 0 will result in an output voltage of 0. You can jump
+ * Setting the mode to 0 will result in an output voltage of 0 V. You can jump
  * to a higher output voltage directly by calling {@link analog_out_set_voltage}.
- * 
- * The default mode is 1.
  */
 int analog_out_set_mode(AnalogOut *analog_out, uint8_t mode);
 
@@ -210,7 +206,9 @@ int analog_out_get_mode(AnalogOut *analog_out, uint8_t *ret_mode);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

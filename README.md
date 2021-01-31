@@ -16,10 +16,6 @@ you can manually override/control the sensor values using sliders or buttons
 (depending on the type). Doing this you can for example test some extreme or
 very specific combinations.
 
-
-See this page to get a list of supported Tinkerforge devices and a short introduction:
-http://www.tinkerunity.org/wiki/index.php/DE/Projekte/Stackemulator_%28stubserver%29
-
 Requirements:
 -------------
 * Linux (also compiles on Tinkerforge's RED Brick or RasPi)
@@ -37,7 +33,7 @@ Compile:
 Example:
 --------
 * example configurations are in ``src/stubserver``, look for ``*.properties``
-  (e.g. ``motion.properties``). The properties are used for device
+  (e.g. https://github.com/PlayWithIt/TFStubserver/blob/master/src/stubserver/motion.properties). The properties are used for device
   configuration
 * Sensors mostly use a 'ValueProvider' which calculates the values or reads
   the value from a text file (when when value changes + value).

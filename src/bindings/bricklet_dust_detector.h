@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -182,7 +182,7 @@ void dust_detector_destroy(DustDetector *dust_detector);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int dust_detector_get_response_expected(DustDetector *dust_detector, uint8_t function_id, bool *ret_response_expected);
@@ -198,7 +198,7 @@ int dust_detector_get_response_expected(DustDetector *dust_detector, uint8_t fun
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int dust_detector_set_response_expected(DustDetector *dust_detector, uint8_t function_id, bool response_expected);
@@ -217,7 +217,7 @@ int dust_detector_set_response_expected_all(DustDetector *dust_detector, bool re
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void dust_detector_register_callback(DustDetector *dust_detector, int16_t callback_id, void *function, void *user_data);
+void dust_detector_register_callback(DustDetector *dust_detector, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletDustDetector
@@ -230,7 +230,7 @@ int dust_detector_get_api_version(DustDetector *dust_detector, uint8_t ret_api_v
 /**
  * \ingroup BrickletDustDetector
  *
- * Returns the dust density in µg/m³.
+ * Returns the dust density.
  * 
  * If you want to get the dust density periodically, it is recommended
  * to use the {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback and set the period with
@@ -241,13 +241,11 @@ int dust_detector_get_dust_density(DustDetector *dust_detector, uint16_t *ret_du
 /**
  * \ingroup BrickletDustDetector
  *
- * Sets the period in ms with which the {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback is triggered
+ * Sets the period with which the {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY} callback is only triggered if the dust density has
  * changed since the last triggering.
- * 
- * The default value is 0.
  */
 int dust_detector_set_dust_density_callback_period(DustDetector *dust_detector, uint32_t period);
 
@@ -274,8 +272,6 @@ int dust_detector_get_dust_density_callback_period(DustDetector *dust_detector, 
  *  "'<'",    "Callback is triggered when the dust density value is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the dust density value is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int dust_detector_set_dust_density_callback_threshold(DustDetector *dust_detector, char option, uint16_t min, uint16_t max);
 
@@ -289,7 +285,7 @@ int dust_detector_get_dust_density_callback_threshold(DustDetector *dust_detecto
 /**
  * \ingroup BrickletDustDetector
  *
- * Sets the period in ms with which the threshold callback
+ * Sets the period with which the threshold callback
  * 
  * * {@link DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED}
  * 
@@ -298,8 +294,6 @@ int dust_detector_get_dust_density_callback_threshold(DustDetector *dust_detecto
  * * {@link dust_detector_set_dust_density_callback_threshold}
  * 
  * keeps being reached.
- * 
- * The default value is 100.
  */
 int dust_detector_set_debounce_period(DustDetector *dust_detector, uint32_t debounce);
 
@@ -314,14 +308,10 @@ int dust_detector_get_debounce_period(DustDetector *dust_detector, uint32_t *ret
  * \ingroup BrickletDustDetector
  *
  * Sets the length of a `moving averaging <https://en.wikipedia.org/wiki/Moving_average>`__
- * for the dust_density.
+ * for the dust density.
  * 
  * Setting the length to 0 will turn the averaging completely off. With less
  * averaging, there is more noise on the data.
- * 
- * The range for the averaging is 0-100.
- * 
- * The default value is 100.
  */
 int dust_detector_set_moving_average(DustDetector *dust_detector, uint8_t average);
 
@@ -339,7 +329,9 @@ int dust_detector_get_moving_average(DustDetector *dust_detector, uint8_t *ret_a
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

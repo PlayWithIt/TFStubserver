@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -257,7 +257,7 @@ void ambient_light_v2_destroy(AmbientLightV2 *ambient_light_v2);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int ambient_light_v2_get_response_expected(AmbientLightV2 *ambient_light_v2, uint8_t function_id, bool *ret_response_expected);
@@ -273,7 +273,7 @@ int ambient_light_v2_get_response_expected(AmbientLightV2 *ambient_light_v2, uin
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int ambient_light_v2_set_response_expected(AmbientLightV2 *ambient_light_v2, uint8_t function_id, bool response_expected);
@@ -292,7 +292,7 @@ int ambient_light_v2_set_response_expected_all(AmbientLightV2 *ambient_light_v2,
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, int16_t callback_id, void *function, void *user_data);
+void ambient_light_v2_register_callback(AmbientLightV2 *ambient_light_v2, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletAmbientLightV2
@@ -307,8 +307,6 @@ int ambient_light_v2_get_api_version(AmbientLightV2 *ambient_light_v2, uint8_t r
  *
  * Returns the illuminance of the ambient light sensor. The measurement range goes
  * up to about 100000lux, but above 64000lux the precision starts to drop.
- * The illuminance is given in lux/100, i.e. a value of 450000 means that an
- * illuminance of 4500lux is measured.
  * 
  * .. versionchanged:: 2.0.2$nbsp;(Plugin)
  *   An illuminance of 0lux indicates that the sensor is saturated and the
@@ -323,13 +321,11 @@ int ambient_light_v2_get_illuminance(AmbientLightV2 *ambient_light_v2, uint32_t 
 /**
  * \ingroup BrickletAmbientLightV2
  *
- * Sets the period in ms with which the {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback is triggered
+ * Sets the period with which the {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback is only triggered if the illuminance has changed
  * since the last triggering.
- * 
- * The default value is 0.
  */
 int ambient_light_v2_set_illuminance_callback_period(AmbientLightV2 *ambient_light_v2, uint32_t period);
 
@@ -356,8 +352,6 @@ int ambient_light_v2_get_illuminance_callback_period(AmbientLightV2 *ambient_lig
  *  "'<'",    "Callback is triggered when the illuminance is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the illuminance is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int ambient_light_v2_set_illuminance_callback_threshold(AmbientLightV2 *ambient_light_v2, char option, uint32_t min, uint32_t max);
 
@@ -371,7 +365,7 @@ int ambient_light_v2_get_illuminance_callback_threshold(AmbientLightV2 *ambient_
 /**
  * \ingroup BrickletAmbientLightV2
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED},
  * 
@@ -380,8 +374,6 @@ int ambient_light_v2_get_illuminance_callback_threshold(AmbientLightV2 *ambient_
  * * {@link ambient_light_v2_set_illuminance_callback_threshold},
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int ambient_light_v2_set_debounce_period(AmbientLightV2 *ambient_light_v2, uint32_t debounce);
 
@@ -418,8 +410,6 @@ int ambient_light_v2_get_debounce_period(AmbientLightV2 *ambient_light_v2, uint3
  * If the measurement is out-of-range or the sensor is saturated then you should
  * configure the next higher illuminance range. If the highest range is already
  * in use, then start to reduce the integration time.
- * 
- * The default values are 0-8000lux illuminance range and 200ms integration time.
  */
 int ambient_light_v2_set_configuration(AmbientLightV2 *ambient_light_v2, uint8_t illuminance_range, uint8_t integration_time);
 
@@ -437,7 +427,9 @@ int ambient_light_v2_get_configuration(AmbientLightV2 *ambient_light_v2, uint8_t
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

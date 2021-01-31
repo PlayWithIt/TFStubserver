@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*TiltState_CallbackFunction)(uint8_t state, void *user_data);
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -91,10 +91,17 @@ typedef struct {
 
 static void tilt_callback_wrapper_tilt_state(DevicePrivate *device_p, Packet *packet) {
 	TiltState_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TILT_CALLBACK_TILT_STATE];
-	TiltState_Callback *callback = (TiltState_Callback *)packet;
+	void *user_data;
+	TiltState_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TILT_CALLBACK_TILT_STATE];
+	if (packet->header.length != sizeof(TiltState_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (TiltState_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + TILT_CALLBACK_TILT_STATE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + TILT_CALLBACK_TILT_STATE];
+	callback = (TiltState_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -104,9 +111,10 @@ static void tilt_callback_wrapper_tilt_state(DevicePrivate *device_p, Packet *pa
 }
 
 void tilt_create(Tilt *tilt, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(tilt, uid, ipcon->p, 2, 0, 0);
+	device_create(tilt, uid, ipcon_p, 2, 0, 0, TILT_DEVICE_IDENTIFIER);
 
 	device_p = tilt->p;
 
@@ -118,6 +126,7 @@ void tilt_create(Tilt *tilt, const char *uid, IPConnection *ipcon) {
 
 	device_p->callback_wrappers[TILT_CALLBACK_TILT_STATE] = tilt_callback_wrapper_tilt_state;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void tilt_destroy(Tilt *tilt) {
@@ -136,7 +145,7 @@ int tilt_set_response_expected_all(Tilt *tilt, bool response_expected) {
 	return device_set_response_expected_all(tilt->p, response_expected);
 }
 
-void tilt_register_callback(Tilt *tilt, int16_t callback_id, void *function, void *user_data) {
+void tilt_register_callback(Tilt *tilt, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(tilt->p, callback_id, function, user_data);
 }
 
@@ -150,13 +159,19 @@ int tilt_get_tilt_state(Tilt *tilt, uint8_t *ret_state) {
 	GetTiltState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TILT_FUNCTION_GET_TILT_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -172,13 +187,19 @@ int tilt_enable_tilt_state_callback(Tilt *tilt) {
 	EnableTiltStateCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TILT_FUNCTION_ENABLE_TILT_STATE_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -188,13 +209,19 @@ int tilt_disable_tilt_state_callback(Tilt *tilt) {
 	DisableTiltStateCallback_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TILT_FUNCTION_DISABLE_TILT_STATE_CALLBACK, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -205,13 +232,19 @@ int tilt_is_tilt_state_callback_enabled(Tilt *tilt, bool *ret_enabled) {
 	IsTiltStateCallbackEnabled_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), TILT_FUNCTION_IS_TILT_STATE_CALLBACK_ENABLED, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -234,7 +267,7 @@ int tilt_get_identity(Tilt *tilt, char ret_uid[8], char ret_connected_uid[8], ch
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

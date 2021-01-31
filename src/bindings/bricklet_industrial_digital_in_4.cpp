@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*Interrupt_CallbackFunction)(uint16_t interrupt_mask, uint16_t val
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -155,10 +155,17 @@ typedef struct {
 
 static void industrial_digital_in_4_callback_wrapper_interrupt(DevicePrivate *device_p, Packet *packet) {
 	Interrupt_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT];
-	Interrupt_Callback *callback = (Interrupt_Callback *)packet;
+	void *user_data;
+	Interrupt_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT];
+	if (packet->header.length != sizeof(Interrupt_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Interrupt_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT];
+	callback = (Interrupt_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -171,9 +178,10 @@ static void industrial_digital_in_4_callback_wrapper_interrupt(DevicePrivate *de
 }
 
 void industrial_digital_in_4_create(IndustrialDigitalIn4 *industrial_digital_in_4, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(industrial_digital_in_4, uid, ipcon->p, 2, 0, 1);
+	device_create(industrial_digital_in_4, uid, ipcon_p, 2, 0, 1, INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER);
 
 	device_p = industrial_digital_in_4->p;
 
@@ -192,6 +200,7 @@ void industrial_digital_in_4_create(IndustrialDigitalIn4 *industrial_digital_in_
 
 	device_p->callback_wrappers[INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT] = industrial_digital_in_4_callback_wrapper_interrupt;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void industrial_digital_in_4_destroy(IndustrialDigitalIn4 *industrial_digital_in_4) {
@@ -210,7 +219,7 @@ int industrial_digital_in_4_set_response_expected_all(IndustrialDigitalIn4 *indu
 	return device_set_response_expected_all(industrial_digital_in_4->p, response_expected);
 }
 
-void industrial_digital_in_4_register_callback(IndustrialDigitalIn4 *industrial_digital_in_4, int16_t callback_id, void *function, void *user_data) {
+void industrial_digital_in_4_register_callback(IndustrialDigitalIn4 *industrial_digital_in_4, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(industrial_digital_in_4->p, callback_id, function, user_data);
 }
 
@@ -224,13 +233,19 @@ int industrial_digital_in_4_get_value(IndustrialDigitalIn4 *industrial_digital_i
 	GetValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -246,6 +261,12 @@ int industrial_digital_in_4_set_group(IndustrialDigitalIn4 *industrial_digital_i
 	SetGroup_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_SET_GROUP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -254,7 +275,7 @@ int industrial_digital_in_4_set_group(IndustrialDigitalIn4 *industrial_digital_i
 
 	memcpy(request.group, group, 4 * sizeof(char));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -265,13 +286,19 @@ int industrial_digital_in_4_get_group(IndustrialDigitalIn4 *industrial_digital_i
 	GetGroup_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_GROUP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -288,13 +315,19 @@ int industrial_digital_in_4_get_available_for_group(IndustrialDigitalIn4 *indust
 	GetAvailableForGroup_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -310,6 +343,12 @@ int industrial_digital_in_4_set_debounce_period(IndustrialDigitalIn4 *industrial
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -318,7 +357,7 @@ int industrial_digital_in_4_set_debounce_period(IndustrialDigitalIn4 *industrial
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -329,13 +368,19 @@ int industrial_digital_in_4_get_debounce_period(IndustrialDigitalIn4 *industrial
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -351,6 +396,12 @@ int industrial_digital_in_4_set_interrupt(IndustrialDigitalIn4 *industrial_digit
 	SetInterrupt_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_SET_INTERRUPT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -359,7 +410,7 @@ int industrial_digital_in_4_set_interrupt(IndustrialDigitalIn4 *industrial_digit
 
 	request.interrupt_mask = leconvert_uint16_to(interrupt_mask);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -370,13 +421,19 @@ int industrial_digital_in_4_get_interrupt(IndustrialDigitalIn4 *industrial_digit
 	GetInterrupt_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_INTERRUPT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -393,6 +450,12 @@ int industrial_digital_in_4_get_edge_count(IndustrialDigitalIn4 *industrial_digi
 	GetEdgeCount_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_EDGE_COUNT, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -402,7 +465,7 @@ int industrial_digital_in_4_get_edge_count(IndustrialDigitalIn4 *industrial_digi
 	request.pin = pin;
 	request.reset_counter = reset_counter ? 1 : 0;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -418,6 +481,12 @@ int industrial_digital_in_4_set_edge_count_config(IndustrialDigitalIn4 *industri
 	SetEdgeCountConfig_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_SET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -428,7 +497,7 @@ int industrial_digital_in_4_set_edge_count_config(IndustrialDigitalIn4 *industri
 	request.edge_type = edge_type;
 	request.debounce = debounce;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -439,6 +508,12 @@ int industrial_digital_in_4_get_edge_count_config(IndustrialDigitalIn4 *industri
 	GetEdgeCountConfig_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_EDGE_COUNT_CONFIG, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -447,7 +522,7 @@ int industrial_digital_in_4_get_edge_count_config(IndustrialDigitalIn4 *industri
 
 	request.pin = pin;
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -471,7 +546,7 @@ int industrial_digital_in_4_get_identity(IndustrialDigitalIn4 *industrial_digita
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

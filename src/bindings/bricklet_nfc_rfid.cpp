@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -30,7 +30,7 @@ typedef void (*StateChanged_CallbackFunction)(uint8_t state, bool idle, void *us
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -119,11 +119,18 @@ typedef struct {
 
 static void nfc_rfid_callback_wrapper_state_changed(DevicePrivate *device_p, Packet *packet) {
 	StateChanged_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + NFC_RFID_CALLBACK_STATE_CHANGED];
+	void *user_data;
+	StateChanged_Callback *callback;
 	bool unpacked_idle;
-	StateChanged_Callback *callback = (StateChanged_Callback *)packet;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + NFC_RFID_CALLBACK_STATE_CHANGED];
+	if (packet->header.length != sizeof(StateChanged_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (StateChanged_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + NFC_RFID_CALLBACK_STATE_CHANGED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + NFC_RFID_CALLBACK_STATE_CHANGED];
+	callback = (StateChanged_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -134,9 +141,10 @@ static void nfc_rfid_callback_wrapper_state_changed(DevicePrivate *device_p, Pac
 }
 
 void nfc_rfid_create(NFCRFID *nfc_rfid, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(nfc_rfid, uid, ipcon->p, 2, 0, 0);
+	device_create(nfc_rfid, uid, ipcon_p, 2, 0, 0, NFC_RFID_DEVICE_IDENTIFIER);
 
 	device_p = nfc_rfid->p;
 
@@ -151,6 +159,7 @@ void nfc_rfid_create(NFCRFID *nfc_rfid, const char *uid, IPConnection *ipcon) {
 
 	device_p->callback_wrappers[NFC_RFID_CALLBACK_STATE_CHANGED] = nfc_rfid_callback_wrapper_state_changed;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void nfc_rfid_destroy(NFCRFID *nfc_rfid) {
@@ -169,7 +178,7 @@ int nfc_rfid_set_response_expected_all(NFCRFID *nfc_rfid, bool response_expected
 	return device_set_response_expected_all(nfc_rfid->p, response_expected);
 }
 
-void nfc_rfid_register_callback(NFCRFID *nfc_rfid, int16_t callback_id, void *function, void *user_data) {
+void nfc_rfid_register_callback(NFCRFID *nfc_rfid, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(nfc_rfid->p, callback_id, function, user_data);
 }
 
@@ -182,6 +191,12 @@ int nfc_rfid_request_tag_id(NFCRFID *nfc_rfid, uint8_t tag_type) {
 	RequestTagID_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), NFC_RFID_FUNCTION_REQUEST_TAG_ID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -190,7 +205,7 @@ int nfc_rfid_request_tag_id(NFCRFID *nfc_rfid, uint8_t tag_type) {
 
 	request.tag_type = tag_type;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -201,13 +216,19 @@ int nfc_rfid_get_tag_id(NFCRFID *nfc_rfid, uint8_t *ret_tag_type, uint8_t *ret_t
 	GetTagID_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), NFC_RFID_FUNCTION_GET_TAG_ID, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -226,13 +247,19 @@ int nfc_rfid_get_state(NFCRFID *nfc_rfid, uint8_t *ret_state, bool *ret_idle) {
 	GetState_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), NFC_RFID_FUNCTION_GET_STATE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -249,6 +276,12 @@ int nfc_rfid_authenticate_mifare_classic_page(NFCRFID *nfc_rfid, uint16_t page, 
 	AuthenticateMifareClassicPage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), NFC_RFID_FUNCTION_AUTHENTICATE_MIFARE_CLASSIC_PAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -259,7 +292,7 @@ int nfc_rfid_authenticate_mifare_classic_page(NFCRFID *nfc_rfid, uint16_t page, 
 	request.key_number = key_number;
 	memcpy(request.key, key, 6 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -268,6 +301,12 @@ int nfc_rfid_write_page(NFCRFID *nfc_rfid, uint16_t page, uint8_t data[16]) {
 	DevicePrivate *device_p = nfc_rfid->p;
 	WritePage_Request request;
 	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	ret = packet_header_create(&request.header, sizeof(request), NFC_RFID_FUNCTION_WRITE_PAGE, device_p->ipcon_p, device_p);
 
@@ -278,7 +317,7 @@ int nfc_rfid_write_page(NFCRFID *nfc_rfid, uint16_t page, uint8_t data[16]) {
 	request.page = leconvert_uint16_to(page);
 	memcpy(request.data, data, 16 * sizeof(uint8_t));
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -288,6 +327,12 @@ int nfc_rfid_request_page(NFCRFID *nfc_rfid, uint16_t page) {
 	RequestPage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), NFC_RFID_FUNCTION_REQUEST_PAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -296,7 +341,7 @@ int nfc_rfid_request_page(NFCRFID *nfc_rfid, uint16_t page) {
 
 	request.page = leconvert_uint16_to(page);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -307,13 +352,19 @@ int nfc_rfid_get_page(NFCRFID *nfc_rfid, uint8_t ret_data[16]) {
 	GetPage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), NFC_RFID_FUNCTION_GET_PAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -336,7 +387,7 @@ int nfc_rfid_get_identity(NFCRFID *nfc_rfid, char ret_uid[8], char ret_connected
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

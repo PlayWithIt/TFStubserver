@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-06-08.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.20                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -32,7 +32,7 @@ typedef void (*DistanceReached_CallbackFunction)(uint16_t distance, void *user_d
 #elif defined __GNUC__
 	#ifdef _WIN32
 		// workaround struct packing bug in GCC 4.7 on Windows
-		// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
 		#define ATTRIBUTE_PACKED __attribute__((gcc_struct, packed))
 	#else
 		#define ATTRIBUTE_PACKED __attribute__((packed))
@@ -141,10 +141,17 @@ typedef struct {
 
 static void distance_us_callback_wrapper_distance(DevicePrivate *device_p, Packet *packet) {
 	Distance_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE];
-	Distance_Callback *callback = (Distance_Callback *)packet;
+	void *user_data;
+	Distance_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE];
+	if (packet->header.length != sizeof(Distance_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (Distance_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE];
+	callback = (Distance_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -157,10 +164,17 @@ static void distance_us_callback_wrapper_distance(DevicePrivate *device_p, Packe
 
 static void distance_us_callback_wrapper_distance_reached(DevicePrivate *device_p, Packet *packet) {
 	DistanceReached_CallbackFunction callback_function;
-	void *user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE_REACHED];
-	DistanceReached_Callback *callback = (DistanceReached_Callback *)packet;
+	void *user_data;
+	DistanceReached_Callback *callback;
 
-	*(void **)(&callback_function) = device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE_REACHED];
+	if (packet->header.length != sizeof(DistanceReached_Callback)) {
+		return; // silently ignoring callback with wrong length
+	}
+
+	callback_function = (DistanceReached_CallbackFunction)device_p->registered_callbacks[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE_REACHED];
+	user_data = device_p->registered_callback_user_data[DEVICE_NUM_FUNCTION_IDS + DISTANCE_US_CALLBACK_DISTANCE_REACHED];
+	callback = (DistanceReached_Callback *)packet;
+	(void)callback; // avoid unused variable warning
 
 	if (callback_function == NULL) {
 		return;
@@ -172,9 +186,10 @@ static void distance_us_callback_wrapper_distance_reached(DevicePrivate *device_
 }
 
 void distance_us_create(DistanceUS *distance_us, const char *uid, IPConnection *ipcon) {
+	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(distance_us, uid, ipcon->p, 2, 0, 1);
+	device_create(distance_us, uid, ipcon_p, 2, 0, 1, DISTANCE_US_DEVICE_IDENTIFIER);
 
 	device_p = distance_us->p;
 
@@ -192,6 +207,7 @@ void distance_us_create(DistanceUS *distance_us, const char *uid, IPConnection *
 	device_p->callback_wrappers[DISTANCE_US_CALLBACK_DISTANCE] = distance_us_callback_wrapper_distance;
 	device_p->callback_wrappers[DISTANCE_US_CALLBACK_DISTANCE_REACHED] = distance_us_callback_wrapper_distance_reached;
 
+	ipcon_add_device(ipcon_p, device_p);
 }
 
 void distance_us_destroy(DistanceUS *distance_us) {
@@ -210,7 +226,7 @@ int distance_us_set_response_expected_all(DistanceUS *distance_us, bool response
 	return device_set_response_expected_all(distance_us->p, response_expected);
 }
 
-void distance_us_register_callback(DistanceUS *distance_us, int16_t callback_id, void *function, void *user_data) {
+void distance_us_register_callback(DistanceUS *distance_us, int16_t callback_id, void (*function)(void), void *user_data) {
 	device_register_callback(distance_us->p, callback_id, function, user_data);
 }
 
@@ -224,13 +240,19 @@ int distance_us_get_distance_value(DistanceUS *distance_us, uint16_t *ret_distan
 	GetDistanceValue_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_GET_DISTANCE_VALUE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -246,6 +268,12 @@ int distance_us_set_distance_callback_period(DistanceUS *distance_us, uint32_t p
 	SetDistanceCallbackPeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_SET_DISTANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -254,7 +282,7 @@ int distance_us_set_distance_callback_period(DistanceUS *distance_us, uint32_t p
 
 	request.period = leconvert_uint32_to(period);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -265,13 +293,19 @@ int distance_us_get_distance_callback_period(DistanceUS *distance_us, uint32_t *
 	GetDistanceCallbackPeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_GET_DISTANCE_CALLBACK_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -287,6 +321,12 @@ int distance_us_set_distance_callback_threshold(DistanceUS *distance_us, char op
 	SetDistanceCallbackThreshold_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_SET_DISTANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -297,7 +337,7 @@ int distance_us_set_distance_callback_threshold(DistanceUS *distance_us, char op
 	request.min = leconvert_uint16_to(min);
 	request.max = leconvert_uint16_to(max);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -308,13 +348,19 @@ int distance_us_get_distance_callback_threshold(DistanceUS *distance_us, char *r
 	GetDistanceCallbackThreshold_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_GET_DISTANCE_CALLBACK_THRESHOLD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -332,6 +378,12 @@ int distance_us_set_debounce_period(DistanceUS *distance_us, uint32_t debounce) 
 	SetDebouncePeriod_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_SET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -340,7 +392,7 @@ int distance_us_set_debounce_period(DistanceUS *distance_us, uint32_t debounce) 
 
 	request.debounce = leconvert_uint32_to(debounce);
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -351,13 +403,19 @@ int distance_us_get_debounce_period(DistanceUS *distance_us, uint32_t *ret_debou
 	GetDebouncePeriod_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_GET_DEBOUNCE_PERIOD, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -373,6 +431,12 @@ int distance_us_set_moving_average(DistanceUS *distance_us, uint8_t average) {
 	SetMovingAverage_Request request;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_SET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
@@ -381,7 +445,7 @@ int distance_us_set_moving_average(DistanceUS *distance_us, uint8_t average) {
 
 	request.average = average;
 
-	ret = device_send_request(device_p, (Packet *)&request, NULL);
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
 
 	return ret;
 }
@@ -392,13 +456,19 @@ int distance_us_get_moving_average(DistanceUS *distance_us, uint8_t *ret_average
 	GetMovingAverage_Response response;
 	int ret;
 
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
 	ret = packet_header_create(&request.header, sizeof(request), DISTANCE_US_FUNCTION_GET_MOVING_AVERAGE, device_p->ipcon_p, device_p);
 
 	if (ret < 0) {
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;
@@ -421,7 +491,7 @@ int distance_us_get_identity(DistanceUS *distance_us, char ret_uid[8], char ret_
 		return ret;
 	}
 
-	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
 
 	if (ret < 0) {
 		return ret;

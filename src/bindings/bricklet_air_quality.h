@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-11-28.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.23                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -112,6 +112,21 @@ typedef Device AirQuality;
  * \ingroup BrickletAirQuality
  */
 #define AIR_QUALITY_FUNCTION_GET_AIR_PRESSURE_CALLBACK_CONFIGURATION 21
+
+/**
+ * \ingroup BrickletAirQuality
+ */
+#define AIR_QUALITY_FUNCTION_REMOVE_CALIBRATION 23
+
+/**
+ * \ingroup BrickletAirQuality
+ */
+#define AIR_QUALITY_FUNCTION_SET_BACKGROUND_CALIBRATION_DURATION 24
+
+/**
+ * \ingroup BrickletAirQuality
+ */
+#define AIR_QUALITY_FUNCTION_GET_BACKGROUND_CALIBRATION_DURATION 25
 
 /**
  * \ingroup BrickletAirQuality
@@ -282,6 +297,16 @@ typedef Device AirQuality;
 /**
  * \ingroup BrickletAirQuality
  */
+#define AIR_QUALITY_DURATION_4_DAYS 0
+
+/**
+ * \ingroup BrickletAirQuality
+ */
+#define AIR_QUALITY_DURATION_28_DAYS 1
+
+/**
+ * \ingroup BrickletAirQuality
+ */
 #define AIR_QUALITY_BOOTLOADER_MODE_BOOTLOADER 0
 
 /**
@@ -404,7 +429,7 @@ void air_quality_destroy(AirQuality *air_quality);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int air_quality_get_response_expected(AirQuality *air_quality, uint8_t function_id, bool *ret_response_expected);
@@ -420,7 +445,7 @@ int air_quality_get_response_expected(AirQuality *air_quality, uint8_t function_
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int air_quality_set_response_expected(AirQuality *air_quality, uint8_t function_id, bool response_expected);
@@ -439,7 +464,7 @@ int air_quality_set_response_expected_all(AirQuality *air_quality, bool response
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void air_quality_register_callback(AirQuality *air_quality, int16_t callback_id, void *function, void *user_data);
+void air_quality_register_callback(AirQuality *air_quality, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletAirQuality
@@ -453,7 +478,7 @@ int air_quality_get_api_version(AirQuality *air_quality, uint8_t ret_api_version
  * \ingroup BrickletAirQuality
  *
  * Returns all values measured by the Air Quality Bricklet. The values are
- * IAQ (Indoor Air Quality) Index, IAQ Index Accuracy, Temperature, Humidity and
+ * IAQ (Indoor Air Quality) Index (higher value means greater level of air pollution), IAQ Index Accuracy, Temperature, Humidity and
  * Air Pressure.
  * 
  * .. image:: /Images/Misc/bricklet_air_quality_iaq_index.png
@@ -461,22 +486,13 @@ int air_quality_get_api_version(AirQuality *air_quality, uint8_t ret_api_version
  *    :alt: Air Quality Index description
  *    :align: center
  *    :target: ../../_images/Misc/bricklet_air_quality_iaq_index.png
- * 
- * The values have these ranges and units:
- * 
- * * IAQ Index: 0 to 500, higher value means greater level of air pollution
- * * IAQ Index Accuracy: 0 = unreliable to 3 = high
- * * Temperature: in steps of 0.01 °C
- * * Humidity: in steps of 0.01 %RH
- * * Air Pressure: in steps of 0.01 mbar
  */
 int air_quality_get_all_values(AirQuality *air_quality, int32_t *ret_iaq_index, uint8_t *ret_iaq_index_accuracy, int32_t *ret_temperature, int32_t *ret_humidity, int32_t *ret_air_pressure);
 
 /**
  * \ingroup BrickletAirQuality
  *
- * Sets a temperature offset in 1/100°C. A offset of 10 will decrease the measured
- * temperature by 0.1°C.
+ * Sets a temperature offset. A offset of 10 will decrease the measured temperature by 0.1 °C.
  * 
  * If you install this Bricklet into an enclosure and you want to measure the ambient
  * temperature, you may have to decrease the measured temperature by some value to
@@ -488,7 +504,7 @@ int air_quality_get_all_values(AirQuality *air_quality, int32_t *ret_iaq_index, 
  * 
  * This temperature offset is used to calculate the relative humidity and
  * IAQ index measurements. In case the Bricklet is installed in an enclosure, we
- * recommend to measure and set the temperature offset to imporve the accuracy of
+ * recommend to measure and set the temperature offset to improve the accuracy of
  * the measurements.
  */
 int air_quality_set_temperature_offset(AirQuality *air_quality, int32_t offset);
@@ -504,7 +520,7 @@ int air_quality_get_temperature_offset(AirQuality *air_quality, int32_t *ret_off
 /**
  * \ingroup BrickletAirQuality
  *
- * The period in ms is the period with which the {@link AIR_QUALITY_CALLBACK_ALL_VALUES}
+ * The period is the period with which the {@link AIR_QUALITY_CALLBACK_ALL_VALUES}
  * callback is triggered periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -513,8 +529,6 @@ int air_quality_get_temperature_offset(AirQuality *air_quality, int32_t *ret_off
  * 
  * If it is set to false, the callback is continuously triggered with the period,
  * independent of the value.
- * 
- * The default value is (0, false).
  */
 int air_quality_set_all_values_callback_configuration(AirQuality *air_quality, uint32_t period, bool value_has_to_change);
 
@@ -529,8 +543,7 @@ int air_quality_get_all_values_callback_configuration(AirQuality *air_quality, u
 /**
  * \ingroup BrickletAirQuality
  *
- * Returns the IAQ index and accuracy. The IAQ index goes from
- * 0 to 500. The higher the IAQ index, the greater the level of air pollution.
+ * Returns the IAQ index and accuracy. The higher the IAQ index, the greater the level of air pollution.
  * 
  * .. image:: /Images/Misc/bricklet_air_quality_iaq_index.png
  *    :scale: 100 %
@@ -547,7 +560,7 @@ int air_quality_get_iaq_index(AirQuality *air_quality, int32_t *ret_iaq_index, u
 /**
  * \ingroup BrickletAirQuality
  *
- * The period in ms is the period with which the {@link AIR_QUALITY_CALLBACK_IAQ_INDEX}
+ * The period is the period with which the {@link AIR_QUALITY_CALLBACK_IAQ_INDEX}
  * callback is triggered periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -556,8 +569,6 @@ int air_quality_get_iaq_index(AirQuality *air_quality, int32_t *ret_iaq_index, u
  * 
  * If it is set to false, the callback is continuously triggered with the period,
  * independent of the value.
- * 
- * The default value is (0, false).
  */
 int air_quality_set_iaq_index_callback_configuration(AirQuality *air_quality, uint32_t period, bool value_has_to_change);
 
@@ -572,7 +583,7 @@ int air_quality_get_iaq_index_callback_configuration(AirQuality *air_quality, ui
 /**
  * \ingroup BrickletAirQuality
  *
- * Returns temperature in steps of 0.01 °C.
+ * Returns temperature.
  * 
  * 
  * If you want to get the value periodically, it is recommended to use the
@@ -584,7 +595,7 @@ int air_quality_get_temperature(AirQuality *air_quality, int32_t *ret_temperatur
 /**
  * \ingroup BrickletAirQuality
  *
- * The period in ms is the period with which the {@link AIR_QUALITY_CALLBACK_TEMPERATURE} callback is triggered
+ * The period is the period with which the {@link AIR_QUALITY_CALLBACK_TEMPERATURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -611,8 +622,6 @@ int air_quality_get_temperature(AirQuality *air_quality, int32_t *ret_temperatur
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int air_quality_set_temperature_callback_configuration(AirQuality *air_quality, uint32_t period, bool value_has_to_change, char option, int32_t min, int32_t max);
 
@@ -626,7 +635,7 @@ int air_quality_get_temperature_callback_configuration(AirQuality *air_quality, 
 /**
  * \ingroup BrickletAirQuality
  *
- * Returns relative humidity in steps of 0.01 %RH.
+ * Returns relative humidity.
  * 
  * 
  * If you want to get the value periodically, it is recommended to use the
@@ -638,7 +647,7 @@ int air_quality_get_humidity(AirQuality *air_quality, int32_t *ret_humidity);
 /**
  * \ingroup BrickletAirQuality
  *
- * The period in ms is the period with which the {@link AIR_QUALITY_CALLBACK_HUMIDITY} callback is triggered
+ * The period is the period with which the {@link AIR_QUALITY_CALLBACK_HUMIDITY} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -665,8 +674,6 @@ int air_quality_get_humidity(AirQuality *air_quality, int32_t *ret_humidity);
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int air_quality_set_humidity_callback_configuration(AirQuality *air_quality, uint32_t period, bool value_has_to_change, char option, int32_t min, int32_t max);
 
@@ -680,7 +687,7 @@ int air_quality_get_humidity_callback_configuration(AirQuality *air_quality, uin
 /**
  * \ingroup BrickletAirQuality
  *
- * Returns air pressure in steps of 0.01 mbar.
+ * Returns air pressure.
  * 
  * 
  * If you want to get the value periodically, it is recommended to use the
@@ -692,7 +699,7 @@ int air_quality_get_air_pressure(AirQuality *air_quality, int32_t *ret_air_press
 /**
  * \ingroup BrickletAirQuality
  *
- * The period in ms is the period with which the {@link AIR_QUALITY_CALLBACK_AIR_PRESSURE} callback is triggered
+ * The period is the period with which the {@link AIR_QUALITY_CALLBACK_AIR_PRESSURE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * If the `value has to change`-parameter is set to true, the callback is only
@@ -719,8 +726,6 @@ int air_quality_get_air_pressure(AirQuality *air_quality, int32_t *ret_air_press
  * \endverbatim
  * 
  * If the option is set to 'x' (threshold turned off) the callback is triggered with the fixed period.
- * 
- * The default value is (0, false, 'x', 0, 0).
  */
 int air_quality_set_air_pressure_callback_configuration(AirQuality *air_quality, uint32_t period, bool value_has_to_change, char option, int32_t min, int32_t max);
 
@@ -730,6 +735,60 @@ int air_quality_set_air_pressure_callback_configuration(AirQuality *air_quality,
  * Returns the callback configuration as set by {@link air_quality_set_air_pressure_callback_configuration}.
  */
 int air_quality_get_air_pressure_callback_configuration(AirQuality *air_quality, uint32_t *ret_period, bool *ret_value_has_to_change, char *ret_option, int32_t *ret_min, int32_t *ret_max);
+
+/**
+ * \ingroup BrickletAirQuality
+ *
+ * Deletes the calibration from flash. After you call this function,
+ * you need to power cycle the Air Quality Bricklet.
+ * 
+ * On the next power up the Bricklet will start a new calibration, as
+ * if it was started for the very first time.
+ * 
+ * The calibration is based on the data of the last four days, so it takes
+ * four days until a full calibration is re-established.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
+ */
+int air_quality_remove_calibration(AirQuality *air_quality);
+
+/**
+ * \ingroup BrickletAirQuality
+ *
+ * The Air Quality Bricklet uses an automatic background calibration mechanism to
+ * calculate the IAQ Index. This calibration mechanism considers a history of
+ * measured data. The duration of this history can be configured to either be
+ * 4 days or 28 days.
+ * 
+ * If you keep the Bricklet mostly at one place and it does not get moved around
+ * to different environments, we recommend that you use a duration of 28 days.
+ * 
+ * If you change the duration, the current calibration will be discarded and
+ * the calibration will start from beginning again. The configuration of the
+ * duration is saved in flash, so you should only have to call this function
+ * once in the lifetime of the Bricklet.
+ * 
+ * The Bricklet has to be power cycled after this function is called
+ * for a duration change to take effect.
+ * 
+ * Before firmware version 2.0.3 this was not configurable and the duration was
+ * 4 days.
+ * 
+ * The default value (since firmware version 2.0.3) is 28 days.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
+ */
+int air_quality_set_background_calibration_duration(AirQuality *air_quality, uint8_t duration);
+
+/**
+ * \ingroup BrickletAirQuality
+ *
+ * Returns the background calibration duration as set by
+ * {@link air_quality_set_background_calibration_duration}.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
+ */
+int air_quality_get_background_calibration_duration(AirQuality *air_quality, uint8_t *ret_duration);
 
 /**
  * \ingroup BrickletAirQuality
@@ -819,7 +878,7 @@ int air_quality_get_status_led_config(AirQuality *air_quality, uint8_t *ret_conf
 /**
  * \ingroup BrickletAirQuality
  *
- * Returns the temperature in °C as measured inside the microcontroller. The
+ * Returns the temperature as measured inside the microcontroller. The
  * value returned is not the ambient temperature!
  * 
  * The temperature is only proportional to the real temperature and it has bad
@@ -866,7 +925,9 @@ int air_quality_read_uid(AirQuality *air_quality, uint32_t *ret_uid);
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|

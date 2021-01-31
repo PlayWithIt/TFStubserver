@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2018-10-05.      *
+ * This file was automatically generated on 2020-11-02.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.22                             *
+ * C/C++ Bindings Version 2.1.30                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -290,6 +290,46 @@ typedef Device VoltageCurrent;
 
 /**
  * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_140US 0
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_204US 1
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_332US 2
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_588US 3
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_1_1MS 4
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_2_116MS 5
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_4_156MS 6
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ */
+#define VOLTAGE_CURRENT_CONVERSION_TIME_8_244MS 7
+
+/**
+ * \ingroup BrickletVoltageCurrent
  *
  * This constant is used to identify a Voltage/Current Bricklet.
  *
@@ -338,7 +378,7 @@ void voltage_current_destroy(VoltageCurrent *voltage_current);
  * Enabling the response expected flag for a setter function allows to
  * detect timeouts and other error conditions calls of this setter as well.
  * The device will then send a response for this purpose. If this flag is
- * disabled for a setter function then no response is send and errors are
+ * disabled for a setter function then no response is sent and errors are
  * silently ignored, because they cannot be detected.
  */
 int voltage_current_get_response_expected(VoltageCurrent *voltage_current, uint8_t function_id, bool *ret_response_expected);
@@ -354,7 +394,7 @@ int voltage_current_get_response_expected(VoltageCurrent *voltage_current, uint8
  * Enabling the response expected flag for a setter function allows to detect
  * timeouts and other error conditions calls of this setter as well. The device
  * will then send a response for this purpose. If this flag is disabled for a
- * setter function then no response is send and errors are silently ignored,
+ * setter function then no response is sent and errors are silently ignored,
  * because they cannot be detected.
  */
 int voltage_current_set_response_expected(VoltageCurrent *voltage_current, uint8_t function_id, bool response_expected);
@@ -373,7 +413,7 @@ int voltage_current_set_response_expected_all(VoltageCurrent *voltage_current, b
  * Registers the given \c function with the given \c callback_id. The
  * \c user_data will be passed as the last parameter to the \c function.
  */
-void voltage_current_register_callback(VoltageCurrent *voltage_current, int16_t callback_id, void *function, void *user_data);
+void voltage_current_register_callback(VoltageCurrent *voltage_current, int16_t callback_id, void (*function)(void), void *user_data);
 
 /**
  * \ingroup BrickletVoltageCurrent
@@ -386,8 +426,7 @@ int voltage_current_get_api_version(VoltageCurrent *voltage_current, uint8_t ret
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Returns the current. The value is in mA
- * and between -20000mA and 20000mA.
+ * Returns the current.
  * 
  * If you want to get the current periodically, it is recommended to use the
  * {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback and set the period with
@@ -398,8 +437,7 @@ int voltage_current_get_current(VoltageCurrent *voltage_current, int32_t *ret_cu
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Returns the voltage. The value is in mV
- * and between 0mV and 36000mV.
+ * Returns the voltage.
  * 
  * If you want to get the voltage periodically, it is recommended to use the
  * {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback and set the period with
@@ -410,8 +448,7 @@ int voltage_current_get_voltage(VoltageCurrent *voltage_current, int32_t *ret_vo
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Returns the power. The value is in mW
- * and between 0mV and 720000mW.
+ * Returns the power.
  * 
  * If you want to get the power periodically, it is recommended to use the
  * {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback and set the period with
@@ -425,39 +462,6 @@ int voltage_current_get_power(VoltageCurrent *voltage_current, int32_t *ret_powe
  * Sets the configuration of the Voltage/Current Bricklet. It is
  * possible to configure number of averages as well as
  * voltage and current conversion time.
- * 
- * Averaging:
- * 
- * \verbatim
- *  "Value", "Number of Averages"
- * 
- *  "0",    "1"
- *  "1",    "4"
- *  "2",    "16"
- *  "3",    "64"
- *  "4",    "128"
- *  "5",    "256"
- *  "6",    "512"
- *  ">=7",  "1024"
- * \endverbatim
- * 
- * Voltage/Current conversion:
- * 
- * \verbatim
- *  "Value", "Conversion time"
- * 
- *  "0",    "140µs"
- *  "1",    "204µs"
- *  "2",    "332µs"
- *  "3",    "588µs"
- *  "4",    "1.1ms"
- *  "5",    "2.116ms"
- *  "6",    "4.156ms"
- *  ">=7",  "8.244ms"
- * \endverbatim
- * 
- * The default values are 3, 4 and 4 (64, 1.1ms, 1.1ms) for averaging, voltage
- * conversion and current conversion.
  */
 int voltage_current_set_configuration(VoltageCurrent *voltage_current, uint8_t averaging, uint8_t voltage_conversion_time, uint8_t current_conversion_time);
 
@@ -491,13 +495,11 @@ int voltage_current_get_calibration(VoltageCurrent *voltage_current, uint16_t *r
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Sets the period in ms with which the {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback is triggered
+ * Sets the period with which the {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link VOLTAGE_CURRENT_CALLBACK_CURRENT} callback is only triggered if the current has changed since
  * the last triggering.
- * 
- * The default value is 0.
  */
 int voltage_current_set_current_callback_period(VoltageCurrent *voltage_current, uint32_t period);
 
@@ -511,13 +513,11 @@ int voltage_current_get_current_callback_period(VoltageCurrent *voltage_current,
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Sets the period in ms with which the {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback is triggered
+ * Sets the period with which the {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE} callback is only triggered if the voltage has changed since
  * the last triggering.
- * 
- * The default value is 0.
  */
 int voltage_current_set_voltage_callback_period(VoltageCurrent *voltage_current, uint32_t period);
 
@@ -531,13 +531,11 @@ int voltage_current_get_voltage_callback_period(VoltageCurrent *voltage_current,
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Sets the period in ms with which the {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback is triggered
+ * Sets the period with which the {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback is triggered
  * periodically. A value of 0 turns the callback off.
  * 
  * The {@link VOLTAGE_CURRENT_CALLBACK_POWER} callback is only triggered if the power has changed since the
  * last triggering.
- * 
- * The default value is 0.
  */
 int voltage_current_set_power_callback_period(VoltageCurrent *voltage_current, uint32_t period);
 
@@ -564,8 +562,6 @@ int voltage_current_get_power_callback_period(VoltageCurrent *voltage_current, u
  *  "'<'",    "Callback is triggered when the current is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the current is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int voltage_current_set_current_callback_threshold(VoltageCurrent *voltage_current, char option, int32_t min, int32_t max);
 
@@ -592,8 +588,6 @@ int voltage_current_get_current_callback_threshold(VoltageCurrent *voltage_curre
  *  "'<'",    "Callback is triggered when the voltage is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the voltage is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int voltage_current_set_voltage_callback_threshold(VoltageCurrent *voltage_current, char option, int32_t min, int32_t max);
 
@@ -620,8 +614,6 @@ int voltage_current_get_voltage_callback_threshold(VoltageCurrent *voltage_curre
  *  "'<'",    "Callback is triggered when the power is smaller than the min value (max is ignored)"
  *  "'>'",    "Callback is triggered when the power is greater than the min value (max is ignored)"
  * \endverbatim
- * 
- * The default value is ('x', 0, 0).
  */
 int voltage_current_set_power_callback_threshold(VoltageCurrent *voltage_current, char option, int32_t min, int32_t max);
 
@@ -635,7 +627,7 @@ int voltage_current_get_power_callback_threshold(VoltageCurrent *voltage_current
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Sets the period in ms with which the threshold callbacks
+ * Sets the period with which the threshold callbacks
  * 
  * * {@link VOLTAGE_CURRENT_CALLBACK_CURRENT_REACHED},
  * * {@link VOLTAGE_CURRENT_CALLBACK_VOLTAGE_REACHED},
@@ -648,8 +640,6 @@ int voltage_current_get_power_callback_threshold(VoltageCurrent *voltage_current
  * * {@link voltage_current_set_power_callback_threshold}
  * 
  * keep being reached.
- * 
- * The default value is 100.
  */
 int voltage_current_set_debounce_period(VoltageCurrent *voltage_current, uint32_t debounce);
 
@@ -667,7 +657,9 @@ int voltage_current_get_debounce_period(VoltageCurrent *voltage_current, uint32_
  * the position, the hardware and firmware version as well as the
  * device identifier.
  * 
- * The position can be 'a', 'b', 'c' or 'd'.
+ * The position can be 'a', 'b', 'c', 'd', 'e', 'f', 'g' or 'h' (Bricklet Port).
+ * A Bricklet connected to an :ref:`Isolator Bricklet <isolator_bricklet>` is always at
+ * position 'z'.
  * 
  * The device identifier numbers can be found :ref:`here <device_identifier>`.
  * |device_identifier_constant|
