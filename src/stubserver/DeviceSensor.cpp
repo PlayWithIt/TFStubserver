@@ -1,7 +1,7 @@
 /*
- * DeviceVoltageCurrent.cpp
+ * DeviceSensor.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2020 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,29 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, 0, 0, 0)
 {
+}
+
+/**
+ * Constructor for V2 devices which have getSetCallbackConfig methods
+ */
+DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getCallbackConfigFunc, uint8_t _setCallbackConfigFunc, uint8_t _callbackCode)
+  : getValueFunc(_getValueFunc)
+  , getValueAnalogFunc(0)
+  , getStatusLedFunc(0)
+  , setStatusLedOnFunc(0)
+  , setStatusLedOffFunc(0)
+  , calibrateZeroFunc(0)
+  , maxAnalogValue(4095)
+  , valueSize(2)
+  , zeroPoint(0)
+  , values(NULL)
+  , changedCb(0, 0, 0, 0)
+  , changedAnalogCb(0, 0, 0, 0)
+{
+    isV2Device = true;
+    rangeCallback.setThresholdFunctionCode = _setCallbackConfigFunc;
+    rangeCallback.getThresholdFunctionCode = _getCallbackConfigFunc;
+    rangeCallback.callbackCode = _callbackCode;
 }
 
 DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, uint8_t _setCallbackFunc,
@@ -152,13 +175,28 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
     }
 
     // get/set range callback options
-    if (rangeCallback.consumeGetSetThreshold(p)) {
+    if (!isV2Device && rangeCallback.consumeGetSetThreshold(p)) {
+        return true;
+    }
+    if (isV2Device && rangeCallback.consumeGetSetConfig(p)) {
         return true;
     }
 
-    // is the status LED functionality enabled (Bricks + LoadCell) ?
+    // is the status LED functionality enabled (Bricks + LoadCell + V2 devices) ?
     if (getStatusLedFunc > 0)
     {
+        if (isV2Device) {
+            if (func == getStatusLedFunc) {
+                p.uint8Value = getStatusLedConfig();
+                p.header.length = sizeof(p.header) + 1;
+                return true;
+            }
+            if (func == setStatusLedOnFunc) {
+                setStatusLedConfig(p.uint8Value);
+                notify(visualizationClient, LED_CHANGE);
+                return true;
+            }
+        }
         if (func == setStatusLedOnFunc) {
             //utils::Log::log("Toggle status led ON");
             setStatusLedConfig(STATUS_LED_ON);
@@ -242,18 +280,11 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
     if (other)
         other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 
-    // mayExecute also checks the 'option' value ...
-    if (!rangeCallback.mayExecute(relativeTimeMs))
-        return;
-
-    char option = rangeCallback.getOption();
-    if ( (option == 'i' && currentValue >= rangeCallback.param1 && currentValue <= rangeCallback.param2)
-      || (option == 'o' && (currentValue < rangeCallback.param1 || currentValue > rangeCallback.param2))
-      || (option == '<' && currentValue < rangeCallback.param1)
-      || (option == '>' && currentValue > rangeCallback.param1)
-       )
+    // shouldTriggerRangeCallback also checks the 'option' value ...
+    if (rangeCallback.shouldTriggerRangeCallback(relativeTimeMs, currentValue))
     {
-        rangeCallback.relativeStartTime = relativeTimeMs;
+        // printf("DeviceSensor %p::rangeCallback %5d %lu %lu %u\n", this, currentValue, relativeTimeMs, rangeCallback.relativeStartTime, rangeCallback.period);
+
         if (valueSize == 2)
             triggerCallbackShort(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);
         else

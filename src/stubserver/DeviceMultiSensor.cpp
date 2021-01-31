@@ -43,7 +43,8 @@ DeviceMultiSensor::SensorData::~SensorData()
  * Init MultiSensor yet without SensorData.
  */
 DeviceMultiSensor::DeviceMultiSensor(unsigned _valueSize, uint8_t _getValueFunc)
-  : valueSize(_valueSize)
+  : SensorState(-35000, 35000)
+  , valueSize(_valueSize)
   , getValueFunc(_getValueFunc)
 {
 }
@@ -200,26 +201,18 @@ void DeviceMultiSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
             }
         }
 
-        // mayExecute also checks the 'option' value ...
-        if (it->rangeCallback.mayExecute(relativeTimeMs))
+        // shouldTriggerRangeCallback also checks the 'option' value ...
+        if (it->rangeCallback.shouldTriggerRangeCallback(relativeTimeMs, currentValue))
         {
-            char option = it->rangeCallback.getOption();
-            if ( (option == 'i' && currentValue >= it->rangeCallback.param1 && currentValue <= it->rangeCallback.param2)
-                    || (option == 'o' && (currentValue < it->rangeCallback.param1 || currentValue > it->rangeCallback.param2))
-                    || (option == '<' && currentValue < it->rangeCallback.param1)
-                    || (option == '>' && currentValue > it->rangeCallback.param1)
-            )
-            {
-                IOPacket packet(uid, it->rangeCallback.callbackCode, valueSize + 1);
-                packet.channelRequest.channel = it->getInternalSensorNo();
-                packet.channelRequest.value1 = currentValue;
-                brickStack->dispatchCallback(packet);
+            IOPacket packet(uid, it->rangeCallback.callbackCode, valueSize + 1);
+            packet.channelRequest.channel = it->getInternalSensorNo();
+            packet.channelRequest.value1 = currentValue;
+            brickStack->dispatchCallback(packet);
 
-                it->rangeCallback.relativeStartTime = relativeTimeMs;
+            it->rangeCallback.relativeStartTime = relativeTimeMs;
 
-                if (valueSize != 4) {
-                    utils::Log::log("DeviceMultiSensor::checkCallbacks - missing implementation");
-                }
+            if (valueSize != 4) {
+                utils::Log::log("DeviceMultiSensor::checkCallbacks - missing implementation");
             }
         }
     }
@@ -249,7 +242,13 @@ DeviceDualAnalogIn::DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2)
     sensors.push_back(s1);
     sensors.push_back(s2);
 
-    other = new GetSet<uint8_t>(INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_SAMPLE_RATE, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_SAMPLE_RATE, 0);
+    other = new GetSet<uint8_t>(INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_SAMPLE_RATE, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_SAMPLE_RATE);
+
+    // 4*4 = 16 byte values
+    other = new GetSetRaw(other, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_CALIBRATION, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_CALIBRATION, 16);
+
+    // 2*4 = 8 byte values
+    other = new GetSet<uint64_t>(other, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_ADC_VALUES, 0);
 }
 
 } /* namespace stubserver */

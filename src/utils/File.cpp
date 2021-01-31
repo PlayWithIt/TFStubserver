@@ -1,7 +1,7 @@
 /*
  * File.cpp
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,11 +34,12 @@
 #include <unistd.h>
 #endif
 
-#include "StringUtil.h"
+#include "DateTime.h"
 #include "Exceptions.h"
 #include "File.h"
 #include "FileFilter.h"
 #include "Log.h"
+#include "StringUtil.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
@@ -77,15 +78,15 @@ PidFile::PidFile(const char *_name)
 {
     if (_name && _name[0])
     {
-        setDeleteOnDestroy(true);
-
         FILE *f = fopen(getFullname().c_str(), "w");
-        if (f == NULL) {
+        if ( !f ) {
             Log::perror(getFullname());
             return;
         }
         fprintf(f, "%d", getpid());
         fclose(f);
+
+        setDeleteOnDestroy(true);
         refresh();
     }
 }
@@ -177,12 +178,14 @@ File::File(const File &other)
  */
 File& File::operator=(const File &other)
 {
-    path      = other.path;
-    name      = other.name;
-    fullname  = other.fullname;
-    errorCode = other.errorCode;
-    deleteOnDestroy = false;
-    refresh();
+    if (this != &other) {
+        path      = other.path;
+        name      = other.name;
+        fullname  = other.fullname;
+        errorCode = other.errorCode;
+        deleteOnDestroy = false;
+        refresh();
+    }
     return *this;
 }
 
@@ -631,6 +634,87 @@ bool File::renameTo(const char *newNameAndPath, bool overwrite)
     *this = target;
     refresh();
     return true;
+}
+
+
+/**
+ * If DateTime start a new month (hour + minute == 0 and day of month == 1), then
+ * rename the given file to a file with the suffix "YYYY-MM".
+ *
+ * If doLog is true, then write a log message if the file was renamed.
+ *
+ * Returns true if a file was renamed, false otherwise
+ */
+bool File::renameIfNewMonth(const std::string &filename, const DateTime &dt, bool doLog)
+{
+    bool newDay = (dt.hour() + dt.minute() == 0);
+    bool newMonth = newDay && dt.day() == 1;
+
+    if (newMonth)
+    {
+        char name[2000];
+        int year = dt.year();
+        int mon = dt.month();
+
+        // create rename with the previous month in the filename
+        if (mon == utils::DateTime::JAN) {
+            mon = utils::DateTime::DEC;
+            --year;
+        }
+        else
+            --mon;
+
+        sprintf(name, "%s.%4d-%02d", filename.c_str(), year, mon);
+        utils::File csv(filename);
+        if (!csv.renameTo(name))
+            Log::error("Cannot rename " + filename + " to ", name);
+        else {
+            if (doLog)
+                Log::log("Renamed " + filename + " to ", name);
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/**
+ * If DateTime start a new day (hour + minute == 0), then
+ * rename the given file to a file with the suffix "YYYY-MM-DD".
+ *
+ * If doLog is true, then write a log message if the file was renamed.
+ *
+ * Returns true if a file was renamed, false otherwise
+ */
+bool File::renameIfNewDay(const std::string &filename, const DateTime &dt, bool doLog)
+{
+    bool newDay = (dt.hour() + dt.minute() == 0);
+
+    if (newDay)
+    {
+        char name[2000];
+        int year = dt.year();
+        int mon = dt.month();
+        int day = dt.day();
+
+        if (day == 1) {
+            DateTime yesterday(dt, -24 * 60*60);
+            year = yesterday.year();
+            mon = yesterday.month();
+            day = yesterday.day();
+        }
+
+        sprintf(name, "%s.%4d-%02d-%02d", filename.c_str(), year, mon, day);
+        utils::File csv(filename);
+        if (!csv.renameTo(name))
+            Log::error("Cannot rename " + filename + " to ", name);
+        else {
+            if (doLog)
+                Log::log("Renamed " + filename + " to ", name);
+            return true;
+        }
+    }
+    return false;
 }
 
 // return the file / directory size

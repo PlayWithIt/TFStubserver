@@ -28,7 +28,7 @@ namespace stubserver {
 /**
  * A touch pad / multi touch panel.
  */
-class DeviceTouchPad : public DeviceFunctions
+class DeviceTouchPad : public V2Device
 {
     unsigned numButtons;
     unsigned sensitivity;
@@ -37,7 +37,7 @@ class DeviceTouchPad : public DeviceFunctions
     ValueProvider *values;
 
 public:
-    DeviceTouchPad(unsigned _numButtons, ValueProvider *vp);
+    DeviceTouchPad(unsigned _numButtons, ValueProvider *vp, bool isV2);
     ~DeviceTouchPad();
 
     unsigned getNumButtons() const {

@@ -1,7 +1,7 @@
 /*
  * DeviceOled.h
  *
- * Copyright (C) 2017 Holger Grosenick
+ * Copyright (C) 2017-2021 Holger Grosenick
  */
 
 #ifndef STUBSERVER_DEVICEOLED_H_
@@ -17,14 +17,11 @@ namespace stubserver {
  */
 class DeviceOled : public DeviceFunctions, public DisplayState
 {
-    V2Device *v2device;
-
+protected:
     uint8_t  windowColFrom, windowColTo;
     uint8_t  windowRowFrom, windowRowTo;
     uint8_t  currentCol, currentRow;
     uint16_t chunkPixelOffset;
-    bool     isLcd;
-    bool     automaticDraw;
 
     /**
      * print text: full data is the io packet with column, line and text.
@@ -35,12 +32,41 @@ class DeviceOled : public DeviceFunctions, public DisplayState
 
 public:
     DeviceOled(unsigned _cols, unsigned _lines);
-    ~DeviceOled();
 
-    /**
-     * For new LCD with 128x64 pixels.
-     */
-    DeviceOled(bool isLcd, unsigned _cols, unsigned _lines);
+    DECLARE_OWN_DEVICE_CALLBACKS
+};
+
+/**
+ * Simulated LCD with touch, 128*64 pixels.
+ */
+class DeviceLcdWithTouch : public DeviceOled
+{
+    V2Device *v2device;
+
+    // callback values
+    uint64_t lastEventTime;
+    uint32_t touchCbperiod;
+    uint32_t gestureCbperiod;
+    bool     touchHasToChange;
+    bool     gestureHasToChange;
+    bool     automaticDraw;
+
+public:
+    DeviceLcdWithTouch(unsigned _cols, unsigned _lines);
+    ~DeviceLcdWithTouch();
+
+    DECLARE_OWN_DEVICE_CALLBACKS
+};
+
+/**
+ * Simulated ePaper, 296x128 pixels.
+ */
+class DeviceEPaper : public DeviceOled
+{
+    V2Device *v2device;
+
+public:
+    DeviceEPaper();
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

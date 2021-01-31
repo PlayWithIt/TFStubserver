@@ -32,12 +32,13 @@ class DeviceMotionDetector : public V2Device, public SensorState
 {
     ValueProvider *valueProvider;
     uint64_t       motionEnd;
+    uint8_t        sensitivity;
 
 public:
     /**
      * The ValueProvider just needs to provide 1 (on) and 0 (off).
      */
-    DeviceMotionDetector(ValueProvider *vp);
+    DeviceMotionDetector(ValueProvider *vp, bool v2);
     ~DeviceMotionDetector();
 
     DECLARE_OWN_DEVICE_CALLBACKS

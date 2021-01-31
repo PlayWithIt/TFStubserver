@@ -18,18 +18,22 @@
  */
 
 #include <bricklet_piezo_speaker.h>
+#include <bricklet_piezo_speaker_v2.h>
 
 #include "DevicePiezoSpeaker.h"
 #include "BrickStack.h"
 
 namespace stubserver {
 
-DevicePiezoSpeaker::DevicePiezoSpeaker()
-  : sendCallback(false)
-  , callbackFunctionId(false)
+DevicePiezoSpeaker::DevicePiezoSpeaker(bool isV2)
+  : V2Device(NULL, this, isV2)
+  , VisibleDeviceState(0)
   , callbackTime(0)
+  , callbackFunctionId(false)
+  , sendCallback(false)
   , frequency(0)
   , duration(0)
+  , volume(5)
 {
 }
 
@@ -41,10 +45,13 @@ DevicePiezoSpeaker::~DevicePiezoSpeaker()
 /**
  * Check for known function codes.
  */
-bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &)
+bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &c)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
+
+    if (isV2)
+        return consumeCommandV2(relativeTimeMs, p, c);
 
     // check function to perform
     switch(p.header.function_id)
@@ -111,6 +118,56 @@ bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vi
         ++p.header.length; // return a bool
         p.boolValue = 1;
         return true;
+    }
+    return false;
+}
+
+/**
+ * Check for known function codes.
+ */
+bool DevicePiezoSpeaker::consumeCommandV2(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
+{
+    // check function to perform
+    switch(p.header.function_id)
+    {
+    case PIEZO_SPEAKER_V2_FUNCTION_SET_BEEP:
+        // Eine duration von 0 stoppt den aktuellen Piepton. Eine duration von 4294967295 führt zu einem unendlich langen Piepton.
+        // uint16_t frequency, uint8_t volume, uint32_t duration
+
+        if (frequency != p.beepV2Request.frequency || duration != p.beepV2Request.duration || volume != p.beepV2Request.volume)
+        {
+            // allocate new buffer
+            duration  = p.beepV2Request.duration;
+            frequency = p.beepV2Request.frequency;
+            volume    = p.beepV2Request.volume;
+            wavBuffer = player.makeWav(duration, frequency, volume);
+        }
+        player.playback(wavBuffer, true);
+
+        callbackFunctionId = PIEZO_SPEAKER_V2_CALLBACK_BEEP_FINISHED;
+        sendCallback = true;
+        callbackTime = relativeTimeMs + duration;
+        return true;
+
+    case PIEZO_SPEAKER_V2_FUNCTION_GET_BEEP:
+        p.header.length += sizeof(p.beepV2Request);
+        p.beepV2Request.duration = duration;
+        p.beepV2Request.volume = volume;
+        p.beepV2Request.frequency = frequency;
+        return true;
+
+    case PIEZO_SPEAKER_V2_FUNCTION_UPDATE_FREQUENCY:
+    case PIEZO_SPEAKER_V2_FUNCTION_UPDATE_VOLUME:
+        // update not really supported ...
+        return true;
+
+    case PIEZO_SPEAKER_V2_FUNCTION_SET_ALARM:
+    case PIEZO_SPEAKER_V2_FUNCTION_GET_ALARM:
+        break;
+
+    default:
+        return V2Device::consumeCommand(relativeTimeMs, p, visualizationClient);
+
     }
     return false;
 }

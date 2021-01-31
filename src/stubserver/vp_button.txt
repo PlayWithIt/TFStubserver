@@ -1,0 +1,18 @@
+# Example to simulate dual button values: column 0 is a time value
+# and column 1 the sensor value.
+#
+# The time values are 'from' values:
+# -> the first value (0) is valid from 0..3999
+# -> the second value (1) is valid from 4000..9999
+#
+# Value 0: both buttons off
+# Value 1: left button on 
+# Value 2: right button on
+# Value 3: both buttons on
+#
+
+0     0
+3000  1
+5000  2
+8000  3
+11000 0

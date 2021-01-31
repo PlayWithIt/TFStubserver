@@ -52,7 +52,8 @@ public:
 
     /**
       * Init the bitmask from a 2-dimensional String array
-      * @param mask a string array which defines the bitmask for each dotted char.
+      * The parameters are bitmaks for 7 or 8 lines char mask, a blank in the string results
+      * to 0, all others to 1 in the bitmask.
       */
     CharMask(const char *m1, const char *m2, const char *m3, const char *m4, const char *m5, const char *m6, const char *m7, const char *m8);
     CharMask(const char *m1, const char *m2, const char *m3, const char *m4, const char *m5, const char *m6, const char *m7);

@@ -66,7 +66,7 @@ class GetSetRaw;
  */
 struct ResponseData
 {
-    uint8_t  bytes[8];
+    uint8_t  bytes[16];
     uint8_t *extData;
     unsigned size;
 
@@ -126,8 +126,9 @@ protected:
     // not allowed
     DeviceFunctions& operator=(const DeviceFunctions& o) = delete;
 
-    void triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int16_t value);
-    void triggerCallbackInt  (uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int32_t value);
+    // methods return the value parameter
+    int16_t triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int16_t value);
+    int32_t triggerCallbackInt  (uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int32_t value);
 
 public:
     DeviceFunctions();
@@ -404,7 +405,7 @@ public:
 
 /**
  * The V2 device is for all devices that have a chip on the bricklet and
- * support led status and chip temperature status functions.
+ * consumes the led status and chip temperature status functions.
  */
 class V2Device : public DeviceFunctions
 {
@@ -413,9 +414,10 @@ class V2Device : public DeviceFunctions
 
 protected:
     VisibleDeviceState *visibleDeviceState;
+    bool isV2;
 
 public:
-    V2Device(DeviceFunctions *other, VisibleDeviceState *state);
+    V2Device(DeviceFunctions *other, VisibleDeviceState *state, bool v2Enabled);
     ~V2Device();
 
     DECLARE_OWN_DEVICE_CALLBACKS

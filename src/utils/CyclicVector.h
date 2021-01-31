@@ -136,15 +136,16 @@ public:
      */
     CyclicVector<_Tp>& operator=(const CyclicVector<_Tp> &other)
     {
-        this->allocated = other.allocated;
-        this->used      = other.used;
-        this->first     = 0;
-        this->vectorStart = new _Tp[other.allocated];
+        if (this != &other) {
+            this->allocated = other.allocated;
+            this->used      = other.used;
+            this->first     = 0;
+            this->vectorStart = new _Tp[other.allocated];
 
-        // the []-operator will recalculate the source index
-        for (unsigned i = 0; i < used; ++i)
-            vectorStart[i] = other[i];
-
+            // the []-operator will recalculate the source index
+            for (unsigned i = 0; i < used; ++i)
+                vectorStart[i] = other[i];
+        }
         return *this;
     }
 

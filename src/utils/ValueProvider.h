@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <list>
+#include <vector>
 #include <string>
 
 #include "Properties.h"
@@ -37,7 +38,7 @@ namespace utils {
 /**
  * @ingroup ValueProvider
  *
- * Interface for value providers that provide a value at a relative time.
+ * Interface for value providers that provide a value at a relative time (measured in milliseconds).
  * Derived classes might use constant values or calculate 'real' values.
  */
 class ValueProvider {
@@ -47,7 +48,7 @@ protected:
     unsigned interval;
     int      min, max;
 
-    ValueProvider(int _min, int _max, unsigned int interval = 0);
+    ValueProvider(int _min, int _max, unsigned int intervalMs = 0);
 
 public:
     virtual ~ValueProvider();
@@ -108,7 +109,7 @@ class RandomValueProvider : public ValueProvider
     int calcValue() const;
 
 public:
-    RandomValueProvider(int min, int max, unsigned int interval);
+    RandomValueProvider(int min, int max, unsigned int intervalMs);
 
     /**
      * Get the actual value at the given relative time.
@@ -121,15 +122,15 @@ public:
  * @ingroup ValueProvider
  *
  * A linear value provider increments the current value from min to
- * max with the given step range. If max is reached, the value is
- * reduced to min with the negative step.
+ * max with the given step range where the interval is in milliseconds.
+ * If max is reached, the value is reduced to min with the negative step.
  */
 class LinearValueProvider : public ValueProvider
 {
     int step;
 
 public:
-    LinearValueProvider(int min, int max, int step, unsigned int interval);
+    LinearValueProvider(int min, int max, int step, unsigned int intervalMs);
 
     /**
      * Get the actual value at the given relative time.
@@ -191,7 +192,7 @@ class SinusValueProvider : public ValueProvider
     unsigned callcount;
 
 public:
-    SinusValueProvider(int min, int max, unsigned int interval);
+    SinusValueProvider(int min, int max, unsigned int intervalMs);
 
     /**
      * Get the actual value at the given relative time.
@@ -276,6 +277,70 @@ public:
      * Get the actual value at the given relative time.
      */
     virtual int getValue(uint64_t relativeTimeMs);
+};
+
+
+/**
+ * @ingroup ValueProvider
+ *
+ * Reads values from a CSV file: one line represents one set of values.
+ * The first column is the time offset in milliseconds, the other columns are data values.
+ * <P>
+ * The first column can also contain a log timestamp like "2020-01-01 11:04:37.888365":
+ * in this case the first line defines the initial timestamp which defines the offset for all
+ * following line.
+ * <br>
+ * BE AWARE: if this feature is used, the first line should just contain the timestamp, no
+ * additional data as this will be ignored. (First line would be offset 0 which is never active).
+ * <P>
+ * The CSV can contain '#' in first column to mark a comment (or header)
+ */
+class CSVValueProvider : public ValueProvider
+{
+    typedef std::vector<int> TCsvRow;
+
+    std::list<TCsvRow> values;
+    std::list<TCsvRow>::const_iterator current;
+
+    /**
+     * Check consistency return number of value items (no random).
+     */
+    unsigned checkSequence();
+
+    // For test purpose
+    void dump() const;
+
+public:
+    /**
+     * Reads the values from the given file, throws an exception if the file
+     * does not exist or cannot be read.
+     */
+    CSVValueProvider(const char *filename);
+
+    /**
+     * Returns the number of rows defined in the input file.
+     */
+    size_t size() const {
+        return values.size();
+    }
+
+    /**
+     * Get the actual value at the given relative time: this is only the first column of the CSV
+     */
+    virtual int getValue(uint64_t relativeTimeMs);
+
+    /**
+     * Get all values at the given relative time: the whole data row with all columns
+     */
+    int getValues(uint64_t relativeTimeMs, std::vector<int> &value);
+
+    /**
+     * Parses a timestamp like "2020-01-01 11:04:37.888365" and return the time in milli-seconds
+     * returned by 'mktime' multiplied by 1000 plus the milliseconds of the log timestamp.
+     * <P>
+     * If the result is 0, a parse error has occurred.
+     */
+    uint64_t parseTimestamp(const char *ts);
 };
 
 typedef ValueProvider *PValueProvider;

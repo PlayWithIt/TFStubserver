@@ -1,7 +1,7 @@
 /*
  * DateTime.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2020 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 #include <ctime>
 #include <chrono>
+#include <string>
 
 namespace utils {
 
@@ -39,11 +40,23 @@ class DateTime {
      */
     void makeTime();
 
+    /**
+     * Init with single fields:<br>
+     * year == 2000, month == 1 .. 12, dayOfMonth == 1..31, hour == 0..24
+     */
+    void init(unsigned year, unsigned month, unsigned dayOfMonth, unsigned hour = 0, unsigned minute = 0, unsigned second = 0);
+
 public:
     /**
      * Determine current date time with microseconds.
      */
-    DateTime();
+    explicit DateTime();
+
+    /**
+     * Parses a date time out of the fixed format YYYY-MM-DD HH:MI:SS{.mmm}
+     * @see #asString()
+     */
+    explicit DateTime(const std::string &t);
 
     /**
      * Use given date / time without microseconds.
@@ -54,6 +67,20 @@ public:
      * Use given date / time with microseconds.
      */
     explicit DateTime(const std::chrono::system_clock::time_point &now);
+
+    /**
+     * Create a DateTime with additional seconds: if negative the date is before
+     * otherwise after the given DateTime.
+     *
+     * If secondOffset is for example 86400, then one day is added.
+     */
+    explicit DateTime(const DateTime &other, int secondOffset);
+
+    /**
+     * Init with single fields:<br>
+     * year == 2000, month == 1 .. 12, dayOfMonth == 1..31, hour == 0..24
+     */
+    DateTime(unsigned year, unsigned month, unsigned dayOfMonth, unsigned hour = 0, unsigned minute = 0, unsigned second = 0);
 
     /**
      * Copy constructor and assignment
@@ -181,6 +208,11 @@ public:
     }
 
     /**
+     * Is this DateTime at the same day as other DateTime (ignore time)?
+     */
+    bool sameDayAs(const DateTime &other) const;
+
+    /**
      * Is the DateTime the same as another?
      */
     bool operator==(const DateTime &other) const {
@@ -193,6 +225,12 @@ public:
     bool operator!=(const DateTime &other) const {
         return secondsSinceEpoch != other.secondsSinceEpoch || microsecs != other.microsecs;
     }
+
+    /**
+     * Returns a unified format in the way YYYY-MM-DD HH:MI:SS{.mmm}
+     * Milliseconds are only appended if 'millis = true'
+     */
+    const std::string asString(bool millis = false) const;
 };
 
 } /* namespace utils */

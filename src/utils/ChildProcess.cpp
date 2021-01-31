@@ -258,7 +258,8 @@ bool ChildProcess::kill(int signum)
 
     int signal = signum <= 0 ? SIGTERM : signum;
 
-    utils::Log() << "ChildProcess: send signal " << signal <<  " to pid " << pid;
+    utils::Log() << "ChildProcess::kill pid " <<  pid << " with signal " << signal
+                 << " (" << programAndArgs[0] << ')';
     int rc = ::kill(pid, signal);
 
     return rc == 0;

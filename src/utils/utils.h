@@ -32,6 +32,9 @@ void initSignalHandlers();
 // The function takes three arguments, the second is 'siginfo_t'
 void setSignalHandler(int signalNo, void (*function)(int, void *sigInfo, void *u_context), void *extraData);
 
+// convert the signal number into readable format ...
+const char *signal2char(int signum);
+
 // return a flag that is true after a signal handler is called.
 bool shouldFinish();
 
@@ -46,6 +49,25 @@ void usleep(int us);
  */
 const std::string base58Encode(unsigned int value);
 unsigned int      base58Decode(const char *value);
+
+/**
+ * Open a log-file: redirect stdout + stderr into a file.
+ * Do nothing if the log-name is NULL.
+ *
+ * return true if OK, false in case of error
+ */
+bool redirectStdout(const char *logName);
+
+
+/**
+ * Convert boolean states (e.g. for buttons) into an unsigned with 1 bit set per boolean.
+ */
+unsigned bool2bits(bool states[], unsigned num);
+
+/**
+ * Converts bits of on an unsigned into an array of boolean, one value per bit
+ */
+void bits2bool(unsigned statesIn, bool statesOut[], unsigned num);
 
 }
 

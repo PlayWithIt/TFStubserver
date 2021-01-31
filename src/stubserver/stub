@@ -7,6 +7,7 @@ fi
 # default file
 FILE=homestation.properties
 OPT=
+UI="0"
 
 # evaluate arguments
 while [ ! -z "$1" ]; do
@@ -22,6 +23,9 @@ while [ ! -z "$1" ]; do
 	    ;;
 	-rq)
 	    OPT="$OPT -rq"
+	    ;;
+	-ui)
+	    UI="1"
 	    ;;
 	-vg)
 	    VG="valgrind --leak-check=full --show-reachable=yes --log-file=vg.log "
@@ -39,5 +43,9 @@ fi
 
 export LD_LIBRARY_PATH=../../lib/$CONFIG
 
-# echo $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
-$VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
+if [ $UI == "1" ]; then
+	$VG ./TFStubViz -d $FILE
+else
+	# echo $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
+	$VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
+fi

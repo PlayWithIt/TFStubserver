@@ -20,6 +20,7 @@
 #define HANDLESTREAMBUF_H_
 
 #include <iostream>
+#include <stdint.h>
 
 #include "Object.h"
 
@@ -28,6 +29,10 @@ namespace utils {
 /**
  * A simple stream buffer which is build on file handles. This stream buffer just
  * implements basic IO, no seeking and no pushing back data into the buffer.
+ * <P>
+ * The implementation is STL specific since it relies on protected constructors
+ * of the STL classes. This has the effect that thre are different implementations
+ * for GCC and MSG behind it.
  */
 class HandleStreambuf: public std::basic_streambuf<char>
 {
@@ -95,7 +100,7 @@ public:
     /**
      * Close the handle, this is done automatically in dtor.
      */
-    virtual void close();
+    virtual void close() override;
 };
 
 
@@ -134,13 +139,12 @@ public:
  */
 class OutputStream : public std::ostream, public Object
 {
-    HandleStreambuf streambuf;
+    HandleStreambuf *streambuf;
 
 public:
-    OutputStream(int handle) : streambuf(handle, false)
-    {
-        std::ostream::init(&streambuf);
-    }
+    OutputStream(int handle);
+
+    virtual ~OutputStream();
 };
 
 } /* namespace utils */

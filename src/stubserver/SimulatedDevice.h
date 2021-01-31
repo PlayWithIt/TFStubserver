@@ -56,6 +56,7 @@ class SimulatedDevice
     unsigned    deviceTypeId;
     char        position;              // port a..d or stack position 0..6
     bool        isBrick;
+    bool        isV2;
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
 
@@ -72,7 +73,7 @@ class SimulatedDevice
     const char *getProperty(const std::string &key, const char *defaultValue);
     int getIntProperty(const std::string &key);
 
-    utils::ValueProvider* createValueProvider(const char *options);
+    utils::ValueProvider* createValueProvider(const char *propertyName, const char *vpDefault = nullptr);
 
 public:
     SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, unsigned int _typeId);

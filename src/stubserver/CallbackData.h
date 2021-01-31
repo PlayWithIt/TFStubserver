@@ -107,11 +107,29 @@ public:
     bool consumeGetSetThreshold(IOPacket &io);
 
     /**
+     * Check if the function in the packet is get/set callback config,
+     * this is similar to callback threshold, but structure is a little different.
+     * Used in newer V2 devices which use these parameters:
+     *  uint32_t period, bool value_has_to_change, char option, int32_t min, int32_t max
+     *
+     * @return true if the function was get/set callback config, false otherwise
+     */
+    bool consumeGetSetConfig(IOPacket &io);
+
+    /**
      * Return the current option value.
      */
     char getOption() const {
         return option;
     }
+
+    /**
+     * Checks if the given time allows a new callback and if yes, checks if the given value
+     * is within the given range depending on the range option.
+     *
+     * @return true if a callback should be triggered
+     */
+    bool shouldTriggerRangeCallback(uint64_t relativeTimeMs, int currentValue) const;
 
     /**
      * Set all function codes at once.

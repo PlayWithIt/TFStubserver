@@ -52,6 +52,7 @@ ValueProvider::~ValueProvider() {
  * "linear <min> <max> <interval>" <br>
  * "random <min> <max> <interval>" <br>
  * "stored <filename>" <br>
+ * "csv    <filename>" <br>
  */
 ValueProvider* ValueProvider::buildFrom(const std::string& options)
 {
@@ -67,7 +68,7 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options)
     size_t last = first + 1;
     while (last < l && options[last] != ' ')
         ++last;
-    if (last - first < 5)
+    if (last - first < 3)
         return NULL;
 
     // extract type
@@ -80,6 +81,15 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options)
 
         // load a text-file here, not a properties file!
         StoredValueProvider *sp = new StoredValueProvider(options.substr(last).c_str());
+        return sp;
+    }
+    if (type.compare("csv") == 0)
+    {
+        while (last < l && options[last] == ' ')
+            ++last;
+
+        // load values from CSV file!
+        CSVValueProvider *sp = new CSVValueProvider(options.substr(last).c_str());
         return sp;
     }
 
@@ -153,8 +163,8 @@ int RandomValueProvider::getValue(uint64_t relativeTimeMs)
 /**
  * Init with given value range and update frequency.
  */
-LinearValueProvider::LinearValueProvider(int _min, int _max, int _step, unsigned int _interval)
-  : ValueProvider(_min, _max, _interval)
+LinearValueProvider::LinearValueProvider(int _min, int _max, int _step, unsigned int intervalMs)
+  : ValueProvider(_min, _max, intervalMs)
   , step(_step)
 {
     lastValue = _min;

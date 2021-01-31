@@ -21,18 +21,25 @@
 #include <sstream>
 
 #include <bricklet_multi_touch.h>
+#include <bricklet_multi_touch_v2.h>
+
+#include <utils/utils.h>
 
 #include "BrickStack.h"
 #include "DeviceTouchPad.h"
 
 namespace stubserver {
 
+
 /**
  * Default init.
  */
-DeviceTouchPad::DeviceTouchPad(unsigned _numButtons, ValueProvider *vp)
-  : numButtons(_numButtons), sensitivity(181), currentState(0), enabledBits(0xFFFF), values(vp)
-{ }
+DeviceTouchPad::DeviceTouchPad(unsigned _numButtons, ValueProvider *vp, bool isV2)
+  : V2Device(NULL, NULL, isV2)
+  , numButtons(_numButtons), sensitivity(181)
+  , currentState(0), enabledBits(0xFFFF), values(vp)
+{
+}
 
 
 DeviceTouchPad::~DeviceTouchPad()
@@ -43,42 +50,76 @@ DeviceTouchPad::~DeviceTouchPad()
 /**
  * Check for known function codes.
  */
-bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &)
+bool DeviceTouchPad::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
 
     // check function to perform
-    switch(p.header.function_id)
-    {
-    case MULTI_TOUCH_FUNCTION_RECALIBRATE:
-        // do nothing
-        return true;
+    if (isV2) {
+        switch(p.header.function_id)
+        {
+        case MULTI_TOUCH_V2_FUNCTION_RECALIBRATE:
+            // do nothing
+            return true;
 
-    case MULTI_TOUCH_FUNCTION_GET_TOUCH_STATE:
-        p.header.length = sizeof(p.header) + 2;
-        p.uint16Value = currentState;
-        return true;
+        case MULTI_TOUCH_V2_FUNCTION_GET_TOUCH_STATE:
+            p.header.length = sizeof(p.header) + 2;
+            p.uint16Value = currentState;
+            return true;
 
-    case MULTI_TOUCH_FUNCTION_SET_ELECTRODE_CONFIG:
-        enabledBits = p.uint16Value;
-        return true;
+        case MULTI_TOUCH_V2_FUNCTION_SET_ELECTRODE_CONFIG:
+            enabledBits = p.uint16Value;
+            return true;
 
-    case MULTI_TOUCH_FUNCTION_GET_ELECTRODE_CONFIG:
-        p.header.length = sizeof(p.header) + 2;
-        p.uint16Value = enabledBits;
-        return true;
+        case MULTI_TOUCH_V2_FUNCTION_GET_ELECTRODE_CONFIG:
+            p.header.length = sizeof(p.header) + 2;
+            p.uint16Value = enabledBits;
+            return true;
 
-    case MULTI_TOUCH_FUNCTION_SET_ELECTRODE_SENSITIVITY:
-        sensitivity = p.uint8Value;
-        return true;
+        case MULTI_TOUCH_V2_FUNCTION_SET_ELECTRODE_SENSITIVITY:
+            sensitivity = p.uint8Value;
+            return true;
 
-    case MULTI_TOUCH_FUNCTION_GET_ELECTRODE_SENSITIVITY:
-        p.header.length = sizeof(p.header) + 1;
-        p.uint8Value = sensitivity;
-        return true;
+        case MULTI_TOUCH_V2_FUNCTION_GET_ELECTRODE_SENSITIVITY:
+            p.header.length = sizeof(p.header) + 1;
+            p.uint8Value = sensitivity;
+            return true;
+        }
     }
-    return false;
+    else {
+    	switch(p.header.function_id)
+    	{
+    	case MULTI_TOUCH_FUNCTION_RECALIBRATE:
+    		// do nothing
+    		return true;
+
+    	case MULTI_TOUCH_FUNCTION_GET_TOUCH_STATE:
+    		p.header.length = sizeof(p.header) + 2;
+    		p.uint16Value = currentState;
+    		return true;
+
+    	case MULTI_TOUCH_FUNCTION_SET_ELECTRODE_CONFIG:
+    		enabledBits = p.uint16Value;
+    		return true;
+
+    	case MULTI_TOUCH_FUNCTION_GET_ELECTRODE_CONFIG:
+    		p.header.length = sizeof(p.header) + 2;
+    		p.uint16Value = enabledBits;
+    		return true;
+
+    	case MULTI_TOUCH_FUNCTION_SET_ELECTRODE_SENSITIVITY:
+    		sensitivity = p.uint8Value;
+    		return true;
+
+    	case MULTI_TOUCH_FUNCTION_GET_ELECTRODE_SENSITIVITY:
+    		p.header.length = sizeof(p.header) + 1;
+    		p.uint8Value = sensitivity;
+    		return true;
+    	}
+    }
+
+    return V2Device::consumeCommand(relativeTimeMs, p, visualizationClient);
 }
 
 /**
@@ -96,10 +137,18 @@ void DeviceTouchPad::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, B
     if (newValue != currentState)
     {
         // trigger button press / release
-        IOPacket packet(uid, MULTI_TOUCH_CALLBACK_TOUCH_STATE, 2);
-        packet.uint16Value = newValue;
-        currentState = newValue;
-        brickStack->dispatchCallback(packet);
+    	if (isV2) {
+    		IOPacket packet(uid, MULTI_TOUCH_V2_CALLBACK_TOUCH_STATE, 13);
+    		utils::bits2bool(newValue, packet.touchBits, 13);
+    		currentState = newValue;
+    		brickStack->dispatchCallback(packet);
+    	}
+    	else {
+    		IOPacket packet(uid, MULTI_TOUCH_CALLBACK_TOUCH_STATE, 2);
+    		packet.uint16Value = newValue;
+    		currentState = newValue;
+    		brickStack->dispatchCallback(packet);
+    	}
     }
 }
 

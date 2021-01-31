@@ -1,7 +1,7 @@
 /*
  * DeviceLedButton.h
  *
- * Copyright (C) 2018 Holger Grosenick
+ * Copyright (C) 2020 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,20 +28,15 @@ namespace stubserver {
 /**
  * Simulates the Led button bricklet.
  */
-class DeviceLedButton: public DeviceFunctions, public DualButtonState
+class DeviceLedButton: public V2Device, public DualButtonState
 {
     ValueProvider *valueProvider;
-
-    // flags how status LED should behave, the LED ON/OFF state is kept in DualButtonState
-    uint8_t ledConfig;
 
 public:
     /**
      * The ValueProvider must provide <br>
-     * 0 -> both buttons off<br>
-     * 1 -> left button down<br>
-     * 2 -> right button down<br>
-     * 3 -> both buttons down<br>
+     * 0 -> button off<br>
+     * 1 -> button down<br>
      */
     DeviceLedButton(ValueProvider *vp);
     virtual ~DeviceLedButton();

@@ -29,22 +29,26 @@ using utils::SoundPlayback;
 
 /**
  * This simulated devices makes some sound via ALSA API.
+ * The "visible state" of this device is only the status LED of the v2 speaker.
  */
-class DevicePiezoSpeaker : public DeviceFunctions
+class DevicePiezoSpeaker : public V2Device, public VisibleDeviceState
 {
     // these are to handle the callback when sound finishes
-    bool     sendCallback;
-    int8_t   callbackFunctionId;
     uint64_t callbackTime;
+    int8_t   callbackFunctionId;
+    bool     sendCallback;
 
     // frequency & duration of the last buffer
     unsigned frequency;
     unsigned duration;
+    unsigned volume;
     SoundPlayback::WavBuffer wavBuffer;
     SoundPlayback player;
 
+    bool consumeCommandV2(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &c);
+
 public:
-    DevicePiezoSpeaker();
+    DevicePiezoSpeaker(bool isV2);
     virtual ~DevicePiezoSpeaker();
 
     DECLARE_OWN_DEVICE_CALLBACKS

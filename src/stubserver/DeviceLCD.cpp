@@ -189,10 +189,6 @@ void DeviceLCD::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
     else
         newValue = 0;
 
-    // TODO: no value provider to button state yet
-    //else
-    //    newValue = values->getValue(relativeTimeMs) & enabledBits;
-
     if (newValue != buttonState)
     {
         // trigger button press / release

@@ -1,7 +1,7 @@
 /*
  * DeviceLedButton.cpp
  *
- * Copyright (C) 2018 Holger Grosenick
+ * Copyright (C) 2020 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,13 @@
 namespace stubserver {
 
 DeviceLedButton::DeviceLedButton(ValueProvider *vp)
-    : valueProvider(vp)
-    , ledConfig(RGB_LED_BUTTON_STATUS_LED_CONFIG_SHOW_STATUS)
+    : V2Device(NULL, this, true)
+    , valueProvider(vp)
 {
+    red = 0;
+    green = 0;
+    blue = 0;
+    buttonStates = 0;
 }
 
 DeviceLedButton::~DeviceLedButton() {
@@ -68,23 +72,15 @@ bool DeviceLedButton::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
         p.header.length += 3;
         return true;
 
-    case RGB_LED_BUTTON_FUNCTION_SET_STATUS_LED_CONFIG:
-        ledConfig = p.fullData.payload[0];
-        notify(visualizationClient);
-        return true;
-
-    case RGB_LED_BUTTON_FUNCTION_GET_STATUS_LED_CONFIG:
-        p.fullData.payload[0] = ledConfig;
-        p.header.length += 1;
-        return true;
-
     case RGB_LED_BUTTON_FUNCTION_GET_BUTTON_STATE:
-        p.fullData.payload[0] = buttonStates & 1 ? RGB_LED_BUTTON_BUTTON_STATE_PRESSED : RGB_LED_BUTTON_BUTTON_STATE_RELEASED;
+        p.uint8Value = buttonStates ? RGB_LED_BUTTON_BUTTON_STATE_PRESSED : RGB_LED_BUTTON_BUTTON_STATE_RELEASED;
         p.header.length += 1;
+
+        //printf("GET RGB LED Button: %u\n", (unsigned) buttonStates);
         return true;
 
     default:
-        return false;
+        return V2Device::consumeCommand(relativeTimeMs, p, visualizationClient);
     }
 }
 
@@ -93,7 +89,7 @@ bool DeviceLedButton::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
  */
 void DeviceLedButton::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    IOPacket packet(uid, RGB_LED_BUTTON_CALLBACK_BUTTON_STATE_CHANGED, 4);
+    IOPacket packet(uid, RGB_LED_BUTTON_CALLBACK_BUTTON_STATE_CHANGED, 1);
     int newValue;
 
     if (visualizationClient.useAsInputSource())
@@ -103,10 +99,10 @@ void DeviceLedButton::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
 
     if (newValue != buttonStates)
     {
-        //printf("CB  LED Config: %u  %u  Buttons: %u  %u\n",
-        //       packet.fullData.payload[2], packet.fullData.payload[3], packet.fullData.payload[0], packet.fullData.payload[1]);
+        //printf("CB  RGB LED Button: %u\n", (unsigned) buttonStates);
 
         buttonStates = newValue;
+        packet.uint8Value = buttonStates ? RGB_LED_BUTTON_BUTTON_STATE_PRESSED : RGB_LED_BUTTON_BUTTON_STATE_RELEASED;
         brickStack->dispatchCallback(packet);
         notify(visualizationClient);
     }

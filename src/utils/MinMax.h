@@ -79,6 +79,17 @@ public:
     value_type getMax() const {
         return max;
     }
+
+    /**
+     * Return the delta between min and max, returns 0 if min is still larger than max
+     * which happens if not value update was made.
+     */
+    value_type delta() const {
+        if (min > max)
+        	return 0;
+    	return max - min;
+    }
+
 };
 
 // often used

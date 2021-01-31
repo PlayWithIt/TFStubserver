@@ -95,9 +95,10 @@ public:
      *
      * @param durationMs the duration of the tone in milliseconds
      * @param frequency the frequency to use for the sound
+     * @param volume in range 0 .. 10
      * @return an object with a dynamically allocated buffer and the size of the buffer
      */
-    WavBuffer makeWav(unsigned durationMs, unsigned frequency);
+    WavBuffer makeWav(unsigned durationMs, unsigned frequency, unsigned volume = 5);
 
     /**
      * A single sound / tone with duration and frequency.
@@ -114,9 +115,10 @@ public:
      * single sound from the list is constant.
      *
      * @param sounds - list of single tones / sounds to create a WAV part for
+     * @param volume - value 0 .. 10 will internally be used for generate volume in wav
      * @return an object with a dynamically allocated buffer and the size of the buffer
      */
-    WavBuffer makeWav(SoundList &sounds);
+    WavBuffer makeWav(SoundList &sounds, unsigned volume = 5);
 
     /**
      * Stop playback as soon as possible.

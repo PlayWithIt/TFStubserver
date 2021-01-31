@@ -23,14 +23,14 @@
 #include <brick_master.h>
 #include <brick_servo.h>
 #include <brick_dc.h>
-#include <bricklet_accelerometer.h>
+
+#include <bricklet_air_quality.h>
 #include <bricklet_analog_in.h>
 #include <bricklet_analog_in_v2.h>
 #include <bricklet_analog_out.h>
 #include <bricklet_analog_out_v2.h>
 #include <bricklet_ambient_light.h>
 #include <bricklet_ambient_light_v2.h>
-#include <bricklet_co2.h>
 #include <bricklet_color.h>
 #include <bricklet_distance_ir.h>
 #include <bricklet_distance_us.h>
@@ -45,12 +45,16 @@
 #include <bricklet_joystick.h>
 #include <bricklet_line.h>
 #include <bricklet_load_cell.h>
+#include <bricklet_load_cell_v2.h>
 #include <bricklet_moisture.h>
 #include <bricklet_humidity.h>
+#include <bricklet_humidity_v2.h>
 #include <bricklet_ptc.h>
 #include <bricklet_rgb_led_button.h>
 #include <bricklet_sound_intensity.h>
+#include <bricklet_sound_pressure_level.h>
 #include <bricklet_temperature.h>
+#include <bricklet_temperature_v2.h>
 #include <bricklet_temperature_ir.h>
 #include <bricklet_uv_light.h>
 #include <bricklet_voltage_current.h>
@@ -60,8 +64,10 @@
 #include <utils/utils.h>
 
 #include "BrickStack.h"
+#include "DeviceAirQuality.h"
 #include "DeviceBarometer.h"
 #include "DeviceBrick.h"
+#include "DeviceCo2.h"
 #include "DeviceDualButton.h"
 #include "DeviceInOut.h"
 #include "DeviceHallEffect.h"
@@ -76,6 +82,7 @@
 #include "DeviceRelay.h"
 #include "DeviceRTC.h"
 #include "DeviceSensor.h"
+#include "DeviceSoundPressure.h"
 #include "DeviceTilt.h"
 #include "DeviceTouchPad.h"
 
@@ -100,10 +107,12 @@ static VisualizationClient dummyVisualisationInstance;
 /**
  * Dynamically create a value provider.
  */
-utils::ValueProvider* SimulatedDevice::createValueProvider(const char *options)
+utils::ValueProvider* SimulatedDevice::createValueProvider(const char *propertyName, const char *vpDefault)
 {
-    if (!options || *options == 0)
-        throw Exception(std::string("Value provider for device with UID=") + uidStr + " is mandatory!");
+    const char *options = getProperty(propertyName, vpDefault);
+
+    if (!options || !(*options))
+        throw Exception(std::string("Value provider for device with UID=") + uidStr + " is mandatory but missing, config name was: " + propertyName);
 
     utils::ValueProvider* result;
     result = utils::ValueProvider::buildFrom(options);
@@ -148,12 +157,19 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     DeviceSensor *sensor;
     DoNothing *doNothing;
     GetSetRaw *getSet;
+    ValueProvider *vp;
 
     switch (deviceTypeId) {
     case MASTER_DEVICE_IDENTIFIER:
         functions = new DeviceBrick(deviceTypeId, MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
                                     MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD,
                                     MASTER_CALLBACK_STACK_VOLTAGE, MASTER_CALLBACK_STACK_CURRENT);
+        isBrick = true;
+        label = "Voltage mV";
+        break;
+
+    case HAT_DEVICE_IDENTIFIER:
+        functions = new DeviceHatBrick(deviceTypeId, nullptr);
         isBrick = true;
         label = "Voltage mV";
         break;
@@ -205,23 +221,15 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     //----------- Bricklets -------------------------------------------------------------------------------------------
-/*
-    // ACCELEROMETER needs 3 value providers with 16Bit each
-    case ACCELEROMETER_DEVICE_IDENTIFIER:
-        sensor = new DeviceSensor(ACCELEROMETER_FUNCTION_GET_ACCELERATION,
-                                  ACCELEROMETER_FUNCTION_SET_ACCELERATION_CALLBACK_PERIOD,
-                                  ACCELEROMETER_CALLBACK_ACCELERATION);
-        sensor->setRangeCallback(AMBIENT_LIGHT_FUNCTION_SET_ILLUMINANCE_CALLBACK_THRESHOLD,
-                AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE_CALLBACK_THRESHOLD,
-                AMBIENT_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD,
-                AMBIENT_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
-                AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
-        sensor->setMinMax(0, 9000);
-        functions = sensor;
-        label = "X/Y/Z";
+    case AIR_QUALITY_DEVICE_IDENTIFIER:
+        functions = new DeviceAirQuality(
+                createValueProvider("valueProviderTemp", "linear min=-500,max=2500,step=50,interval=500"),
+                createValueProvider("valueProviderHum", "linear min=2000,max=6500,step=50,interval=3500"),
+                createValueProvider("valueProviderPress", "linear min=90000,max=105000,step=50,interval=5500"),
+                createValueProvider("valueProviderIaq", "linear min=5,max=400,step=5,interval=999")
+                );
         break;
-*/
+
     case AMBIENT_LIGHT_DEVICE_IDENTIFIER:
         sensor = new DeviceSensor(
                 AMBIENT_LIGHT_FUNCTION_GET_ILLUMINANCE,
@@ -235,7 +243,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 AMBIENT_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD,
                 AMBIENT_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
                 AMBIENT_LIGHT_CALLBACK_ILLUMINANCE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2500,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=2500,step=5,interval=300"));
         sensor->setMinMax(0, 9000);
         functions = sensor;
         label = "Lux/10";
@@ -253,11 +261,12 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 AMBIENT_LIGHT_V2_FUNCTION_GET_DEBOUNCE_PERIOD,
                 AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE_REACHED);
         sensor->setValueSize(4);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3200000,step=800,interval=200")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=3200000,step=800,interval=200"));
         sensor->setMinMax(0, 6400000);
         sensor->setOther(functions);
         functions = sensor;
         label = "Lux/100";
+        isV2 = true;
         break;
 
     case ANALOG_IN_DEVICE_IDENTIFIER:
@@ -273,7 +282,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 ANALOG_IN_FUNCTION_SET_DEBOUNCE_PERIOD,
                 ANALOG_IN_FUNCTION_GET_DEBOUNCE_PERIOD,
                 ANALOG_IN_CALLBACK_VOLTAGE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3000,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=3000,step=5,interval=300"));
         functions = sensor;
         label = "mV";
         break;
@@ -292,10 +301,11 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 ANALOG_IN_V2_FUNCTION_SET_DEBOUNCE_PERIOD,
                 ANALOG_IN_V2_FUNCTION_GET_DEBOUNCE_PERIOD,
                 ANALOG_IN_V2_CALLBACK_VOLTAGE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3000,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=3000,step=5,interval=300"));
         sensor->setOther(functions);
         functions = sensor;
         label = "mV";
+        isV2 = true;
         break;
 
     case ANALOG_OUT_DEVICE_IDENTIFIER:
@@ -305,22 +315,26 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case BAROMETER_DEVICE_IDENTIFIER:
-        functions = new DeviceBarometer(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceBarometer(createValueProvider("valueProvider"));
         label = "mbar * 1000";
         break;
 
-    case CO2_DEVICE_IDENTIFIER:
-        sensor = new DeviceSensor(CO2_FUNCTION_GET_CO2_CONCENTRATION,
-                                  CO2_FUNCTION_SET_CO2_CONCENTRATION_CALLBACK_PERIOD,
-                                  CO2_CALLBACK_CO2_CONCENTRATION);
-        sensor->setRangeCallback(CO2_FUNCTION_SET_CO2_CONCENTRATION_CALLBACK_THRESHOLD,
-                                 CO2_FUNCTION_GET_CO2_CONCENTRATION_CALLBACK_THRESHOLD,
-                                 CO2_FUNCTION_SET_DEBOUNCE_PERIOD,
-                                 CO2_FUNCTION_GET_DEBOUNCE_PERIOD,
-                                 CO2_CALLBACK_CO2_CONCENTRATION_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=1200,max=2500,step=5,interval=300")));
-        sensor->setMinMax(0, 10000);
-        functions = sensor;
+    case CO2_V2_DEVICE_IDENTIFIER:
+        if (getProperty("allValueProvider")[0] != 0)
+            vp = createValueProvider("allValueProvider");
+        else
+            vp = nullptr;
+        if (!dynamic_cast<utils::CSVValueProvider*>(vp))
+        {
+            ValueProvider *vpTemp, *vpHum;
+
+            vp     = createValueProvider("co2ValueProvider",  "linear min=400,max=1000,step=2,interval=1250");
+            vpTemp = createValueProvider("TempValueProvider", "linear min=500,max=2500,step=10,interval=2000");
+            vpHum  = createValueProvider("humValueProvider",  "linear min=2500,max=8000,step=12,interval=3000");
+            functions = new DeviceCo2(vp, vpTemp, vpHum);
+        }
+        else
+            functions = new DeviceCo2(vp, nullptr, nullptr);
         label = "ppm";
         break;
 
@@ -328,7 +342,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new GetSet<uint16_t>(COLOR_FUNCTION_GET_CONFIG, COLOR_FUNCTION_SET_CONFIG, 0x0303);
         sensor = new DeviceSensor(COLOR_FUNCTION_GET_ILLUMINANCE, COLOR_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, COLOR_CALLBACK_ILLUMINANCE);
         sensor->setValueSize(4);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=100000,step=500,interval=250")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=100000,step=500,interval=250"));
         sensor->setMinMax(0, 100000);
         sensor->setOther(functions);
         functions = sensor;
@@ -344,7 +358,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
         sensor->enableStatusLed(COLOR_FUNCTION_IS_LIGHT_ON, COLOR_FUNCTION_LIGHT_ON, COLOR_FUNCTION_LIGHT_OFF);
         sensor->setValueSize(8);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3200000,step=800,interval=200")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=3200000,step=800,interval=200"));
         sensor->setMinMax(0, 6400000);
         sensor->setOther(functions);
         functions = sensor;
@@ -364,7 +378,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 DISTANCE_IR_FUNCTION_SET_DEBOUNCE_PERIOD,
                 DISTANCE_IR_FUNCTION_GET_DEBOUNCE_PERIOD,
                 DISTANCE_IR_CALLBACK_DISTANCE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=800,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=100,max=800,step=5,interval=300"));
         sensor->setMinMax(100, 800);
         functions = sensor;
         label = "Distance mm";  // default
@@ -380,17 +394,17 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 DISTANCE_US_FUNCTION_SET_DEBOUNCE_PERIOD,
                 DISTANCE_US_FUNCTION_GET_DEBOUNCE_PERIOD,
                 DISTANCE_US_CALLBACK_DISTANCE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=4095,step=20,interval=100")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=4095,step=20,interval=100"));
         sensor->setMinMax(0, 4095);
         functions = sensor;
         break;
 
     case DUAL_BUTTON_DEVICE_IDENTIFIER:
-        functions = new DeviceDualButton(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceDualButton(createValueProvider("valueProvider"));
         break;
 
     case RGB_LED_BUTTON_DEVICE_IDENTIFIER:
-        functions = new DeviceLedButton(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceLedButton(createValueProvider("valueProvider"));
         break;
 
     case DUAL_RELAY_DEVICE_IDENTIFIER:
@@ -408,7 +422,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 DUST_DETECTOR_FUNCTION_SET_DEBOUNCE_PERIOD,
                 DUST_DETECTOR_FUNCTION_GET_DEBOUNCE_PERIOD,
                 DUST_DETECTOR_CALLBACK_DUST_DENSITY_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=500,step=1,interval=100")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=500,step=1,interval=100"));
         sensor->setMinMax(0, 500);
         sensor->setOther(functions);
         functions = sensor;
@@ -416,7 +430,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case HALL_EFFECT_DEVICE_IDENTIFIER:
-        functions = new DeviceHallEffect(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceHallEffect(createValueProvider("valueProvider"));
         break;
 
     case HUMIDITY_DEVICE_IDENTIFIER:
@@ -432,14 +446,30 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 HUMIDITY_FUNCTION_SET_DEBOUNCE_PERIOD,
                 HUMIDITY_FUNCTION_GET_DEBOUNCE_PERIOD,
                 HUMIDITY_CALLBACK_HUMIDITY_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=100,max=650,step=5,interval=500")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=100,max=650,step=5,interval=500"));
         sensor->setMinMax(0, 1000);
         functions = sensor;
         label = "% rHum * 10";
         break;
 
+    case HUMIDITY_V2_DEVICE_IDENTIFIER:
+        // Typ: int16_t, Einheit: 1/100 °C, Wertebereich: [-4500 bis 13000]
+        functions = new GetSet<uint8_t>(HUMIDITY_V2_FUNCTION_GET_HEATER_CONFIGURATION, HUMIDITY_V2_FUNCTION_SET_HEATER_CONFIGURATION);
+        sensor = new DeviceSensor(HUMIDITY_V2_FUNCTION_GET_HUMIDITY,
+                                  HUMIDITY_V2_FUNCTION_GET_HUMIDITY_CALLBACK_CONFIGURATION,
+                                  HUMIDITY_V2_FUNCTION_SET_HUMIDITY_CALLBACK_CONFIGURATION,
+                                  HUMIDITY_V2_CALLBACK_HUMIDITY);
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=2000,max=6500,step=50,interval=500"));
+        sensor->setMinMax(0, 10000);
+        sensor->enableStatusLed(HUMIDITY_V2_FUNCTION_GET_STATUS_LED_CONFIG, HUMIDITY_V2_FUNCTION_SET_STATUS_LED_CONFIG, 0);
+        sensor->setOther(functions);
+        functions = sensor;
+        label = "% rHum * 100";
+        isV2 = true;
+        break;
+
     case INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER:
-        functions = new DeviceDigitalIn(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceDigitalIn(createValueProvider("valueProvider"));
         functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
         functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
         break;
@@ -449,7 +479,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
-        functions = new DeviceDualAnalogIn(createValueProvider(getProperty("valueProvider1")), createValueProvider(getProperty("valueProvider2")));
+        functions = new DeviceDualAnalogIn(createValueProvider("valueProvider1"), createValueProvider("valueProvider2"));
         break;
 
     case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
@@ -457,18 +487,18 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case IO16_DEVICE_IDENTIFIER:
-        functions = new DeviceInOut16(createValueProvider(getProperty("valueProviderA")), createValueProvider(getProperty("valueProviderB")));
+        functions = new DeviceInOut16(createValueProvider("valueProviderA"), createValueProvider("valueProviderB"));
         break;
 
     case IO4_DEVICE_IDENTIFIER:
-        functions = new DeviceInOut(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceInOut(createValueProvider("valueProvider"));
         break;
 /*
     case JOYSTICK_DEVICE_IDENTIFIER:
         functions = new GetSet<uint16_t>(COLOR_FUNCTION_GET_CONFIG, COLOR_FUNCTION_SET_CONFIG, 0x0303);
         sensor = new DeviceSensor(JOYSTICK_FUNCTION_GET_POSITION, COLOR_FUNCTION_SET_ILLUMINANCE_CALLBACK_PERIOD, COLOR_CALLBACK_ILLUMINANCE);
         sensor->setValueSize(4);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=100000,step=500,interval=250")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=100000,step=500,interval=250"));
         sensor->setMinMax(0, 100000);
         sensor->setOther(functions);
         functions = sensor;
@@ -484,7 +514,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
         sensor->enableStatusLed(COLOR_FUNCTION_IS_LIGHT_ON, COLOR_FUNCTION_LIGHT_ON, COLOR_FUNCTION_LIGHT_OFF);
         sensor->setValueSize(8);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=3200000,step=800,interval=200")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=3200000,step=800,interval=200"));
         sensor->setMinMax(0, 6400000);
         sensor->setOther(functions);
         functions = sensor;
@@ -505,13 +535,17 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 LINE_FUNCTION_SET_DEBOUNCE_PERIOD,
                 LINE_FUNCTION_GET_DEBOUNCE_PERIOD,
                 LINE_CALLBACK_REFLECTIVITY_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=4000,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=4000,step=5,interval=300"));
         functions = sensor;
         label = "Reflectivity";  // default
         break;
 
     case LCD_20X4_DEVICE_IDENTIFIER:
         functions = new DeviceLCD(20, 4);
+        break;
+
+    case LCD_128X64_DEVICE_IDENTIFIER:
+        functions = new DeviceLcdWithTouch(128, 64);
         break;
 
     case LED_STRIP_DEVICE_IDENTIFIER:
@@ -534,11 +568,31 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->enableStatusLed(LOAD_CELL_FUNCTION_IS_LED_ON, LOAD_CELL_FUNCTION_LED_ON, LOAD_CELL_FUNCTION_LED_OFF);
         sensor->setCalibrateZeroFunc(LOAD_CELL_FUNCTION_TARE);
         sensor->setValueSize(4);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2000,step=500,interval=5000")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=2000,step=500,interval=5000"));
         sensor->setMinMax(0, 5000);
         sensor->setOther(functions);
         functions = sensor;
         label = "Gramm";
+        break;
+
+    case LOAD_CELL_V2_DEVICE_IDENTIFIER:
+        functions = new DoNothing(LOAD_CELL_V2_FUNCTION_CALIBRATE);
+        functions = new GetSet<uint8_t>(functions, LOAD_CELL_V2_FUNCTION_GET_INFO_LED_CONFIG, LOAD_CELL_V2_FUNCTION_SET_INFO_LED_CONFIG);
+        functions = new GetSet<uint8_t>(functions, LOAD_CELL_V2_FUNCTION_GET_MOVING_AVERAGE, LOAD_CELL_V2_FUNCTION_SET_MOVING_AVERAGE, 4);
+        functions = new GetSet<uint16_t>(functions, LOAD_CELL_V2_FUNCTION_GET_CONFIGURATION, LOAD_CELL_V2_FUNCTION_SET_CONFIGURATION);
+        sensor = new DeviceSensor(
+                LOAD_CELL_V2_FUNCTION_GET_WEIGHT,
+                0,   // TODO - Sensor without callback or V2 style callbacks
+                LOAD_CELL_V2_CALLBACK_WEIGHT);
+
+        sensor->setCalibrateZeroFunc(LOAD_CELL_V2_FUNCTION_TARE);
+        sensor->setValueSize(4);
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=2000,step=500,interval=5000"));
+        sensor->setMinMax(0, 5000);
+        sensor->setOther(new V2Device(functions, sensor, true));
+        functions = sensor;
+        label = "Gramm";
+        isV2 = true;
         break;
 
     case MOISTURE_DEVICE_IDENTIFIER:
@@ -551,25 +605,31 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  MOISTURE_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  MOISTURE_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  MOISTURE_CALLBACK_MOISTURE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2800,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=2800,step=5,interval=300"));
         sensor->setOther(functions);
         functions = sensor;
         break;
 
     case MOTION_DETECTOR_DEVICE_IDENTIFIER:
-        functions = new DeviceMotionDetector(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceMotionDetector(createValueProvider("valueProvider"), false);
+        break;
+    case MOTION_DETECTOR_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceMotionDetector(createValueProvider("valueProvider"), true);
         break;
 
     case MULTI_TOUCH_DEVICE_IDENTIFIER:
-        functions = new DeviceTouchPad(12, createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceTouchPad(12, createValueProvider("valueProvider"), false);
+        break;
+    case MULTI_TOUCH_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceTouchPad(12, createValueProvider("valueProvider"), true);
         break;
 
     case PIEZO_SPEAKER_DEVICE_IDENTIFIER:
-        functions = new DevicePiezoSpeaker();
+        functions = new DevicePiezoSpeaker(false);
         break;
 
-    case LCD_128X64_DEVICE_IDENTIFIER:
-        functions = new DeviceOled(true, 128, 64);
+    case PIEZO_SPEAKER_V2_DEVICE_IDENTIFIER:
+        functions = new DevicePiezoSpeaker(true);
         break;
 
     case OLED_128X64_DEVICE_IDENTIFIER:
@@ -581,19 +641,20 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case OUTDOOR_WEATHER_DEVICE_IDENTIFIER: {
-        DeviceOutdoorWeather *w = new DeviceOutdoorWeather(createValueProvider(getProperty("valueProvider1")), getIntProperty("sensorId1"));
+        DeviceOutdoorWeather *w = new DeviceOutdoorWeather(createValueProvider("valueProvider1"), getIntProperty("sensorId1"));
         for (int i = 2; i < DeviceOutdoorWeather::MAX_SENSORS; ++i) {
-            char name[32];
-            sprintf(name, "valueProvider%d", i);
-            const char *vp = getProperty(name, "");
+            char nameProp[32];
+            char idProp[32];
+            sprintf(nameProp, "valueProvider%d", i);
+            const char *vp = getProperty(nameProp, "");
 
             if (vp[0] == 0)  // not set
                 break;
 
-            sprintf(name, "sensorId%d", i);
-            int id = getIntProperty(name);
+            sprintf(idProp, "sensorId%d", i);
+            int id = getIntProperty(idProp);
 
-            w->addSensor(createValueProvider(vp), id);
+            w->addSensor(createValueProvider(nameProp), id);
         }
         functions = w;
     }
@@ -606,7 +667,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  PTC_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  PTC_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  PTC_CALLBACK_TEMPERATURE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=-500,max=2800,step=5,interval=300"));
         sensor->setMinMax(-4000, 12500);
         functions = sensor;
         break;
@@ -636,8 +697,12 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  SOUND_INTENSITY_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  SOUND_INTENSITY_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  SOUND_INTENSITY_CALLBACK_INTENSITY_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=2800,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=2800,step=5,interval=300"));
         functions = sensor;
+        break;
+
+    case SOUND_PRESSURE_LEVEL_DEVICE_IDENTIFIER:
+        functions = new DeviceSoundPressure(dynamic_cast<utils::CSVValueProvider*>(createValueProvider(getProperty("valueProvider"))));
         break;
 
     case TEMPERATURE_DEVICE_IDENTIFIER:
@@ -649,10 +714,25 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  TEMPERATURE_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_CALLBACK_TEMPERATURE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=-500,max=2800,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=-500,max=2800,step=5,interval=300"));
         sensor->setMinMax(-4000, 12500);
         functions = sensor;
         label = "°C * 100";
+        break;
+
+    case TEMPERATURE_V2_DEVICE_IDENTIFIER:
+        // Typ: int16_t, Einheit: 1/100 °C, Wertebereich: [-4500 bis 13000]
+        sensor = new DeviceSensor(TEMPERATURE_V2_FUNCTION_GET_TEMPERATURE,
+                                  TEMPERATURE_V2_FUNCTION_GET_TEMPERATURE_CALLBACK_CONFIGURATION,
+                                  TEMPERATURE_V2_FUNCTION_SET_TEMPERATURE_CALLBACK_CONFIGURATION,
+                                  TEMPERATURE_V2_CALLBACK_TEMPERATURE);
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=-500,max=2800,step=5,interval=300"));
+        sensor->setMinMax(-4500, 13000);
+        sensor->enableStatusLed(TEMPERATURE_V2_FUNCTION_GET_STATUS_LED_CONFIG, TEMPERATURE_V2_FUNCTION_SET_STATUS_LED_CONFIG, 0);
+        sensor->setOther(new GetSet<uint8_t>(TEMPERATURE_V2_FUNCTION_GET_HEATER_CONFIGURATION, TEMPERATURE_V2_FUNCTION_SET_HEATER_CONFIGURATION, 0));
+        functions = sensor;
+        label = "°C * 100";
+        isV2 = true;
         break;
 
     case TEMPERATURE_IR_DEVICE_IDENTIFIER:
@@ -665,7 +745,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  TEMPERATURE_IR_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_IR_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_IR_CALLBACK_AMBIENT_TEMPERATURE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProviderA", "linear min=-500,max=2800,step=5,interval=300")));
+        sensor->setValueProvider(createValueProvider("valueProviderA", "linear min=-500,max=2800,step=5,interval=300"));
         sensor->setMinMax(-4000, 12500);
         sensor->setOther(functions);
         sensor->setInternalSensorNo(1);
@@ -678,7 +758,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  TEMPERATURE_IR_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_IR_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  TEMPERATURE_IR_CALLBACK_OBJECT_TEMPERATURE_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProviderO", "linear min=-500,max=4500,step=1,interval=5")));
+        sensor->setValueProvider(createValueProvider("valueProviderO", "linear min=-500,max=4500,step=1,interval=5"));
         sensor->setMinMax(-4000, 12500);
         sensor->setOther(functions);
         functions = sensor;
@@ -686,7 +766,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case TILT_DEVICE_IDENTIFIER:
-        functions = new DeviceTilt(createValueProvider(getProperty("valueProvider")));
+        functions = new DeviceTilt(createValueProvider("valueProvider"));
         break;
 
     case UV_LIGHT_DEVICE_IDENTIFIER:
@@ -698,7 +778,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                                  UV_LIGHT_FUNCTION_SET_DEBOUNCE_PERIOD,
                                  UV_LIGHT_FUNCTION_GET_DEBOUNCE_PERIOD,
                                  UV_LIGHT_CALLBACK_UV_LIGHT_REACHED);
-        sensor->setValueProvider(createValueProvider(getProperty("valueProvider", "linear min=0,max=300,step=2,interval=100")));
+        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=0,max=300,step=2,interval=100"));
         sensor->setMinMax(0, 328);
         sensor->setValueSize(4);
         functions = sensor;
@@ -708,12 +788,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     case VOLTAGE_CURRENT_DEVICE_IDENTIFIER:
         {
             DeviceVoltageCurrent *vc = new DeviceVoltageCurrent();
-            const char *vp = getProperty("valueProviderV");
-            if (*vp)
-                vc->setVoltageValueProvider(createValueProvider(vp));
-            vp = getProperty("valueProviderC");
-            if (*vp)
-                vc->setCurrentValueProvider(createValueProvider(vp));
+            if (getProperty("valueProviderV"))
+                vc->setVoltageValueProvider(createValueProvider("valueProviderV"));
+            if (getProperty("valueProviderC"))
+                vc->setCurrentValueProvider(createValueProvider("valueProviderC"));
             functions  = vc;
             label = "Voltage mV";
         }
@@ -735,9 +813,11 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, u
     , deviceTypeId(_typeId)
     , position(0)
     , isBrick(false)
+    , isV2(false)
 {
     setupFunctions();
 }
+
 
 /**
  * Release resources: used in case of exception in constructor.
@@ -766,6 +846,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     , deviceTypeId(0)
     , position(0)
     , isBrick(false)
+    , isV2(false)
 {
     char msg[200];
 
@@ -799,13 +880,18 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     deviceTypeName = str;
 
     str = getProperty("firmwareVersion", 3);
-    firmwareVersion[0] = str[0];
-    firmwareVersion[1] = str[1];
-    firmwareVersion[2] = str[2];
+    firmwareVersion[0] = str[0] - '0';
+    firmwareVersion[1] = str[1] - '0';
+    firmwareVersion[2] = str[2] - '0';
+    if (strlen(str) == 4) {
+        firmwareVersion[2] *= 10;
+        firmwareVersion[2] += (str[3] - '0');
+    }
+
     str = getProperty("hardwareVersion", 3);
-    hardwareVersion[0] = str[0];
-    hardwareVersion[1] = str[1];
-    hardwareVersion[2] = str[2];
+    hardwareVersion[0] = str[0] - '0';
+    hardwareVersion[1] = str[1] - '0';
+    hardwareVersion[2] = str[2] - '0';
     str = getProperty("position", 1);
 
     char p = str[0];
@@ -1059,9 +1145,16 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         return true;
     }
 
+    if (isV2 && TEMPERATURE_V2_FUNCTION_GET_BOOTLOADER_MODE == func) {
+        p.header.length = sizeof(p.header) + 1;
+        p.uint8Value = TEMPERATURE_V2_BOOTLOADER_MODE_FIRMWARE;
+        return true;
+    }
+
     if (!responseExpected) {
         Log() << "Consume not implemented function " << (int) p.header.function_id
-              << " for device " << getUidStr() << " due to responseExpected=false";
+              << " for device " << getUidStr() << " (" << getDeviceTypeName()
+              << ") due to responseExpected=false";
         return true;
     }
 
@@ -1075,12 +1168,12 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         strcpy(p.identity.uid, uidStr.c_str());
         strcpy(p.identity.connected_uid, connectedUidStr.c_str());
         p.identity.position            = position;
-        p.identity.hardware_version[0] = hardwareVersion[0] - '0';
-        p.identity.hardware_version[1] = hardwareVersion[1] - '0';
-        p.identity.hardware_version[2] = hardwareVersion[2] - '0';
-        p.identity.firmware_version[0] = firmwareVersion[0] - '0';
-        p.identity.firmware_version[1] = firmwareVersion[1] - '0';
-        p.identity.firmware_version[2] = firmwareVersion[2] - '0';
+        p.identity.hardware_version[0] = hardwareVersion[0];
+        p.identity.hardware_version[1] = hardwareVersion[1];
+        p.identity.hardware_version[2] = hardwareVersion[2];
+        p.identity.firmware_version[0] = firmwareVersion[0];
+        p.identity.firmware_version[1] = firmwareVersion[1];
+        p.identity.firmware_version[2] = firmwareVersion[2];
         p.identity.device_identifier   = deviceTypeId;
         return true;
     }

@@ -21,6 +21,7 @@
 #include <ctime>
 
 #include <bricklet_real_time_clock.h>
+#include <utils/Log.h>
 
 #include "BrickStack.h"
 #include "DeviceRTC.h"
@@ -164,7 +165,8 @@ bool DeviceRTC::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizati
             // no date/time is set: brickletTime will reach nextAlarm if alarmInterval > 0
             nextAlarm = brickletTime + alarmInterval;
 
-        printf("Alarm hour: %d, interval: %d, active: %d, next: %lX\n", alarmHour, alarmInterval, alarmActive, nextAlarm);
+        utils::Log() << "Set RTC alarm: " << static_cast<int>(alarmHour) << ':' << static_cast<int>(alarmMinute) << ':' << static_cast<int>(alarmSecond)
+                     << ", interval: " << alarmInterval << ", active: " << alarmActive;
         return true;
 
     case REAL_TIME_CLOCK_FUNCTION_GET_ALARM:
@@ -229,6 +231,7 @@ void DeviceRTC::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
                 if (match || (alarmInterval > 0 && nextAlarm == newTime)) {
                     brickStack->dispatchCallback(packet);
                     nextAlarm = newTime + alarmInterval;
+                    utils::Log::log("RTC alarm triggered !");
                 }
             }
         }

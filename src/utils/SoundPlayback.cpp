@@ -57,7 +57,7 @@ struct WavHeader {
     int   byteRate;       // SampleRate * NumChannels * BitsPerSample/8
     short blockAlign;     // NumChannels * BitsPerSample/8
     short bitsPerSample;  // 8 bits = 8, 16 bits = 16, etc.
-    short extraParamSize;
+ // short extraParamSize;
 };
 
 /**
@@ -208,8 +208,10 @@ bool SoundPlayback::loadSound(const char *name)
  * Create a wav file with a constant frequency.
  * See also
  * http://gasstationwithoutpumps.wordpress.com/2011/10/08/making-wav-files-from-c-programs/
+ *
+ * See also sample WAV with 1 KHz in local test folder.
  */
-SoundPlayback::WavBuffer SoundPlayback::makeWav(SoundList &sounds)
+SoundPlayback::WavBuffer SoundPlayback::makeWav(SoundList &sounds, unsigned volume)
 {
     // first sum up all the durations
     unsigned durationSum = 0;
@@ -218,25 +220,29 @@ SoundPlayback::WavBuffer SoundPlayback::makeWav(SoundList &sounds)
         durationSum += it.first;
     }
 
+    if (volume > 10)
+        volume = 10;
+
     const unsigned num_channels     = 1;
-    const unsigned sample_rate      = 22000;
+    const unsigned sample_rate      = 44000;
+    const unsigned khz              = sample_rate / 1000;
     const unsigned bytes_per_sample = 2;
     const unsigned byte_rate        = sample_rate*num_channels*bytes_per_sample;
-    unsigned num_samples            = 22 * durationSum;
+    const float    amplitude        = 1600 * volume;  // can be up to ++-16000 for shorts, but piezo speaker isn't that loud
+    unsigned num_samples            = khz * durationSum;
 
     WavHeader header = {
             {'R', 'I', 'F', 'F'}, // chunkID[4]
             (int) (38 + bytes_per_sample * num_samples * num_channels), // chunkSize
             {'W', 'A', 'V', 'E'}, // format[4]
-            "fmt",  // subchunk1ID[4]
-            16,     // subchunk1Size
-            1,      // audioFormat, PCM = 1
+            {'f', 'm', 't', ' '}, // subchunk1ID[4]
+            16,      // subchunk1Size
+            1,       // audioFormat, PCM = 1
             num_channels,
             sample_rate,
-            byte_rate,       // SampleRate * NumChannels * BitsPerSample/8
+            byte_rate,                     // SampleRate * NumChannels * BitsPerSample/8
             num_channels*bytes_per_sample, // blockAlign
-            8*bytes_per_sample, //bitsPerSample
-            0
+            8*bytes_per_sample             // bitsPerSample
     };
 
     int size = sizeof(WavHeader) + 8 + bytes_per_sample * num_samples * num_channels;
@@ -256,16 +262,21 @@ SoundPlayback::WavBuffer SoundPlayback::makeWav(SoundList &sounds)
 
     for (auto it : sounds)
     {
-        float amplitude = 16000;  // can be up to 32000, but piezo speaker isn't that loud
-        float phase = 0;
-        float freq_radians_per_sample = it.second * 2 * M_PI/sample_rate;
+        // Sinus eines Winkels W ist
+        // double d = sin(winkel * PI / 180);
 
-        /* fill buffer with a sine wave */
-        unsigned soundSamples = 22 * it.first;
+        // bei 1KHz Ton und 44Khz Abtastrate kommen 44 Wellen also 360 / 44 pro Schritt
+        float angel_fraction = 360.0 / ((float)sample_rate / (float) it.second);
+        float phase = 0;
+
+        // printf("Amplitude = %f, angel = %f\n", amplitude, angel_fraction);
+
+        /* fill buffer with a sine wave, 22 per millisecond -> 22Khz */
+        unsigned soundSamples = khz * it.first;
         for (unsigned i=0; i < soundSamples; ++i)
         {
-            phase += freq_radians_per_sample;
-            short value = (short)(amplitude * sin(phase));
+            phase += angel_fraction;
+            short value = (short)(amplitude * sin(phase * M_PI / 180.0));
             memcpy(cur, &value, bytes_per_sample);
             cur += bytes_per_sample;
         }
@@ -273,18 +284,18 @@ SoundPlayback::WavBuffer SoundPlayback::makeWav(SoundList &sounds)
     }
 
     if (num_samples != 0)
-        throw std::logic_error("num_sample is not 0!");
+        throw std::logic_error("num_samples is not 0!");
     return result;
 }
 
 /**
  * Create a wav file with a given duration and a constant frequency.
  */
-SoundPlayback::WavBuffer SoundPlayback::makeWav(unsigned durationMs, unsigned frequencyHz)
+SoundPlayback::WavBuffer SoundPlayback::makeWav(unsigned durationMs, unsigned frequencyHz, unsigned volume)
 {
     SoundList sounds;
     sounds.push_back(std::make_pair(durationMs, frequencyHz));
-    return makeWav(sounds);
+    return makeWav(sounds, volume);
 }
 
 /**

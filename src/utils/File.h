@@ -28,7 +28,7 @@
 namespace utils {
 
 class FileFilter;
-
+class DateTime;
 
 /**
  * The File class provides access to the file system:
@@ -206,6 +206,26 @@ public:
     bool renameTo(const char *newNameAndPath, bool overwrite = false);
 
     /**
+     * If DateTime start a new month (hour + minute == 0 and day of month == 1), then
+     * rename the given file to a file with the suffix "YYYY-MM".
+     *
+     * If doLog is true, then write a log message if the file was renamed.
+     *
+     * Returns true if a file was renamed, false otherwise
+     */
+    static bool renameIfNewMonth(const std::string &filename, const DateTime &dt, bool doLog = false);
+
+    /**
+     * If DateTime start a new day (hour + minute == 0), then
+     * rename the given file to a file with the suffix "YYYY-MM-DD".
+     *
+     * If doLog is true, then write a log message if the file was renamed.
+     *
+     * Returns true if a file was renamed, false otherwise
+     */
+    static bool renameIfNewDay(const std::string &filename, const DateTime &dt, bool doLog = false);
+
+    /**
      * Returns true if this File denotes the same directory or path as the other File.
      */
     bool operator==(const File& other) const;
@@ -363,7 +383,7 @@ private:
  * This is a helper File type which writes the current process id into the filename
  * given in the constructor argument. If writing the file fails, an exception is thrown.
  * <P>
- * The file is deleted when this object gets destroyed, so this object should currently
+ * The file is deleted when this object gets destroyed, so this object should
  * be located in the main() method.
  * <P>
  * Other than the File constructor, this constructor allows NULL or an empty filename:
@@ -371,7 +391,17 @@ private:
  */
 class PidFile : public File
 {
+    // not allowed to copy in any form
+    PidFile(const File    &other) = delete;
+    PidFile(const PidFile &parentDir) = delete;
+
+    PidFile& operator=(File &&other) = delete;
+    PidFile& operator=(PidFile &&other) = delete;
+
 public:
+    /**
+     * If name is null or empty, no PID file will be written
+     */
     explicit PidFile(const char *name);
 };
 

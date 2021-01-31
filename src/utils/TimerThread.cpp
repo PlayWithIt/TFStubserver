@@ -18,8 +18,8 @@
  */
 
 #include <stdexcept>
-#include <utils/Log.h>
-#include <utils/utils.h>
+#include "Log.h"
+#include "utils.h"
 #include "TimerThread.h"
 
 using utils::Log;
@@ -53,7 +53,7 @@ TimerThread::TimerThread(unsigned delayMs)
 /**
  * Clean up timer.
  */
-TimerThread::~TimerThread() NOEXCEPT
+TimerThread::~TimerThread() noexcept
 {
     stop(2*delay+100);
 
@@ -90,7 +90,7 @@ void TimerThread::addCommand(TimerCommand *c)
 /**
  * Return the first command of the queue with the given name or NULL.
  */
-TimerCommand* TimerThread::getCommand(const char *name) const NOEXCEPT
+TimerCommand* TimerThread::getCommand(const char *name) const noexcept
 {
     MutexLock guard(taskMutex);
 

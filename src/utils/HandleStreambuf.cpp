@@ -156,9 +156,9 @@ std::streamsize HandleStreambuf::showmanyc()
  * This type of stream may not be seekable.
  */
 InputStream::InputStream(int handle)
-  : streambuf(new HandleStreambuf(handle, true))
+  : std::istream(streambuf = new HandleStreambuf(handle, true))
 {
-    std::istream::init(streambuf);
+    //std::istream::init(streambuf);
 }
 
 /**
@@ -166,9 +166,10 @@ InputStream::InputStream(int handle)
  * This type of stream is seekable.
  */
 InputStream::InputStream(const char *fileName)
-  : streambuf(new MappedFileStreambuf(fileName))
+  : std::istream(streambuf = new MappedFileStreambuf(fileName))
 {
-    std::istream::init(streambuf);
+    // works only with GCC's STL
+    // std::istream::init(streambuf);
 }
 
 /**
@@ -176,12 +177,21 @@ InputStream::InputStream(const char *fileName)
  * This type of stream is seekable.
  */
 InputStream::InputStream(const std::string &fileName)
-  : streambuf(new MappedFileStreambuf(fileName.c_str()))
+  : std::istream(streambuf = new MappedFileStreambuf(fileName.c_str()))
 {
-    std::istream::init(streambuf);
+    // std::istream::init(streambuf);
 }
 
 InputStream::~InputStream() {
+    delete streambuf;
+}
+
+OutputStream::OutputStream(int handle)
+  : std::ostream(streambuf = new HandleStreambuf(handle, false))
+{
+}
+
+OutputStream::~OutputStream() {
     delete streambuf;
 }
 
@@ -198,7 +208,7 @@ MappedFileStreambuf::MappedFileStreambuf(const char *fileName)
     }
 
     if (!fileIn.isRegularFile()) {
-        // TODO
+        // TODO: maybe other files like sockets can be supported too
         throw std::runtime_error("file is not a regular file!");
     }
 

@@ -67,6 +67,7 @@ typedef struct IOPacket
         uint8_t  uint8Value;
         int8_t   int8Value;
         bool     boolValue;
+        bool     touchBits[13];
         char     group[4];
 
         struct {
@@ -77,11 +78,13 @@ typedef struct IOPacket
         struct {
             int16_t value1;
             int16_t value2;
+            int16_t values[30];
         } ATTRIBUTE_PACKED shorts;
 
         struct {
             uint16_t value1;
             uint16_t value2;
+            uint16_t values[30];
         } ATTRIBUTE_PACKED ushorts;
 
         struct {
@@ -94,6 +97,12 @@ typedef struct IOPacket
             uint32_t duration;
             uint16_t frequency;
         } ATTRIBUTE_PACKED beepRequest;
+
+        struct {
+            uint16_t frequency;
+            uint8_t  volume;
+            uint32_t duration;
+        } ATTRIBUTE_PACKED beepV2Request;
 
         struct {
             uint8_t  channel;
@@ -132,6 +141,22 @@ typedef struct IOPacket
         } ATTRIBUTE_PACKED thresholdInt;
 
         struct {
+            uint32_t period;
+            bool value_has_to_change;
+            char option;
+            int  min;
+            int  max;
+        } ATTRIBUTE_PACKED callbackConfigInt;
+
+        struct {
+            uint32_t period;
+            bool value_has_to_change;
+            char option;
+            int16_t  min;
+            int16_t  max;
+        } ATTRIBUTE_PACKED callbackConfigShort;
+
+        struct {
             uint8_t channel;
             char option;
             int  min;
@@ -158,6 +183,25 @@ typedef struct IOPacket
         } ATTRIBUTE_PACKED outdoorData;
 
         struct {
+            int16_t  temperature;
+            uint8_t  humidity;
+            uint32_t wind_speed;
+            uint32_t gust_speed;
+            uint32_t rain;
+            uint8_t  wind_direction;
+            bool     battery_low;
+            uint16_t last_change;
+        } ATTRIBUTE_PACKED outdoorStationData;
+
+        struct {
+            int32_t iaq_index;
+            uint8_t iaq_index_accuracy;
+            int32_t temperature;
+            int32_t humidity;
+            int32_t air_pressure;
+        } ATTRIBUTE_PACKED airQualityData;
+
+        struct {
             uint8_t  x_start;
             uint8_t  y_start;
             uint8_t  x_end;
@@ -172,6 +216,25 @@ typedef struct IOPacket
             int16_t  temperature;
             uint8_t  humidity;
         } ATTRIBUTE_PACKED outdoorCallback;
+
+        struct {
+            uint8_t  id;
+            int16_t  temperature;
+            uint8_t  humidity;
+            uint32_t wind_speed;
+            uint32_t gust_speed;
+            uint32_t rain;
+            uint8_t  wind_direction;
+            bool     battery_low;
+        } ATTRIBUTE_PACKED outdoorStationCallback;
+
+        struct {
+            uint32_t powerOffDelay;
+            uint32_t powerOffDuration;
+            bool raspberryPiOff;
+            bool brickletsOff;
+            bool enableSleepIndicator;
+        } ATTRIBUTE_PACKED hatSleepMode;
 
         struct {
             char uid[8];

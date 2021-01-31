@@ -85,8 +85,11 @@ public:
     }
 
     // text and a number after the text
+    static void log(const char* msg, double v);
     static void log(const char* msg, int v);
+    static void log(const char* msg, unsigned v);
     static void log(const std::string& msg, int v);
+    static void log(const std::string& msg, unsigned v);
     static void log(const char* msg, uint64_t v);
     static void log(const char* msg, const char *arg);
     static void log(const std::string& msg, const char *arg);

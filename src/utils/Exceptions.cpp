@@ -46,9 +46,9 @@ Exception::Exception(const char *m, int arg)
     msg = buffer;
 }
 
-Exception::~Exception() NOEXCEPT { }
+Exception::~Exception() { }
 
-const char *Exception::what() const NOEXCEPT
+const char *Exception::what() const noexcept
 {
     return msg.c_str();
 }
@@ -61,8 +61,6 @@ ConnectionLostException::ConnectionLostException(const std::string &m)
 : Exception(m)
 { }
 
-ConnectionLostException::~ConnectionLostException() NOEXCEPT { }
-
 
 //--------------------------------------------------------------------------
 // utils::FileOpenError
@@ -74,8 +72,6 @@ FileOpenError::FileOpenError(bool read, const std::string &filename)
 FileOpenError::FileOpenError(bool read, const char *filename)
   : IOException(read ? "read" : "write", filename)
 { }
-
-FileOpenError::~FileOpenError() NOEXCEPT { }
 
 
 //--------------------------------------------------------------------------
@@ -90,8 +86,6 @@ KeyNotFound::KeyNotFound(const std::string &key)
 KeyNotFound::KeyNotFound(const std::string &messagePrefix, const std::string &key)
   : Exception(messagePrefix + std::string(" '") + key + not_found)
 { }
-
-KeyNotFound::~KeyNotFound() NOEXCEPT { }
 
 
 //--------------------------------------------------------------------------
@@ -115,7 +109,6 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min,
     setMessage(hint + buffer);
 }
 
-OutOfRange::~OutOfRange() NOEXCEPT { }
 
 //--------------------------------------------------------------------------
 // utils::RuntimeError
@@ -135,16 +128,12 @@ RuntimeError::RuntimeError(const char *msg, int _errno)
     setMessage(std::string(msg) + ": " + strings::strerror(_errno));
 }
 
-RuntimeError::~RuntimeError() NOEXCEPT { }
-
 //--------------------------------------------------------------------------
 // utils::ValueFormatError
 //--------------------------------------------------------------------------
 ValueFormatError::ValueFormatError(const std::string &m)
   : Exception(m)
 { }
-
-ValueFormatError::~ValueFormatError() NOEXCEPT { }
 
 
 //--------------------------------------------------------------------------
@@ -157,10 +146,6 @@ IOException::IOException(const std::string &func, const std::string &args)
 IOException::IOException(int _errno, const std::string &func, const std::string &args)
   : Exception(func + '(' + args + "): " + strings::strerror(_errno))
 { }
-
-
-IOException::~IOException() NOEXCEPT { }
-
 
 
 } /* namespace utils */

@@ -65,7 +65,8 @@ CharMask::CharMask(const unsigned char inputMask[])
 
 CharMask& CharMask::operator=(const CharMask &other)
 {
-    memcpy(bitMask, other.bitMask, sizeof(bitMask));
+    if (this != &other)
+        memcpy(bitMask, other.bitMask, sizeof(bitMask));
     return *this;
 }
 
@@ -874,7 +875,7 @@ ScreenFont::ScreenFont(bool forOled)
     //------------------------------------------------------------------------------
     if (forOled) {
         set(' ', new CharMask());   // blank chars
-        set(255, new CharMask());
+        set(-1, new CharMask());    // -1 == 255 in one byte
 
         set(':', new CharMask("     ",
                               "     ",

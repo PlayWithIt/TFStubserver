@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <Windows.h>
 #else
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -76,6 +77,36 @@ const std::string base58Encode(unsigned int value)
     return str;
 }
 
+
+/**
+ * Convert button states for 13 buttons into an unsigned with 3 bits set.
+ */
+unsigned bool2bits(bool states[], unsigned num)
+{
+    unsigned newStates = 0;
+
+    for (unsigned i = 0; i < num; ++i)
+    {
+        if (states[i]) {
+            unsigned mask = (1 << i);
+        	newStates |= mask;
+        }
+    }
+
+    return newStates;
+}
+
+/**
+ * Convert an unsigned with 13 bits set into button states for 13 buttons
+ */
+void bits2bool(unsigned statesIn, bool statesOut[], unsigned num)
+{
+    for (unsigned i = 0; i < num; ++i)
+    {
+        unsigned mask = (1 << i);
+        statesOut[i] = (statesIn & mask);
+    }
+}
 
 /**
  * Read an int out of as base58 encoded string.
@@ -147,6 +178,39 @@ void usleep(int us)
 }
 
 #ifndef _WIN32
+
+
+
+/**
+ * Open a log-file: redirect stdout + stderr into a file.
+ * Do nothing if the log-name is NULL.
+ *
+ * return true if OK, false in case of error
+ */
+bool redirectStdout(const char *logName)
+{
+    if (!logName)
+        return false;
+
+    int fd = open(logName, O_CREAT | O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP);
+    if (fd < 0) {
+        fprintf(stderr, "Error creating %s: %s\n", logName, strerror(errno));
+        return false;
+    }
+
+    bool result = true;
+    if (dup2(fd, STDOUT_FILENO) != STDOUT_FILENO) {
+        fprintf(stderr, "Could not redirect stdout: %s\n", strerror(errno));
+        result = false;
+    }
+    if (dup2(fd, STDERR_FILENO) != STDERR_FILENO) {
+        fprintf(stderr, "Could not redirect stderr: %s\n", strerror(errno));
+        result = false;
+    }
+    return result;
+}
+
+
 // signal handler to terminate the loop
 static void sigTermHandler(int sig, siginfo_t *, void *)
 {
@@ -161,27 +225,37 @@ static void sigTermHandler(int sig, siginfo_t *, void *)
     finish = true;
 }
 
+
+
+// convert the signal number into readable format ...
+const char *signal2char(int signum)
+{
+    if (signum == SIGBUS)
+        return "SIGBUS";
+    if (signum == SIGSEGV)
+        return "SIGSEGV";
+    if (signum == SIGPIPE)
+        return "SIGPIPE";
+    if (signum == SIGILL)
+        return "SIGILL";
+    if (signum == SIGFPE)
+        return "SIGFPE";
+    if (signum == SIGKILL)
+        return "SIGKILL";
+    if (signum == SIGUSR1)
+        return "SIGUSR1";
+    if (signum == SIGINT)
+        return "SIGINT";
+    if (signum == SIGPIPE)
+        return "SIGPIPE";
+    return "unknown SIG";
+}
+
+
 static void sigKillHandler(int sig, siginfo_t *, void *)
 {
-    char buffer[128];
-    const char *sigName;
-    switch(sig) {
-    case SIGSEGV:
-        sigName = "SIGSEGV";
-        break;
-    case SIGPIPE:
-        sigName = "SIGPIPE";
-        break;
-    case SIGILL:
-        sigName = "SIGILL";
-        break;
-    case SIGBUS:
-        sigName = "SIGBUS";
-        break;
-    default:
-        sigName = "???";
-    }
-    sprintf(buffer, "CAUGHT CRITICAL SIGNAL: signal=%d (%s) => abort!", sig, sigName);
+    char buffer[200];
+    sprintf(buffer, "CAUGHT CRITICAL SIGNAL: signal=%d (%s) => abort!", sig, signal2char(sig));
     Log::error(buffer);
     exit(4);
 }

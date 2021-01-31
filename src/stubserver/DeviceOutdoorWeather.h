@@ -37,13 +37,13 @@ public:
     /**
      * The ValueProvider needs to provide temperature data.
      */
-    DeviceOutdoorWeather(ValueProvider *vp, uint8_t uid);
+    DeviceOutdoorWeather(ValueProvider *vp, unsigned id);
     virtual ~DeviceOutdoorWeather();
 
     /**
      * Add another sensor during construction phase.
      */
-    void addSensor(ValueProvider *vp, uint8_t id);
+    void addSensor(ValueProvider *vp, unsigned id);
 
     DECLARE_OWN_DEVICE_CALLBACKS
 
@@ -53,7 +53,7 @@ private:
         uint64_t              lastChange;
         int                   temperature;
         unsigned              humidity;
-        uint8_t               id;
+        unsigned              id;             // ID >= 1000 is for station objects
 
         SensorData();
     };
@@ -61,7 +61,7 @@ private:
     /**
      * Find Sensor with given ID in array or return NULL.
      */
-    SensorData* getSensor(uint8_t id);
+    SensorData* getSensor(uint8_t id, bool isStation);
 
     SensorData sensors[MAX_SENSORS];
     unsigned   numSensors;

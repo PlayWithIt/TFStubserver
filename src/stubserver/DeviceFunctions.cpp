@@ -92,23 +92,25 @@ DeviceFunctions::~DeviceFunctions()
 /**
  * Trigger a callback where the init16 value is set.
  */
-void DeviceFunctions::triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int16_t value)
+int16_t DeviceFunctions::triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int16_t value)
 {
     IOPacket packet(uid, cb.callbackCode, 2);
     packet.int16Value = value;
     cb.relativeStartTime = relativeTimeMs;
     brickStack->dispatchCallback(packet);
+    return value;
 }
 
 /**
  * Trigger a callback where the init32 value is set.
  */
-void DeviceFunctions::triggerCallbackInt(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int32_t value)
+int32_t DeviceFunctions::triggerCallbackInt(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int32_t value)
 {
     IOPacket packet(uid, cb.callbackCode, 4);
     packet.int32Value = value;
     cb.relativeStartTime = relativeTimeMs;
     brickStack->dispatchCallback(packet);
+    return value;
 }
 
 //-----------------------------------------------------------------------------
@@ -475,9 +477,10 @@ void EnableDisableBool::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
 /**
  * Base init, nothing special
  */
-V2Device::V2Device(DeviceFunctions *_other, VisibleDeviceState *state)
+V2Device::V2Device(DeviceFunctions *_other, VisibleDeviceState *state, bool v2Enabled)
   : DeviceFunctions(_other)
   , visibleDeviceState(state)
+  , isV2(v2Enabled)
 {
 }
 
@@ -498,6 +501,7 @@ bool V2Device::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizatio
     case FUNCTION_SET_STATUS_LED_CONFIG:
         if (visibleDeviceState) {
             visibleDeviceState->setStatusLedConfig(p.fullData.payload[0]);
+            visibleDeviceState->setInternalSensorNo(0);
             visibleDeviceState->notify(visualizationClient, SensorState::LED_CHANGE);
         }
         return true;
@@ -519,8 +523,9 @@ bool V2Device::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizatio
         // ignore
         return true;
 
-    case FUNCTION_BRICKLET_RESET:
-        return true;
+    // Reset is handled directly in SimulatedDevice !
+    // case FUNCTION_BRICKLET_RESET:
+    //    return true;
     }
 
     if (other && other->consumeCommand(relativeTimeMs, p, visualizationClient))

@@ -1,7 +1,7 @@
 /*
  * VisualizationClient.cpp
  *
- * Copyright (C) 2015 Holger Grosenick
+ * Copyright (C) 2015-2019 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,16 @@ SensorState::SensorState()
   , min(0)
   , max(4095)
   , sensorValue(0)
+  , sensorValue1(0)
+  , sensorValue2(0)
+  , sensorValue3(0)
+  , sensorValue4(0)
   , counter(0)
+  , isV2Device(false)
+  , led1(0)
+  , led2(0)
+  , led3(0)
+  , led4(0)
 {
 }
 
@@ -69,7 +78,16 @@ SensorState::SensorState(int _min, int _max)
   , min(_min)
   , max(_max)
   , sensorValue(0)
+  , sensorValue1(0)
+  , sensorValue2(0)
+  , sensorValue3(0)
+  , sensorValue4(0)
   , counter(0)
+  , isV2Device(false)
+  , led1(0)
+  , led2(0)
+  , led3(0)
+  , led4(0)
 {
 }
 
@@ -158,7 +176,7 @@ DisplayState::DisplayState(unsigned _cols, unsigned _lines)
     , lines(_lines)
     , contrast(143)
     , inverted(false)
-    , newEvent(false)
+    , pressedState(false)
     , gesture(NOTHING)
     , duration(0)
     , x_start(0)
@@ -217,7 +235,7 @@ void DisplayState::startTouch(uint16_t x, uint16_t y) const
     x_start  = x;
     y_start  = y;
     gesture  = PRESS;
-    newEvent = true;
+    pressedState = true;
 }
 
 /**
@@ -228,14 +246,16 @@ void DisplayState::endTouch(uint16_t x, uint16_t y) const
     x_end = x;
     y_end = y;
 
-    if (static_cast<int>(x_end - x_start) < -1)
+    // use 9 so that very small changes are not relevant
+    if (static_cast<int>(x_end - x_start) < -9)
         gesture = SWIPE_LEFT;
-    else if (static_cast<int>(x_end - x_start) > 1)
+    else if (static_cast<int>(x_end - x_start) > 9)
         gesture = SWIPE_RIGHT;
-    else if (static_cast<int>(y_end - y_start) < -1)
+    else if (static_cast<int>(y_end - y_start) < -9)
         gesture = SWIPE_UP;
-    else if (static_cast<int>(y_end - y_start) > 1)
+    else if (static_cast<int>(y_end - y_start) > 9)
         gesture = SWIPE_DOWN;
+    pressedState = false;
 }
 
 }

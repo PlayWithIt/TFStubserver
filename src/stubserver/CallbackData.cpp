@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <cstring>
 
+#include <utils/Exceptions.h>
 #include <utils/Log.h>
 #include <utils/utils.h>
 
@@ -137,6 +138,98 @@ bool RangeCallback::consumeGetSetThreshold(IOPacket &p)
 }
 
 /**
+ * Check if the function in the packet is get/set callback config,
+ * this is similar to callback threshold, but structure is a little different.
+ * Used in newer V2 devices.
+ *
+ * @return true if the function was get/set callback config, false otherwise
+ */
+bool RangeCallback::consumeGetSetConfig(IOPacket &p)
+{
+    uint8_t func = p.header.function_id;
+    if (func == getThresholdFunctionCode)
+    {
+        if (paramSize == 4) {
+            p.header.length = sizeof(p.header) + sizeof(p.callbackConfigInt);
+            p.callbackConfigInt.option = getOption();
+            p.callbackConfigInt.period = period;
+            p.callbackConfigInt.min    = param1;
+            p.callbackConfigInt.max    = param2;
+            return true;
+        }
+        if (paramSize == 2) {
+            p.header.length = sizeof(p.header) + sizeof(p.callbackConfigShort);
+            p.callbackConfigShort.option = getOption();
+            p.callbackConfigShort.period = period;
+            p.callbackConfigShort.min    = param1;
+            p.callbackConfigShort.max    = param2;
+
+            return true;
+        }
+
+        throw utils::Exception("RangeCallback::getThreshold config with size != 2 or 4 not supported, size is %d", paramSize);
+    }
+
+    if (func == setThresholdFunctionCode)
+    {
+        if (paramSize == 4) {
+            p.header.length = sizeof(p.header);
+            setOption(p.callbackConfigInt.option);
+
+            period = p.callbackConfigInt.period;
+            param1 = p.callbackConfigInt.min;
+            param2 = p.callbackConfigInt.max;
+
+            logCallbackStatus(p.header.uid);
+            return true;
+        }
+        if (paramSize == 2) {
+            p.header.length = sizeof(p.header);
+            setOption(p.callbackConfigShort.option);
+
+            period = p.callbackConfigShort.period;
+            param1 = p.callbackConfigShort.min;
+            param2 = p.callbackConfigShort.max;
+
+            logCallbackStatus(p.header.uid);
+            return true;
+        }
+
+        throw utils::Exception("RangeCallback::setThreshold config with size != 2 or 4 not supported, size is %d", paramSize);
+}
+    return false;
+}
+
+/**
+ * Checks if the given time allows a new callback and if yes, checks if the given value
+ * is within the given range depending on the range option.
+ *
+ * @return true if a callback should be triggered
+ */
+bool RangeCallback::shouldTriggerRangeCallback(uint64_t relativeTimeMs, int currentValue) const
+{
+    if (option == 'x' && period == 0)
+        return false;
+    if (relativeStartTime + period > relativeTimeMs)
+        return false;
+
+    // From TF-documentation:
+    // Wird die Option auf 'x' gesetzt (Threshold abgeschaltet), so wird der Callback mit der festen Periode ausgelöst.
+
+    if (option == 'i' && (currentValue < param1 || currentValue > param2))
+        return false;
+    if (option == 'o' && currentValue >= param1 && currentValue <= param2)
+        return false;
+    if (option == '<' && currentValue >= param1)
+        return false;
+    if (option == '>' && currentValue <= param1)
+        return false;
+
+    // fall through: option == 'x' and time reached or range option fulfilled
+    return true;
+}
+
+/**
  * Print current state into log-file.
  */
 void RangeCallback::logCallbackStatus(uint32_t uid) const
@@ -152,11 +245,10 @@ void RangeCallback::logCallbackStatus(uint32_t uid) const
  */
 void RangeCallback::setOption(char o)
 {
-    if (strchr("x<>oi", o))
+    if (o && strchr("x<>oi", o))
         option = o;
     else
         option ='x';
-    active = option != 'x';
 }
 
 } /* namespace stubserver */

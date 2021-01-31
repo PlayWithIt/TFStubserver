@@ -63,7 +63,7 @@ public:
     explicit TimerThread(unsigned delayMs);
 
     // stop the thread loop and releases resources
-    virtual ~TimerThread() NOEXCEPT;
+    virtual ~TimerThread() noexcept;
 
     /**
      * Add another command to the list of commands. This command is used
@@ -87,7 +87,7 @@ public:
     /**
      * Return the first command of the queue with the given name or NULL.
      */
-    TimerCommand* getCommand(const char *name) const NOEXCEPT;
+    TimerCommand* getCommand(const char *name) const noexcept;
 };
 
 } /* namespace utils */

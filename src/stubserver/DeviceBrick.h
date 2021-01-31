@@ -34,12 +34,33 @@ class DeviceBrick : public DeviceVoltageCurrent
     unsigned extenstionType0;   // first master extension
     unsigned extenstionType1;   // seconds master extension
 
+protected:
+    DeviceBrick(unsigned typeId, DeviceFunctions* _other);
+
 public:
-    DeviceBrick(unsigned type, DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent);
-    DeviceBrick(unsigned type,
+    DeviceBrick(unsigned typeId, DeviceFunctions* _other, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent);
+    DeviceBrick(unsigned typeId,
                 uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,
                 uint8_t _funcSetCallbackVoltage, uint8_t _funcSetCallbackCurrent,
                 uint8_t _funcCallbackVoltage, uint8_t _funcCallbackCurrent);
+
+    bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient) override;
+};
+
+/**
+ * HAT Brick for RaspberryPi.
+ */
+class DeviceHatBrick : public DeviceBrick
+{
+    uint32_t powerOffDelay;
+    uint32_t powerOffDuration;
+    bool raspberryPiOff;
+    bool brickletsOff;
+    bool enableSleepIndicator;
+    bool brickletPower;
+
+public:
+    DeviceHatBrick(unsigned typeId, DeviceFunctions* _other);
 
     bool consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient) override;
 };

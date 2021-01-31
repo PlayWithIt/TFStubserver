@@ -96,7 +96,7 @@ void ClientThread::run()
         int size = recv(socketHandle, dataPtr, headerSize, 0);
         if (size < 0) {
             Log::perror("ClientThread::run() - read() error");
-            continue;
+            break;
         }
         if (size == 0) {
             // Client closed socket -> finish

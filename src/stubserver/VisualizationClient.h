@@ -1,7 +1,7 @@
 /*
  * VisualizationClient.h
  *
- * Copyright (C) 2015 Holger Grosenick
+ * Copyright (C) 2015-2019 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,6 +76,13 @@ public:
 };
 
 
+// Sensor numbers for the AirQualityBricklet
+#define AIR_QUALITY_IAQ         0
+#define AIR_QUALITY_TEMP        1
+#define AIR_QUALITY_HUMIDITY    2
+#define AIR_QUALITY_PRESSURE    3
+
+
 /**
  * A short living object which will be destroyed immediately after the
  * method {@link VisualizationClient::notify()} returns.
@@ -101,8 +108,6 @@ public:
 
     /**
      * If an event is triggered with this code, the object gets invalidated.
-     * If a VisualizationClient holds a reference to a StateChangeHint, it
-     * should clear this reference and may not use it any more.
      */
     static const unsigned DISCONNECT   = 0;
     static const unsigned CONNECTED    = 1;
@@ -155,6 +160,15 @@ public:
      */
     void setInternalSensorNo(unsigned sn) {
         internalSensorNo = sn;
+    }
+
+    /**
+     * Notify a change of a special sensor.
+     */
+    void notify(unsigned sn, VisualizationClient &client, unsigned code = VALUE_CHANGE) {
+        internalSensorNo = sn;
+        changeCode = code;
+        client.notify(*this);
     }
 
     void notify(VisualizationClient &client, unsigned code = VALUE_CHANGE) {
@@ -335,7 +349,7 @@ protected:
 
     // for touch displays - they have a "const" object but are allowed to update
     // these event attributes.
-    mutable bool     newEvent;
+    mutable bool     pressedState; // currently touch area is pressed ?
     mutable Gesture  gesture;
     mutable uint32_t duration;     // in ms
     mutable uint16_t x_start;
@@ -436,7 +450,13 @@ public:
 protected:
     int      min, max;
     int      sensorValue;
+    int      sensorValue1;
+    int      sensorValue2;
+    int      sensorValue3;
+    int      sensorValue4;
     unsigned counter;
+    bool     isV2Device;
+    uint8_t  led1, led2, led3, led4;    // multiple purpose
 };
 
 
@@ -466,6 +486,27 @@ public:
 
     bool isLedOn_r() const {
         return ledOn_r;
+    }
+
+    /**
+     * @brief getRed return current color value for red
+     */
+    unsigned getRed() const {
+        return red;
+    }
+
+    /**
+     * @brief getGreen return current color value for green
+     */
+    unsigned getGreen() const {
+        return green;
+    }
+
+    /**
+     * @brief getBlue return current color value for blue
+     */
+    unsigned getBlue() const {
+        return blue;
     }
 
 protected:

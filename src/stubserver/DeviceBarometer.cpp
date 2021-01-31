@@ -155,15 +155,7 @@ void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
         changedHeightCb.param1 = currentValue;
     }
 
-    if (!rangeCallback.mayExecute(relativeTimeMs))
-        return;
-
-    char option = rangeCallback.getOption();
-    if ( (option == 'i' && currentValue >= rangeCallback.param1 && currentValue <= rangeCallback.param2)
-      || (option == 'o' && (currentValue < rangeCallback.param1 || currentValue > rangeCallback.param2))
-      || (option == '<' && currentValue < rangeCallback.param1)
-      || (option == '<' && currentValue > rangeCallback.param2)
-       )
+    if (rangeCallback.shouldTriggerRangeCallback(relativeTimeMs, currentValue))
     {
         triggerCallbackInt(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);
     }

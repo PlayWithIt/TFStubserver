@@ -33,7 +33,7 @@ namespace stubserver {
  * The major difference to the {@link DeviceSensor} is that the sensor number is
  * part of the call arguments, not part of the function code.
  */
-class DeviceMultiSensor : public DeviceFunctions
+class DeviceMultiSensor : public DeviceFunctions, public SensorState
 {
 protected:
     /**

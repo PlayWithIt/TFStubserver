@@ -17,16 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <netinet/tcp.h>
-#include <netinet/in.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
 #include <errno.h>
 #include <memory.h>
-#include <strings.h>
 #include <stdexcept>
+
+#ifdef _WIN32
+#include <io.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#define bzero ZeroMemory
+#else
+#include <netinet/tcp.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <strings.h>
+#endif
 
 #include "Log.h"
 #include "Socket.h"

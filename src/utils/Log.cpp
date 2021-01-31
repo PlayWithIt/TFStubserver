@@ -143,6 +143,20 @@ void Log::log(const char* msg, int v)
     *logStream << msg << ' ' << v << '\n' << std::flush;
 }
 
+void Log::log(const char* msg, unsigned v)
+{
+    MutexLock lock(logMutex);
+    printTime();
+    *logStream << msg << ' ' << v << '\n' << std::flush;
+}
+
+void Log::log(const char* msg, double v)
+{
+    MutexLock lock(logMutex);
+    printTime();
+    *logStream << msg << ' ' << std::fixed << std::setprecision(2) << v << '\n' << std::flush;
+}
+
 void Log::log(const char* msg, uint64_t v)
 {
     MutexLock lock(logMutex);
@@ -163,6 +177,11 @@ void Log::log(const std::string& msg, const char *v)
 }
 
 void Log::log(const std::string& msg, int v)
+{
+    log(msg.c_str(), v);
+}
+
+void Log::log(const std::string& msg, unsigned v)
 {
     log(msg.c_str(), v);
 }
