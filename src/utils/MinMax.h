@@ -86,8 +86,8 @@ public:
      */
     value_type delta() const {
         if (min > max)
-        	return 0;
-    	return max - min;
+            return 0;
+        return max - min;
     }
 
 };

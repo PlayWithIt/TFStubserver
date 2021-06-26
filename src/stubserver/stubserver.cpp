@@ -1,7 +1,7 @@
 /*
- * main.cpp
+ * stubserver.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +138,7 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
 
     // first read the config file before creating the socket
     try {
-        brickThread = new BrickThread(deviceList);
+        brickThread = new BrickThread(deviceList, logRequests);
     }
     catch (const std::exception &e) {
         delete brickThread;
@@ -170,7 +170,7 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
         }
         else {
             Log::log("Create a new client, fd =", newsockfd);
-            ClientThread *client = new ClientThread(newsockfd, *brickThread, logRequests);
+            ClientThread *client = new ClientThread(newsockfd, *brickThread);
             client->start();
 
             // cleanup clients that have terminated meanwhile

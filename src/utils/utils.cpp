@@ -246,8 +246,6 @@ const char *signal2char(int signum)
         return "SIGUSR1";
     if (signum == SIGINT)
         return "SIGINT";
-    if (signum == SIGPIPE)
-        return "SIGPIPE";
     return "unknown SIG";
 }
 
@@ -291,16 +289,20 @@ void initSignalHandlers()
     struct sigaction act;
     memset(&act, 0, sizeof(act));
 
+    // gracefull shutdown
     act.sa_sigaction = sigTermHandler;
     act.sa_flags     = SA_SIGINFO;
     sigaction(SIGTERM, &act, NULL);
     sigaction(SIGINT,  &act, NULL);
 
+    // dump trace and terminate
     act.sa_sigaction = sigKillHandler;
     sigaction(SIGSEGV, &act, NULL);
-    sigaction(SIGPIPE, &act, NULL);
     sigaction(SIGBUS,  &act, NULL);
     sigaction(SIGILL,  &act, NULL);
+
+    // ignore: write() call will fail with EPIPE
+    signal(SIGPIPE, SIG_IGN);
 
     struct rlimit rlim;
     getrlimit(RLIMIT_CORE, &rlim);

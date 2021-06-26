@@ -1,7 +1,7 @@
 /*
  * VisualizationClient.cpp
  *
- * Copyright (C) 2015-2019 Holger Grosenick
+ * Copyright (C) 2015-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <string.h>
 #include <strings.h>
+
+#include <utils/Exceptions.h>
 
 #include "VisualizationClient.h"
 
@@ -65,7 +67,6 @@ SensorState::SensorState()
   , sensorValue3(0)
   , sensorValue4(0)
   , counter(0)
-  , isV2Device(false)
   , led1(0)
   , led2(0)
   , led3(0)
@@ -83,7 +84,6 @@ SensorState::SensorState(int _min, int _max)
   , sensorValue3(0)
   , sensorValue4(0)
   , counter(0)
-  , isV2Device(false)
   , led1(0)
   , led2(0)
   , led3(0)
@@ -115,18 +115,54 @@ RealTimeClockState::RealTimeClockState()
  * Just basic init.
  */
 RelayState::RelayState(unsigned n)
-    : VisibleDeviceState(0), numSwitches(n)
+    : VisibleDeviceState(0), numSwitches(n), switchStates(0)
 {
     if (n > 16)
-        throw std::invalid_argument("numSwitches must be <= 16, but is larger");
-    bzero(switchOn, sizeof(switchOn));
+        throw std::invalid_argument("RelayState::numSwitches must be <= 16, but is larger");
+    memset(switchOn, 0, sizeof(switchOn));
+    memset(ledState, 0, sizeof(ledState));
 }
 
 bool RelayState::isOn(unsigned switchNo) const
 {
-    if (switchNo > numSwitches)
-        throw std::out_of_range("RelayState::isOn: 'switchNo' is too high");
+    if (switchNo >= numSwitches)
+        throw utils::OutOfRange("RelayState::isOn: 'switchNo' is too high", switchNo, numSwitches-1);
     return switchOn[switchNo];
+}
+
+bool RelayState::isLedOn(unsigned switchNo) const
+{
+    if (switchNo >= numSwitches)
+        throw utils::OutOfRange("RelayState::isLedOn: 'switchNo' is too high", switchNo, numSwitches-1);
+    return ledState[switchNo];
+}
+
+/**
+ * Updates the bitValues and switchOn: just one bit
+ */
+void RelayState::setSwitch(unsigned switchNo, bool on)
+{
+    if (switchNo >= numSwitches)
+        throw utils::OutOfRange("RelayState::setSwitch: 'switchNo' is too high", switchNo, numSwitches-1);
+
+    if (on) {
+        switchOn[switchNo] = true;
+        switchStates |= (1 << switchNo);
+    }
+    else {
+        switchOn[switchNo] = false;
+        switchStates &= (0xFFFF - (1 << switchNo));
+    }
+}
+
+/**
+ * Updates the bitValues and switchOn, all bits states.
+ */
+void RelayState::setSwitchStates(unsigned states)
+{
+    switchStates = states;
+    for (unsigned i = 0; i < numSwitches; ++i)
+        switchOn[i] = (states & (1 << i)) ? true : false;
 }
 
 /**

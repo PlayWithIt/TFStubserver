@@ -1,7 +1,7 @@
 /*
  * ClientThread.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ class ClientThread : public utils::QueueProducerTask<IOPacket>, BrickClient
     int         socketHandle;
     BrickStack &brickStack;
     uint64_t    packetsIn;
-    bool        logRequests;
 
     /**
      * Separate thread that handles the responses to the client. The overall throughput
@@ -64,7 +63,7 @@ class ClientThread : public utils::QueueProducerTask<IOPacket>, BrickClient
     void cleanUpSenderThread();
 
 public:
-    ClientThread(int socketHandle, BrickStack &_brickStack, bool logRequests = false);
+    ClientThread(int socketHandle, BrickStack &_brickStack);
     virtual ~ClientThread();
 
     virtual void run();

@@ -30,7 +30,7 @@ namespace stubserver {
  *
  * This device serves get requests and changed callbacks.
  */
-class DeviceSensor : public DeviceFunctions, public SensorState
+class DeviceSensor : public V2Device, public SensorState
 {
     uint8_t  getValueFunc;
     uint8_t  getValueAnalogFunc;

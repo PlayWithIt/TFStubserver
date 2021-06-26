@@ -1,7 +1,7 @@
 /*
  * DeviceSensor.cpp
  *
- * Copyright (C) 2013-2020 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,8 @@ using utils::Log;
 
 
 DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint8_t _callbackCode)
-  : getValueFunc(_getValueFunc)
+  : V2Device(nullptr, this, false)
+  , getValueFunc(_getValueFunc)
   , getValueAnalogFunc(0)
   , getStatusLedFunc(0)
   , setStatusLedOnFunc(0)
@@ -51,7 +52,8 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint
  * Constructor for V2 devices which have getSetCallbackConfig methods
  */
 DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getCallbackConfigFunc, uint8_t _setCallbackConfigFunc, uint8_t _callbackCode)
-  : getValueFunc(_getValueFunc)
+  : V2Device(nullptr, this, true)
+  , getValueFunc(_getValueFunc)
   , getValueAnalogFunc(0)
   , getStatusLedFunc(0)
   , setStatusLedOnFunc(0)
@@ -64,7 +66,6 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getCallbackConfigFunc
   , changedCb(0, 0, 0, 0)
   , changedAnalogCb(0, 0, 0, 0)
 {
-    isV2Device = true;
     rangeCallback.setThresholdFunctionCode = _setCallbackConfigFunc;
     rangeCallback.getThresholdFunctionCode = _getCallbackConfigFunc;
     rangeCallback.callbackCode = _callbackCode;
@@ -72,7 +73,8 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getCallbackConfigFunc
 
 DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, uint8_t _setCallbackFunc,
                            uint8_t _setCallbackFuncAnalog, uint8_t _callbackCode, uint8_t _callbackCodeAnalog)
-  : getValueFunc(_getValueFunc)
+  : V2Device(nullptr, this, false)
+  , getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
   , getStatusLedFunc(0)
   , setStatusLedOnFunc(0)
@@ -90,7 +92,8 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, u
 DeviceSensor::DeviceSensor(ValueProvider *values,
                            uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, uint8_t _setCallbackFunc,
                            uint8_t _setCallbackFuncAnalog, uint8_t _callbackCode, uint8_t _callbackCodeAnalog)
-  : getValueFunc(_getValueFunc)
+  : V2Device(nullptr, this, false)
+  , getValueFunc(_getValueFunc)
   , getValueAnalogFunc(_getValueAnalogFunc)
   , getStatusLedFunc(0)
   , setStatusLedOnFunc(0)
@@ -175,17 +178,17 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
     }
 
     // get/set range callback options
-    if (!isV2Device && rangeCallback.consumeGetSetThreshold(p)) {
+    if (!isV2 && rangeCallback.consumeGetSetThreshold(p)) {
         return true;
     }
-    if (isV2Device && rangeCallback.consumeGetSetConfig(p)) {
+    if (isV2 && rangeCallback.consumeGetSetConfig(p)) {
         return true;
     }
 
     // is the status LED functionality enabled (Bricks + LoadCell + V2 devices) ?
     if (getStatusLedFunc > 0)
     {
-        if (isV2Device) {
+        if (isV2) {
             if (func == getStatusLedFunc) {
                 p.uint8Value = getStatusLedConfig();
                 p.header.length = sizeof(p.header) + 1;
@@ -222,10 +225,7 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
         return true;
     }
 
-    if (other)
-        return other->consumeCommand(relativeTimeMs, p, visualizationClient);
-
-    return false;
+    return V2Device::consumeCommand(relativeTimeMs, p, visualizationClient);
 }
 
 int DeviceSensor::calculateAnalogValue()

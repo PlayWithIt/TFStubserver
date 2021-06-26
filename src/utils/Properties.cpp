@@ -135,30 +135,34 @@ void Properties::load(const char *filename)
         ++lineNo;
         size_t l = line.length();
 
-        // trim key
+        // skip leading spaces
         size_t start = 0;
         while (start < l && line[start] == ' ')
             ++start;
 
         // comment or empty line
-        if (l == 0 || line[start] == '#' || start == l)
+        if (l == 0 || line[start] == '#' || line[start] == '!' || start == l)
             continue;
 
-        size_t pos = line.find('=');
-        if (pos >= l || pos == 0) {
-            std::cerr << "Error in " << filename << '(' << lineNo << "): '=' not found or at invalid location!\n";
-            continue;
+        // find separator
+        size_t end = start + 1;
+        while (end < l && line[end] != ' ' && line[end] != ':' && line[end] != '=')
+            ++end;
+        std::string left = line.substr(start, end);
+
+        // skip spaces before : or =
+        while (end < l && line[end] == ' ')
+            ++end;
+
+        // skip spaces after : or =
+        if (line[end] == ':' || line[end] == '=') {
+            ++end;
+            while (end < l && line[end] == ' ')
+                ++end;
         }
 
-        size_t end = pos-1;
-        while (end > 0 && line[end] == ' ')
-            --end;
-        std::string left = line.substr(start, end+1);
-
-        // trim values
-        start = pos + 1;
-        while (start < l && line[start] == ' ')
-            ++start;
+        // trim value to the right
+        start = end;
         end = l - 1;
         while (end > 0 && line[end] == ' ')
             --end;
@@ -180,7 +184,6 @@ void Properties::load(const char *filename)
                 }
                 right += line.substr(start, l - start - 1);
             }
-
         }
         else
             right = line.substr(start, end - start + 1);

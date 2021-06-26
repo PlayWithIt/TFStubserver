@@ -39,7 +39,16 @@ struct BasicCallback
     int      param1;
     int      param2;
     bool     active;
+    bool     valueHasToChange;
 
+    /**
+     * Init all attributes with 0 (callback disabled), valueHasToChange is true
+     */
+    BasicCallback();
+
+    /**
+     * Init with given values
+     */
     BasicCallback(uint8_t getFuncCode, uint8_t setFuncCode, uint8_t cbCode, uint32_t _period = 100);
     BasicCallback(uint64_t relativeStartTime, uint8_t setFuncCode, uint8_t cbCode, int p1, int p2 = -1, uint32_t _period = 0);
 

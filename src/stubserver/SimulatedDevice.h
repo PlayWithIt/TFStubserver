@@ -54,9 +54,10 @@ class SimulatedDevice
 
     unsigned    uid;                   // device uid as number
     unsigned    deviceTypeId;
-    char        position;              // port a..d or stack position 0..6
+    char        position;              // port a..h or stack position 0..6
     bool        isBrick;
     bool        isV2;
+    uint8_t     traceLv;               // 0 == off, 1 == internal, 2 brickStackTo
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
 
@@ -138,6 +139,13 @@ public:
      */
     unsigned int getUid() const {
         return uid;
+    }
+
+    /**
+     * Returns 0 == off, 1 == internal trace, 2 brickStack in/out trace.
+     */
+    uint8_t getTraceLv() const {
+        return traceLv;
     }
 
     /**

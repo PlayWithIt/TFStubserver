@@ -1,7 +1,7 @@
 /*
  * BrickStack.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ static int objectCount = 0;
 /**
  * Init the stack: create devices from a config file ...
  */
-BrickStack::BrickStack(const char *filename)
+BrickStack::BrickStack(const char *filename, bool _logRequests)
   : queueMutex()
   , deviceMutex()
   , clientMutex()
@@ -65,6 +65,7 @@ BrickStack::BrickStack(const char *filename)
   , packetsIn(0)
   , packetsOut(0)
   , callbackCycles(0)
+  , logRequests(_logRequests)
   , doReconnect(false)
   , doEnumerateWithType(-1)
   , reconnectCount(0)
@@ -89,8 +90,11 @@ BrickStack::BrickStack(const char *filename)
     try {
         for (std::string &it : utils::strings::split(str, ' ', uids))
         {
-            SimulatedDevice *dev = new SimulatedDevice(this, it.c_str(), p);
-            devices.push_back(dev);
+            if (it.size() > 0) {
+                // two blanks between UIDs would cause empty UID in iterator
+                SimulatedDevice *dev = new SimulatedDevice(this, it.c_str(), p);
+                devices.push_back(dev);
+            }
         }
 
         // make some consistency checks
@@ -136,7 +140,7 @@ void BrickStack::addBrick(char position, const std::string &uid)
 {
     if (position > '9' || position < '0') {
         char msg[256];
-        sprintf(msg, "ERROR: invalid position char '%c' (%d)", position, position);
+        sprintf(msg, "ERROR: invalid brick position char '%c' (%d)", position, position);
         throw utils::Exception(msg);
     }
     unsigned index = position - '0';
@@ -242,6 +246,8 @@ void BrickStack::checkCallbacks()
 void BrickStack::consumeRequestQueue()
 {
     MutexLock lock(queueMutex);
+    char msg[1024];
+    int  len;
 
     // consume data
     while (false == packetQueue.empty())
@@ -249,6 +255,19 @@ void BrickStack::consumeRequestQueue()
         auto item = packetQueue.front();
         IOPacket& packet = std::get<1>(item);
         unsigned uid = packet.header.uid;
+        SimulatedDevice* dev = uid == 0 ? nullptr : getDevice(uid);
+
+        // Just for testing ...
+        if (logRequests || (dev && dev->getTraceLv() >= 2))
+        {
+            len = sprintf(msg, "Request for uid=%-6s, func-id %3d, msg-size %2d -",
+                          utils::base58Encode(packet.header.uid).c_str(),
+                          packet.header.function_id, packet.header.length);
+            for (unsigned i = 8; i < packet.header.length; ++i) {
+                len += sprintf(msg + len, " %02X", packet.fullData.payload[i-8]);
+            }
+            Log::log(msg);
+        }
 
         // numeric 0 -> UID=1 as a base58 encoded literal
         if (uid == 0)
@@ -261,8 +280,7 @@ void BrickStack::consumeRequestQueue()
         }
         else {
             // brick / bricklet command
-            SimulatedDevice* dev = getDevice(uid);
-            if (dev == NULL) {
+            if (dev == nullptr) {
                 std::string uidStr = utils::base58Encode(uid);
                 Log(Log::ERROR) << "cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
             }
@@ -288,6 +306,16 @@ void BrickStack::consumeRequestQueue()
                             Log::log("Logic error in consumeRequestQueue(): client is NULL!");
                         }
                         else {
+                            if (logRequests || dev->getTraceLv() >= 2) {
+                                len = sprintf(msg, "Request for uid=%-6s> has response-size %2d -",
+                                              utils::base58Encode(packet.header.uid).c_str(),
+                                              packet.header.length);
+                                for (unsigned i = 8; i < packet.header.length; ++i) {
+                                    len += sprintf(msg + len, " %02X", packet.fullData.payload[i-8]);
+                                }
+                                Log::log(msg);
+                            }
+
                             cln->sendResponse(packet);
                             ++packetsOut;
                         }

@@ -1,7 +1,7 @@
 /*
  * CallbackDatas.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,22 @@
 namespace stubserver {
 
 /**
+ * Init all attributes with 0, valueHasToChange is true
+ */
+BasicCallback::BasicCallback()
+: relativeStartTime(0)
+, period(0)
+, callbackCode(0)
+, getPeriodFunc(0)
+, setPeriodFunc(0)
+, param1(0)
+, param2(0)
+, active(false)
+, valueHasToChange(true)
+{
+}
+
+/**
  * Init all attributes
  */
 BasicCallback::BasicCallback(uint64_t _relativeStartTime, uint8_t setFuncCode, uint8_t cbCode, int p1, int p2, uint32_t _period)
@@ -40,6 +56,7 @@ BasicCallback::BasicCallback(uint64_t _relativeStartTime, uint8_t setFuncCode, u
 , param1(p1)
 , param2(p2)
 , active(false)
+, valueHasToChange(true)
 {
 }
 
@@ -55,6 +72,7 @@ BasicCallback::BasicCallback(uint8_t getFuncCode, uint8_t setFuncCode, uint8_t c
 , param1(0)
 , param2(0)
 , active(false)
+, valueHasToChange(true)
 {
 }
 

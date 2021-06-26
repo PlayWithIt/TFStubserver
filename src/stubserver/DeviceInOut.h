@@ -32,7 +32,7 @@ public:
     struct EdgeCount
     {
         unsigned count;
-        unsigned debouncePeriod;
+        unsigned debouncePeriod;   // the period in which an edge change is ignored (e.g. jumping button contact)
         uint64_t relativeTimeMs;
         bool     active;
         uint8_t  directions;
@@ -42,18 +42,39 @@ public:
 
 protected:
     utils::ValueProvider *valueProvider;
-    BasicCallback         interruptCallback;
+    BasicCallback         getValueCallback;
     unsigned              interruptMask;
-    unsigned              currentValue;
     EdgeCount             edgeCount[8];
 
+    /**
+     * This is for derived classes which should be V2 devices
+     */
+    explicit DeviceDigitalIn(utils::ValueProvider *vp);
+
+    bool getEdgeCount(IOPacket &p);
+
 public:
-    DeviceDigitalIn(utils::ValueProvider *vp, unsigned numPins = 4);
+    explicit DeviceDigitalIn(utils::ValueProvider *vp, unsigned numPins);
 
     /**
      * Release old value provider and use the new one.
      */
     void changeValueProvider(utils::ValueProvider *newValueProvider);
+
+    DECLARE_OWN_DEVICE_CALLBACKS
+};
+
+/**
+ * The digital input V2 with a given number of input switches.
+ */
+class DeviceDigitalInV2 : public DeviceDigitalIn
+{
+    BasicCallback getValueCallbacks[4];
+    BasicCallback allValuesCallback;
+    uint8_t       ledConfig[4];
+
+public:
+    DeviceDigitalInV2(utils::ValueProvider *vp);
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

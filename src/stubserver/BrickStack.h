@@ -66,6 +66,7 @@ class BrickStack
     uint64_t packetsOut;
     uint64_t callbackCycles;
 
+    bool logRequests;
     std::atomic_bool doReconnect;
     std::atomic_int  doEnumerateWithType;
     std::atomic_uint reconnectCount;
@@ -76,7 +77,7 @@ public:
     /**
      * Init the stack from a configuration file which has property format.
      */
-    BrickStack(const char *filename);
+    BrickStack(const char *filename, bool logRequests);
     virtual ~BrickStack();
 
     /**

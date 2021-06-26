@@ -1,7 +1,7 @@
 /*
  * BrickThread.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ namespace stubserver {
 using utils::Log;
 
 
-BrickThread::BrickThread(const char *filename)
-  : AsyncTask("BrickThread"), BrickStack(filename)
+BrickThread::BrickThread(const char *filename, bool logRequests)
+  : AsyncTask("BrickThread"), BrickStack(filename, logRequests)
 {
 }
 

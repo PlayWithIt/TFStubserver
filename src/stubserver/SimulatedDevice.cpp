@@ -1,7 +1,7 @@
 /*
  * SimulatedDevice.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,9 +36,7 @@
 #include <bricklet_distance_us.h>
 #include <bricklet_dust_detector.h>
 #include <bricklet_humidity.h>
-#include <bricklet_industrial_digital_out_4.h>
 #include <bricklet_industrial_digital_in_4.h>
-#include <bricklet_industrial_quad_relay.h>
 #include <bricklet_industrial_dual_analog_in.h>
 #include <bricklet_io16.h>
 #include <bricklet_io4.h>
@@ -171,6 +169,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     case HAT_DEVICE_IDENTIFIER:
         functions = new DeviceHatBrick(deviceTypeId, nullptr);
         isBrick = true;
+        isV2 = true;
         label = "Voltage mV";
         break;
 
@@ -469,13 +468,23 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case INDUSTRIAL_DIGITAL_IN_4_DEVICE_IDENTIFIER:
-        functions = new DeviceDigitalIn(createValueProvider("valueProvider"));
+        functions = new DeviceDigitalIn(createValueProvider("valueProvider"), 4);
         functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
         functions = new DoNothing(functions, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_GROUP, 4, buildBytes('n', 'n', 'n', 'n'));
         break;
 
+    case INDUSTRIAL_DIGITAL_IN_4_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceDigitalInV2(createValueProvider("valueProvider"));
+        isV2 = true;
+        break;
+
     case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
-        functions = new DeviceDigitalOut4();
+        functions = new DeviceDigitalOut4(false);
+        break;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceDigitalOut4(true);
+        isV2 = true;
         break;
 
     case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
@@ -484,6 +493,11 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:
         functions = new DeviceQuadRelay();
+        break;
+
+    case INDUSTRIAL_QUAD_RELAY_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceQuadRelayV2();
+        isV2 = true;
         break;
 
     case IO16_DEVICE_IDENTIFIER:
@@ -615,6 +629,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
     case MOTION_DETECTOR_V2_DEVICE_IDENTIFIER:
         functions = new DeviceMotionDetector(createValueProvider("valueProvider"), true);
+        isV2 = true;
         break;
 
     case MULTI_TOUCH_DEVICE_IDENTIFIER:
@@ -622,6 +637,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
     case MULTI_TOUCH_V2_DEVICE_IDENTIFIER:
         functions = new DeviceTouchPad(12, createValueProvider("valueProvider"), true);
+        isV2 = true;
         break;
 
     case PIEZO_SPEAKER_DEVICE_IDENTIFIER:
@@ -630,6 +646,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
 
     case PIEZO_SPEAKER_V2_DEVICE_IDENTIFIER:
         functions = new DevicePiezoSpeaker(true);
+        isV2 = true;
         break;
 
     case OLED_128X64_DEVICE_IDENTIFIER:
@@ -814,6 +831,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, u
     , position(0)
     , isBrick(false)
     , isV2(false)
+    , traceLv(0)
 {
     setupFunctions();
 }
@@ -847,6 +865,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     , position(0)
     , isBrick(false)
     , isV2(false)
+    , traceLv(0)
 {
     char msg[200];
 
@@ -863,6 +882,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
 
     properties->put(props);
     str = getProperty("type", 2);
+    traceLv = properties->getInt(uidStr + ".traceLevel", 0);
 
     // find type code (int-value)
     for (int i = 0; gAllDeviceIdentifiers[i].deviceIdentifier > 0 && deviceTypeId == 0; ++i)
@@ -871,8 +891,8 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
             deviceTypeId = gAllDeviceIdentifiers[i].deviceIdentifier;
     }
     if (deviceTypeId == 0) {
-        cleanup();
         sprintf(msg, "Unkown device type '%s' for uid %s", str, _uidStr);
+        cleanup();  // cleanup removes the properties -> 'str' would be empty
         throw Exception(msg);
     }
 
@@ -895,7 +915,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     str = getProperty("position", 1);
 
     char p = str[0];
-    if (p >= 'a' && p <= 'd') {
+    if (p >= 'a' && p <= 'h') {           // HAT Brick has port a .. h
         position = str[0];
     }
     else if (p >= '0' && p <= '9') {
@@ -932,7 +952,8 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     try {
         setupFunctions();
 
-        if (false == isBrick && (position < 'a' || position > 'd')) {
+        // parts are already checked above ...
+        if (false == isBrick && (position < 'a' || position > 'h')) {
             sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICKLET %s (must be a..d)", position, position, uidStr.c_str());
             throw utils::Exception(msg);
         }
@@ -1017,8 +1038,8 @@ const char *SimulatedDevice::getProperty(const std::string &key, const char *def
 
 int SimulatedDevice::getIntProperty(const std::string &key)
 {
-	const char *v = getProperty(key, 1);
-	return atoi(v);
+    const char *v = getProperty(key, 1);
+    return atoi(v);
 }
 
 /**
@@ -1077,9 +1098,23 @@ void SimulatedDevice::connect(SimulatedDevice* child)
         positions[index] = true;
     }
     index = child->position;
-    if (index > 'd') {
-        sprintf(msg, "Device with uid %s uses position '%c' which is an invalid value!",
-                child->getUidStr().c_str(), index);
+
+    // get max port per type
+    unsigned maxIndex;
+    if (deviceTypeId == MASTER_DEVICE_IDENTIFIER /* || deviceTypeId == HAT_ZERO_DEVICE_IDENTIFIER */) {
+        maxIndex = 'd';
+    }
+    else if (deviceTypeId == HAT_DEVICE_IDENTIFIER) {
+        maxIndex = 'h';
+    }
+    else {
+        // Servo, FC and other bricks: only two ports
+        maxIndex = 'b';
+    }
+
+    if (index > maxIndex) {
+        sprintf(msg, "Device with uid %s uses position '%c' which is an invalid value, max port value is '%c'!",
+                child->getUidStr().c_str(), index, maxIndex);
         throw std::logic_error(msg);
     }
     if (positions[index]) {
@@ -1106,8 +1141,17 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     // if there is a function associated and consumed -> all OK
     // if not: if responseExpected=false, the packet is just consumed with a warning
     uint64_t time = brickStack->getRelativeTimeMs();
-    if (functions && functions->consumeCommand(time, p, *visualizationClient))
+
+    try {
+        if (functions && functions->consumeCommand(time, p, *visualizationClient))
+            return true;
+    }
+    catch (const std::exception &e) {
+        Log(Log::ERROR) << "for bricklet " << uidStr << " of type " << deviceTypeName
+                        << ", function code " << (unsigned)p.header.function_id << ": " << e.what();
+        p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
+    }
 
     uint8_t func = p.header.function_id;
     if (MASTER_FUNCTION_RESET == func)
@@ -1145,16 +1189,26 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
         return true;
     }
 
-    if (isV2 && TEMPERATURE_V2_FUNCTION_GET_BOOTLOADER_MODE == func) {
-        p.header.length = sizeof(p.header) + 1;
-        p.uint8Value = TEMPERATURE_V2_BOOTLOADER_MODE_FIRMWARE;
+    // get error count for V2 bricklets
+    if ( ( isV2 && ((!isBrick && TEMPERATURE_V2_FUNCTION_GET_SPITFP_ERROR_COUNT == func)
+                || (deviceTypeId == HAT_DEVICE_IDENTIFIER && TEMPERATURE_V2_FUNCTION_GET_SPITFP_ERROR_COUNT == func) ) )
+              || (isBrick && deviceTypeId != HAT_DEVICE_IDENTIFIER && MASTER_FUNCTION_GET_SPITFP_ERROR_COUNT == func))
+    {
+        Log() << "GET SPITFP ERROR COUNT function for UID " << uidStr;
+        // uint32_t error_count_ack_checksum;
+        // uint32_t error_count_message_checksum;
+        // uint32_t error_count_frame;
+        // uint32_t error_count_overflow;
+
+        p.header.length = sizeof(p.header) + 4 * sizeof(uint32_t);
+        memset(p.fullData.payload, 0, sizeof(p.fullData.payload));
         return true;
     }
 
     if (!responseExpected) {
-        Log() << "Consume not implemented function " << (int) p.header.function_id
+        Log() << "Not implemented function " << (int) p.header.function_id
               << " for device " << getUidStr() << " (" << getDeviceTypeName()
-              << ") due to responseExpected=false";
+              << ") consumed due to responseExpected=false";
         return true;
     }
 

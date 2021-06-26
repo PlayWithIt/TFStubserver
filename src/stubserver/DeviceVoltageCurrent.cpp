@@ -151,6 +151,9 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
         }
     }
 
+    if (isV2 && V2Device::consumeCommand(relativeTimeMs, p, visualizationClient))
+        return true;
+
     if (other)
         return other->consumeCommand(relativeTimeMs, p, visualizationClient);
 

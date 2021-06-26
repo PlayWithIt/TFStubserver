@@ -123,6 +123,7 @@ DeviceHatBrick::DeviceHatBrick(unsigned typeId, DeviceFunctions* _other)
   , enableSleepIndicator(true)
   , brickletPower(true)
 {
+    isV2 = true;
 }
 
 /**

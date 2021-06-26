@@ -1,7 +1,7 @@
 /*
  * ClientThread.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,12 +35,11 @@ using utils::Log;
 /**
  *
  */
-ClientThread::ClientThread(int _socketHandle, BrickStack &_brickStack, bool _logRequests)
+ClientThread::ClientThread(int _socketHandle, BrickStack &_brickStack)
     : QueueProducerTask("ClientThread")
     , socketHandle(_socketHandle)
     , brickStack(_brickStack)
     , packetsIn(0)
-    , logRequests(_logRequests)
     , senderThread(NULL)
 {
     int flag = 1;
@@ -128,20 +127,6 @@ void ClientThread::run()
 
         // put request into queue
         ++packetsIn;
-
-
-        // Just for testing ...
-        if (logRequests)
-        {
-            char msg[1024];
-            int len = sprintf(msg, "Request for uid=%-6s, func-id %3d, msg-size %2d -",
-                              utils::base58Encode(packet.header.uid).c_str(),
-                              packet.header.function_id, packet.header.length);
-            for (unsigned i = 8; i < packet.header.length; ++i) {
-                len += sprintf(msg + len, " %02X", packet.fullData.payload[i-8]);
-            }
-            Log::log(msg);
-        }
         brickStack.enqueueRequest(this, packet);
 
     } while (!shouldFinish(100));

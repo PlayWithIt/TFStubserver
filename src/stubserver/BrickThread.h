@@ -1,7 +1,7 @@
 /*
  * BrickThread.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public:
      * Init the stack from properties: the filename defines the path to
      * a properties file where the BrickStack object is created from.
      */
-    BrickThread(const char *filename = NULL);
+    BrickThread(const char *filename, bool logRequests);
 
     virtual void run();
 };

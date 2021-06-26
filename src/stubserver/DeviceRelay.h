@@ -32,7 +32,7 @@ namespace stubserver {
  * <p>
  * Not yet supported: grouping.
  */
-class DeviceRelay : public DeviceFunctions, public RelayState
+class DeviceRelay : public V2Device, public RelayState
 {
 protected:
     enum {
@@ -47,7 +47,7 @@ protected:
     bool    bitSwitches;
 
     // init with number of relay switches
-    DeviceRelay(unsigned _numSwitches, bool _bitSwitches);
+    DeviceRelay(unsigned _numSwitches, bool _bitSwitches, bool isV2);
 
     // possible callback
     std::vector<BasicCallback> callbacks;
@@ -89,7 +89,6 @@ public:
     virtual std::string getLabel(unsigned switchNo) const override;
 };
 
-
 /**
  * The industrial quad relay
  */
@@ -99,6 +98,17 @@ public:
     DeviceQuadRelay();
 };
 
+/**
+ * The industrial quad relay V2 (has different return structures)
+ */
+class DeviceQuadRelayV2 : public DeviceRelay
+{
+public:
+    DeviceQuadRelayV2();
+
+    DECLARE_OWN_DEVICE_CALLBACKS
+};
+
 
 /**
  * The digital out 4 switch
@@ -106,7 +116,7 @@ public:
 class DeviceDigitalOut4 : public DeviceRelay
 {
 public:
-    DeviceDigitalOut4();
+    DeviceDigitalOut4(bool isV2);
 };
 
 

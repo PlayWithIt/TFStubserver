@@ -495,37 +495,35 @@ V2Device::~V2Device()
  */
 bool V2Device::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
-    p.header.length = sizeof(p.header);
+    if (isV2) {
+        p.header.length = sizeof(p.header);
 
-    switch (p.header.function_id) {
-    case FUNCTION_SET_STATUS_LED_CONFIG:
-        if (visibleDeviceState) {
-            visibleDeviceState->setStatusLedConfig(p.fullData.payload[0]);
-            visibleDeviceState->setInternalSensorNo(0);
-            visibleDeviceState->notify(visualizationClient, SensorState::LED_CHANGE);
+        switch (p.header.function_id) {
+        case FUNCTION_SET_STATUS_LED_CONFIG:
+            if (visibleDeviceState) {
+                visibleDeviceState->setStatusLedConfig(p.fullData.payload[0]);
+                visibleDeviceState->setInternalSensorNo(0);
+                visibleDeviceState->notify(visualizationClient, SensorState::LED_CHANGE);
+            }
+            return true;
+
+        case FUNCTION_GET_STATUS_LED_CONFIG:
+            if (visibleDeviceState)
+                p.fullData.payload[0] = visibleDeviceState->getStatusLedConfig();
+            else
+                p.fullData.payload[0] = STATUS_LED_HEARTBEAT;
+            p.header.length += 1;
+            return true;
+
+        case FUNCTION_GET_BOOTLOADER_MODE:
+            p.uint8Value = RGB_LED_BUTTON_BOOTLOADER_MODE_FIRMWARE;                   // default: firmware mode
+            p.header.length += 1;
+            return true;
+
+        case FUNCTION_SET_BOOTLOADER_MODE:
+            // ignore
+            return true;
         }
-        return true;
-
-    case FUNCTION_GET_STATUS_LED_CONFIG:
-        if (visibleDeviceState)
-            p.fullData.payload[0] = visibleDeviceState->getStatusLedConfig();
-        else
-            p.fullData.payload[0] = STATUS_LED_HEARTBEAT;
-        p.header.length += 1;
-        return true;
-
-    case FUNCTION_GET_BOOTLOADER_MODE:
-        p.uint8Value = RGB_LED_BUTTON_BOOTLOADER_MODE_FIRMWARE;                   // default: firmware mode
-        p.header.length += 1;
-        return true;
-
-    case FUNCTION_SET_BOOTLOADER_MODE:
-        // ignore
-        return true;
-
-    // Reset is handled directly in SimulatedDevice !
-    // case FUNCTION_BRICKLET_RESET:
-    //    return true;
     }
 
     if (other && other->consumeCommand(relativeTimeMs, p, visualizationClient))

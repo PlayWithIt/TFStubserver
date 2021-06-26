@@ -1,7 +1,7 @@
 /*
  * DeviceRelay.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@
 #include <stdexcept>
 
 #include <bricklet_industrial_quad_relay.h>
+#include <bricklet_industrial_quad_relay_v2.h>
 #include <bricklet_industrial_digital_out_4.h>
+#include <bricklet_industrial_digital_out_4_v2.h>
 #include <bricklet_dual_relay.h>
 #include <bricklet_remote_switch.h>
 #include <bricklet_solid_state_relay.h>
@@ -36,19 +38,20 @@ namespace stubserver {
 
 using utils::Log;
 
-static const uint8_t NO4[4] = {'n', 'n', 'n', 'n' };
+static const uint8_t NO4[4]  = {'n', 'n', 'n', 'n' };
+static const uint8_t TRUE[1] = { 1 };
 
 
 /**
  * Just basic init.
  */
-DeviceRelay::DeviceRelay(unsigned n, bool _bitSwitches)
-    : DeviceFunctions()
+DeviceRelay::DeviceRelay(unsigned n, bool _bitSwitches, bool isV2)
+    : V2Device(NULL, this, isV2)
     , RelayState(n)
     , bitSwitches(_bitSwitches)
     , callbacks()
 {
-    bzero(functionCodes, sizeof(functionCodes));
+    memset(functionCodes, 0, sizeof(functionCodes));
 }
 
 /**
@@ -66,7 +69,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         if (!bitSwitches)
         {
             for (unsigned x = 0; x < numSwitches; ++x)
-                switchOn[x] = p.fullData.payload[x] != 0;
+                setSwitch(x, p.fullData.payload[x] != 0);
             notify(visualizationClient, VALUE_CHANGE);
             return true;
         }
@@ -74,7 +77,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         unsigned bitMask = 1;
         for (unsigned x = 0; x < numSwitches; ++x)
         {
-            switchOn[x] = p.uint16Value & bitMask;
+            setSwitch(x, p.uint16Value & bitMask);
             bitMask <<= 1;
         }
         notify(visualizationClient, VALUE_CHANGE);
@@ -90,7 +93,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
                 Log::log("Invalid switch number for dual relay:", n);
                 return false;
             }
-            switchOn[n] = p.fullData.payload[1] != 0;
+            setSwitch(n, p.fullData.payload[1] != 0);
             notify(visualizationClient, VALUE_CHANGE);
             return true;
         }
@@ -102,7 +105,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         {
             uint16_t bit = (1 << i);
             if ((selection & bit) != 0)
-                switchOn[i] = (bits & bit) != 0;
+                setSwitch(i, (bits & bit) != 0);
         }
         notify(visualizationClient, VALUE_CHANGE);
         return true;
@@ -115,16 +118,11 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         if (!bitSwitches)
         {
             for (unsigned x = 0; x < numSwitches; ++x)
-                p.fullData.payload[x] = switchOn[x];
+                p.fullData.payload[x] = isOn(x);
             return true;
         }
 
-        uint16_t result = 0;
-        for (unsigned i = 0; i < numSwitches; ++i) {
-            if (switchOn[i])
-                result |= (1 << i);
-        }
-        p.uint16Value = result;
+        p.uint16Value = getSwitchStates();
         return true;
     }
 
@@ -133,14 +131,14 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         // read monoflop for dual relay
         if (!bitSwitches)
         {
-            uint8_t n = p.uint8Value;
+            unsigned n = p.uint8Value;
             if (--n > numSwitches) {
-                Log::log("Invalid switch number for dual relay:", n);
+                Log() << "GetMonoflop: invalid relay switch number: " << (unsigned) p.uint8Value;
                 return false;
             }
             p.header.length = sizeof(p.header) + sizeof(p.monoflopResponseDualRelay);
             if (callbacks[n].active) {
-                p.monoflopResponseDualRelay.state = switchOn[n];
+                p.monoflopResponseDualRelay.state = isOn(n);
                 p.monoflopResponseDualRelay.time  = callbacks[n].period;
                 p.monoflopResponseDualRelay.time_remaining = callbacks[n].relativeStartTime + callbacks[n].period - relativeTimeMs;
             }
@@ -155,12 +153,15 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         p.header.length = sizeof(p.header) + sizeof(p.monoflopResponse);
         unsigned pin = p.uint8Value;
         if (pin >= numSwitches) {
-            Log() << "Invalid pin number for quad relay " << pin;
-            return false;
+            Log() << "WARN - GetMonoflop: invalid pin number for relay " << pin << " (might be group query)";
+            p.monoflopResponse.value = 0;
+            p.monoflopResponse.time  = 0;
+            p.monoflopResponse.time_remaining = 0;
+            return true;
         }
 
         if (callbacks[pin].active) {
-            p.monoflopResponse.value = switchOn[pin];
+            p.monoflopResponse.value = isOn(pin);
             p.monoflopResponse.time  = callbacks[pin].period;
             p.monoflopResponse.time_remaining = callbacks[pin].relativeStartTime + callbacks[pin].period - relativeTimeMs;
         }
@@ -182,8 +183,8 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
                 return false;
             }
             //stateChanged = true;
-            switchOn[n] = p.fullData.payload[1] != 0;
-            callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !switchOn[n]);
+            setSwitch(n, p.fullData.payload[1] != 0);
+            callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !isOn(n));
             notify(visualizationClient, VALUE_CHANGE);
             return true;
         }
@@ -197,17 +198,15 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
             if ((p.monoflopDefine.selection_mask & bit) != 0)
             {
                 //stateChanged = true;
-                switchOn[i] = p.monoflopDefine.value_mask & bit;
-                callbacks[i].update(relativeTimeMs, p.monoflopDefine.time, i, !switchOn[i]);
+                setSwitch(i, p.monoflopDefine.value_mask & bit);
+                callbacks[i].update(relativeTimeMs, p.monoflopDefine.time, i, !isOn(i));
             }
         }
         notify(visualizationClient, VALUE_CHANGE);
         return true;
     }
 
-    if (other)
-        return other->consumeCommand(relativeTimeMs, p, visualizationClient);
-    return false;
+    return V2Device::consumeCommand(relativeTimeMs, p, visualizationClient);
 }
 
 /**
@@ -231,12 +230,12 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
             {
                 packet.ushorts.value1 = (1 << it->param1);
                 packet.ushorts.value2 = it->param2 ? (1 << it->param1) : 0;
-                switchOn[it->param1] = it->param2 != 0;
+                setSwitch(it->param1, it->param2 != 0);
             }
             else {
                 packet.fullData.payload[0] = it->param1;
                 packet.fullData.payload[1] = it->param2 ? 1 : 0;
-                switchOn[it->param1 -1] = it->param2 != 0;
+                setSwitch(it->param1 - 1, it->param2 != 0);
             }
             //stateChanged = true;
             brickStack->dispatchCallback(packet);
@@ -264,7 +263,7 @@ void DeviceRelay::initMonoflopCallbacks(uint8_t callbackCode)
  * Init solid state relay with get/set and monoflop.
  */
 DeviceSolidStateRelay::DeviceSolidStateRelay()
-  : DeviceRelay(1, false)
+  : DeviceRelay(1, false, isV2)
 {
     functionCodes[FUNC_SET_STATE] = SOLID_STATE_RELAY_FUNCTION_SET_STATE;
     functionCodes[FUNC_SET_SELECTED] = 0;
@@ -286,15 +285,14 @@ bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p,
     uint8_t func = p.header.function_id;
     if (func == functionCodes[FUNC_SET_STATE])
     {
-        //stateChanged = switchOn[0] != p.boolValue;
-        switchOn[0] = p.boolValue;
+        setSwitch(0, p.boolValue);
         return true;
     }
 
     if (func == functionCodes[FUNC_GET_STATE])
     {
         p.header.length = sizeof(p.header) + 1;
-        p.boolValue = switchOn[0];
+        p.boolValue = isOn(0);
         return true;
     }
 
@@ -303,7 +301,7 @@ bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p,
         // read monoflop
         p.header.length = sizeof(p.header) + sizeof(p.monoflopResponseDualRelay);
         if (callbacks[0].active) {
-            p.monoflopResponseDualRelay.state = switchOn[0];
+            p.monoflopResponseDualRelay.state = isOn(0);
             p.monoflopResponseDualRelay.time  = callbacks[0].period;
             p.monoflopResponseDualRelay.time_remaining = callbacks[0].relativeStartTime + callbacks[0].period - relativeTimeMs;
         }
@@ -317,7 +315,7 @@ bool DeviceSolidStateRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p,
 
     if (func == functionCodes[FUNC_SET_MONOFLOP])
     {
-        switchOn[0] = p.boolValue;
+        setSwitch(0, p.boolValue);
         callbacks[0].update(relativeTimeMs, p.monoflopResponseDualRelay.time, 1, !p.boolValue);
         return true;
     }
@@ -341,8 +339,7 @@ void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int
             IOPacket packet(uid, it->callbackCode, 1);
             packet.boolValue = it->param2;
 
-            //stateChanged = switchOn[0] != packet.boolValue;
-            switchOn[0] = packet.boolValue;
+            setSwitch(0, packet.boolValue);
             brickStack->dispatchCallback(packet);
         }
     }
@@ -352,7 +349,7 @@ void DeviceSolidStateRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int
  * Init dual relay with get/set and monoflop.
  */
 DeviceDualRelay::DeviceDualRelay()
-  : DeviceRelay(2, false)
+  : DeviceRelay(2, false, false)
 {
     functionCodes[FUNC_SET_STATE] = DUAL_RELAY_FUNCTION_SET_STATE;
     functionCodes[FUNC_SET_SELECTED] = DUAL_RELAY_FUNCTION_SET_SELECTED_STATE;
@@ -380,7 +377,7 @@ std::string DeviceDualRelay::getLabel(unsigned switchNo) const
  * Init quad relay with get/set and monoflop.
  */
 DeviceQuadRelay::DeviceQuadRelay()
-  : DeviceRelay(4, true)
+  : DeviceRelay(4, true, false)
 {
     functionCodes[FUNC_SET_STATE] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_VALUE;
     functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_SELECTED_VALUES;
@@ -389,25 +386,146 @@ DeviceQuadRelay::DeviceQuadRelay()
     functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_MONOFLOP;
     initMonoflopCallbacks(INDUSTRIAL_QUAD_RELAY_CALLBACK_MONOFLOP_DONE);
 
-    other = new DoNothing(INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
+    // if it is available for group, the group might no be queried
+    other = new DoNothing(INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1, TRUE);
     other = new DoNothing(other, INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_GROUP, 4, NO4);
+}
+
+/**
+ * Init quad relay with get/set and monoflop.
+ */
+DeviceQuadRelayV2::DeviceQuadRelayV2()
+  : DeviceRelay(4, false, true)
+{
+    ledState[0] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
+    ledState[1] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
+    ledState[2] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
+    ledState[3] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
+
+    functionCodes[FUNC_SET_STATE] = INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_SET_VALUE;
+    functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_SET_SELECTED_VALUE;
+    functionCodes[FUNC_GET_STATE] = INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_GET_VALUE;
+    functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_SET_MONOFLOP;
+    functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_GET_MONOFLOP;
+    initMonoflopCallbacks(INDUSTRIAL_QUAD_RELAY_V2_CALLBACK_MONOFLOP_DONE);
+    other = nullptr;
+}
+
+/**
+ * Check for known function codes.
+ */
+bool DeviceQuadRelayV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
+{
+    // set default dummy response size: header only
+    p.header.length = sizeof(p.header);
+    uint8_t func = p.header.function_id;
+
+    if (func == functionCodes[FUNC_GET_MONOFLOP])
+    {
+        uint8_t n = p.uint8Value;
+        if (n >= numSwitches) {
+            Log() << "DeviceQuadRelayV2: invalid relay switch number: " << (unsigned) p.uint8Value;
+            return false;
+        }
+        p.header.length = sizeof(p.header) + sizeof(p.monoflopResponseDualRelay);
+        if (callbacks[n].active) {
+            p.monoflopResponseDualRelay.state = isOn(n);
+            p.monoflopResponseDualRelay.time  = callbacks[n].period;
+            p.monoflopResponseDualRelay.time_remaining = callbacks[n].relativeStartTime + callbacks[n].period - relativeTimeMs;
+        }
+        else {
+            p.monoflopResponseDualRelay.state = 0;
+            p.monoflopResponseDualRelay.time  = 0;
+            p.monoflopResponseDualRelay.time_remaining = 0;
+        }
+        return true;
+    }
+
+    if (func == functionCodes[FUNC_SET_MONOFLOP])
+    {
+        uint8_t n = p.uint8Value;
+        if (n >= numSwitches) {
+            Log::log("Invalid switch number for dual relay:", n);
+            return false;
+        }
+        //stateChanged = true;
+        setSwitch(n, p.fullData.payload[1] != 0);
+        callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !isOn(n));
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+    }
+
+    if (func == functionCodes[FUNC_SET_SELECTED])
+    {
+        uint8_t n = p.uint8Value;
+        if (n >= numSwitches) {
+            Log::log("Invalid switch number for dual relay:", n);
+            return false;
+        }
+        setSwitch(n, p.fullData.payload[1] != 0);
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+    }
+
+    if (func == functionCodes[FUNC_GET_STATE])
+    {
+        p.header.length = sizeof(p.header) + 1;
+        p.uint8Value = getSwitchStates();
+        return true;
+    }
+
+    if (DeviceRelay::consumeCommand(relativeTimeMs, p, visualizationClient))
+        return true;
+
+    if (func == INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_GET_CHANNEL_LED_CONFIG)
+    {
+        p.header.length += 1;
+        uint8_t n = p.fullData.payload[0];
+        if (n < 4)
+            p.fullData.payload[0] = ledState[n];
+        return true;
+    }
+
+    if (func == INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_SET_CHANNEL_LED_CONFIG)
+    {
+        uint8_t n = p.fullData.payload[0];
+        if (n < 4)
+            ledState[n] = p.fullData.payload[1];
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Check for monoflop callbacks.
+ */
+void DeviceQuadRelayV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
+{
+    DeviceRelay::checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 }
 
 /**
  * Init digital out 4 with get/set and monoflop: behaves like a relay.
  */
-DeviceDigitalOut4::DeviceDigitalOut4()
-  : DeviceRelay(4, true)
+DeviceDigitalOut4::DeviceDigitalOut4(bool isV2)
+  : DeviceRelay(4, ! isV2, isV2)
 {
-    functionCodes[FUNC_SET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_VALUE;
-    functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_SELECTED_VALUES;
-    functionCodes[FUNC_GET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_VALUE;
-    functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_MONOFLOP;
-    functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_MONOFLOP;
-    initMonoflopCallbacks(INDUSTRIAL_DIGITAL_OUT_4_CALLBACK_MONOFLOP_DONE);
+    if (isV2) {
+        throw std::runtime_error("DeviceDigitalOut4 V2 not implemented");
+    }
+    else {
+        functionCodes[FUNC_SET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_VALUE;
+        functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_SELECTED_VALUES;
+        functionCodes[FUNC_GET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_VALUE;
+        functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_MONOFLOP;
+        functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_MONOFLOP;
+        initMonoflopCallbacks(INDUSTRIAL_DIGITAL_OUT_4_CALLBACK_MONOFLOP_DONE);
 
-    other = new DoNothing(INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
-    other = new DoNothing(other, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, NO4);
+        other = new DoNothing(INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
+        other = new DoNothing(other, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, NO4);
+    }
 }
 
 
@@ -428,16 +546,16 @@ void DeviceRemoteRelay::updateRelay(const char *id, uint8_t state)
     {
         if (codes[i].compare(id) == 0)
         {
-            switchOn[i] = state != REMOTE_SWITCH_SWITCH_TO_OFF;
+            setSwitch(i, state != REMOTE_SWITCH_SWITCH_TO_OFF);
             return;
         }
     }
     if (numSwitches < 16)
     {
         // add one more relay
-        codes[numSwitches]    = id;
-        switchOn[numSwitches] = state != REMOTE_SWITCH_SWITCH_TO_OFF;
+        codes[numSwitches] = id;
         ++numSwitches;
+        setSwitch(numSwitches, state != REMOTE_SWITCH_SWITCH_TO_OFF);
     }
     else {
         Log::error("DeviceRemoteRelay: relay code array overflow!");

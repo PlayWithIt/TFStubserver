@@ -455,7 +455,6 @@ protected:
     int      sensorValue3;
     int      sensorValue4;
     unsigned counter;
-    bool     isV2Device;
     uint8_t  led1, led2, led3, led4;    // multiple purpose
 };
 
@@ -546,6 +545,18 @@ public:
     }
 
     bool isOn(unsigned switchNo) const;
+    bool isLedOn(unsigned switchNo) const;
+
+    /**
+     * Sets 1 bit per switch in the response:
+     * bit 0 = switch 0 (value = 1)
+     * bit 1 = switch 1 (value = 2)
+     * bit 2 = switch 2 (value = 4)
+     * ...
+     */
+    unsigned getSwitchStates() const {
+        return switchStates;
+    }
 
     /**
      * Returns a label for the switch: this can be just the switch number
@@ -555,6 +566,20 @@ public:
 
 protected:
     unsigned numSwitches;
+    uint8_t  ledState[16];          // some relays have one led per channel
+
+    /**
+     * Updates the bitValues and switchOn: just one bit
+     */
+    void setSwitch(unsigned switchNo, bool on);
+
+    /**
+     * Updates the bitValues and switchOn, all bits states.
+     */
+    void setSwitchStates(unsigned states);
+
+private:
+    unsigned switchStates;          // one bit per switch
     bool     switchOn[16];          // one flag per switch, max 16 switches
 };
 
