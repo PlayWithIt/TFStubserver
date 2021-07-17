@@ -263,7 +263,7 @@ void DeviceRelay::initMonoflopCallbacks(uint8_t callbackCode)
  * Init solid state relay with get/set and monoflop.
  */
 DeviceSolidStateRelay::DeviceSolidStateRelay()
-  : DeviceRelay(1, false, isV2)
+  : DeviceRelay(1, false, false)
 {
     functionCodes[FUNC_SET_STATE] = SOLID_STATE_RELAY_FUNCTION_SET_STATE;
     functionCodes[FUNC_SET_SELECTED] = 0;

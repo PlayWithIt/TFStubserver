@@ -258,7 +258,7 @@ void BrickStack::consumeRequestQueue()
         SimulatedDevice* dev = uid == 0 ? nullptr : getDevice(uid);
 
         // Just for testing ...
-        if (logRequests || (dev && dev->getTraceLv() >= 2))
+        if (logRequests || (dev && dev->getTraceLv() >= 1))
         {
             len = sprintf(msg, "Request for uid=%-6s, func-id %3d, msg-size %2d -",
                           utils::base58Encode(packet.header.uid).c_str(),

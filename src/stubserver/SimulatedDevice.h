@@ -1,7 +1,7 @@
 /*
  * SimulatedDevice.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,13 +50,15 @@ class SimulatedDevice
     std::string deviceTypeName;        // device type e.g. MASTER, LCD as string
     std::string uidStr;                // device uid as string
     std::string connectedUidStr;       // 'parent' device where this device is connected to
-    std::string label;                 // device specific label for the optional GUI
+    std::string label;                 // optional UI value label (e.g. Voltage/Gramm)
+    std::string title;                 // optional UI title to use instead of the device type and UID
 
     unsigned    uid;                   // device uid as number
     unsigned    deviceTypeId;
     char        position;              // port a..h or stack position 0..6
     bool        isBrick;
     bool        isV2;
+    bool        hideInUI;              // if true: should not be shown in UI (useful for master or HAT)
     uint8_t     traceLv;               // 0 == off, 1 == internal, 2 brickStackTo
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
@@ -107,7 +109,7 @@ public:
     void connect(SimulatedDevice* child);
 
     /**
-     * Returns the device type identifier for Masterbrick, Servo etc, the values are
+     * Returns the device type id for Masterbrick, Servo etc, the values are
      * those from the TF header files, like MASTER_DEVICE_IDENTIFIER, AMBIENT_LIGHT_DEVICE_IDENTIFIER etc.
      */
     unsigned getDeviceTypeId() const {
@@ -115,7 +117,7 @@ public:
     }
 
     /**
-     * Returns a type string.
+     * Returns a type string e.g. "MASTER" or "INDUSTRIAL_QUAD_RELAY_V2"
      */
     const std::string& getDeviceTypeName() const {
         return deviceTypeName;
@@ -146,6 +148,14 @@ public:
      */
     uint8_t getTraceLv() const {
         return traceLv;
+    }
+
+    /**
+     * Returns true if the device should not be shown in the UI: this might
+     * be helpful for master or HAT bricks (without real function).
+     */
+    bool doHideInUI() const {
+        return hideInUI;
     }
 
     /**
@@ -189,10 +199,19 @@ public:
     }
 
     /**
-     * Returns the optional label string.
+     * Returns the optional label string which is a suffix for the value.
      */
     const std::string& getLabel() const {
         return label;
+    }
+
+    /**
+     * Returns the title string which is some kind of device name:
+     * if this value is not set in the properties, then "deviceType - UID"
+     * is the default.
+     */
+    const std::string& getTitle() const {
+        return title;
     }
 };
 

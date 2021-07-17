@@ -71,6 +71,11 @@ typedef struct IOPacket
         char     group[4];
 
         struct {
+            int32_t value1;
+            int32_t value2;
+        } ATTRIBUTE_PACKED ints;
+
+        struct {
             uint32_t value1;
             uint32_t value2;
         } ATTRIBUTE_PACKED uints;

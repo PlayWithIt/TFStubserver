@@ -24,11 +24,9 @@
 #include <brick_servo.h>
 #include <brick_dc.h>
 
-#include <bricklet_air_quality.h>
 #include <bricklet_analog_in.h>
 #include <bricklet_analog_in_v2.h>
 #include <bricklet_analog_out.h>
-#include <bricklet_analog_out_v2.h>
 #include <bricklet_ambient_light.h>
 #include <bricklet_ambient_light_v2.h>
 #include <bricklet_color.h>
@@ -37,25 +35,17 @@
 #include <bricklet_dust_detector.h>
 #include <bricklet_humidity.h>
 #include <bricklet_industrial_digital_in_4.h>
-#include <bricklet_industrial_dual_analog_in.h>
-#include <bricklet_io16.h>
-#include <bricklet_io4.h>
-#include <bricklet_joystick.h>
 #include <bricklet_line.h>
 #include <bricklet_load_cell.h>
 #include <bricklet_load_cell_v2.h>
 #include <bricklet_moisture.h>
-#include <bricklet_humidity.h>
 #include <bricklet_humidity_v2.h>
 #include <bricklet_ptc.h>
-#include <bricklet_rgb_led_button.h>
 #include <bricklet_sound_intensity.h>
-#include <bricklet_sound_pressure_level.h>
 #include <bricklet_temperature.h>
 #include <bricklet_temperature_v2.h>
 #include <bricklet_temperature_ir.h>
 #include <bricklet_uv_light.h>
-#include <bricklet_voltage_current.h>
 #include <device_table.h>
 
 #include <utils/Log.h>
@@ -432,6 +422,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DeviceHallEffect(createValueProvider("valueProvider"));
         break;
 
+    case HALL_EFFECT_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceHallEffectV2(createValueProvider("valueProvider"));
+        break;
+
     case HUMIDITY_DEVICE_IDENTIFIER:
         sensor = new DeviceSensor(
                 HUMIDITY_FUNCTION_GET_HUMIDITY,
@@ -592,12 +586,12 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     case LOAD_CELL_V2_DEVICE_IDENTIFIER:
         functions = new DoNothing(LOAD_CELL_V2_FUNCTION_CALIBRATE);
         functions = new GetSet<uint8_t>(functions, LOAD_CELL_V2_FUNCTION_GET_INFO_LED_CONFIG, LOAD_CELL_V2_FUNCTION_SET_INFO_LED_CONFIG);
-        functions = new GetSet<uint8_t>(functions, LOAD_CELL_V2_FUNCTION_GET_MOVING_AVERAGE, LOAD_CELL_V2_FUNCTION_SET_MOVING_AVERAGE, 4);
+        functions = new GetSet<uint16_t>(functions, LOAD_CELL_V2_FUNCTION_GET_MOVING_AVERAGE, LOAD_CELL_V2_FUNCTION_SET_MOVING_AVERAGE, 4);
         functions = new GetSet<uint16_t>(functions, LOAD_CELL_V2_FUNCTION_GET_CONFIGURATION, LOAD_CELL_V2_FUNCTION_SET_CONFIGURATION);
-        sensor = new DeviceSensor(
-                LOAD_CELL_V2_FUNCTION_GET_WEIGHT,
-                0,   // TODO - Sensor without callback or V2 style callbacks
-                LOAD_CELL_V2_CALLBACK_WEIGHT);
+        sensor = new DeviceSensor(LOAD_CELL_V2_FUNCTION_GET_WEIGHT,
+                                  LOAD_CELL_V2_FUNCTION_GET_WEIGHT_CALLBACK_CONFIGURATION,
+                                  LOAD_CELL_V2_FUNCTION_SET_WEIGHT_CALLBACK_CONFIGURATION,
+                                  LOAD_CELL_V2_CALLBACK_WEIGHT);
 
         sensor->setCalibrateZeroFunc(LOAD_CELL_V2_FUNCTION_TARE);
         sensor->setValueSize(4);
@@ -881,10 +875,10 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     }
 
     properties->put(props);
-    str = getProperty("type", 2);
     traceLv = properties->getInt(uidStr + ".traceLevel", 0);
 
     // find type code (int-value)
+    str = getProperty("type", 2);
     for (int i = 0; gAllDeviceIdentifiers[i].deviceIdentifier > 0 && deviceTypeId == 0; ++i)
     {
         if (strcmp(gAllDeviceIdentifiers[i].name, str) == 0)
@@ -895,9 +889,12 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
         cleanup();  // cleanup removes the properties -> 'str' would be empty
         throw Exception(msg);
     }
-
-    label = getProperty("label");
     deviceTypeName = str;
+    hideInUI = properties->getBool(uidStr + ".hideInUI", false);
+    label    = getProperty("label");
+    title    = properties->get(uidStr + ".title", "");
+    if (title.length() == 0)
+        title = deviceTypeName + " - " + uidStr;
 
     str = getProperty("firmwareVersion", 3);
     firmwareVersion[0] = str[0] - '0';
@@ -915,11 +912,16 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     str = getProperty("position", 1);
 
     char p = str[0];
-    if (p >= 'a' && p <= 'h') {           // HAT Brick has port a .. h
-        position = str[0];
+    if (p >= 'a' && p <= 'z') {
+        // make upper case
+        p -= 32;
+    }
+
+    if (p >= 'A' && p <= 'I') {           // HAT Brick has port a .. h and HAT itself has 'i'
+        position = p;
     }
     else if (p >= '0' && p <= '9') {
-        position = str[0];
+        position = p;
         brickStack->addBrick(p, uidStr);
     }
     else {
@@ -953,18 +955,22 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
         setupFunctions();
 
         // parts are already checked above ...
-        if (false == isBrick && (position < 'a' || position > 'h')) {
-            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICKLET %s (must be a..d)", position, position, uidStr.c_str());
+        if (false == isBrick && (position < 'A' || position > 'H')) {
+            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICKLET %s (must be A..D)", position, position, uidStr.c_str());
             throw utils::Exception(msg);
         }
-        if (true == isBrick && (position < '0' || position > '9')) {
-            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICK %s (must be 0..9)", position, position, uidStr.c_str());
+        if (true == isBrick && (position < '0' || position > '9') && position != 'I') {
+            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICK %s (must be 0..9,I)", position, position, uidStr.c_str());
             throw utils::Exception(msg);
         }
     }
     catch (const std::exception &e) {
         cleanup();
         throw;
+    }
+
+    if (hideInUI) {
+        Log() << deviceTypeName << " (UID=" << getUidStr() << ") marked as hidden, not shown in UI";
     }
 }
 
