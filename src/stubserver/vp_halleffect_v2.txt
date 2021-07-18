@@ -1,0 +1,18 @@
+# Example to simulate some input value change.
+#
+# The time value are 'until' values:
+# -> the first value is valid from 0..1500
+# -> the second value is valid from 1501..3000
+
+1500  1000
+3000  2300
+3100  1500
+3200  500
+3300  100
+7500  500
+7600  1000
+7700  2400
+7900  1500
+8000  500
+8100  100
+9000  100
