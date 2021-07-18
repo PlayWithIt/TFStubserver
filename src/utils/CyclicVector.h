@@ -1,7 +1,7 @@
 /*
  * CyclicVector.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,15 +160,16 @@ public:
      */
     CyclicVector<_Tp>& operator=(CyclicVector<_Tp> &&other)
     {
-        this->allocated = other.allocated;
-        this->used      = other.used;
-        this->first     = other.first;
-        this->vectorStart = other.vectorStart;
+        if (this != &other) {
+            this->allocated = other.allocated;
+            this->used      = other.used;
+            this->first     = other.first;
+            this->vectorStart = other.vectorStart;
 
-        other.vectorStart = NULL;
-        other.allocated   = 0;
-        other.clear();
-
+            other.vectorStart = NULL;
+            other.allocated   = 0;
+            other.clear();
+        }
         return *this;
     }
 

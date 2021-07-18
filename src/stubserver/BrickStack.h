@@ -59,6 +59,9 @@ class BrickStack
     // the UIDs of the brick, index 0 is position '0'
     std::string bricks[10];
 
+    // name of main configuration
+    utils::File mainConfig;
+
     // current time as relative time in milliseconds
     system_clock::time_point startTime;
     uint64_t relativeTimeMs;
@@ -104,6 +107,13 @@ public:
      */
     void initEnumerate(uint8_t enumType) {
         doEnumerateWithType = enumType;
+    }
+
+    /**
+     * Returns the main configuration file (name).
+     */
+    const utils::File& getMainConfig() const {
+        return mainConfig;
     }
 
     /**

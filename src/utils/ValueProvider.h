@@ -1,7 +1,7 @@
 /*
  * ValueProvider.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <vector>
 #include <string>
 
+#include "File.h"
 #include "Properties.h"
 
 
@@ -56,14 +57,18 @@ public:
     /**
      * Dynamically create a known value provider from some options which have the
      * following format:<br>
-     * "const  <value>" <br>
-     * "linear <min> <max> <step> <interval>" <br>
-     * "random <min> <max> <interval>" <br>
-     * "sinus  <min> <max> <interval>" <br>
+     * "const  value=<value>" <br>
+     * "linear min=<min>,max=<max>,step=<step>,interval=<interval>" <br>
+     * "random min=<min>,max=<max>,interval=<interval>" <br>
+     * "sinus  min=<min>,max=<max>,interval=<interval>" <br>
+     * "onOff  duration=<durationOn>,interval=<intervalOn>" <br>
      * "stored <filename>" <br>
-     * "onOff  <interval>" <br>
+     * "csv    <filename>" <br>
+     *
+     * @param options options string as described above
+     * @param file base directory where to search files if they are not absolute, if NULL: working directory
      */
-    static ValueProvider* buildFrom(const std::string &options);
+    static ValueProvider* buildFrom(const std::string &options, const utils::File *basePath = nullptr);
 
     /**
      * Get the actual value at the given relative time.
@@ -254,7 +259,13 @@ public:
      * Reads the values from the given file, throws an exception if the file
      * does not exist or cannot be read.
      */
-    StoredValueProvider(const char *filename);
+    StoredValueProvider(const std::string &filename);
+
+    /**
+     * Reads the values from the given file, throws an exception if the file
+     * does not exist or cannot be read.
+     */
+    StoredValueProvider(const File &file);
 
     /**
      * Reads the values from properties with a given prefix: the prefix will
@@ -315,7 +326,13 @@ public:
      * Reads the values from the given file, throws an exception if the file
      * does not exist or cannot be read.
      */
-    CSVValueProvider(const char *filename);
+    CSVValueProvider(const std::string &filename);
+
+    /**
+     * Reads the values from the given file, throws an exception if the file
+     * does not exist or cannot be read.
+     */
+    CSVValueProvider(const File &file);
 
     /**
      * Returns the number of rows defined in the input file.

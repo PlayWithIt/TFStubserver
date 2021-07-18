@@ -55,6 +55,7 @@ protected:
 
 public:
     explicit DeviceDigitalIn(utils::ValueProvider *vp, unsigned numPins);
+    ~DeviceDigitalIn();
 
     /**
      * Release old value provider and use the new one.

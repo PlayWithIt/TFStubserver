@@ -66,6 +66,10 @@ DeviceDigitalIn::DeviceDigitalIn(utils::ValueProvider *vp)
     memset(edgeCount, 0, sizeof(edgeCount));
 }
 
+DeviceDigitalIn::~DeviceDigitalIn() {
+    delete valueProvider;
+}
+
 /**
  * Release old value provider and use the new one.
  */

@@ -1,7 +1,7 @@
 /*
  * ValueProviderCSV.cpp
  *
- * Copyright (C) 2020 Holger Grosenick
+ * Copyright (C) 2020-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,15 @@ uint64_t CSVValueProvider::parseTimestamp(const char *ts)
 /**
  * Init with given value range and update frequency.
  */
-CSVValueProvider::CSVValueProvider(const char *filename)
+CSVValueProvider::CSVValueProvider(const File &file)
+  : CSVValueProvider(file.getAbsolutePath())
+{
+}
+
+/**
+ * Init with given value range and update frequency.
+ */
+CSVValueProvider::CSVValueProvider(const std::string &filename)
   : ValueProvider(0, 0, 0)
   , values()
   , current(values.begin())
@@ -86,7 +94,7 @@ CSVValueProvider::CSVValueProvider(const char *filename)
     while (csv.loadLine()) {
         unsigned size = cols.size();
         if (size != numCols) {
-            sprintf(msg, "Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename);
+            sprintf(msg, "Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename.c_str());
             throw utils::ValueFormatError(msg);
         }
 
@@ -111,7 +119,7 @@ CSVValueProvider::CSVValueProvider(const char *filename)
                     // printf("Store offset %ld in line %d\n", v, csv.getLine());
                 }
                 else {
-                    sprintf(msg, "Invalid timestamp conversion in line %u of %s", csv.getLine(), filename);
+                    sprintf(msg, "Invalid timestamp conversion in line %u of %s", csv.getLine(), filename.c_str());
                     throw utils::ValueFormatError(msg);
                 }
             }

@@ -41,20 +41,28 @@ ValueProvider::ValueProvider(int _min, int _max, unsigned int _interval)
 {
     if (max < min)
         throw std::logic_error("max < min in ValueProvider definition");
+    //printf("Constructed valueProvider %p\n", this);
 }
 
 ValueProvider::~ValueProvider() {
+    //printf("Destructed  valueProvider %p\n", this);
 }
 
 /**
- * dynamically create a known value provider from some options which have the
+ * Dynamically create a known value provider from some options which have the
  * following format:<br>
- * "linear <min> <max> <interval>" <br>
- * "random <min> <max> <interval>" <br>
+ * "const  value=<value>" <br>
+ * "linear min=<min>,max=<max>,step=<step>,interval=<interval>" <br>
+ * "random min=<min>,max=<max>,interval=<interval>" <br>
+ * "sinus  min=<min>,max=<max>,interval=<interval>" <br>
+ * "onOff  duration=<duration>,interval=<interval>" <br>
  * "stored <filename>" <br>
  * "csv    <filename>" <br>
+ *
+ * @param options options string as described above
+ * @param file base directory where to search files if they are not absolute, if NULL: working directory
  */
-ValueProvider* ValueProvider::buildFrom(const std::string& options)
+ValueProvider* ValueProvider::buildFrom(const std::string& options, const utils::File *basePath)
 {
     size_t l = options.length();
     if (l < 10)
@@ -80,7 +88,16 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options)
             ++last;
 
         // load a text-file here, not a properties file!
-        StoredValueProvider *sp = new StoredValueProvider(options.substr(last).c_str());
+        std::string name = options.substr(last);
+        if (name.length() > 0 && name[0] != '/' && basePath) {
+            // relative file and a base path is set => search in basePath
+            File curr(name);
+            if (!curr.exists()) {
+                curr = File(*basePath, name);
+                name = curr.getAbsolutePath();
+            }
+        }
+        StoredValueProvider *sp = new StoredValueProvider(name);
         return sp;
     }
     if (type.compare("csv") == 0)
@@ -291,7 +308,15 @@ int SinusValueProvider::getValue(uint64_t relativeTimeMs)
 /**
  * Init with given value range and update frequency.
  */
-StoredValueProvider::StoredValueProvider(const char *filename)
+StoredValueProvider::StoredValueProvider(const File &filename)
+  : StoredValueProvider(filename.getAbsolutePath())
+{
+}
+
+/**
+ * Init with given value range and update frequency.
+ */
+StoredValueProvider::StoredValueProvider(const std::string &filename)
   : ValueProvider(0, 0, 0)
   , values()
   , current(values.begin())
@@ -307,6 +332,7 @@ StoredValueProvider::StoredValueProvider(const char *filename)
         throw FileOpenError(true, filename);
     }
 
+    // valueProvider constructor doesn't allow max < min, but we determine min&max below
     min = std::numeric_limits<int>::max();
     max = std::numeric_limits<int>::min();
 
@@ -341,6 +367,10 @@ StoredValueProvider::StoredValueProvider(const Properties &props, const std::str
 
     if (key.length() > 500)
         throw Exception("Key too long: max 500 chars supported!");
+
+    // valueProvider constructor doesn't allow max < min, but we determine min&max below
+    min = std::numeric_limits<int>::max();
+    max = std::numeric_limits<int>::min();
 
     while (row < 999999999)
     {

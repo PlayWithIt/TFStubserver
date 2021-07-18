@@ -60,6 +60,7 @@ BrickStack::BrickStack(const char *filename, bool _logRequests)
   , clientMutex()
   , devices()
   , clients()
+  , mainConfig(filename)
   , startTime(system_clock::now())
   , relativeTimeMs(0)
   , packetsIn(0)
@@ -72,12 +73,6 @@ BrickStack::BrickStack(const char *filename, bool _logRequests)
 {
     if (objectCount > 0)
         throw utils::Exception("ERROR: there maybe only one BrickStack at a time!");
-
-    if (filename == NULL)
-    {
-        Log::log("BrickStack has NO devices!");
-        return;
-    }
 
     // load config from properties
     Properties p(filename);
