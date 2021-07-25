@@ -448,9 +448,13 @@ bool DeviceQuadRelayV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
             Log::log("Invalid switch number for dual relay:", n);
             return false;
         }
+
+        Log() << "SET QuadRelayV2 monoflop channel " << (int) n << " value "
+              << (int) p.fullData.payload[1] << ", time: " << std::dec << p.monoflopDefine.time << "ms";
+
         //stateChanged = true;
         setSwitch(n, p.fullData.payload[1] != 0);
-        callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n+1, !isOn(n));
+        callbacks[n].update(relativeTimeMs, p.monoflopResponse.time, n, !isOn(n));
         notify(visualizationClient, VALUE_CHANGE);
         return true;
     }
@@ -503,7 +507,29 @@ bool DeviceQuadRelayV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
  */
 void DeviceQuadRelayV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
 {
-    DeviceRelay::checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
+    for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
+    {
+        if (it->mayExecute(relativeTimeMs))
+        {
+            // execute monoflop
+            Log() << "EXECUTE QuadRelayV2 monoflop switch " << it->param1
+                  << " value " << it->param2 << ", time: " << it->period << "ms\n";
+            it->active = false;
+
+            // callback has channel + current state
+            IOPacket packet(uid, it->callbackCode, 2);
+            packet.fullData.payload[0] = it->param1;
+            packet.fullData.payload[1] = it->param2 ? 1 : 0;
+            setSwitch(it->param1, it->param2 != 0);
+
+            //stateChanged = true;
+            brickStack->dispatchCallback(packet);
+            notify(visualizationClient, VALUE_CHANGE);
+        }
+    }
+
+    if (other)
+        other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
 }
 
 /**

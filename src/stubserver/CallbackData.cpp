@@ -98,7 +98,6 @@ RangeCallback::RangeCallback(uint8_t psize)
   , setThresholdFunctionCode(0)
   , getThresholdFunctionCode(0)
 {
-    period = 100;
 }
 
 void RangeCallback::setFunctions(uint8_t _setThresholdFunctionCode, uint8_t _getThresholdFunctionCode,
@@ -214,7 +213,7 @@ bool RangeCallback::consumeGetSetConfig(IOPacket &p)
         }
 
         throw utils::Exception("RangeCallback::setThreshold config with size != 2 or 4 not supported, size is %d", paramSize);
-}
+    }
     return false;
 }
 
@@ -230,6 +229,8 @@ bool RangeCallback::shouldTriggerRangeCallback(uint64_t relativeTimeMs, int curr
         return false;
     if (relativeStartTime + period > relativeTimeMs)
         return false;
+
+    // printf("Check range '%c' %d .. %d, current %d\n", option, param1, param2, currentValue);
 
     // From TF-documentation:
     // Wird die Option auf 'x' gesetzt (Threshold abgeschaltet), so wird der Callback mit der festen Periode ausgelöst.
@@ -253,7 +254,7 @@ bool RangeCallback::shouldTriggerRangeCallback(uint64_t relativeTimeMs, int curr
 void RangeCallback::logCallbackStatus(uint32_t uid) const
 {
     utils::Log() << utils::base58Encode(uid) <<": set callback #" << (int) callbackCode << " option '" << option
-                 << "', min=" << param1 << " max=" << param2 << " debounce=" << period;
+                 << "', min=" << param1 << " max=" << param2 << " period=" << period;
 }
 
 /**

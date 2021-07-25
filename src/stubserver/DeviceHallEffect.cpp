@@ -260,6 +260,7 @@ void DeviceHallEffectV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int ui
         packet.int16Value = newValue;
         brickStack->dispatchCallback(packet);
         cbFlux.relativeStartTime += cbFlux.period;
+        //printf("DeviceHallEffectV2: trigger callback: %d\n", newValue);
     }
 
     // edge count callback

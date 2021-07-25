@@ -96,7 +96,7 @@ void DeviceOled::writeText(uint8_t fulldata[])
  */
 void DeviceOled::clearDisplay(VisualizationClient &visualizationClient)
 {
-    printf("OLED_FUNCTION_CLEAR_DISPLAY %u..%u  %u..%u\n", windowColFrom, windowColTo, windowRowFrom, windowRowTo);
+    // printf("OLED_FUNCTION_CLEAR_DISPLAY %u..%u  %u..%u\n", windowColFrom, windowColTo, windowRowFrom, windowRowTo);
 
     // clear the screen area of the current window: for old OLED the current window
     // might be relevant, but we ignore that here !
