@@ -433,6 +433,34 @@ public:
     }
 
     /**
+     * Returns the "sensor" value from channel 1.
+     */
+    int getSensorValue1() const {
+        return sensorValue1;
+    }
+
+    /**
+     * Returns the "sensor" value from channel 2.
+     */
+    int getSensorValue2() const {
+        return sensorValue2;
+    }
+
+    /**
+     * Returns the "sensor" value from channel 3.
+     */
+    int getSensorValue3() const {
+        return sensorValue3;
+    }
+
+    /**
+     * Returns the "sensor" value from channel 4.
+     */
+    int getSensorValue4() const {
+        return sensorValue4;
+    }
+
+    /**
      * Optionally used: flag counter or something like this.
      */
     unsigned getCounter() const {

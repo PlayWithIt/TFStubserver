@@ -98,10 +98,10 @@ bool stopServer()
  * Retrieve the list of configured devices, this can be empty if
  * the server is not running.
  */
-std::list<const SimulatedDevice*> getDevices()
+std::list<const SimulatedDevice*> getUiDevices()
 {
     if (brickThread)
-        return brickThread->getDevices();
+        return brickThread->getUiDevices();
     return std::list<const SimulatedDevice*>();  // empty
 }
 
@@ -124,7 +124,7 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
         Log::setStream(os);
     }
 
-    if (deviceList == NULL)
+    if (deviceList == nullptr)
     {
         Log::error("ERROR: device list not defined, option -d is mandatory!");
         return 1;

@@ -1,7 +1,7 @@
 /*
  * stubserver.h
  *
- * Copyright (C) 2015 Holger Grosenick
+ * Copyright (C) 2015-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +28,11 @@ namespace stubserver {
 class SimulatedDevice;
 
 /**
- * Retrieve the list of configured devices, this can be empty if
- * the server is not running.
+ * Retrieve the list of configured devices for the UI, this can be empty if
+ * the server is not running. The list might have less devices than used,
+ * e.g. bricks might be missing (not so relevant in the UI).
  */
-std::list<const SimulatedDevice*> getDevices();
+std::list<const SimulatedDevice*> getUiDevices();
 
 /**
  * Start the stubserver with the given configuration which points to the

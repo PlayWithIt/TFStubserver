@@ -58,7 +58,6 @@ class SimulatedDevice
     char        position;              // port a..h or stack position 0..6
     bool        isBrick;
     bool        isV2;
-    bool        hideInUI;              // if true: should not be shown in UI (useful for master or HAT)
     uint8_t     traceLv;               // 0 == off, 1 == internal, 2 brickStackTo
     uint8_t     hardwareVersion[3];
     uint8_t     firmwareVersion[3];
@@ -124,8 +123,8 @@ public:
     }
 
     /**
-     * Returns the position in the stack, this is either a port code (a..d)
-     * for a bricklet connected to a brick or a number char (0..6) which
+     * Returns the position in the stack, this is either a port code (a..h)
+     * for a bricklet connected to a brick or a number char (0..9,i) which
      * indicates that the device is a brick.
      */
     char getPosition() const {
@@ -148,14 +147,6 @@ public:
      */
     uint8_t getTraceLv() const {
         return traceLv;
-    }
-
-    /**
-     * Returns true if the device should not be shown in the UI: this might
-     * be helpful for master or HAT bricks (without real function).
-     */
-    bool doHideInUI() const {
-        return hideInUI;
     }
 
     /**

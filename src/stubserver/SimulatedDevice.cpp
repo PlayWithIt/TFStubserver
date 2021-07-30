@@ -103,7 +103,8 @@ utils::ValueProvider* SimulatedDevice::createValueProvider(const char *propertyN
         throw Exception(std::string("Value provider for device with UID=") + uidStr + " is mandatory but missing, config name was: " + propertyName);
 
     utils::ValueProvider* result;
-    result = utils::ValueProvider::buildFrom(options);
+    utils::File parentDir(brickStack->getMainConfig().getParent());
+    result = utils::ValueProvider::buildFrom(options, &parentDir);
 
     if (!result)
         throw Exception(std::string("Invalid value provider options, device UID=") + uidStr + ", options=" + options);
@@ -812,7 +813,9 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
     return functions;
 }
 
-
+/**
+ * For test purpose.
+ */
 SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, unsigned int _typeId)
     : brickStack(_brickStack)
     , properties(NULL)
@@ -890,7 +893,6 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
         throw Exception(msg);
     }
     deviceTypeName = str;
-    hideInUI = properties->getBool(uidStr + ".hideInUI", false);
     label    = getProperty("label");
     title    = properties->get(uidStr + ".title", "");
     if (title.length() == 0)
@@ -917,10 +919,10 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
         p -= 32;
     }
 
-    if (p >= 'A' && p <= 'I') {           // HAT Brick has port a .. h and HAT itself has 'i'
+    if (p >= 'A' && p <= 'H') {           // HAT Brick has port a .. h and HAT itself has 'i'
         position = p;
     }
-    else if (p >= '0' && p <= '9') {
+    else if (p == 'I' || (p >= '0' && p <= '9')) {
         position = p;
         brickStack->addBrick(p, uidStr);
     }
@@ -967,10 +969,6 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     catch (const std::exception &e) {
         cleanup();
         throw;
-    }
-
-    if (hideInUI) {
-        Log() << deviceTypeName << " (UID=" << getUidStr() << ") marked as hidden, not shown in UI";
     }
 }
 

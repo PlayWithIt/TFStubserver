@@ -80,8 +80,9 @@ BrickStack::BrickStack(const char *filename, bool _logRequests)
     if (str.length() == 0)
         throw utils::Exception("Property 'UIDS' is not present!");
 
-    std::vector<std::string> uids;
+    uiUids = p.get("UI_UIDS", "");
 
+    std::vector<std::string> uids;
     try {
         for (std::string &it : utils::strings::split(str, ' ', uids))
         {
@@ -93,8 +94,8 @@ BrickStack::BrickStack(const char *filename, bool _logRequests)
         }
 
         // make some consistency checks
-        if (bricks[0].length() == 0)
-            throw utils::Exception("There is no brick on position '0' of the stack - this is invalid!");
+        if (firstBrick.length() == 0)
+            throw utils::Exception("There is no brick defined in the stack - this is invalid!");
     }
     catch (const std::exception &e) {
         // if an exception happens here, the destructor is not called!
@@ -119,7 +120,7 @@ BrickStack::~BrickStack()
 
     Log() << "UpTime: " << delta << "ms, "
           << callbackCycles << " callback cycles ("
-          << static_cast<double>(callbackCycles) / (delta / 1000.0) << " cyles/sec), "
+          << static_cast<double>(callbackCycles) / (delta / 1000.0) << " cycles/sec), "
           << packetsIn << " packets in, " << packetsOut << " packets out";
 }
 
@@ -133,13 +134,8 @@ BrickStack::~BrickStack()
  */
 void BrickStack::addBrick(char position, const std::string &uid)
 {
-    if (position > '9' || position < '0') {
-        char msg[256];
-        sprintf(msg, "ERROR: invalid brick position char '%c' (%d)", position, position);
-        throw utils::Exception(msg);
-    }
-    unsigned index = position - '0';
-    bricks[index] = uid;
+    if (firstBrick.length() == 0)
+        firstBrick = uid;
 }
 
 /**
@@ -250,12 +246,13 @@ void BrickStack::consumeRequestQueue()
         auto item = packetQueue.front();
         IOPacket& packet = std::get<1>(item);
         unsigned uid = packet.header.uid;
+        bool responseExpected = packet.packet_header_get_response_expected();
         SimulatedDevice* dev = uid == 0 ? nullptr : getDevice(uid);
 
         // Just for testing ...
         if (logRequests || (dev && dev->getTraceLv() >= 1))
         {
-            len = sprintf(msg, "Request for uid=%-6s, func-id %3d, msg-size %2d -",
+            len = sprintf(msg, "Request  uid=%-6s, func %3d, size %2d -",
                           utils::base58Encode(packet.header.uid).c_str(),
                           packet.header.function_id, packet.header.length);
             for (unsigned i = 8; i < packet.header.length; ++i) {
@@ -270,6 +267,10 @@ void BrickStack::consumeRequestQueue()
             // stack commands, returned to all clients
             if (packet.header.function_id == FUNCTION_ENUMERATE)
                 enumerate(IPCON_ENUMERATION_TYPE_AVAILABLE, "");
+            else if (responseExpected) {
+                Log(Log::ERROR) << "stack function " << (int) packet.header.function_id
+                        << " (len=" << (int) packet.header.length << ") with response_extected=true NOT CONSUMED!";
+            }
 
             // DISCONNECT_PROBE also goes into this branch
         }
@@ -281,7 +282,6 @@ void BrickStack::consumeRequestQueue()
             }
             else {
                 try {
-                    bool responseExpected = packet.packet_header_get_response_expected();
                     bool done = dev->consumePacket(packet, responseExpected);
 
                     if (!done)
@@ -302,7 +302,7 @@ void BrickStack::consumeRequestQueue()
                         }
                         else {
                             if (logRequests || dev->getTraceLv() >= 2) {
-                                len = sprintf(msg, "Request for uid=%-6s> has response-size %2d -",
+                                len = sprintf(msg, "Response uid=%-6s,  response-size %2d -",
                                               utils::base58Encode(packet.header.uid).c_str(),
                                               packet.header.length);
                                 for (unsigned i = 8; i < packet.header.length; ++i) {
@@ -388,26 +388,75 @@ void BrickStack::reconnectBricks()
  * Find the device with the given ID in the list of devices, returns
  * NULL if the uid is not known.
  */
-SimulatedDevice* BrickStack::getDevice(unsigned int uid)
+SimulatedDevice* BrickStack::getDevice(unsigned int uid) const
 {
     for (auto it : devices)
         if (it->getUid() == uid)
             return it;
-    return NULL;
+    return nullptr;
 }
 
 /**
  * Find the device with the given ID in the list of devices, returns
  * NULL if the uid is not known.
  */
-SimulatedDevice* BrickStack::getDevice(const std::string &uid)
+SimulatedDevice* BrickStack::getDevice(const std::string &uid) const
 {
     for (auto it : devices)
         if (it->getUidStr() == uid)
             return it;
-    return NULL;
+    return nullptr;
 }
 
+
+/**
+ * Returns a copy of the list of devices configured for UI:
+ * this is defined with "UI_UIDS" in the properties file.
+ * If this value is not present, the devices are listed in order they appear.
+ */
+std::list<const SimulatedDevice*> BrickStack::getUiDevices() const
+{
+    std::list<const SimulatedDevice*> result;
+
+    if (uiUids.empty())
+    {
+        // return list in order
+        for (auto it : devices)
+            result.push_back(it);
+        return result;
+    }
+
+    std::vector<std::string> uids;
+    for (std::string &it : utils::strings::split(uiUids, ' ', uids))
+    {
+        if (it.size() > 0) {
+            // two blanks between UIDs would cause empty UID in iterator
+            SimulatedDevice *dev = getDevice(it);
+            if (!dev) {
+                throw utils::Exception("UID=" + it + " is listed in 'UI_UIDS' but not present in UIDS");
+            }
+            result.push_back(dev);
+        }
+    }
+
+    // cross check: which devices are not shown in the UI?
+    // (intersect might do also ...)
+    for (auto it : devices)
+    {
+        bool found = false;
+        for (auto res : result) {
+            if (it->getUidStr() == res->getUidStr()) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            Log() << it->getDeviceTypeName() << " (UID=" << it->getUidStr() << ") is hidden, not listed in UI_UIDS";
+        }
+    }
+
+    return result;
+}
 
 void BrickStack::registerClient(BrickClient *cln)
 {

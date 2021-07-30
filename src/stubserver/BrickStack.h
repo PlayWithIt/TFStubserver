@@ -56,11 +56,14 @@ class BrickStack
     std::list<BrickClient*> clients;
     std::queue<TQueueItem> packetQueue;
 
-    // the UIDs of the brick, index 0 is position '0'
-    std::string bricks[10];
+    // the UIDs of the first brick in the config
+    std::string firstBrick;
 
     // name of main configuration
     utils::File mainConfig;
+
+    // optional list of UIDs to be shown in the UI
+    std::string uiUids;
 
     // current time as relative time in milliseconds
     system_clock::time_point startTime;
@@ -134,18 +137,15 @@ public:
      * Find the device with the given ID in the list of devices
      * @return NULL if the uid is not known.
      */
-    SimulatedDevice* getDevice(unsigned int uid);
-    SimulatedDevice* getDevice(const std::string &uid);
+    SimulatedDevice* getDevice(unsigned int uid) const;
+    SimulatedDevice* getDevice(const std::string &uid) const;
 
     /**
-     * Returns a copy of the list of currently configured devices.
+     * Returns a copy of the list of devices configured for UI:
+     * this is defined with "UI_UIDS" in the properties file.
+     * If this value is not present, the devices are listed in order they appear.
      */
-    std::list<const SimulatedDevice*> getDevices() const {
-        std::list<const SimulatedDevice*> result;
-        for (auto it : devices)
-            result.push_back(it);
-        return result;
-    }
+    std::list<const SimulatedDevice*> getUiDevices() const;
 
     /**
      * Registers a client that will be triggered with callbacks.
