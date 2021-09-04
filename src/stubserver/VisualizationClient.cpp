@@ -104,6 +104,58 @@ DualButtonState::DualButtonState()
 }
 
 /**
+ * Init and destruct sensor list
+ */
+OutdoorWeatherState::OutdoorWeatherState()
+  : VisibleDeviceState(0)
+{
+}
+
+OutdoorWeatherState::~OutdoorWeatherState()
+{
+    for (auto it : sensors)
+        delete it;
+}
+
+OutdoorWeatherState::BaseData::BaseData(unsigned _id)
+  : temperature(0)
+  , humidity(0)
+  , id(_id)
+{
+}
+
+OutdoorWeatherState::BaseData::~BaseData()
+{
+}
+
+
+/**
+ * Get the state for the current internal sensor.
+ */
+const OutdoorWeatherState::BaseData& OutdoorWeatherState::getCurrentState() const
+{
+    return getState(getInternalSensorNo());
+}
+
+/**
+ * Get the state for a given internal sensor.
+ */
+const OutdoorWeatherState::BaseData& OutdoorWeatherState::getState(unsigned sensorNo) const
+{
+    if (sensorNo >= sensors.size()) {
+        throw utils::OutOfRange("OutdoorWeatherState::getState: 'sensorNo' is too high", sensorNo, sensors.size()-1);
+    }
+    return *(sensors[sensorNo]);
+}
+
+/**
+ * Returns the number of sensors in the list.
+ */
+unsigned OutdoorWeatherState::getNumSensors() const {
+    return sensors.size();
+}
+
+/**
  * Unknown time so far.
  */
 RealTimeClockState::RealTimeClockState()
@@ -171,8 +223,8 @@ void RelayState::setSwitchStates(unsigned states)
  */
 std::string RelayState::getLabel(unsigned switchNo) const
 {
-    if (switchNo > numSwitches)
-        throw std::out_of_range("RelayState::isOn: 'switchNo' is too high");
+    if (switchNo >= numSwitches)
+        throw utils::OutOfRange("RelayState::getLabel: 'switchNo' is too high", switchNo, numSwitches-1);
 
     char buf[16];
     sprintf(buf, "%u", switchNo);

@@ -40,7 +40,7 @@ public:
      */
     BrickThread(const char *filename, bool logRequests);
 
-    virtual void run();
+    virtual void run() override;
 };
 
 } /* namespace stubserver */

@@ -32,7 +32,7 @@ namespace stubserver {
 
 DeviceDigitalIn::EdgeCount::EdgeCount()
   : count(0)
-  , debouncePeriod(100)
+  , debouncePeriod(0)
   , relativeTimeMs(0)
   , active(false)
   , directions(0)
@@ -49,7 +49,6 @@ DeviceDigitalIn::DeviceDigitalIn(utils::ValueProvider *vp, unsigned numPins)
   , interruptMask(0)
 {
     getValueCallback.period = 100;
-    memset(edgeCount, 0, sizeof(edgeCount));
 }
 
 
@@ -63,7 +62,6 @@ DeviceDigitalIn::DeviceDigitalIn(utils::ValueProvider *vp)
   , interruptMask(0)
 {
     getValueCallback.period = 100;
-    memset(edgeCount, 0, sizeof(edgeCount));
 }
 
 DeviceDigitalIn::~DeviceDigitalIn() {
@@ -264,7 +262,7 @@ bool DeviceDigitalInV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
         getValueCallbacks[channel].valueHasToChange = p.fullData.payload[6];
         getValueCallbacks[channel].active = getValueCallbacks[channel].period > 0;
         getValueCallbacks[channel].relativeStartTime = relativeTimeMs;
-        getValueCallbacks[channel].param1 = isOn(channel);
+        getValueCallbacks[channel].lastValue = isOn(channel);
 
         //utils::Log() << "DeviceDigitalInV2 valueCallback[" << (int) channel << "] "
         //             << (getValueCallbacks[channel].active ? "enabled" : "disabled") << " " << getValueCallbacks[channel].period;
@@ -286,7 +284,7 @@ bool DeviceDigitalInV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
         allValuesCallback.valueHasToChange = p.callbackConfigInt.value_has_to_change;
         allValuesCallback.active = allValuesCallback.period > 0;
         allValuesCallback.relativeStartTime = relativeTimeMs;
-        allValuesCallback.param1 = getSwitchStates();
+        allValuesCallback.lastValue = getSwitchStates();
 
         utils::Log() << "DeviceDigitalInV2 allValueCallback " << (allValuesCallback.active ? "enabled" : "disabled") << " " << allValuesCallback.period;
         return true;
@@ -371,13 +369,13 @@ void DeviceDigitalInV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
 
         // changed from old to new ?
         packet.fullData.payload[0] = 0;
-        if ((allValuesCallback.param1 & 1) != (newValue & 1))
+        if ((allValuesCallback.lastValue & 1) != (newValue & 1))
             packet.fullData.payload[0] |= 1;
-        if ((allValuesCallback.param1 & 2) != (newValue & 2))
+        if ((allValuesCallback.lastValue & 2) != (newValue & 2))
             packet.fullData.payload[0] |= 2;
-        if ((allValuesCallback.param1 & 4) != (newValue & 4))
+        if ((allValuesCallback.lastValue & 4) != (newValue & 4))
             packet.fullData.payload[0] |= 4;
-        if ((allValuesCallback.param1 & 8) != (newValue & 8))
+        if ((allValuesCallback.lastValue & 8) != (newValue & 8))
             packet.fullData.payload[0] |= 8;
         packet.fullData.payload[1] = newValue;
         brickStack->dispatchCallback(packet);
@@ -385,7 +383,7 @@ void DeviceDigitalInV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
         // utils::Log() << "DeviceDigitalInV2 trigger allValueCallback";
 
         allValuesCallback.relativeStartTime = relativeTimeMs;
-        allValuesCallback.param1 = newValue;
+        allValuesCallback.lastValue = newValue;
     }
 
     if (valueChanged)
@@ -435,7 +433,7 @@ void DeviceDigitalInV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
             // set channel number
             packet.fullData.payload[0] = i;
             // set changed flag
-            packet.fullData.payload[1] = getValueCallbacks[i].param1 != isOn(i);
+            packet.fullData.payload[1] = getValueCallbacks[i].lastValue != isOn(i);
             // set value flag
             packet.fullData.payload[2] = isOn(i);
             brickStack->dispatchCallback(packet);
@@ -444,7 +442,7 @@ void DeviceDigitalInV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
             //             << ' ' << (int) packet.fullData.payload[2] << ", states: " << getSwitchStates();
 
             getValueCallbacks[i].relativeStartTime = relativeTimeMs;
-            getValueCallbacks[i].param1 = isOn(i);
+            getValueCallbacks[i].lastValue = isOn(i);
         }
     }
 }

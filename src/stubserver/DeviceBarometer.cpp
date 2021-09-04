@@ -1,7 +1,7 @@
 /*
  * DeviceBarometer.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,7 +92,7 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
         changedPressureCb.period = p.int32Value;
         if (changedPressureCb.period > 0) {
             changedPressureCb.relativeStartTime = relativeTimeMs;
-            changedPressureCb.param1 = sensorValue;
+            changedPressureCb.lastValue = sensorValue;
             changedPressureCb.active = true;
         }
         else
@@ -103,7 +103,7 @@ bool DeviceBarometer::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
         changedHeightCb.period = p.int32Value;
         if (changedHeightCb.period > 0) {
             changedHeightCb.relativeStartTime = relativeTimeMs;
-            changedHeightCb.param1 = sensorValue;
+            changedHeightCb.lastValue = sensorValue;
             changedHeightCb.active = true;
         }
         else
@@ -139,20 +139,19 @@ void DeviceBarometer::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
         }
     }
 
-    if (changedPressureCb.mayExecute(relativeTimeMs) && currentValue != changedPressureCb.param1)
+    if (changedPressureCb.mayExecute(relativeTimeMs) && currentValue != changedPressureCb.lastValue)
     {
         triggerCallbackInt(relativeTimeMs, uid, brickStack, changedPressureCb, currentValue);
-        changedPressureCb.param1 = currentValue;
+        changedPressureCb.lastValue = currentValue;
     }
 
     // changed callback: if pressure has changed, height has changed too.
-    // param1 of height callback holds the latest pressure value...
-    if (changedHeightCb.mayExecute(relativeTimeMs) && currentValue != changedHeightCb.param1)
+    if (changedHeightCb.mayExecute(relativeTimeMs) && currentValue != changedHeightCb.lastValue)
     {
         // calculate height
         int currentHeight = getAltitude(currentValue);
         triggerCallbackInt(relativeTimeMs, uid, brickStack, changedHeightCb, currentHeight);
-        changedHeightCb.param1 = currentValue;
+        changedHeightCb.lastValue = currentValue;
     }
 
     if (rangeCallback.shouldTriggerRangeCallback(relativeTimeMs, currentValue))

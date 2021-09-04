@@ -991,7 +991,7 @@ void SimulatedDevice::setVisualizationClient(VisualizationClient &client) const 
         state->notify(client, VisibleDeviceState::CONNECTED);
     }
     else {
-        Log() << "Device " << getDeviceTypeName() << ' ' << getUidStr() << " has no VisibleDeviceState base class, cannot use notify(CONNECTED)";
+        Log() << "UI: " << getDeviceTypeName() << " (uid=" << getUidStr() << ") has no VisibleDeviceState base class, cannot use notify(CONNECTED)";
     }
 }
 
@@ -1018,7 +1018,7 @@ const char *SimulatedDevice::getProperty(const std::string &key, int minLength)
         if (minLength <= 0)
             return "";
     }
-    if (res == NULL || (int) strlen(res) < minLength)
+    if (res == NULL || static_cast<int>(strlen(res)) < minLength)
     {
         char msg[128];
         if (!res)
@@ -1026,7 +1026,7 @@ const char *SimulatedDevice::getProperty(const std::string &key, int minLength)
                     key.c_str(), uidStr.c_str());
         else
             sprintf(msg, "Property '%s' for uid %s must have length %u, but has %d",
-                    key.c_str(), uidStr.c_str(), minLength, res ? (int) strlen(res) : 0);
+                    key.c_str(), uidStr.c_str(), minLength, res ? static_cast<int>(strlen(res)) : 0);
         throw Exception(msg);
     }
     return res;
@@ -1152,7 +1152,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     }
     catch (const std::exception &e) {
         Log(Log::ERROR) << "for bricklet " << uidStr << " of type " << deviceTypeName
-                        << ", function code " << (unsigned)p.header.function_id << ": " << e.what();
+                        << ", function code " << static_cast<unsigned>(p.header.function_id) << ": " << e.what();
         p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
     }
@@ -1210,7 +1210,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
     }
 
     if (!responseExpected) {
-        Log() << "Not implemented function " << (int) p.header.function_id
+        Log() << "Not implemented function " << static_cast<unsigned>(p.header.function_id)
               << " for device " << getUidStr() << " (" << getDeviceTypeName()
               << ") consumed due to responseExpected=false";
         return true;

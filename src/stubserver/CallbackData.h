@@ -1,7 +1,7 @@
 /*
  * CallbackData.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,14 @@ struct BasicCallback
     uint8_t  callbackCode;       // code sent back to the client when callback is triggered
     uint8_t  getPeriodFunc;      // get function for the callback period
     uint8_t  setPeriodFunc;      // set function for the callback period: this enables the callback
-    int      param1;
+    int      param1;             // specific usage e.g. for Monoflop time, == Min for RangeCallback
     int      param2;
-    bool     active;
+    int      lastValue;          // last value when the callback was triggered
+    bool     active;             // used mainly for MonoFlop callbacks: period can be 0, but the monoflop is still active
     bool     valueHasToChange;
+    bool     valueChanged;       // set to false when the callback gets activated, updated by the
+                                 // sensor each time the value changes, callback might not be
+                                 // triggered immediately but when period is reached.
 
     /**
      * Init all attributes with 0 (callback disabled), valueHasToChange is true

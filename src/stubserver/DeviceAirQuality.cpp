@@ -94,10 +94,10 @@ bool DeviceAirQuality::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visu
     switch (p.header.function_id) {
     case AIR_QUALITY_FUNCTION_GET_ALL_VALUES:
         // air_quality_get_all_values(AirQuality *air_quality, int32_t *ret_iaq_index, uint8_t *ret_iaq_index_accuracy, int32_t *ret_temperature, int32_t *ret_humidity, int32_t *ret_air_pressure)
-        p.airQualityData.air_pressure = vpP->getValue(relativeTimeMs);
-        p.airQualityData.temperature  = vpT->getValue(relativeTimeMs);
-        p.airQualityData.humidity     = vpH->getValue(relativeTimeMs);
-        p.airQualityData.iaq_index    = vpI->getValue(relativeTimeMs);
+        p.airQualityData.air_pressure = sensorValue1;
+        p.airQualityData.temperature  = sensorValue2;
+        p.airQualityData.humidity     = sensorValue3;
+        p.airQualityData.iaq_index    = sensorValue4;
         p.airQualityData.iaq_index_accuracy = 3;
         p.header.length += sizeof(p.airQualityData);
         return true;
@@ -177,14 +177,14 @@ void DeviceAirQuality::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid,
         sensorValue = sensorValue1 = newValue;
         notify(AIR_QUALITY_IAQ, visualizationClient, VALUE_CHANGE);
     }
-    if (newValue != cbI.param1 && cbI.mayExecute(relativeTimeMs))
+    if (newValue != cbI.lastValue && cbI.mayExecute(relativeTimeMs))
     {
         IOPacket packet(uid, AIR_QUALITY_CALLBACK_IAQ_INDEX, 5);
         packet.int32Value = newValue;
         packet.fullData.payload[4] = 3;
         brickStack->dispatchCallback(packet);
         cbI.relativeStartTime = relativeTimeMs;
-        cbI.param1 = newValue;
+        cbI.lastValue = newValue;
     }
 
     //--------------- temperature callback ------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * DeviceOutdoorWeather.h
  *
- * Copyright (C) 2018 Holger Grosenick
+ * Copyright (C) 2018-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ namespace stubserver {
 /**
  * Outdoor Weather with max 8 outdoor sensors, not more.
  */
-class DeviceOutdoorWeather : public V2Device, public SensorState
+class DeviceOutdoorWeather : public V2Device, public OutdoorWeatherState
 {
 public:
     static const int MAX_SENSORS = 8;
@@ -48,14 +48,15 @@ public:
     DECLARE_OWN_DEVICE_CALLBACKS
 
 private:
-    struct SensorData {
+    struct SensorData : public OutdoorWeatherState::BaseData
+    {
         utils::PValueProvider valueProvider;
         uint64_t              lastChange;
-        int                   temperature;
-        unsigned              humidity;
-        unsigned              id;             // ID >= 1000 is for station objects
 
-        SensorData();
+        SensorData(utils::PValueProvider vp, unsigned id);
+
+        using OutdoorWeatherState::BaseData::setTemperature;
+        using OutdoorWeatherState::BaseData::setHumidity;
     };
 
     /**
@@ -63,10 +64,8 @@ private:
      */
     SensorData* getSensor(uint8_t id, bool isStation);
 
-    SensorData sensors[MAX_SENSORS];
-    unsigned   numSensors;
-    bool       sensorCallback;
-    bool       stationCallback;
+    bool sensorCallback;
+    bool stationCallback;
 };
 
 

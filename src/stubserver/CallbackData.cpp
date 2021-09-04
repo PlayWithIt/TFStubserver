@@ -39,8 +39,10 @@ BasicCallback::BasicCallback()
 , setPeriodFunc(0)
 , param1(0)
 , param2(0)
+, lastValue(0xFFFFFFFF)
 , active(false)
 , valueHasToChange(true)
+, valueChanged(false)
 {
 }
 
@@ -55,8 +57,10 @@ BasicCallback::BasicCallback(uint64_t _relativeStartTime, uint8_t setFuncCode, u
 , setPeriodFunc(setFuncCode)
 , param1(p1)
 , param2(p2)
+, lastValue(0xFFFFFFFF)
 , active(false)
 , valueHasToChange(true)
+, valueChanged(false)
 {
 }
 
@@ -71,8 +75,10 @@ BasicCallback::BasicCallback(uint8_t getFuncCode, uint8_t setFuncCode, uint8_t c
 , setPeriodFunc(setFuncCode)
 , param1(0)
 , param2(0)
+, lastValue(0xFFFFFFFF)
 , active(false)
 , valueHasToChange(true)
+, valueChanged(false)
 {
 }
 
@@ -82,7 +88,7 @@ BasicCallback::BasicCallback(uint8_t getFuncCode, uint8_t setFuncCode, uint8_t c
  */
 bool BasicCallback::mayExecute(uint64_t currentTimeMs) const
 {
-    if (!active)
+    if (!active || period == 0)
         return false;
     return (relativeStartTime + period <= currentTimeMs);
 }
@@ -253,7 +259,7 @@ bool RangeCallback::shouldTriggerRangeCallback(uint64_t relativeTimeMs, int curr
  */
 void RangeCallback::logCallbackStatus(uint32_t uid) const
 {
-    utils::Log() << utils::base58Encode(uid) <<": set callback #" << (int) callbackCode << " option '" << option
+    utils::Log() << utils::base58Encode(uid) <<": set callback #" << static_cast<unsigned>(callbackCode) << " option '" << option
                  << "', min=" << param1 << " max=" << param2 << " period=" << period;
 }
 

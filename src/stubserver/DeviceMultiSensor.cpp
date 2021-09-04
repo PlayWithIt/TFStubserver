@@ -114,7 +114,7 @@ bool DeviceMultiSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
         sensor->changedCb.period = p.channelRequest.value1;
         if (sensor->changedCb.period > 0) {
             sensor->changedCb.relativeStartTime = relativeTimeMs;
-            sensor->changedCb.param1 = sensor->getSensorValue();
+            sensor->changedCb.lastValue = sensor->getSensorValue();
             sensor->changedCb.active = true;
         }
         else
@@ -186,7 +186,7 @@ void DeviceMultiSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
             }
         }
 
-        if (it->changedCb.mayExecute(relativeTimeMs) && currentValue != it->changedCb.param1)
+        if (it->changedCb.mayExecute(relativeTimeMs) && currentValue != it->changedCb.lastValue)
         {
             IOPacket packet(uid, it->changedCb.callbackCode, valueSize + 1);
             packet.channelRequest.channel = it->getInternalSensorNo();
@@ -194,7 +194,7 @@ void DeviceMultiSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
             brickStack->dispatchCallback(packet);
 
             it->changedCb.relativeStartTime = relativeTimeMs;
-            it->changedCb.param1 = currentValue;
+            it->changedCb.lastValue = currentValue;
 
             if (valueSize != 4) {
                 utils::Log::log("DeviceMultiSensor::checkCallbacks - missing implementation");

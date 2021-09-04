@@ -433,7 +433,7 @@ std::list<const SimulatedDevice*> BrickStack::getUiDevices() const
             // two blanks between UIDs would cause empty UID in iterator
             SimulatedDevice *dev = getDevice(it);
             if (!dev) {
-                throw utils::Exception("UID=" + it + " is listed in 'UI_UIDS' but not present in UIDS");
+                throw utils::Exception("uid=" + it + " is listed in 'UI_UIDS' but not present in UIDS");
             }
             result.push_back(dev);
         }
@@ -451,7 +451,7 @@ std::list<const SimulatedDevice*> BrickStack::getUiDevices() const
             }
         }
         if (!found) {
-            Log() << it->getDeviceTypeName() << " (UID=" << it->getUidStr() << ") is hidden, not listed in UI_UIDS";
+            Log() << "UI: " << it->getDeviceTypeName() << " (uid=" << it->getUidStr() << ") is hidden, not listed in UI_UIDS";
         }
     }
 

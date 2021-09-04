@@ -53,7 +53,7 @@ class ClientThread : public utils::QueueProducerTask<IOPacket>, BrickClient
          : QueueConsumerTask("SenderThread", queue), socketHandle(_socketHandle), packetsOut(0)
         { }
 
-        virtual bool consume(IOPacket &data);
+        virtual bool consume(IOPacket &data) override;
     };
 
     // created if necessary to send responses
@@ -66,8 +66,8 @@ public:
     ClientThread(int socketHandle, BrickStack &_brickStack);
     virtual ~ClientThread();
 
-    virtual void run();
-    virtual bool sendResponse(const IOPacket& packet);
+    virtual void run() override;
+    virtual bool sendResponse(const IOPacket& packet) override;
 };
 
 } /* namespace stubserver */

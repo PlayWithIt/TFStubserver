@@ -1,7 +1,7 @@
 /*
  * DeviceVoltageCurrent.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ bool DeviceVoltageCurrent::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
                 powerChangedCb.relativeStartTime = relativeTimeMs;
 
                 int power = amps.getValue() * getValue() / 1000;
-                powerChangedCb.param1 = power;
+                powerChangedCb.lastValue = power;
                 powerChangedCb.active = true;
                 Log::log("ADD power callback, period", static_cast<uint64_t>(powerChangedCb.period));
             }
@@ -171,10 +171,10 @@ void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
     if (powerChangedCb.mayExecute(relativeTimeMs))
     {
         value = amps.getValue() * getValue() / 1000;
-        if (value != powerChangedCb.param1)
+        if (value != powerChangedCb.lastValue)
         {
             triggerCallbackInt(relativeTimeMs, uid, brickStack, powerChangedCb, value);
-            powerChangedCb.param1 = value;
+            powerChangedCb.lastValue = value;
         }
     }
 

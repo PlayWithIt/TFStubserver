@@ -149,6 +149,7 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
     }
     if (func == rangeCallback.setPeriodFunc) {
         rangeCallback.period = p.uint32Value;
+        rangeCallback.logCallbackStatus(p.header.uid);
         return true;
     }
 
@@ -157,7 +158,7 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
         changedCb.period = p.int32Value;
         if (changedCb.period > 0) {
             changedCb.relativeStartTime = relativeTimeMs;
-            changedCb.param1 = sensorValue;
+            changedCb.lastValue = sensorValue;
             changedCb.active = true;
         }
         else
@@ -169,7 +170,7 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
         changedAnalogCb.period = p.int32Value;
         if (changedAnalogCb.period > 0) {
             changedAnalogCb.relativeStartTime = relativeTimeMs;
-            changedAnalogCb.param1 = calculateAnalogValue();
+            changedAnalogCb.lastValue = sensorValue;
             changedAnalogCb.active = true;
         }
         else
@@ -179,9 +180,13 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
 
     // get/set range callback options
     if (!isV2 && rangeCallback.consumeGetSetThreshold(p)) {
+        // TODO: rangeCallback cannot detect if the value was really changed, so might be triggered too often
+        rangeCallback.relativeStartTime = relativeTimeMs;
         return true;
     }
     if (isV2 && rangeCallback.consumeGetSetConfig(p)) {
+        // TODO: rangeCallback cannot detect if the value was really changed, so might be triggered too often
+        rangeCallback.relativeStartTime = relativeTimeMs;
         return true;
     }
 
@@ -233,7 +238,7 @@ int DeviceSensor::calculateAnalogValue()
     // create an analog value in the range 0..4095
     int v = sensorValue;
     double d = maxAnalogValue + 1.0;
-    d = d / (values->getMax() - values->getMin()) * (double) v;
+    d = d / (values->getMax() - values->getMin()) * static_cast<double>(v);
     return v;
 }
 
@@ -253,19 +258,20 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
         {
             sensorValue = currentValue - zeroPoint;
             notify(visualizationClient, VALUE_CHANGE);
+            // Log() << "New value " << sensorValue;
         }
     }
 
-    if (changedCb.mayExecute(relativeTimeMs) && currentValue != changedCb.param1)
+    if (changedCb.mayExecute(relativeTimeMs) && currentValue != changedCb.lastValue)
     {
         if (valueSize == 4)
             triggerCallbackInt(relativeTimeMs, uid, brickStack, changedCb, currentValue);
         else
             triggerCallbackShort(relativeTimeMs, uid, brickStack, changedCb, currentValue);
-        changedCb.param1 = currentValue;
+        changedCb.lastValue = currentValue;
     }
 
-    if (changedAnalogCb.mayExecute(relativeTimeMs) && currentValue != changedAnalogCb.param1)
+    if (changedAnalogCb.mayExecute(relativeTimeMs) && currentValue != changedAnalogCb.lastValue)
     {
         // create an analog value in the range 0..4095
         int v = calculateAnalogValue();
@@ -274,7 +280,7 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
             triggerCallbackInt(relativeTimeMs, uid, brickStack, changedAnalogCb, v);
         else
             triggerCallbackShort(relativeTimeMs, uid, brickStack, changedAnalogCb, v);
-        changedAnalogCb.param1 = v;
+        changedAnalogCb.lastValue = currentValue;
     }
 
     if (other)
@@ -283,7 +289,7 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
     // shouldTriggerRangeCallback also checks the 'option' value ...
     if (rangeCallback.shouldTriggerRangeCallback(relativeTimeMs, currentValue))
     {
-        // printf("DeviceSensor %p::rangeCallback %5d %lu %lu %u\n", this, currentValue, relativeTimeMs, rangeCallback.relativeStartTime, rangeCallback.period);
+        // printf("DeviceSensor %p::rangeCallback: current = %5d, time %lu %lu %u\n", this, currentValue, relativeTimeMs, rangeCallback.relativeStartTime, rangeCallback.period);
 
         if (valueSize == 2)
             triggerCallbackShort(relativeTimeMs, uid, brickStack, rangeCallback, currentValue);

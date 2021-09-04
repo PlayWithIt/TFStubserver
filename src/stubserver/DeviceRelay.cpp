@@ -133,7 +133,7 @@ bool DeviceRelay::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiza
         {
             unsigned n = p.uint8Value;
             if (--n > numSwitches) {
-                Log() << "GetMonoflop: invalid relay switch number: " << (unsigned) p.uint8Value;
+                Log() << "GetMonoflop: invalid relay switch number: " << static_cast<unsigned>(p.uint8Value);
                 return false;
             }
             p.header.length = sizeof(p.header) + sizeof(p.monoflopResponseDualRelay);
@@ -424,7 +424,7 @@ bool DeviceQuadRelayV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
     {
         uint8_t n = p.uint8Value;
         if (n >= numSwitches) {
-            Log() << "DeviceQuadRelayV2: invalid relay switch number: " << (unsigned) p.uint8Value;
+            Log() << "DeviceQuadRelayV2: invalid relay switch number: " << static_cast<unsigned>(p.uint8Value);
             return false;
         }
         p.header.length = sizeof(p.header) + sizeof(p.monoflopResponseDualRelay);
@@ -449,8 +449,8 @@ bool DeviceQuadRelayV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
             return false;
         }
 
-        Log() << "SET QuadRelayV2 monoflop channel " << (int) n << " value "
-              << (int) p.fullData.payload[1] << ", time: " << std::dec << p.monoflopDefine.time << "ms";
+        Log() << "SET QuadRelayV2 monoflop channel " << static_cast<unsigned>(n) << " value "
+              << static_cast<unsigned>(p.fullData.payload[1]) << ", time: " << std::dec << p.monoflopDefine.time << "ms";
 
         //stateChanged = true;
         setSwitch(n, p.fullData.payload[1] != 0);
@@ -581,7 +581,7 @@ void DeviceRemoteRelay::updateRelay(const char *id, uint8_t state)
         // add one more relay
         codes[numSwitches] = id;
         ++numSwitches;
-        setSwitch(numSwitches, state != REMOTE_SWITCH_SWITCH_TO_OFF);
+        setSwitch(numSwitches - 1, state != REMOTE_SWITCH_SWITCH_TO_OFF);
     }
     else {
         Log::error("DeviceRemoteRelay: relay code array overflow!");

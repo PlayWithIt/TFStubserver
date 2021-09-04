@@ -1,7 +1,7 @@
 /*
  * VisualizationClient.h
  *
- * Copyright (C) 2015-2019 Holger Grosenick
+ * Copyright (C) 2015-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #include <string>
 #include <ctime>
+#include <vector>
 
 
 namespace stubserver {
@@ -541,6 +542,69 @@ protected:
     bool ledOn_l;
     bool ledOn_r;
     uint8_t red, green, blue;   // RGB color of single button
+};
+
+
+/**
+ * Holds the date of OutdoorWeather bricklet with multiple connected sensors.
+ */
+class OutdoorWeatherState : public VisibleDeviceState
+{
+public:
+    OutdoorWeatherState();
+    virtual ~OutdoorWeatherState();
+
+    /**
+     * The visible part of the OutdoorWeather state.
+     */
+    class BaseData {
+        int         temperature;
+        unsigned    humidity;
+        unsigned    id;             // ID >= 1000 is for station objects
+
+    protected:
+        void setTemperature(int t) {
+            temperature = t;
+        }
+
+        void setHumidity(unsigned h) {
+            humidity = h;
+        }
+
+    public:
+        BaseData(unsigned id);
+        virtual ~BaseData();
+
+        int getTemperatoure() const {
+            return temperature;
+        }
+
+        unsigned getHumidity() const {
+            return humidity;
+        }
+
+        unsigned getId() const {
+            return id;
+        }
+    };
+
+    /**
+     * Get the state for the current internal sensor.
+     */
+    const BaseData& getCurrentState() const;
+
+    /**
+     * Get the state for a given internal sensor.
+     */
+    const BaseData& getState(unsigned sensorNo) const;
+
+    /**
+     * Returns the number of sensors in the list.
+     */
+    unsigned getNumSensors() const;
+
+protected:
+    std::vector<BaseData*> sensors;
 };
 
 
