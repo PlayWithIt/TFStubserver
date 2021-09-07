@@ -55,7 +55,7 @@ TimerThread::TimerThread(unsigned delayMs)
  */
 TimerThread::~TimerThread() noexcept
 {
-    stop(2*delay+100);
+    TimerThread::stop(2*delay+100);
 
     // free the remaining commands
     taskMutex.lock();

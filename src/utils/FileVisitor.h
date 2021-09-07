@@ -129,11 +129,11 @@ public:
         return added == 0;
     }
 
-    virtual VisitResult visitFile(const File &f);
+    virtual VisitResult visitFile(const File &f) override;
 
-    virtual VisitResult visitDirectory(const File &dir);
+    virtual VisitResult visitDirectory(const File &dir) override;
 
-    virtual VisitResult afterVisitDirectory(const File &dir);
+    virtual VisitResult afterVisitDirectory(const File &dir) override;
 };
 
 } /* namespace utils */

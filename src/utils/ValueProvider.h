@@ -119,7 +119,7 @@ public:
     /**
      * Get the actual value at the given relative time.
      */
-    virtual int getValue(uint64_t relativeTimeMs);
+    virtual int getValue(uint64_t relativeTimeMs) override;
 };
 
 
@@ -140,7 +140,7 @@ public:
     /**
      * Get the actual value at the given relative time.
      */
-    virtual int getValue(uint64_t relativeTimeMs);
+    virtual int getValue(uint64_t relativeTimeMs) override;
 };
 
 
@@ -157,7 +157,7 @@ public:
     /**
      * Get the actual value at the given relative time.
      */
-    virtual int getValue(uint64_t relativeTimeMs);
+    virtual int getValue(uint64_t relativeTimeMs) override;
 };
 
 
@@ -181,7 +181,7 @@ public:
      * Get the actual value at the given relative time: this implementation
      * will return only 0 (switch off) or 1 (switch on).
      */
-    virtual int getValue(uint64_t relativeTimeMs);
+    virtual int getValue(uint64_t relativeTimeMs) override;
 };
 
 
@@ -202,7 +202,7 @@ public:
     /**
      * Get the actual value at the given relative time.
      */
-    virtual int getValue(uint64_t relativeTimeMs);
+    virtual int getValue(uint64_t relativeTimeMs) override;
 };
 
 
@@ -287,7 +287,7 @@ public:
     /**
      * Get the actual value at the given relative time.
      */
-    virtual int getValue(uint64_t relativeTimeMs);
+    virtual int getValue(uint64_t relativeTimeMs) override;
 };
 
 
@@ -344,7 +344,7 @@ public:
     /**
      * Get the actual value at the given relative time: this is only the first column of the CSV
      */
-    virtual int getValue(uint64_t relativeTimeMs);
+    virtual int getValue(uint64_t relativeTimeMs) override;
 
     /**
      * Get all values at the given relative time: the whole data row with all columns

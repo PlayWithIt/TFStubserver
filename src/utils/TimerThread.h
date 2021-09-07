@@ -49,7 +49,7 @@ class TimerThread : public AsyncTask
     /**
      * Main thread loop (internally used).
      */
-    virtual void run();
+    virtual void run() override;
 
 public:
     /**

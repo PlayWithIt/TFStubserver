@@ -62,7 +62,7 @@ void DeviceOled::writeText(uint8_t fulldata[])
 {
     uint8_t line = fulldata[0];
     uint8_t ind  = fulldata[1];
-    unsigned colOffset  = ind * 5;
+    unsigned colOffset  = ind * 6;  // char has 6 pixels + 1 pixel free
     unsigned byteOffset = line * cols + colOffset;
 
     for (unsigned i = 2; i < 28; ++i)
@@ -80,13 +80,20 @@ void DeviceOled::writeText(uint8_t fulldata[])
             uint8_t byte = 0;
             for (int y = 0; y < 8; ++y)
                 if (mask->isOn(x, y))
-                    byte += (1 << y);
+                    byte |= (1 << y);
 
             pixels[byteOffset] = byte;
             // printf("Byte %d = %d\n", x, byte);
             ++byteOffset;
             ++colOffset;
+
+            if (byteOffset >= 128*8) {
+                utils::Log() << "DeviceOled::writeText: reached end of buffer";
+                return;
+            }
         }
+        ++byteOffset;  // 1 pixel free -> also one byte which is vertical
+        ++colOffset;
     }
 }
 

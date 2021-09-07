@@ -1,7 +1,7 @@
 /*
  * Socket.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <strings.h>
 #endif
 
+#include "utils.h"
 #include "Log.h"
 #include "Socket.h"
 #include "StringUtil.h"
@@ -107,6 +108,7 @@ void Socket::close()
     {
         Log::log("Socket::close()");
         shutdown(handle, SHUT_RDWR);
+        utils::msleep(5);
         ::close(handle);
         handle = -1;
     }
@@ -133,7 +135,7 @@ int Socket::waitForClient()
 
     // TCP_NODELAY: disable Nagle alg. (200ms wait until packet gets transferred
     int flag = 1;
-    if (setsockopt(newsockfd, IPPROTO_TCP, TCP_NODELAY, (void *)&flag, sizeof(flag)) < 0) {
+    if (setsockopt(newsockfd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag)) < 0) {
         Log::perror("Socket::waitForClient - setsockopt(TCP_NODELAY)");
         ::close(newsockfd);
         return -4;
@@ -145,7 +147,7 @@ int Socket::waitForClient()
         tv.tv_sec = timeoutRead / 1000;
         tv.tv_usec = timeoutRead * 1000;
 
-        if (setsockopt(newsockfd, IPPROTO_TCP, SO_RCVTIMEO, (void *)&tv, sizeof(tv)) < 0) {
+        if (setsockopt(newsockfd, IPPROTO_TCP, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
             Log::perror("Socket::waitForClient - setsockopt(SO_RCVTIMEO)");
         }
     }
@@ -156,7 +158,7 @@ int Socket::waitForClient()
         tv.tv_sec = timeoutWrite / 1000;
         tv.tv_usec = timeoutWrite * 1000;
 
-        if (setsockopt(newsockfd, IPPROTO_TCP, SO_SNDTIMEO, (void *)&tv, sizeof(tv)) < 0) {
+        if (setsockopt(newsockfd, IPPROTO_TCP, SO_SNDTIMEO, &tv, sizeof(tv)) < 0) {
             Log::perror("Socket::waitForClient - setsockopt(SO_SNDTIMEO)");
         }
     }
