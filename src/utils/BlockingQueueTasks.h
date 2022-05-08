@@ -1,7 +1,7 @@
 /*
  * BlockingQueueTasks.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ public:
      * Stop the thread: first close the queue and then announce to finish.
      * It is quite important to release the waiting clients here first!
      */
-    virtual bool signalToStop() noexcept
+    virtual bool signalToStop() noexcept override
     {
         queue.closeQueue();
         return utils::AsyncTask::signalToStop();
@@ -78,7 +78,7 @@ private:
     /**
      * Main loop that consumes the data.
      */
-    virtual void run()
+    virtual void run() override
     {
         value_type data;
         while (true)

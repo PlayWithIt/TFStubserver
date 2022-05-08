@@ -1,7 +1,7 @@
 /*
  * FileObject.cpp
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,14 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #define USE_MMAP
+#define SEEK  lseek
+#define READ  read
+#define CLOSE close
 #else
 #include <io.h>
+#define SEEK  _lseek
+#define READ  _read
+#define CLOSE _close
 #endif
 
 #include <vector>
@@ -69,7 +75,7 @@ int64_t FileObject::seek(int64_t p)
    return -1;                   // failure: p is wrong
 #else
    last    = next;              // force a re-read
-   filePos = lseek(handle, p, SEEK_SET);
+   filePos = SEEK(handle, p, SEEK_SET);
    return filePos;
 #endif
 }
@@ -126,13 +132,70 @@ unsigned FileObject::compare(FileObject &other, std::string *thisLine, std::stri
     } while (true);
 }
 
-/****************************************************************************
+/**
+ * Reset the file to the start and compare the content byte by byte with the given string,
+ * only useful for small files.
+ * @return true if the file content matches exactly the text in the string
+ */
+bool FileObject::operator==(const std::string &content)
+{
+    size_t size = this->size();
+    if (size != content.size())
+        return false;
+
+    seek(0);
+    for (size_t i = 0; i < size; ++i) {
+        if (getchar() != content[i])
+            return false;
+    }
+    return true;
+}
+
+
+/**
+ * Searches the given text in the first 'maxPos' bytes of the input file and
+ * resets the read position back to the beginning.
+ * @param text text to search (case sensitive)
+ * @param maxPos max byte index where the text must appear, -1 for any position in the file.
+ * @return -1 if the text was not found, otherwise the byte index from start.
+ */
+int64_t FileObject::contains(const char *text, int64_t maxPos)
+{
+    if (!isOpen() || !text || !text[0]) {
+        return -1;
+    }
+
+    size_t textLen = strlen(text);
+    int64_t bufferEnd = buffSize - textLen;
+    int64_t remaining = bufferEnd;
+    const unsigned char *start   = buffer;
+    const unsigned char *current = start;
+
+    while (remaining >= 0)
+    {
+        const unsigned char *pos = static_cast<const unsigned char*>(memchr(current, *text, remaining + 1));
+        if (!pos || (maxPos > 0 && (pos - start) > maxPos))
+            return -1;
+
+        // first char found, now compare the whole string
+        if (memcmp(pos, text, textLen) == 0) {
+            return pos - start;
+        }
+
+        current = pos + 1;
+        remaining = bufferEnd - (current - start);
+    }
+
+    return -1;
+}
+
+/**
  * Reads the whole file and returns the number of lines in the file.
  * The result is computed each time this method is called (performance!).
  * Set the file-position back to the first char at the end of this method.
  *
  * @return the number of lines in the file
- ***************************************************************************/
+ */
 int FileObject::countLines()
 {
    char line[2000];     // not too large, save stack
@@ -178,7 +241,7 @@ int FileObject::fillBuffer(void)
 {
     int n;
 
-    if (handle < 0 || (n = ::read(handle, buffer, buffSize)) <= 0)
+    if (handle < 0 || (n = ::READ(handle, buffer, buffSize)) <= 0)
     {
         next = last;
         return EOF;
@@ -218,6 +281,8 @@ FileObject::FileObject(const std::string &_name, bool detectCharset)
 FileObject::FileObject(const File &file, bool detectCharset)
   : name(file.getFullname()), handle(-1)
 {
+    // file does not exists -> we pass 'true' here which prevents initBuffer
+    // to try to open the file.
     initBuffer(!file.exists(), detectCharset);
 }
 
@@ -237,8 +302,8 @@ FileObject::FileObject(int _handle, bool detectCharset)
 void FileObject::initBuffer(bool handleSet, bool detectCharset)
 {
     fileSize = -1;
-    buffer   = NULL;
-    csvData  = NULL;
+    buffer   = nullptr;
+    csvData  = nullptr;
     marker   = 0;
 
     if (!handleSet)
@@ -246,7 +311,7 @@ void FileObject::initBuffer(bool handleSet, bool detectCharset)
 #ifndef _WIN32
         handle = open(name.c_str(), O_RDONLY);
 #else
-        handle = open(name.c_str(), O_RDONLY | O_BINARY);
+        handle = _open(name.c_str(), O_RDONLY | O_BINARY);
 #endif
     }
 
@@ -273,10 +338,10 @@ void FileObject::initBuffer(bool handleSet, bool detectCharset)
             buffer = emptyString;
         }
         else {
-            buffer = (unsigned char*) mmap(NULL, st.st_size,    // map file into virtual */
-                                           PROT_READ,           // memory - read only ...
-                                           MAP_FILE | MAP_SHARED,
-                                           handle, 0);
+            buffer = static_cast<unsigned char*>(mmap(nullptr, st.st_size,    // map file into virtual memory
+                                                      PROT_READ,              // ... read only ...
+                                                      MAP_FILE | MAP_SHARED,
+                                                      handle, 0));
 
             if (buffer == MAP_FAILED) {                // error from 'mmap' ?
                 throw IOException("mmap", name);
@@ -292,7 +357,7 @@ void FileObject::initBuffer(bool handleSet, bool detectCharset)
 
 #else
         buffer = new unsigned char[buffSize = defaultBuffSize];
-        last   = buffer + (filePos = ::read(handle, buffer, defaultBuffSize));
+        last   = buffer + (filePos = ::READ(handle, buffer, defaultBuffSize));
 #endif
 
         next = buffer;
@@ -319,7 +384,7 @@ void FileObject::initBuffer(bool handleSet, bool detectCharset)
         }
     }
     else {
-        buffer   = last = NULL;
+        buffer   = last = nullptr;
         buffSize = 0;
         filePos  = 0;
         next     = buffer;
@@ -331,7 +396,7 @@ FileObject::~FileObject()
 {
     delete[] csvData;
     if (handle >= 0)
-        close(handle);
+        CLOSE(handle);
 
 #ifdef USE_MMAP
     if (handle == -2)
@@ -353,7 +418,7 @@ unsigned FileObject::load(std::vector<std::string> &list)
     unsigned line = 0;
     int len;
 
-    if (csvData == NULL)
+    if ( !csvData )
         csvData = new char[MAX_CSVLINE];
 
     while ((len = getsNoLf(csvData, MAX_CSVLINE)) >= 0)
@@ -447,7 +512,7 @@ int FileObject::read(void *dest, int anz)
 
     while (anz > 0)
     {
-        int n = readOnce(((char*) dest) + alreadyRead, anz);
+        int n = readOnce(static_cast<char*>(dest) + alreadyRead, anz);
         if (n == EOF)
             return alreadyRead;
         alreadyRead += n;
@@ -472,7 +537,7 @@ int FileObject::getCols(std::vector<std::string> &cols, bool trim, char comment,
     if (c == EOF)
         return -1;
 
-    if (csvData == NULL)
+    if ( !csvData )
         csvData = new char[MAX_CSVLINE];
 
     char *lastCh = csvData;
@@ -564,7 +629,7 @@ int FileObject::getCols(std::vector<const char *> &cols, bool trim, char comment
     if (c == EOF)
         return -1;
 
-    if (csvData == NULL)
+    if ( !csvData )
         csvData = new char[MAX_CSVLINE];
 
     char *colStart   = csvData;
@@ -726,7 +791,7 @@ int FileObject::getsNoLf(char * dest, int max)
     {
         if (c == LINE_END)
         {
-            if ((unsigned long) b > (unsigned long) dest && *(b-1) == LINE_SKIP)
+            if ((uint64_t) b > (uint64_t) dest && *(b-1) == LINE_SKIP)
                 b--;
             break;
         }
@@ -765,11 +830,11 @@ int FileObject::getsNoLf(char * dest, int max)
 
 bool FileObject::seekEol(void)
 {
-    next = (unsigned char*) memchr(next, '\n', last - next);    // look for the line's end
+    next = static_cast<unsigned char*>(memchr(next, '\n', last - next));    // look for the line's end
 
     while (!next) {                            // not found !
         if (fillBuffer() != EOF)               // buffer is not empty
-            next = (unsigned char*) memchr(buffer, LINE_END, last - next + 1);
+            next = static_cast<unsigned char*>(memchr(buffer, LINE_END, last - next + 1));
         else {
             // end of file reached
             next = last;

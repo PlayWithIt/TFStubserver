@@ -62,8 +62,8 @@ bool DeviceDualButton::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visu
         return true;
 
     case DUAL_BUTTON_FUNCTION_GET_BUTTON_STATE:
-        p.fullData.payload[0] = buttonStates & 1 ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
-        p.fullData.payload[1] = buttonStates & 2 ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
+        p.fullData.payload[0] = (buttonStates & 1) ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
+        p.fullData.payload[1] = (buttonStates & 2) ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
         p.header.length += 2;
         return true;
 
@@ -87,7 +87,7 @@ bool DeviceDualButton::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visu
 /**
  * Calculate LED state based on button state and LED behavior config.
  */
-static uint8_t ledState(uint8_t buttonState, uint8_t ledConfig)
+static uint8_t getLedState(uint8_t buttonState, uint8_t ledConfig)
 {
     if (ledConfig == DUAL_BUTTON_LED_STATE_ON || ledConfig == DUAL_BUTTON_LED_STATE_OFF)
         return ledConfig;
@@ -111,10 +111,10 @@ static uint8_t ledState(uint8_t buttonState, uint8_t ledConfig)
  */
 bool DeviceDualButton::calculateStates(int buttonValue, uint8_t dest[])
 {
-    dest[0] = buttonValue & 1 ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
-    dest[1] = buttonValue & 2 ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
-    dest[2] = ledState(dest[0], led0);
-    dest[3] = ledState(dest[1], led1);
+    dest[0] = (buttonValue & 1) ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
+    dest[1] = (buttonValue & 2) ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
+    dest[2] = getLedState(dest[0], led0);
+    dest[3] = getLedState(dest[1], led1);
 
     bool led_l = dest[2] == DUAL_BUTTON_LED_STATE_ON || dest[2] == DUAL_BUTTON_LED_STATE_AUTO_TOGGLE_ON;
     bool led_r = dest[3] == DUAL_BUTTON_LED_STATE_ON || dest[3] == DUAL_BUTTON_LED_STATE_AUTO_TOGGLE_ON;

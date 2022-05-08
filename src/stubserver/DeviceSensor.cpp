@@ -1,7 +1,7 @@
 /*
  * DeviceSensor.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -195,7 +195,7 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
     {
         if (isV2) {
             if (func == getStatusLedFunc) {
-                p.uint8Value = getStatusLedConfig();
+                p.uint8Value = static_cast<uint8_t>(getStatusLedConfig());
                 p.header.length = sizeof(p.header) + 1;
                 return true;
             }
@@ -207,13 +207,13 @@ bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualiz
         }
         if (func == setStatusLedOnFunc) {
             //utils::Log::log("Toggle status led ON");
-            setStatusLedConfig(STATUS_LED_ON);
+            setStatusLedConfig(StatusLedConfig::LED_ON);
             notify(visualizationClient, LED_CHANGE);
             return true;
         }
         if (func == setStatusLedOffFunc) {
             //utils::Log::log("Toggle status led OFF");
-            setStatusLedConfig(STATUS_LED_OFF);
+            setStatusLedConfig(StatusLedConfig::LED_OFF);
             notify(visualizationClient, LED_CHANGE);
             return true;
         }
@@ -237,9 +237,11 @@ int DeviceSensor::calculateAnalogValue()
 {
     // create an analog value in the range 0..4095
     int v = sensorValue;
-    double d = maxAnalogValue + 1.0;
-    d = d / (values->getMax() - values->getMin()) * static_cast<double>(v);
-    return v;
+    double d = maxAnalogValue;
+    if (values->getMax() > values->getMin()) {
+        d = d / (values->getMax() - values->getMin()) * static_cast<double>(v);
+    }
+    return d;
 }
 
 void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
@@ -306,7 +308,7 @@ void DeviceSensor::enableStatusLed(uint8_t _getStatusLedFunc, uint8_t _setStatus
     getStatusLedFunc = _getStatusLedFunc;
     setStatusLedOnFunc = _setStatusLedOnFunc;
     setStatusLedOffFunc = _setStatusLedOffFunc;
-    setStatusLedConfig(STATUS_LED_ON);
+    setStatusLedConfig(StatusLedConfig::LED_ON);
 }
 
 /**
@@ -315,7 +317,7 @@ void DeviceSensor::enableStatusLed(uint8_t _getStatusLedFunc, uint8_t _setStatus
 void DeviceSensor::setValueProvider(ValueProvider *_values)
 {
     if (!_values)
-        throw utils::Exception("new ValueProvider must be non-null");
+        throw utils::Exception("DeviceSensor::setValueProvider: ValueProvider must be non-null");
     delete values;
     values = _values;
 }

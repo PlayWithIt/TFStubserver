@@ -1,7 +1,7 @@
 /*
  * File.cpp
  *
- * Copyright (C) 2014-2021 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <limits.h>
-#include <string.h>
-#include <sys/types.h>
-
-#include <stdexcept>
-
 #ifdef _WIN32
 #include <Windows.h>
 #include <process.h>
-#define getpid _getpid
+#include <io.h>
+
+#define	__S_ISTYPE(mode, mask)	(((mode) & _S_IFMT) == (mask))
+
+#define	S_ISDIR(mode)	 __S_ISTYPE((mode), _S_IFDIR)
+#define	S_ISREG(mode)	 __S_ISTYPE((mode), _S_IFREG)
+#define	S_ISFIFO(mode)	 __S_ISTYPE((mode), _S_IFIFO)
+#define	S_ISSOCK(mode)	 __S_ISTYPE((mode), _S_IFCHR)
+
+#define getpid  _getpid
+#define access  _access
+
+#define X_OK    0
+#define W_OK    2
+#define R_OK    4
+
 #else
-#include <dirent.h>
 #include <unistd.h>
 #endif
+
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <stdexcept>
+#include <fstream>
+#include <filesystem>
 
 #include "DateTime.h"
 #include "Exceptions.h"
@@ -47,14 +61,23 @@
 
 #define ERR_MOVED_AWAY 999999
 
-#define STAT_BUF(obj) ((struct stat*) obj->data)
+#define STAT_BUF(obj) (static_cast<struct stat*>(obj->data))
+
+namespace fs = std::filesystem;
+
 
 
 namespace utils {
 
+#ifdef _WIN32
+const char File::PATH_SEP_CHAR = '\\';
+const char File::PATH_LIST_SEP_CHAR = ';';
+const char * const File::PATH_SEP_STR = "\\";
+#else
 const char File::PATH_SEP_CHAR = '/';
 const char File::PATH_LIST_SEP_CHAR = ':';
 const char * const File::PATH_SEP_STR = "/";
+#endif
 
 /**
  * Empty init: object cannot be used!
@@ -71,24 +94,46 @@ File::File()
 }
 
 /**
- * Write the pid file.
+ * If name is null or empty an exception is thrown
  */
 PidFile::PidFile(const char *_name)
   : File(_name && _name[0] ? _name : "???")
 {
-    if (_name && _name[0])
+    if (!_name || !_name[0])
+        throw std::invalid_argument("name of pid-file empty");
     {
-        FILE *f = fopen(getFullname().c_str(), "w");
-        if ( !f ) {
+        std::ofstream os(getFullname());
+        if ( os.fail() ) {
             Log::perror(getFullname());
             return;
         }
-        fprintf(f, "%d", getpid());
-        fclose(f);
-
-        setDeleteOnDestroy(true);
-        refresh();
+        os << getpid();
     }
+    refresh();
+    setDeleteOnDestroy(true);
+}
+
+
+/**
+ * Creates a file based on the name of the current executable: <exe-name>.pid
+ * in the actual working directory.
+ */
+PidFile::PidFile()
+  : File()
+{
+    fs::path p(currentExe().getFullname());
+    std::string name = p.stem().string() + ".pid";
+
+    {
+        std::ofstream os(name);
+        if ( os.fail() ) {
+            Log::perror(name);
+            return;
+        }
+        os << getpid();
+    }
+    refresh(name);
+    setDeleteOnDestroy(true);
 }
 
 /**
@@ -103,6 +148,13 @@ File::File(const char *_name)
 
 File::File(const std::string &_name)
   : fullname(_name)
+{
+    init();
+}
+
+
+File::File(const fs::path &_path)
+  : fullname(_path.string())
 {
     init();
 }
@@ -127,6 +179,18 @@ File::File(const File &parentDir, const std::string &name)
         fullname = parent + name;
     else
         fullname = parent + PATH_SEP_CHAR + name;
+    init();
+}
+
+File::File(const File &parentDir, const fs::path &path)
+{
+    const std::string &parent = parentDir.isDirectory() ? parentDir.getFullname() : parentDir.getPath();
+    std::string pathname = path.string();
+
+    if ((pathname.length() > 0 && pathname[0] == PATH_SEP_CHAR) || parent.length() == 0 || parent[parent.length() - 1] == PATH_SEP_CHAR)
+        fullname = parent + pathname;
+    else
+        fullname = parent + PATH_SEP_CHAR + pathname;
     init();
 }
 
@@ -192,7 +256,7 @@ File& File::operator=(const File &other)
 /**
  * Move constructor.
  */
-File::File(File &&other)
+File::File(File &&other) noexcept
 {
     path      = std::move(other.path);
     name      = std::move(other.name);
@@ -203,23 +267,26 @@ File::File(File &&other)
 
     other.deleteOnDestroy = false;
     other.errorCode = ERR_MOVED_AWAY;
-    other.data = NULL;
+    other.data = nullptr;
 }
 
 /**
  * Move operator.
  */
-File& File::operator=(File &&other)
+File& File::operator=(File &&other) noexcept
 {
-    path      = std::move(other.path);
-    name      = std::move(other.name);
-    fullname  = std::move(other.fullname);
-    errorCode = other.errorCode;
-    deleteOnDestroy = other.deleteOnDestroy;
-    memcpy(data, other.data, sizeof(struct stat));
+    if (this != &other) {
+        path      = std::move(other.path);
+        name      = std::move(other.name);
+        fullname  = std::move(other.fullname);
+        errorCode = other.errorCode;
+        deleteOnDestroy = other.deleteOnDestroy;
+        memcpy(data, other.data, sizeof(struct stat));
 
-    other.deleteOnDestroy = false;
-    other.errorCode = ERR_MOVED_AWAY;
+        other.deleteOnDestroy = false;
+        other.errorCode = ERR_MOVED_AWAY;
+    }
+
     return *this;
 }
 
@@ -237,7 +304,7 @@ bool File::operator==(const File& other) const
     // if both exists: check file position
     if (exists())
     {
-        struct stat* os = (struct stat*) other.data;
+        struct stat* os = static_cast<struct stat*>(other.data);
         return STAT_BUF(this)->st_dev == os->st_dev
             && STAT_BUF(this)->st_ino == os->st_ino;
     }
@@ -264,16 +331,9 @@ std::string File::getAbsolutePath() const
     if (!exists())
         throw std::logic_error("Cannot determine the absolute path of a non-existing file");
 
-    char path[PATH_MAX + 100];
-    char *res = realpath(fullname.c_str(), path);
-    if (!res)
-    {
-        int e = errno;
-        snprintf(path, sizeof(path), "realpath(%s) failed", fullname.c_str());
-        path[sizeof(path) - 1] = 0;
-        throw utils::RuntimeError(path, e);
-    }
-    return path;
+    std::filesystem::path p;
+    p = fullname;
+    return std::filesystem::absolute(p).string();
 }
 
 /**
@@ -313,7 +373,11 @@ uint64_t File::getLastModified() const
 {
     if (!exists())
         return false;
+#ifdef _WIN32
+    return STAT_BUF(this)->st_mtime * 1000;
+#else
     return STAT_BUF(this)->st_mtim.tv_sec * 1000 + STAT_BUF(this)->st_mtim.tv_nsec / 1000;
+#endif
 }
 
 bool File::isAbsolute() const {
@@ -329,7 +393,12 @@ bool File::isRegularFile() const {
 }
 
 bool File::isSymlink() const {
+#ifdef _WIN32
+    // TODO: stat() does not return that ??
+    return false;
+#else
     return S_ISLNK(getMode());
+#endif
 }
 
 bool File::isSocket() const {
@@ -347,6 +416,7 @@ bool File::hasAccess(unsigned flag) const
 {
     if (!exists())
         return false;
+
     int rc = access(fullname.c_str(), flag);
     if (rc != 0) {
         int e = errno;
@@ -375,6 +445,10 @@ bool File::canWrite() const {
 const File File::currentExe()
 {
     char buf[PATH_MAX];
+
+#ifdef _WIN32
+    GetModuleFileName(NULL, buf, MAX_PATH);
+#else
     ssize_t s = readlink("/proc/self/exe", buf, sizeof(buf));
     if (s <= 0)
     {
@@ -384,6 +458,7 @@ const File File::currentExe()
 
     // terminate string
     buf[s] = 0;
+#endif
 
     return File(buf);
 }
@@ -405,30 +480,22 @@ size_t File::listDirectory(FileList &result, FileFilter *filter) const
     if (!canRead())
         throw std::logic_error(std::string("No read access for directory ") + fullname);
 
-    DIR *dir = opendir(fullname.c_str());
-    if (dir == NULL) {
-        throw std::logic_error("opendir() failed for a directory");
-    }
-
     size_t numItems = 0;
-    struct dirent *pEntry;
-
-    pEntry = readdir(dir);
-    while (pEntry)
+    for (const fs::directory_entry& entry : fs::directory_iterator(fullname))
     {
+        const fs::path &entryPath = entry.path().filename();
+
         // do not include "." and ".." in the list
-        if (strcmp(pEntry->d_name, ".") && strcmp(pEntry->d_name, ".."))
+        if (entryPath != "." && entryPath != "..")
         {
-            File f(*this, pEntry->d_name);
+            File f(*this, entryPath.filename());
             if (!filter || (*filter)(f))
             {
                 result.push_back(std::move(f));
                 ++numItems;
             }
         }
-        pEntry = readdir(dir);
     }
-    closedir(dir);
     return numItems;
 }
 
@@ -474,26 +541,23 @@ FileVisitor::VisitResult File::visitMe(const VisitOptions &options, unsigned max
             return vr;
 
         // visit the symlink location instead
-        char buf[PATH_MAX];
-        ssize_t s = readlink(getFullname().c_str(), buf, sizeof(buf));
-        if (s <= 0)
+        std::error_code e;
+        fs::path p = fs::read_symlink(getFullname(), e);
+        if ( e != std::error_code{} )
         {
             Log::perror(getFullname());
             throw std::runtime_error(std::string("Cannot read a symlink ") + getFullname());
         }
 
-        // terminate string
-        buf[s] = 0;
-
-        if (buf[0] == PATH_SEP_CHAR)
+        if (p.is_absolute())
         {
             // absolute link location
-            File linked(buf);
+            File linked(p);
             return linked.visitMe(options, maxDepth);
         }
         else {
             // relative link location
-            File linked(*this, buf);
+            File linked(*this, p);
             return linked.visitMe(options, maxDepth);
         }
     }
@@ -540,9 +604,9 @@ FileVisitor::VisitResult File::visitMe(const VisitOptions &options, unsigned max
 FileVisitor::VisitResult File::recurseInto(const VisitOptions &options, unsigned maxDepth) const
 {
     FileList result;
-    listDirectory(result, NULL);
+    listDirectory(result, nullptr);
 
-    for (auto it : result)
+    for (auto &it : result)
     {
         FileVisitor::VisitResult vr = it.visitMe(options, maxDepth);
 
@@ -565,12 +629,27 @@ void File::visit(FileVisitor &visitor, unsigned maxDepth, bool followSymLinks, b
 }
 
 /**
+ * Refresh with a different name, similar to copy constructor, but more efficient.
+ */
+void File::refresh(std::string &fullname)
+{
+    this->fullname = fullname;
+    delete STAT_BUF(this);
+    data = nullptr;
+    init();
+}
+
+/**
  * stat() the file again.
  */
 void File::refresh() const
 {
     // if a file is a link: stat() will follow the link but lstat() not !
+#ifdef _WIN32
+    errorCode = stat(fullname.c_str(), STAT_BUF(this));
+#else
     errorCode = lstat(fullname.c_str(), STAT_BUF(this));
+#endif
     if (errorCode != 0)
     {
         errorCode = errno;
@@ -664,7 +743,8 @@ bool File::renameIfNewMonth(const std::string &filename, const DateTime &dt, boo
         else
             --mon;
 
-        sprintf(name, "%s.%4d-%02d", filename.c_str(), year, mon);
+        snprintf(name, sizeof(name), "%s.%4d-%02d", filename.c_str(), year, mon);
+        name[sizeof(name) - 1] = 0;
         utils::File csv(filename);
         if (!csv.renameTo(name))
             Log::error("Cannot rename " + filename + " to ", name);
@@ -704,7 +784,8 @@ bool File::renameIfNewDay(const std::string &filename, const DateTime &dt, bool 
             day = yesterday.day();
         }
 
-        sprintf(name, "%s.%4d-%02d-%02d", filename.c_str(), year, mon, day);
+        snprintf(name, sizeof(name), "%s.%4d-%02d-%02d", filename.c_str(), year, mon, day);
+        name[sizeof(name) - 1] = 0;
         utils::File csv(filename);
         if (!csv.renameTo(name))
             Log::error("Cannot rename " + filename + " to ", name);
@@ -727,19 +808,26 @@ size_t File::size() const {
  */
 bool File::touch()
 {
-    if (exists()) {
+    if (exists())
         return true;
-    }
     if (errorCode == ERR_MOVED_AWAY)
         return false;
 
-    FILE *f = fopen(fullname.c_str(), "a");
-    if (!f)
-        return false;
-    fclose(f);
+    // block to close the file
+    {
+        std::ofstream os(getFullname(), std::ios::app);
+        if (!os.is_open())
+            return false;
+    }
+
     refresh();
     return true;
 }
+
+#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#endif
 
 /**
  * Similar as the 'which' command in the command line
@@ -752,7 +840,7 @@ const File File::which(const char *envName, const char *filename)
 
     // split path list and look into every directory of the list
     std::vector<std::string> paths;
-    for (auto it : strings::split(env, PATH_LIST_SEP_CHAR, paths))
+    for (auto &it : strings::split(env, PATH_LIST_SEP_CHAR, paths))
     {
         File dir(it);
         if (!dir.exists())

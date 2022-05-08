@@ -40,11 +40,29 @@ public:
     DeviceBarometer(utils::ValueProvider *_values);
     ~DeviceBarometer();
 
-    /**
-     * Changes the value provider: must be non-null, the ownership is taken
-     * into this object and released when the object is destroyed.
-     */
-    void setValueProvider(utils::ValueProvider *values);
+    DECLARE_OWN_DEVICE_CALLBACKS
+};
+
+/**
+ * Like a DeviceBarometer but in hardware release V2 ...
+ */
+class DeviceBarometerV2 : public V2Device, public SensorState
+{
+    utils::ValueProvider *vpAir;    // the air pressure value provider
+    utils::ValueProvider *vpTemp;   // the temperature value provider
+
+    uint8_t          sensorConfig[2];
+    GetSetRaw       *getSet;
+    GetSet<int32_t> *getSetRefPressure;
+    RangeCallback    cbAirPressure;
+    RangeCallback    cbTemp;
+
+    // calculate altitude from height
+    int getAltitude(int pressure) const;
+
+public:
+    DeviceBarometerV2(utils::ValueProvider *_values, utils::ValueProvider *_vpTemp);
+    ~DeviceBarometerV2();
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };

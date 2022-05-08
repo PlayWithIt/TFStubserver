@@ -1,7 +1,7 @@
 /*
  * utils.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,9 +43,6 @@ static const char BASE58_ALPHABET[] = \
 
 
 namespace utils {
-
-static std::atomic_bool finish(false);
-
 
 
 /**
@@ -89,7 +86,7 @@ unsigned bool2bits(bool states[], unsigned num)
     {
         if (states[i]) {
             unsigned mask = (1 << i);
-        	newStates |= mask;
+            newStates |= mask;
         }
     }
 
@@ -154,6 +151,39 @@ unsigned int base58Decode(const char *str)
 }
 
 
+// returns the current process id like "getpid()" on Linux
+uint64_t getProcessId()
+{
+    return getpid();
+}
+
+/**
+ * Return the hexValue of a char:
+ * 0 .. 9 a b c d e f => 0 .. 15
+ *
+ * If a non hex char was input: an exception is thrown !
+ */
+int hexValue(char c1)
+{
+    if (c1 >= '0' && c1 <= '9')
+        return c1 - '0';
+    if (c1 >= 'A' && c1 <= 'F')
+        return (c1 - 'A') + 10;
+    if (c1 >= 'a' && c1 <= 'f')
+        return (c1 - 'a') + 10;
+
+    char msg[128];
+    sprintf(msg, "hexValue: '%c' (%d) is not a valid hex char", c1, c1);
+    throw std::invalid_argument(msg);
+}
+
+/**
+ * Return the hexValue of two hex chars: hexValue(c1)*16 + hexValue(c2)
+ */
+int hexValue(char c1, char c2) {
+    return hexValue(c1)*16 + hexValue(c2);
+}
+
 // sleep some milliseconds
 void msleep(int ms)
 {
@@ -177,19 +207,19 @@ void usleep(int us)
 #endif
 }
 
-#ifndef _WIN32
-
-
-
 /**
  * Open a log-file: redirect stdout + stderr into a file.
- * Do nothing if the log-name is NULL.
+ * Do nothing if the log-name is NULL or empty.
  *
  * return true if OK, false in case of error
  */
 bool redirectStdout(const char *logName)
 {
     if (!logName)
+        return false;
+
+    // empty filename or beginning with ' ' is not allowed
+    if (*logName == 0 || *logName == ' ')
         return false;
 
     int fd = open(logName, O_CREAT | O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP);
@@ -208,110 +238,6 @@ bool redirectStdout(const char *logName)
         result = false;
     }
     return result;
-}
-
-
-// signal handler to terminate the loop
-static void sigTermHandler(int sig, siginfo_t *, void *)
-{
-    static unsigned count = 0;
-
-    if (++count == 5) {
-        Log() << "sigTermHandler(" << sig << ") called 5 times => hard exit ...";
-        exit(16);
-    }
-
-    Log() << "sigTermHandler(" << sig << ") called (" << count << ") => finish ...";
-    finish = true;
-}
-
-
-
-// convert the signal number into readable format ...
-const char *signal2char(int signum)
-{
-    if (signum == SIGBUS)
-        return "SIGBUS";
-    if (signum == SIGSEGV)
-        return "SIGSEGV";
-    if (signum == SIGPIPE)
-        return "SIGPIPE";
-    if (signum == SIGILL)
-        return "SIGILL";
-    if (signum == SIGFPE)
-        return "SIGFPE";
-    if (signum == SIGKILL)
-        return "SIGKILL";
-    if (signum == SIGUSR1)
-        return "SIGUSR1";
-    if (signum == SIGINT)
-        return "SIGINT";
-    return "unknown SIG";
-}
-
-
-static void sigKillHandler(int sig, siginfo_t *, void *)
-{
-    char buffer[200];
-    sprintf(buffer, "CAUGHT CRITICAL SIGNAL: signal=%d (%s) => abort!", sig, signal2char(sig));
-    Log::error(buffer);
-    exit(4);
-}
-#endif
-
-/**
- * Should the application finish?
- */
-bool shouldFinish()
-{
-    return finish;
-}
-
-// set signal handler for example for SIGUSR1 or similar
-void setSignalHandler(int signalNo, void (*function)(int, void *sigInfo, void *u_context), void* extraData)
-{
-#ifndef _WIN32
-    struct sigaction act;
-    memset(&act, 0, sizeof(act));
-
-    act.sa_sigaction = (void (*)(int, siginfo_t *sigInfo, void *u_context))function;
-    act.sa_flags     = SA_SIGINFO;
-    sigaction(signalNo, &act, NULL);
-#endif
-}
-
-/**
- * Install the signal handler to terminate the process.
- */
-void initSignalHandlers()
-{
-#ifndef _WIN32
-    struct sigaction act;
-    memset(&act, 0, sizeof(act));
-
-    // gracefull shutdown
-    act.sa_sigaction = sigTermHandler;
-    act.sa_flags     = SA_SIGINFO;
-    sigaction(SIGTERM, &act, NULL);
-    sigaction(SIGINT,  &act, NULL);
-
-    // dump trace and terminate
-    act.sa_sigaction = sigKillHandler;
-    sigaction(SIGSEGV, &act, NULL);
-    sigaction(SIGBUS,  &act, NULL);
-    sigaction(SIGILL,  &act, NULL);
-
-    // ignore: write() call will fail with EPIPE
-    signal(SIGPIPE, SIG_IGN);
-
-    struct rlimit rlim;
-    getrlimit(RLIMIT_CORE, &rlim);
-    if (rlim.rlim_cur == 0) {
-        rlim.rlim_cur = 300000 * 1024;
-        if (setrlimit(RLIMIT_CORE, &rlim) != 0)
-            Log::perror("Failed to set RLIMIT_CORE");
-    }
-#endif
 }
 
 }

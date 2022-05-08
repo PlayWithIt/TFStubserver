@@ -1,7 +1,7 @@
 /*
  * DevicePiezoSpeaker.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 #include <bricklet_piezo_speaker.h>
 #include <bricklet_piezo_speaker_v2.h>
+
+#include <utils/Log.h>
 
 #include "DevicePiezoSpeaker.h"
 #include "BrickStack.h"
@@ -63,6 +65,7 @@ bool DevicePiezoSpeaker::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vi
             duration  = p.beepRequest.duration;
             frequency = p.beepRequest.frequency;
             wavBuffer = player.makeWav(duration, frequency);
+            // utils::Log() << "New sound buffer " << duration << " " << frequency;
         }
         player.playback(wavBuffer, true);
 

@@ -1,7 +1,7 @@
 /*
  * StringUtil.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <math.h>
 #include <string.h>
 #include <sstream>
 
 #include "StringUtil.h"
+#include "Exceptions.h"
 
 namespace utils {
 namespace strings {
@@ -38,6 +40,86 @@ std::vector<std::string>& split(const std::string &s, char delim, std::vector<st
     return elems;
 }
 
+
+/**
+ * Parse a double where the decimal point must be a '.', so NOT locale specific
+ * and only the format NNN.NNNeYY is supported.
+ *
+ * Throws an exception if parsing fails!
+ */
+double parseDouble(const char *s)
+{
+    bool negate = false;
+    bool digits = false;
+    double res = 0;
+    double factor = 0.1;
+
+    if (!s) {
+        throw ValueFormatError("Cannot convert NULL to double");
+    }
+
+    if (*s == '-') {
+        negate = true;
+        ++s;
+    }
+    if (*s == '+') {
+        // just skip
+        ++s;
+    }
+
+    while ((*s >= '0' && *s <= '9') || *s == '.') {
+        char c = *s;
+        ++s;
+        if (c == '.') {
+            if (digits)
+                throw ValueFormatError(std::string("Multiple '.' in string, cannot convert to double '") + s + "'");
+            digits = true;
+            continue;
+        }
+        if (!digits)
+            res = res * 10.0 + (c - '0');
+        else {
+            res += (factor * (c - '0'));
+            factor *= 0.1;
+        }
+    }
+
+    if (*s == 'e' || *s == 'E') {
+        // exponent
+        ++s;
+        int exp = 1;
+        if (*s == '+')
+            ++s;
+        else if (*s == '-') {
+            exp = -1;
+            ++s;
+        }
+        if (*s == 0)
+            throw ValueFormatError(std::string("Missing exponent string, cannot convert to double '") + s + "'");
+
+        // first digit
+        exp *= (*s - '0');
+        ++s;
+
+        // other digits
+        while (*s >= '0' && *s <= '9') {
+            exp = (10 * exp) + (*s - '0');
+            ++s;
+        }
+
+        res *= pow(10.0, exp);
+    }
+
+    // end of string not reached ?
+    if (*s)
+        throw ValueFormatError(std::string("Cannot convert to double '") + s + "'");
+
+    return negate ? -res : res;
+}
+
+double parseDouble(const std::string &s) {
+    return parseDouble(s.c_str());
+}
 
 /**
  * Replaces all occurrences of 'old' with the text 'newStr'
@@ -81,8 +163,8 @@ bool startsWith(const std::string &s, const char *prefix)
     if (*prefix == 0)
         return true;
 
-    unsigned last = s.length();
-    for (unsigned i = 0; i < last; ++i)
+    size_t last = s.length();
+    for (size_t i = 0; i < last; ++i)
     {
         if (s[i] != *prefix)
             return false;
@@ -181,6 +263,63 @@ char* toUpper(char *s)
 }
 
 /**
+ * Prints a double with the given number of digits into a char buffer using the
+ * given decimal separator (must be '.' or ','). If sep is neither '.' nor ','
+ * the decimal separator remains unchanged and is locale specific.
+ *
+ * The buffer must be large enough to hold a double with max value (e.h. 512).
+ */
+void toString(char buf[512], double d, unsigned digits, char sep)
+{
+    char fmt[32];
+
+    if (!buf)
+        throw RuntimeError("buffer may not be NULL");
+    if (digits > 20)
+        throw OutOfRange("Number of digits may not be larger than 20", digits, 20);
+
+    snprintf(fmt, sizeof(fmt), "%%.%df", digits);   // this should not create an overflow
+    snprintf(buf, 200, fmt, d);                     // double can be very long
+    buf[199] = 0;
+    if (sep == '.') {
+        // change decimal separator
+        char *pos = strchr(buf, ',');
+        if (pos)
+            *pos = '.';
+    }
+    else if (sep == ',') {
+        // change decimal separator
+        char *pos = strchr(buf, '.');
+        if (pos)
+            *pos = ',';
+    }
+}
+
+/**
+ * Similar to std::to_string this method converts a double into a string, but
+ * the number of digits can be controlled. The decimal separator is locale
+ * specific ('.' or ',').
+ */
+std::string toString(double d, unsigned digits)
+{
+    char buff[512];
+    toString(buff, d, digits, 0);
+    return buff;
+}
+
+/**
+ * Similar to std::to_string this method converts a double into a string, but
+ * the number of digits can be controlled and the decimal separator must be
+ * specific too (can be used to always print with '.' for example).
+ */
+std::string toString(double d, unsigned digits, char sep)
+{
+    char buff[512];
+    toString(buff, d, digits, sep);
+    return buff;
+}
+
+/**
  * Does a string end with the given suffix string?
  */
 bool endsWith(const std::string &whole, const std::string &suffix)
@@ -204,6 +343,7 @@ bool endsWith(const std::string &whole, const std::string &suffix)
 std::string strerror(int err)
 {
     char buff[2048];
+    buff[0] = 0;
 #ifdef _WIN32
     strerror_s(buff, sizeof(buff), err);
     return buff;
@@ -221,13 +361,13 @@ inline bool isSpace(char ch) {
  */
 std::string& trim(std::string &in)
 {
-    unsigned l = in.length();
+    size_t l = in.length();
 
     // empty string
     if (l == 0)
         return in;
 
-    unsigned first = 0;
+    size_t first = 0;
     while (first < l && isSpace(in[first]))
         ++first;
 

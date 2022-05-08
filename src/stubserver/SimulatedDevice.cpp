@@ -1,7 +1,7 @@
 /*
  * SimulatedDevice.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,13 +34,15 @@
 #include <bricklet_distance_us.h>
 #include <bricklet_dust_detector.h>
 #include <bricklet_humidity.h>
+#include <bricklet_humidity_v2.h>
 #include <bricklet_industrial_digital_in_4.h>
 #include <bricklet_line.h>
 #include <bricklet_load_cell.h>
 #include <bricklet_load_cell_v2.h>
 #include <bricklet_moisture.h>
-#include <bricklet_humidity_v2.h>
 #include <bricklet_ptc.h>
+#include <bricklet_rgb_led_v2.h>
+#include <bricklet_rgb_led_button.h>
 #include <bricklet_sound_intensity.h>
 #include <bricklet_temperature.h>
 #include <bricklet_temperature_v2.h>
@@ -57,6 +59,7 @@
 #include "DeviceBrick.h"
 #include "DeviceCo2.h"
 #include "DeviceDualButton.h"
+#include "DeviceDualSensor.h"
 #include "DeviceInOut.h"
 #include "DeviceHallEffect.h"
 #include "DeviceLCD.h"
@@ -305,22 +308,28 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case BAROMETER_DEVICE_IDENTIFIER:
-        functions = new DeviceBarometer(createValueProvider("valueProvider"));
+        functions = new DeviceBarometer(createValueProvider("valueProvider", "sinus min=800000,max=1000000,interval=600000"));
+        label = "mbar * 1000";
+        break;
+
+    case BAROMETER_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceBarometerV2(createValueProvider("valueProviderP", "sinus min=800000,max=1000000,interval=800000"),
+                                          createValueProvider("valueProviderT", "linear min=1900,max=2800,step=25,interval=800"));
         label = "mbar * 1000";
         break;
 
     case CO2_V2_DEVICE_IDENTIFIER:
-        if (getProperty("allValueProvider")[0] != 0)
-            vp = createValueProvider("allValueProvider");
+        if (getProperty("valueProviderAll")[0] != 0)
+            vp = createValueProvider("valueProviderAll");
         else
             vp = nullptr;
         if (!dynamic_cast<utils::CSVValueProvider*>(vp))
         {
             ValueProvider *vpTemp, *vpHum;
 
-            vp     = createValueProvider("co2ValueProvider",  "linear min=400,max=1000,step=2,interval=1250");
-            vpTemp = createValueProvider("TempValueProvider", "linear min=500,max=2500,step=10,interval=2000");
-            vpHum  = createValueProvider("humValueProvider",  "linear min=2500,max=8000,step=12,interval=3000");
+            vp     = createValueProvider("valueProviderCo2",  "linear min=400,max=1000,step=2,interval=1250");
+            vpTemp = createValueProvider("valueProviderTemp", "linear min=500,max=2500,step=10,interval=2000");
+            vpHum  = createValueProvider("valueProviderHum",  "linear min=2500,max=8000,step=12,interval=3000");
             functions = new DeviceCo2(vp, vpTemp, vpHum);
         }
         else
@@ -393,6 +402,10 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         functions = new DeviceDualButton(createValueProvider("valueProvider"));
         break;
 
+    case RGB_LED_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceLed(RGB_LED_V2_FUNCTION_GET_RGB_VALUE, RGB_LED_V2_FUNCTION_SET_RGB_VALUE);
+        break;
+
     case RGB_LED_BUTTON_DEVICE_IDENTIFIER:
         functions = new DeviceLedButton(createValueProvider("valueProvider"));
         break;
@@ -443,22 +456,13 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         sensor->setValueProvider(createValueProvider("valueProvider", "linear min=100,max=650,step=5,interval=500"));
         sensor->setMinMax(0, 1000);
         functions = sensor;
-        label = "% rHum * 10";
+        label = "% rH * 10";
         break;
 
     case HUMIDITY_V2_DEVICE_IDENTIFIER:
-        // Typ: int16_t, Einheit: 1/100 °C, Wertebereich: [-4500 bis 13000]
-        functions = new GetSet<uint8_t>(HUMIDITY_V2_FUNCTION_GET_HEATER_CONFIGURATION, HUMIDITY_V2_FUNCTION_SET_HEATER_CONFIGURATION);
-        sensor = new DeviceSensor(HUMIDITY_V2_FUNCTION_GET_HUMIDITY,
-                                  HUMIDITY_V2_FUNCTION_GET_HUMIDITY_CALLBACK_CONFIGURATION,
-                                  HUMIDITY_V2_FUNCTION_SET_HUMIDITY_CALLBACK_CONFIGURATION,
-                                  HUMIDITY_V2_CALLBACK_HUMIDITY);
-        sensor->setValueProvider(createValueProvider("valueProvider", "linear min=2000,max=6500,step=50,interval=500"));
-        sensor->setMinMax(0, 10000);
-        sensor->enableStatusLed(HUMIDITY_V2_FUNCTION_GET_STATUS_LED_CONFIG, HUMIDITY_V2_FUNCTION_SET_STATUS_LED_CONFIG, 0);
-        sensor->setOther(functions);
-        functions = sensor;
-        label = "% rHum * 100";
+        functions = new DeviceHumidityV2(createValueProvider("valueProviderHum", "sinus min=4000,max=7500,interval=800000"),
+                                         createValueProvider("valueProviderTemp", "sinus min=-1000,max=3000,interval=600000"));
+        label = "% rH * 100";
         isV2 = true;
         break;
 
@@ -474,11 +478,11 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER:
-        functions = new DeviceDigitalOut4(false);
+        functions = new DeviceDigitalOut4();
         break;
 
     case INDUSTRIAL_DIGITAL_OUT_4_V2_DEVICE_IDENTIFIER:
-        functions = new DeviceDigitalOut4(true);
+        functions = new DeviceDigitalOut4V2();
         isV2 = true;
         break;
 
@@ -1151,8 +1155,8 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
             return true;
     }
     catch (const std::exception &e) {
-        Log(Log::ERROR) << "for bricklet " << uidStr << " of type " << deviceTypeName
-                        << ", function code " << static_cast<unsigned>(p.header.function_id) << ": " << e.what();
+        Log(Log::LogType::ERROR) << "for bricklet " << uidStr << " of type " << deviceTypeName
+                                 << ", function code " << static_cast<unsigned>(p.header.function_id) << ": " << e.what();
         p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
     }
@@ -1188,7 +1192,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
             }
         }
 
-        Log(Log::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
+        Log(Log::LogType::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
         p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
     }
@@ -1266,7 +1270,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
             }
         }
 
-        Log(Log::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
+        Log(Log::LogType::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
         p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
     }

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Holger Grosenick
+# Copyright (C) 2013-2022 Holger Grosenick
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-CCFLAGS += $(DEBUG) -std=c++0x -Wall -Werror -I. -I../../src $(CC_USER_FLAGS)
+CCFLAGS += $(DEBUG) -std=c++17 -Wall -Werror -I. -I../../src $(CC_USER_FLAGS)
 
 ifneq "$(NO_COMPILE_CPP)" ""
 SRC := $(filter-out $(NO_COMPILE_CPP),$(SRC))

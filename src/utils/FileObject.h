@@ -21,6 +21,7 @@
 #define FILEOBJECT_H_
 
 #include <vector>
+#include "Object.h"
 #include "File.h"
 
 namespace utils {
@@ -102,6 +103,15 @@ public:
     int  undo   (void);                 // put back last char into buffer IF POSSIBLE
                                         // return -1 if not possible
 
+    /**
+     * Searches the given text in the first 'maxPos' bytes of the input file and
+     * resets the read position back to the beginning.
+     * @param text text to search (case sensitive)
+     * @param maxPos max byte index where the text must appear, -1 for any position in the file.
+     * @return -1 if the text was not found, otherwise the byte index from start.
+     */
+    int64_t contains(const char *text, int64_t maxPos);
+
     // Reads the whole file and returns the number of lines in the file.
     // The result is computed each time this method is called (performance!).
     // Set the file-position back to the first char at the end of this method.
@@ -135,6 +145,23 @@ public:
      *         the pointers are present.
      */
     unsigned compare(FileObject &other, std::string *thisLine = NULL, std::string *otherLine = NULL, bool hasIgnoreMarker = false);
+
+    bool operator==(FileObject &other) {
+        return compare(other) == 0;
+    }
+    bool operator!=(FileObject &other) {
+        return compare(other) != 0;
+    }
+
+    /**
+     * Reset the file to the start and compare the content byte by byte with the given string,
+     * only useful for small files.
+     * @return true if the file content matches exactly the text in the string
+     */
+    bool operator==(const std::string &content);
+    bool operator!=(const std::string &content) {
+        return ! (*this == content);
+    }
 
     /**
      * Loads one line and splits up the line into separate columns. A single column may

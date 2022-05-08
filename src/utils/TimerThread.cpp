@@ -1,7 +1,7 @@
 /*
  * TimerThread.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,9 @@
  */
 
 #include <stdexcept>
+#include <iomanip>
+#include <chrono>
+
 #include "Log.h"
 #include "utils.h"
 #include "TimerThread.h"
@@ -79,6 +82,11 @@ void TimerThread::addCommand(TimerCommand *c)
         allCmds.push_front(c);
         c->onAdd();
         taskMutex.unlock();
+
+        if (c->getRemainingCalls() * (c->getDelayInMs() / 1000) > 300) {
+            // Log if a timer command with a duration longer than 5 minutes / 300 seconds is started
+            Log() << "Started the timer '" << c->getName() << "' with duration " << (c->getRemainingCalls() * (c->getDelayInMs() / 1000));
+        }
     }
     else {
         // put into a temp list.
@@ -101,7 +109,15 @@ TimerCommand* TimerThread::getCommand(const char *name) const noexcept
             return c;
         }
     }
-    return NULL;
+    return nullptr;
+}
+/**
+ * Returns true if the command list is empty.
+ */
+bool TimerThread::idle() const
+{
+    MutexLock guard(taskMutex);
+    return allCmds.empty();
 }
 
 /**
@@ -167,6 +183,8 @@ void TimerThread::run()
             }
 
             try {
+//                std::cout << "execute " <<  c->getName() << " at " << serializeTimePoint(absTime) <<
+//                             " vs. " << serializeTimePoint(std::chrono::system_clock::now()) << '\n';
                 c->execute(absTime);
             }
             catch (const std::exception &e) {
@@ -175,7 +193,7 @@ void TimerThread::run()
 
             // throw away commands that are not used any more
             if (c->getRemainingCalls() == 0) {
-                // printf("Callcount == 0 -> remove a command from queue\n");
+//                std::cout << "Callcount == 0 -> remove a command from queue\n";
                 c->onRemove();
                 if (c->destroyAfterRemove())
                     delete c;
@@ -225,6 +243,25 @@ bool TimerThread::stopCommand(const char *name)
     if (!name)
         return false;
     return stopCommand(getCommand(name));
+}
+
+/**
+ * Helper to print a timepoint into a string, optional with milliseconds if the format is NOT given.
+ * Without format, a special internal trace format is used: Y-M-D H:M:S.ms
+ */
+std::string TimerThread::serializeTimePoint( const std::chrono::system_clock::time_point &time, const std::string *format)
+{
+    std::time_t tt = std::chrono::system_clock::to_time_t(time);
+    std::tm tm = *std::localtime(&tt); //Locale time-zone, usually UTC by default.
+    std::stringstream ss;
+    ss << std::put_time( &tm, format ? format->c_str() : "%Y-%m-%d %H:%M:%S" );
+    if (!format) {
+        // add milliseconds
+        auto value = std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch());
+        long ms = value.count() % 1000;
+        ss << '.' << ms;
+    }
+    return ss.str();
 }
 
 } /* namespace utils */

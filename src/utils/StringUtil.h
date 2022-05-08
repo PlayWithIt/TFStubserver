@@ -1,7 +1,7 @@
 /*
  * StringUtil.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,6 +87,29 @@ namespace strings
     char *toUpper(char *s);
 
     /**
+     * Prints a double with the given number of digits into a char buffer using the
+     * given decimal separator (must be '.' or ','). If sep is neither '.' nor ','
+     * the decimal separator remains unchanged and is locale specific.
+     *
+     * The buffer must be large enough to hold a double with max value (e.g. 512).
+     */
+    void toString(char buff[512], double d, unsigned digits, char sep);
+
+    /**
+     * Similar to std::to_string this method converts a double into a string, but
+     * the number of digits can be controlled. The decimal separator is locale
+     * specific ('.' or ',').
+     */
+    std::string toString(double d, unsigned digits);
+
+    /**
+     * Similar to std::to_string this method converts a double into a string, but
+     * the number of digits can be controlled and the decimal separator must be
+     * specific too (can be used to always print with '.' for example).
+     */
+    std::string toString(double d, unsigned digits, char sep);
+
+    /**
      * Returns a locale specific error text for the given error code (see 'errno'). This
      * method is thread-safe.
      */
@@ -96,6 +119,15 @@ namespace strings
      * Removes leading and trailing blanks and tabs.
      */
     std::string& trim(std::string &in);
+
+    /**
+     * Parse a double where the decimal point must be a '.', so NOT locale specific
+     * and only the format NNN.NNNeYY is supported.
+     *
+     * Throws an exception if parsing fails!
+     */
+    double parseDouble(const std::string &s);
+    double parseDouble(const char *s);
 
 } /* namespace strings */
 } /* namespace utils */

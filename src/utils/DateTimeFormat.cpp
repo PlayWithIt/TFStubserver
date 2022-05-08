@@ -1,7 +1,7 @@
 /*
  * DateTimeFormat.cpp
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ inline void twoDigit(std::ostream& out, bool zero, unsigned x)
  */
 void DateTimeFormat::printTo(std::ostream& out, const DateTime& f) const
 {
-    char error[64];
+    char error[128];
     unsigned s;
     bool zero = false;
 
@@ -173,7 +173,7 @@ void DateTimeFormat::printTo(std::ostream& out, const DateTime& f) const
             return;
 
         default:
-            sprintf(error, "Format symbol '%%%c' invalid for DateTimeFormat", c);
+            snprintf(error, sizeof(error), "Format symbol '%%%c' invalid for DateTimeFormat", c);
             throw std::invalid_argument(error);
         }
         ++fmt;
@@ -193,7 +193,7 @@ std::ostream& operator<< (std::ostream& out, const DateTimeFormat& f) {
  */
 std::ostream& operator<< (std::ostream& out, const DateTime& f)
 {
-    const DateTimeFormat* manip = (const DateTimeFormat*) out.pword(dateFormatIndex);
+    const DateTimeFormat* manip = static_cast<const DateTimeFormat*>(out.pword(dateFormatIndex));
     if (manip && false == manip->isInvalid())
         manip->printTo(out, f);
     return out;

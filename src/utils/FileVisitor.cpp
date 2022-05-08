@@ -19,6 +19,7 @@
 
 #include <stdexcept>
 #include "File.h"
+#include "FileFilter.h"
 #include "FileVisitor.h"
 
 namespace utils {

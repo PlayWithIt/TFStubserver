@@ -1,7 +1,7 @@
 /*
  * DeviceRelay.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -237,6 +237,7 @@ void DeviceRelay::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bric
                 packet.fullData.payload[1] = it->param2 ? 1 : 0;
                 setSwitch(it->param1 - 1, it->param2 != 0);
             }
+
             //stateChanged = true;
             brickStack->dispatchCallback(packet);
             notify(visualizationClient, VALUE_CHANGE);
@@ -254,7 +255,8 @@ void DeviceRelay::initMonoflopCallbacks(uint8_t callbackCode)
 {
     for (unsigned i = 0; i < numSwitches; ++i)
     {
-        BasicCallback cb(0, 0, callbackCode, i);
+        // use 1000 ms as default period for the callback (for relays)
+        BasicCallback cb(0, 0, callbackCode, 1000);
         callbacks.push_back(cb);
     }
 }
@@ -379,6 +381,12 @@ std::string DeviceDualRelay::getLabel(unsigned switchNo) const
 DeviceQuadRelay::DeviceQuadRelay()
   : DeviceRelay(4, true, false)
 {
+    // quad relay V1 has no channel led
+    setLedConfig(0, StatusLedConfig::LED_HIDDEN);
+    setLedConfig(1, StatusLedConfig::LED_HIDDEN);
+    setLedConfig(2, StatusLedConfig::LED_HIDDEN);
+    setLedConfig(3, StatusLedConfig::LED_HIDDEN);
+
     functionCodes[FUNC_SET_STATE] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_VALUE;
     functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_QUAD_RELAY_FUNCTION_SET_SELECTED_VALUES;
     functionCodes[FUNC_GET_STATE] = INDUSTRIAL_QUAD_RELAY_FUNCTION_GET_VALUE;
@@ -397,10 +405,10 @@ DeviceQuadRelay::DeviceQuadRelay()
 DeviceQuadRelayV2::DeviceQuadRelayV2()
   : DeviceRelay(4, false, true)
 {
-    ledState[0] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
-    ledState[1] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
-    ledState[2] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
-    ledState[3] = INDUSTRIAL_QUAD_RELAY_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
+    setLedConfig(0, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(1, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(2, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(3, StatusLedConfig::LED_ACTIVITY);
 
     functionCodes[FUNC_SET_STATE] = INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_SET_VALUE;
     functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_SET_SELECTED_VALUE;
@@ -484,17 +492,13 @@ bool DeviceQuadRelayV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
     if (func == INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_GET_CHANNEL_LED_CONFIG)
     {
         p.header.length += 1;
-        uint8_t n = p.fullData.payload[0];
-        if (n < 4)
-            p.fullData.payload[0] = ledState[n];
+        p.fullData.payload[0] = static_cast<uint8_t>(getLedConfig(p.fullData.payload[0]));
         return true;
     }
 
     if (func == INDUSTRIAL_QUAD_RELAY_V2_FUNCTION_SET_CHANNEL_LED_CONFIG)
     {
-        uint8_t n = p.fullData.payload[0];
-        if (n < 4)
-            ledState[n] = p.fullData.payload[1];
+        setLedConfig(p.fullData.payload[0], StatusLed::getLedConfigFromParam(p.fullData.payload[1]));
         notify(visualizationClient, VALUE_CHANGE);
         return true;
     }
@@ -535,26 +539,161 @@ void DeviceQuadRelayV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
 /**
  * Init digital out 4 with get/set and monoflop: behaves like a relay.
  */
-DeviceDigitalOut4::DeviceDigitalOut4(bool isV2)
-  : DeviceRelay(4, ! isV2, isV2)
+DeviceDigitalOut4::DeviceDigitalOut4()
+  : DeviceRelay(4, true, false)
 {
-    if (isV2) {
-        throw std::runtime_error("DeviceDigitalOut4 V2 not implemented");
-    }
-    else {
-        functionCodes[FUNC_SET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_VALUE;
-        functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_SELECTED_VALUES;
-        functionCodes[FUNC_GET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_VALUE;
-        functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_MONOFLOP;
-        functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_MONOFLOP;
-        initMonoflopCallbacks(INDUSTRIAL_DIGITAL_OUT_4_CALLBACK_MONOFLOP_DONE);
+    functionCodes[FUNC_SET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_VALUE;
+    functionCodes[FUNC_SET_SELECTED] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_SELECTED_VALUES;
+    functionCodes[FUNC_GET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_VALUE;
+    functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_SET_MONOFLOP;
+    functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_MONOFLOP;
+    initMonoflopCallbacks(INDUSTRIAL_DIGITAL_OUT_4_CALLBACK_MONOFLOP_DONE);
 
-        other = new DoNothing(INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
-        other = new DoNothing(other, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, NO4);
-    }
+    other = new DoNothing(INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_AVAILABLE_FOR_GROUP, 1);
+    other = new DoNothing(other, INDUSTRIAL_DIGITAL_OUT_4_FUNCTION_GET_GROUP, 4, NO4);
+}
+
+/**
+ * Init digital out 4 with get/set and monoflop: behaves like a relay.
+ */
+DeviceDigitalOut4V2::DeviceDigitalOut4V2()
+  : DeviceRelay(4, true, true)
+{
+    setLedConfig(0, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(1, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(2, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(3, StatusLedConfig::LED_ACTIVITY);
+
+    memset(pwmFrequency, 0, sizeof(pwmFrequency));
+    memset(dutyCycle, 0, sizeof(dutyCycle));
+
+    functionCodes[FUNC_SET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_VALUE;
+    functionCodes[FUNC_GET_STATE] = INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_GET_VALUE;
+    functionCodes[FUNC_SET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_MONOFLOP;
+    functionCodes[FUNC_GET_MONOFLOP] = INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_GET_MONOFLOP;
+    initMonoflopCallbacks(INDUSTRIAL_DIGITAL_OUT_4_V2_CALLBACK_MONOFLOP_DONE);
 }
 
 
+/**
+ * Check for known function codes.
+ */
+bool DeviceDigitalOut4V2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
+{
+    // set default dummy response size: header only
+    p.header.length = sizeof(p.header);
+    uint8_t channel = p.uint8Value;
+    uint64_t remaining;
+
+    // check function to perform
+    switch (p.header.function_id) {
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_GET_VALUE:
+        p.header.length = sizeof(p.header) + 1;
+        p.fullData.payload[0] = getSwitchStates();
+        return true;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_VALUE:
+        setSwitchStates(p.fullData.payload[0]);
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_SELECTED_VALUE:
+        setSwitch(p.fullData.payload[0], p.fullData.payload[1]);
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_GET_CHANNEL_LED_CONFIG:
+        p.header.length = sizeof(p.header) + 1;
+        p.uint8Value = static_cast<uint8_t>(getLedConfig(channel));
+        return true;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_CHANNEL_LED_CONFIG:
+        setLedConfig(p.fullData.payload[0], StatusLed::getLedConfigFromParam(p.fullData.payload[1]));
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_GET_PWM_CONFIGURATION:
+        p.header.length = sizeof(p.header) + 6;
+        if (channel >= numSwitches)
+            Log::log("INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_GET_PWM_CONFIGURATION: invalid channel", static_cast<int>(channel));
+        else {
+            // uint32_t *ret_frequency, uint16_t *ret_duty_cycle
+            // reuse beepRequest which has 32 and 16 bit valzes
+            p.beepRequest.duration  = pwmFrequency[channel];
+            p.beepRequest.frequency = dutyCycle[channel];
+        }
+        return true;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_PWM_CONFIGURATION:
+        if (channel >= numSwitches)
+            Log::log("INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_PWM_CONFIGURATION: invalid channel", static_cast<int>(channel));
+        else {
+            pwmFrequency[channel] = p.channelRequest2.value1;
+            dutyCycle[channel] = p.channelRequest2.value2;
+
+            // stop callbacks: see Tinkerforge documentation
+            for (unsigned i = 0; i < numSwitches; ++i)
+                callbacks[i].active = false;
+        }
+        return true;
+
+    //industrial_digital_out_4_v2_get_monoflop(IndustrialDigitalOut4V2 *obj, uint8_t channel, bool *ret_value, uint32_t *ret_time, uint32_t *ret_time_remaining)
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_GET_MONOFLOP:
+        p.header.length = sizeof(p.header) + 9;
+        p.channelRequest.channel = isOn(channel);                // monoflop state
+        p.channelRequest.value1  = callbacks[channel].period;    // time
+        // time_remaining
+        if (callbacks[channel].active)
+            remaining = callbacks[channel].relativeStartTime + callbacks[channel].period > relativeTimeMs ?
+                            callbacks[channel].relativeStartTime + callbacks[channel].period - relativeTimeMs : 0;
+        else
+            remaining = 0;
+        // Log() << "SET DIGITAL_OUT_4_V2 monoflop remaining " << remaining;
+        p.channelRequest.value2 = static_cast<uint32_t>(remaining);
+        return true;
+
+    case INDUSTRIAL_DIGITAL_OUT_4_V2_FUNCTION_SET_MONOFLOP:
+        // we use monoflopResponse here as the request has 2 bytes input and then the time;
+        // The monoflopRequest is different: only one byte before the time
+        Log() << "SET DIGITAL_OUT_4_V2 monoflop channel " << static_cast<int>(channel) << ", state "
+              << static_cast<unsigned>(p.fullData.payload[1]) << ", time: " << std::dec << p.monoflopResponse.time << "ms";
+
+        setSwitch(channel, p.fullData.payload[1]);
+        callbacks[channel].update(relativeTimeMs, p.monoflopResponse.time, channel, !isOn(channel));
+        notify(visualizationClient, VALUE_CHANGE);
+        return true;
+    }
+
+    return DeviceRelay::consumeCommand(relativeTimeMs, p, visualizationClient);
+}
+
+
+/**
+ * Check for monoflop callbacks.
+ */
+void DeviceDigitalOut4V2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, VisualizationClient &visualizationClient)
+{
+    for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
+    {
+        if (it->mayExecute(relativeTimeMs))
+        {
+            // execute monoflop
+            Log() << "EXECUTE DIGITAL_OUT_4_V2 monoflop switch " << it->param1
+                  << " state " << it->param2 << ", time: " << it->period << "ms\n";
+            it->active = false;
+
+            // digital out uses 2 byte callback
+            IOPacket packet(uid, it->callbackCode, 2);
+
+            packet.fullData.payload[0] = it->param1;
+            packet.fullData.payload[1] = it->param2 ? 1 : 0;
+            setSwitch(it->param1, it->param2 != 0);
+
+            brickStack->dispatchCallback(packet);
+            notify(visualizationClient, VALUE_CHANGE);
+        }
+    }
+}
 
 /**
  * Default init.

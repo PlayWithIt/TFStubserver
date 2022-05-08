@@ -1,7 +1,7 @@
 /*
  * Log.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,13 +65,21 @@ Log::~Log()
     if (os.tellp() > 0)
     {
         // Still some data left?
-        log(*this);
+        flush();
     }
 }
 
 
-// log message with strerror() as parameter
-int Log::perror(const char* msg, int errorCode)
+/**
+ * Log message with strerror(errno), returns the errorCode which was the input.
+ * A '%e' in the message is replaced with the error message for errno.
+ * A '%f' in the message is replaced with the function value.
+ * If these are not present, they'll appears at the end.
+ *
+ * So the message text by default is:
+ * <msg> <function>: <strerror(errno)>
+ */
+int Log::perror(const char* msg, const char* function, int errorCode)
 {
     MutexLock lock(logMutex);
 
@@ -80,15 +88,24 @@ int Log::perror(const char* msg, int errorCode)
 
     const char *c = msg;
     char ch = *c;
-    bool consumed = false;
+    bool consumedE = false;
+    bool consumedF = false;
 
     while (ch)
     {
         if (ch == '%')
         {
-            if (*(c+1) == 's') {
-                os << strings::strerror(errorCode);
-                consumed = true;
+            if (*(c+1) == 'e') {
+                if (errorCode > 0 && errno < 200)
+                    os << strings::strerror(errorCode) << ", ";
+                os << "errorCode=" << errorCode;
+                consumedE = true;
+                ++c;
+            }
+            else if (*(c+1) == 'f') {
+                os << function;
+                consumedF = true;
+                ++c;
             }
             else {
                 os << ch;
@@ -100,8 +117,14 @@ int Log::perror(const char* msg, int errorCode)
         ++c;
         ch = *c;
     }
-    if (!consumed) {
-        os << ": " << strings::strerror(errorCode);
+    if (!consumedF && function) {
+        os << ' ' << function;
+    }
+    if (!consumedE) {
+        os << ": ";
+        if (errorCode > 0 && errno < 200)
+            os << strings::strerror(errorCode) << ", ";
+        os << "errorCode=" << errorCode;
     }
     saveAndPrintError(os);
     return errorCode;
@@ -186,12 +209,20 @@ void Log::log(const std::string& msg, unsigned v)
     log(msg.c_str(), v);
 }
 
-void Log::log(const Log& _log)
+void Log::log(const std::string& msg, uint64_t v)
 {
-    if (_log.logType == ERROR)
-        Log::error(_log.os.str());
+    log(msg.c_str(), v);
+}
+
+/**
+ * Log the content of the internal buffer, if there is something not logged yet.
+ */
+void Log::flush()
+{
+    if (logType == LogType::ERROR)
+        error(os.str());
     else
-        Log::log(_log.os.str());
+        log(os.str());
 }
 
 void Log::error(const char* msg)
@@ -311,7 +342,7 @@ Log& Log::operator<<(const char *s)
 Log& Log::operator<<(const char c)
 {
     if (c == 10) {
-        log(*this);
+        flush();
         os.str("");
         os.clear();
     }

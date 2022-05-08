@@ -145,7 +145,22 @@ public:
     bool shouldTriggerRangeCallback(uint64_t relativeTimeMs, int currentValue) const;
 
     /**
+     * Checks if the given time allows a new callback and if yes, checks if the given value
+     * is within the given range depending on the range option and if yes checks if the
+     * value has changed: if valueHasToChange is true, valueChanged must be true to.
+     * So the caller needs to take care about the 'valueChanged' flag.
+     *
+     * This method resets the valueChanged flag if it return true.
+     *
+     * @return true if a callback should be triggered
+     */
+    bool triggerRangeCallbackIfChanged(uint64_t relativeTimeMs, int currentValue);
+
+    /**
      * Set all function codes at once.
+     *
+     * The getThresholdFunctionCode is used for getCallbackConfig in V2 devices.
+     *
      */
     void setFunctions(uint8_t _setThresholdFunctionCode, uint8_t _getThresholdFunctionCode,
                       uint8_t _setDebounceFunctionCode, uint8_t _getDebounceFunctionCode,

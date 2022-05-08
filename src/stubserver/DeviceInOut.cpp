@@ -1,7 +1,7 @@
 /*
  * DeviceInOut.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,11 @@ DeviceDigitalIn::DeviceDigitalIn(utils::ValueProvider *vp, unsigned numPins)
   , getValueCallback(INDUSTRIAL_DIGITAL_IN_4_FUNCTION_GET_DEBOUNCE_PERIOD, INDUSTRIAL_DIGITAL_IN_4_FUNCTION_SET_DEBOUNCE_PERIOD, INDUSTRIAL_DIGITAL_IN_4_CALLBACK_INTERRUPT)
   , interruptMask(0)
 {
+    // more for the stub-server: show LED in UI which makes the state visible easier
+    setLedConfig(0, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(1, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(2, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(3, StatusLedConfig::LED_ACTIVITY);
     getValueCallback.period = 100;
 }
 
@@ -61,6 +66,10 @@ DeviceDigitalIn::DeviceDigitalIn(utils::ValueProvider *vp)
   , getValueCallback(INDUSTRIAL_DIGITAL_IN_4_V2_FUNCTION_GET_VALUE_CALLBACK_CONFIGURATION, INDUSTRIAL_DIGITAL_IN_4_V2_FUNCTION_SET_VALUE_CALLBACK_CONFIGURATION, INDUSTRIAL_DIGITAL_IN_4_V2_CALLBACK_VALUE)
   , interruptMask(0)
 {
+    setLedConfig(0, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(1, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(2, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(3, StatusLedConfig::LED_ACTIVITY);
     getValueCallback.period = 100;
 }
 
@@ -217,6 +226,7 @@ void DeviceDigitalIn::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
                 }
             }
         }
+        notify(visualizationClient);
     }
 }
 
@@ -230,16 +240,16 @@ void DeviceDigitalIn::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, 
 DeviceDigitalInV2::DeviceDigitalInV2(utils::ValueProvider *vp)
   : DeviceDigitalIn(vp)
 {
-    ledConfig[0] = INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
-    ledConfig[1] = INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
-    ledConfig[2] = INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
-    ledConfig[3] = INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS;
+    setLedConfig(0, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(1, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(2, StatusLedConfig::LED_ACTIVITY);
+    setLedConfig(3, StatusLedConfig::LED_ACTIVITY);
 }
 
 
 bool DeviceDigitalInV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
-    uint8_t channel, config;
+    uint8_t channel;
 
     // set default dummy response size: header only
     p.header.length = sizeof(p.header);
@@ -322,27 +332,13 @@ bool DeviceDigitalInV2::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vis
         return true;
 
     case INDUSTRIAL_DIGITAL_IN_4_V2_FUNCTION_SET_CHANNEL_LED_CONFIG:
-        channel = p.fullData.payload[0];
-        if (channel >= 4)
-            throw utils::OutOfRange("invalid channel number", channel, 3);
-        config = p.fullData.payload[1];
-        ledConfig[channel] = config;
-
-        if (config == INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_OFF)
-            ledState[channel] = 0;
-        else if (config == INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_ON)
-            ledState[channel] = 1;
-        else if (config == INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS)
-            ledState[channel] = isOn(channel);
+        setLedConfig(p.fullData.payload[0], StatusLed::getLedConfigFromParam(p.fullData.payload[1]));
         notify(visualizationClient);
         return true;
 
     case INDUSTRIAL_DIGITAL_IN_4_V2_FUNCTION_GET_CHANNEL_LED_CONFIG:
         p.header.length += 1;
-        channel = p.fullData.payload[0];
-        if (channel >= 4)
-            throw utils::OutOfRange("invalid channel number", channel, 3);
-        p.fullData.payload[0] = ledConfig[channel];
+        p.fullData.payload[0] = static_cast<uint8_t>(getLedConfig(p.fullData.payload[0]));
         return true;
 
     default:
@@ -392,15 +388,6 @@ void DeviceDigitalInV2::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
         // -> don't trigger again, if the change is within the debounce period
         unsigned mask = getSwitchStates() ^ newValue;
         setSwitchStates(newValue);
-
-        if (ledConfig[0] == INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS)
-            ledState[0] = (newValue & 1);
-        if (ledConfig[1] == INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS)
-            ledState[1] = (newValue & 2);
-        if (ledConfig[2] == INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS)
-            ledState[2] = (newValue & 4);
-        if (ledConfig[3] == INDUSTRIAL_DIGITAL_IN_4_V2_CHANNEL_LED_CONFIG_SHOW_CHANNEL_STATUS)
-            ledState[3] = (newValue & 8);
 
         // TODO: edge count
         for (unsigned i = 0; i < numSwitches; ++i)

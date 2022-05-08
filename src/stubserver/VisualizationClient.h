@@ -1,7 +1,7 @@
 /*
  * VisualizationClient.h
  *
- * Copyright (C) 2015-2021 Holger Grosenick
+ * Copyright (C) 2015-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,20 +24,12 @@
 #include <ctime>
 #include <vector>
 
+#include "StatusLed.h"
 
 namespace stubserver {
 
 class VisibleDeviceState;
 
-/**
- * How the status led is configured: not supported by all devices, but most of them.
- */
-enum StatusLedSetting {
-    STATUS_LED_OFF = 0,         // always off
-    STATUS_LED_ON  = 1,         // always on
-    STATUS_LED_HEARTBEAT = 2,   // show heart beat
-    STATUS_LED_ACTIVITY = 3     // show activity status
-};
 
 /**
  * A special in-memory client that can register to a device and receive events if some
@@ -96,14 +88,14 @@ class VisibleDeviceState
     /**
      * Status led config is device specific value: some devices use 0,1 or 0,1,2,3.
      */
-    uint8_t statusLedConfig;
+    StatusLed statusLed;
 
 public:
     explicit VisibleDeviceState(unsigned c)
-       : changeCode(c), internalSensorNo(0), statusLedConfig(STATUS_LED_HEARTBEAT) { }
+       : changeCode(c), internalSensorNo(0), statusLed(StatusLedConfig::LED_HEARTBEAT) { }
 
     explicit VisibleDeviceState(unsigned c, unsigned sn)
-       : changeCode(c), internalSensorNo(sn), statusLedConfig(STATUS_LED_HEARTBEAT) { }
+       : changeCode(c), internalSensorNo(sn), statusLed(StatusLedConfig::LED_HEARTBEAT) { }
 
     virtual ~VisibleDeviceState();
 
@@ -138,21 +130,24 @@ public:
 
     /**
      * Changes the value of the status LED: some devices just have on/off,
-     * some other on (1) / off (0) + activity status (2)
+     * some other on (1) / off (0), activity status (2) or channel status (3)
      */
     void setStatusLedConfig(uint8_t cfg) {
-        statusLedConfig = cfg;
+        statusLed.setLedConfig(cfg);
+    }
+    void setStatusLedConfig(StatusLedConfig cfg) {
+        statusLed.setLedConfig(cfg, 0);
     }
 
     /**
      * Returns true if there is any light on the LED in some cases.
      */
     bool isStatusLedOn() const {
-        return statusLedConfig != STATUS_LED_OFF;
+        return statusLed.getConfig() != StatusLedConfig::LED_OFF;
     }
 
-    uint8_t getStatusLedConfig() const {
-        return statusLedConfig;
+    StatusLedConfig getStatusLedConfig() const {
+        return statusLed.getConfig();
     }
 
     /**
@@ -656,9 +651,19 @@ public:
      */
     virtual std::string getLabel(unsigned switchNo) const;
 
+    /**
+     * Return the led config for a given channel.
+     */
+    StatusLedConfig getLedConfig(unsigned channel) const;
+
 protected:
-    unsigned numSwitches;
-    uint8_t  ledState[16];          // some relays have one led per channel
+    unsigned       numSwitches;
+
+    /**
+     * Changes the LED config for a channel and updates the LED state
+     * based on the new config.
+     */
+    void setLedConfig(uint8_t channel, StatusLedConfig config);
 
     /**
      * Updates the bitValues and switchOn: just one bit
@@ -671,8 +676,9 @@ protected:
     void setSwitchStates(unsigned states);
 
 private:
-    unsigned switchStates;          // one bit per switch
-    bool     switchOn[16];          // one flag per switch, max 16 switches
+    unsigned       switchStates;     // one bit per switch
+    bool           switchOn[16];     // one flag per switch, max 16 switches
+    StatusLed      channelLed[16];   // some relays have one led per channel
 };
 
 }

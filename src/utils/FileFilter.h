@@ -1,7 +1,7 @@
 /*
  * FileFilter.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,8 +52,8 @@ protected:
     std::string filenamePattern;
 
 public:
-    FilenameFilter(const char *s) : filenamePattern(s) { }
-    FilenameFilter(const std::string &s) : filenamePattern(s) { }
+    explicit FilenameFilter(const char *s) : filenamePattern(s) { }
+    explicit FilenameFilter(const std::string &s) : filenamePattern(s) { }
 };
 
 
@@ -68,12 +68,12 @@ public:
     /**
      * Construct with a filename suffix.
      */
-    FileSuffixFilter(const char *s) : FilenameFilter(s) { }
+    explicit FileSuffixFilter(const char *s) : FilenameFilter(s) { }
 
     /**
      * Construct with a filename suffix.
      */
-    FileSuffixFilter(const std::string &s) : FilenameFilter(s) { }
+    explicit FileSuffixFilter(const std::string &s) : FilenameFilter(s) { }
 
     virtual bool operator()(const File& file) override;
 };
@@ -89,12 +89,12 @@ public:
     /**
      * Construct with a filename prefix.
      */
-    FilePrefixFilter(const char *s) : FilenameFilter(s) { }
+    explicit FilePrefixFilter(const char *s) : FilenameFilter(s) { }
 
     /**
      * Construct with a filename prefix.
      */
-    FilePrefixFilter(const std::string &s) : FilenameFilter(s) { }
+    explicit FilePrefixFilter(const std::string &s) : FilenameFilter(s) { }
 
     virtual bool operator()(const File& file) override;
 };
@@ -112,12 +112,12 @@ public:
     /**
      * Construct with a filename regex expression.
      */
-    FileRegexFilter(const char *s) : FilenameFilter(s), re(s) { }
+    explicit FileRegexFilter(const char *s) : FilenameFilter(s), re(s) { }
 
     /**
      * Construct with a filename regex expression.
      */
-    FileRegexFilter(const std::string &s) : FilenameFilter(s), re(s) { }
+    explicit FileRegexFilter(const std::string &s) : FilenameFilter(s), re(s) { }
 
     virtual bool operator()(const File& file) override;
 };
@@ -136,8 +136,30 @@ public:
     /**
      * Filter by given file types.
      */
-    FileTypeFilter(bool dirs, bool files, bool other = false);
+    explicit FileTypeFilter(bool dirs, bool files, bool other = false);
 
+    virtual bool operator()(const File& file) override;
+};
+
+/**
+ * Checks given files if they are Linux ELF binary files, the result can be
+ * included or excluded based on the constructor arg.
+ */
+class FileFilterElf : public FileFilter
+{
+    bool include;
+
+public:
+    /**
+     * If the argument is true, the operator returns true for ELF files,
+     * if it is false, it returns false in case of ELF files.
+     */
+    explicit FileFilterElf(bool include = true);
+
+    /**
+     * Return the value of 'include' in case of ELF files and '!include'
+     * for all others.
+     */
     virtual bool operator()(const File& file) override;
 };
 

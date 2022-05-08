@@ -18,7 +18,7 @@
 ifdef USE_LLVM
 CC:= clang++
 else
-CC:= g++
+CC:= g++-10
 endif
 
 ifeq "$(CONFIG)" "Release"

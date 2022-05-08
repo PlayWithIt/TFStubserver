@@ -1,7 +1,7 @@
 /*
  * FileFilter.cpp
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _WIN32
+#include <elf.h>
+#endif
+#include <iostream>
+
 #include "File.h"
 #include "FileFilter.h"
+#include "FileObject.h"
 #include "StringUtil.h"
 
 
@@ -68,6 +74,49 @@ bool FileTypeFilter::operator()(const File& file)
     if (file.isDirectory())
         return dirs;
     return other;
+}
+
+/**
+ * If the argument is true, the operator returns true for ELF files,
+ * if it is false, it returns false in case of ELF files.
+ */
+FileFilterElf::FileFilterElf(bool include)
+  : include(include)
+{ }
+
+/**
+ * Return the value of 'include' in case of ELF files and '!include'
+ * for all others.
+ */
+bool FileFilterElf::operator()(const File& file)
+{
+#ifdef _WIN32
+    return !include;
+#else
+    FileObject obj(file);
+    if (!obj.isOpen()) {
+        // std::cerr << file.getFullname() << ": open error\n";
+        return !include;
+    }
+
+    char header[16];
+    if (obj.read(header, 16) != 16)
+        return !include;
+
+    if (header[0] != ELFMAG0 || header[1] != ELFMAG1 || header[2] != ELFMAG2  || header[3] != ELFMAG3) {
+        // std::cerr << file.getFullname() << ": wrong header\n";
+        return !include;
+    }
+    if (header[EI_CLASS] < ELFCLASS32 || header[EI_CLASS] > ELFCLASS64) {
+        // std::cerr << file.getFullname() << ": wrong class\n";
+        return !include;
+    }
+    if (header[EI_VERSION] != EV_CURRENT) {
+        // std::cerr << file.getFullname() << ": wrong version\n";
+        return !include;
+    }
+    return include;
+#endif
 }
 
 /**

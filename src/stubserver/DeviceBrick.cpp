@@ -33,7 +33,7 @@ DeviceBrick::DeviceBrick(unsigned typeId, DeviceFunctions* _other, uint8_t _func
    , extenstionType1(0)
 {
     enableStatusLed(MASTER_FUNCTION_IS_STATUS_LED_ENABLED, MASTER_FUNCTION_ENABLE_STATUS_LED, MASTER_FUNCTION_DISABLE_STATUS_LED);
-    setStatusLedConfig(STATUS_LED_ON);
+    setStatusLedConfig(StatusLedConfig::LED_ON);
 }
 
 DeviceBrick::DeviceBrick(unsigned typeId, uint8_t _funcGetVoltage, uint8_t _funcGetCurrent,

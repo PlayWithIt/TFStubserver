@@ -39,6 +39,8 @@ struct Redirect;
  */
 class ChildProcess {
 
+    ChildProcess(const ChildProcess &) = delete;
+
 public:
     /**
      * Prepare to start a child process and return, the cmd-array must have at least the name
@@ -46,7 +48,7 @@ public:
      */
     explicit ChildProcess(const std::string &cmdline);
     explicit ChildProcess(const char *cmdline);
-    ChildProcess(const std::vector<std::string> &programAndArgs);
+    explicit ChildProcess(const std::vector<std::string> &programAndArgs);
 
     /**
      * This kills the child if it is still active.

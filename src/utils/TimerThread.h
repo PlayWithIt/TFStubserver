@@ -1,7 +1,7 @@
 /*
  * TimerThread.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,6 +73,16 @@ public:
     void addCommand(TimerCommand *c);
 
     /**
+     * Return the first command of the queue with the given name or NULL.
+     */
+    TimerCommand* getCommand(const char *name) const noexcept;
+
+    /**
+     * Returns true if the command list is empty.
+     */
+    bool idle() const;
+
+    /**
      * Removes the given commands from the queue if it still exists.
      * Returns true if the command was found and stopped.
      */
@@ -85,9 +95,10 @@ public:
     bool stopCommand(const char *name);
 
     /**
-     * Return the first command of the queue with the given name or NULL.
+     * Helper to print a timepoint into a string, optional with milliseconds if the format is NOT given.
+     * Without format, a special internal trace format is used: Y-M-D H:M:S.ms
      */
-    TimerCommand* getCommand(const char *name) const noexcept;
+    static std::string serializeTimePoint( const std::chrono::system_clock::time_point &time, const std::string *format = nullptr);
 };
 
 } /* namespace utils */

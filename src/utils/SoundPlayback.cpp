@@ -34,6 +34,7 @@
 #define snd_config_update_free_global()
 #endif
 
+#include <utils/SignalHandlers.h>
 #include <utils/utils.h>
 
 #include "SoundPlayback.h"
@@ -266,7 +267,7 @@ SoundPlayback::WavBuffer SoundPlayback::makeWav(SoundList &sounds, unsigned volu
         // double d = sin(winkel * PI / 180);
 
         // bei 1KHz Ton und 44Khz Abtastrate kommen 44 Wellen also 360 / 44 pro Schritt
-        float angel_fraction = 360.0 / ((float)sample_rate / (float) it.second);
+        float angel_fraction = 360.0 / (static_cast<float>(sample_rate) / static_cast<float>(it.second));
         float phase = 0;
 
         // printf("Amplitude = %f, angel = %f\n", amplitude, angel_fraction);
@@ -394,7 +395,7 @@ start:
 
     // 41000 Hz / 256 => about 180 packets/loops per second here
     const int PAKET_SIZE = 256;
-    while (remain > 0 && !finish && !utils::shouldFinish())
+    while (remain > 0 && !finish && !utils::SignalHandlers::shouldFinish())
     {
         int todo = remain > PAKET_SIZE ? PAKET_SIZE : remain;
 
@@ -613,7 +614,7 @@ int main(int argc, char **argv)
         SoundPlayback player;
         for (int i = 1; i < argc; ++i)
             player.playback(argv[i]);
-        return 1;
+        // return 1;
         sleep(2);
 
         puts("Now async");

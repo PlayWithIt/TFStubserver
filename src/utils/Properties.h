@@ -1,7 +1,7 @@
 /*
  * Properties.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,14 +48,14 @@ public:
      * @param filename the path to the file
      * @throws FileOpenError if the file cannot be opened
      */
-    Properties(const char *filename);
+    explicit Properties(const char *filename);
 
     /**
      * Load properties from file.
      * @param filename the path to the file
      * @throws FileOpenError if the file cannot be opened
      */
-    Properties(const std::string &filename);
+    explicit Properties(const std::string &filename);
 
     /**
      * Build properties out of a single string which has the format:<pre>
@@ -96,7 +96,7 @@ public:
 
     /**
      * Return a value for the given key, returns NULL if the key is not present
-     * in the container.
+     * in the container, if it is not NULL, it still can be an empty string.
      */
     const char *get(const char *key) const noexcept;
     const char *get(const std::string &key) const noexcept {

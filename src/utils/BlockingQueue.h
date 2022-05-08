@@ -25,7 +25,7 @@
 #include <deque>
 #include <stdexcept>
 
-#include "Compatability.h"
+#include "Compatibility.h"
 
 namespace utils {
 

@@ -1,7 +1,7 @@
 /*
  * DeviceRelay.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,7 +116,22 @@ public:
 class DeviceDigitalOut4 : public DeviceRelay
 {
 public:
-    DeviceDigitalOut4(bool isV2);
+    DeviceDigitalOut4();
+};
+
+
+/**
+ * The digital out 4 switch
+ */
+class DeviceDigitalOut4V2 : public DeviceRelay
+{
+    uint32_t pwmFrequency[4];
+    uint16_t dutyCycle[4];
+
+public:
+    DeviceDigitalOut4V2();
+
+    DECLARE_OWN_DEVICE_CALLBACKS
 };
 
 

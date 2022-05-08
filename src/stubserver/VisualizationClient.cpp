@@ -1,7 +1,7 @@
 /*
  * VisualizationClient.cpp
  *
- * Copyright (C) 2015-2021 Holger Grosenick
+ * Copyright (C) 2015-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ namespace stubserver {
 
 // each byte has just one single pixel set
 const uint8_t DisplayState::SINGLE_PIXEL[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
-
 
 VisibleDeviceState::~VisibleDeviceState() { }
 
@@ -172,7 +171,6 @@ RelayState::RelayState(unsigned n)
     if (n > 16)
         throw std::invalid_argument("RelayState::numSwitches must be <= 16, but is larger");
     memset(switchOn, 0, sizeof(switchOn));
-    memset(ledState, 0, sizeof(ledState));
 }
 
 bool RelayState::isOn(unsigned switchNo) const
@@ -186,7 +184,7 @@ bool RelayState::isLedOn(unsigned switchNo) const
 {
     if (switchNo >= numSwitches)
         throw utils::OutOfRange("RelayState::isLedOn: 'switchNo' is too high", switchNo, numSwitches-1);
-    return ledState[switchNo];
+    return channelLed[switchNo].isLedOn();
 }
 
 /**
@@ -205,6 +203,10 @@ void RelayState::setSwitch(unsigned switchNo, bool on)
         switchOn[switchNo] = false;
         switchStates &= (0xFFFF - (1 << switchNo));
     }
+
+    // Update LED
+    if (channelLed[switchNo].getConfig() == StatusLedConfig::LED_ACTIVITY)
+        channelLed[switchNo].setActivity(switchOn[switchNo]);
 }
 
 /**
@@ -213,8 +215,13 @@ void RelayState::setSwitch(unsigned switchNo, bool on)
 void RelayState::setSwitchStates(unsigned states)
 {
     switchStates = states;
-    for (unsigned i = 0; i < numSwitches; ++i)
+    for (unsigned i = 0; i < numSwitches; ++i) {
         switchOn[i] = (states & (1 << i)) ? true : false;
+
+        // Update LED
+        if (channelLed[i].getConfig() == StatusLedConfig::LED_ACTIVITY)
+            channelLed[i].setActivity(switchOn[i]);
+    }
 }
 
 /**
@@ -230,6 +237,28 @@ std::string RelayState::getLabel(unsigned switchNo) const
     sprintf(buf, "%u", switchNo);
     return std::string(buf);
 }
+
+/**
+ * Return the led config for a given channel.
+ */
+StatusLedConfig RelayState::getLedConfig(unsigned channel) const
+{
+    if (channel >= numSwitches)
+        throw utils::OutOfRange("RelayState::updateLedConfig: 'channel' is too high", channel, numSwitches-1);
+    return channelLed[channel].getConfig();
+}
+
+/**
+ * Changes the LED config for a channel and updates the LED state
+ * based on the new config.
+ */
+void RelayState::setLedConfig(uint8_t channel, StatusLedConfig config)
+{
+    if (channel >= numSwitches)
+        throw utils::OutOfRange("RelayState::updateLedConfig: 'channel' is too high", channel, numSwitches-1);
+    channelLed[channel].setLedConfig(config, switchOn[channel]);
+}
+
 
 LcdState::LcdState(unsigned _cols, unsigned _lines)
    : VisibleDeviceState(0)

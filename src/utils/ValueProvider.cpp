@@ -1,7 +1,7 @@
 /*
  * ValueProvider.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options, const utils:
 {
     size_t l = options.length();
     if (l < 10)
-        return NULL;
+        return nullptr;
 
     size_t first = 0;
     while (first < l && options[first] == ' ')
@@ -77,7 +77,7 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options, const utils:
     while (last < l && options[last] != ' ')
         ++last;
     if (last - first < 3)
-        return NULL;
+        return nullptr;
 
     // extract type
     std::string type = options.substr(first, last-first);
@@ -140,7 +140,7 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options, const utils:
     {
         return new RandomValueProvider(min, max, interval);
     }
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -149,7 +149,7 @@ ValueProvider* ValueProvider::buildFrom(const std::string& options, const utils:
 RandomValueProvider::RandomValueProvider(int _min, int _max, unsigned int _interval)
   : ValueProvider(_min, _max, _interval)
 {
-    srand(time(NULL));
+    srand(time(nullptr));
     lastValue = calcValue();
 }
 
@@ -300,7 +300,7 @@ int SinusValueProvider::getValue(uint64_t relativeTimeMs)
     double res = (max - min) * sinus + min;
 
     // printf("Delta %6lu %4u -> part =%.4f, sinus = %.4f, result = %.1f\n", timeDelta, interval, part, sinus, res);
-    lastValue = res;
+    lastValue = static_cast<int>(res);
     return lastValue;
 }
 
@@ -374,11 +374,11 @@ StoredValueProvider::StoredValueProvider(const Properties &props, const std::str
 
     while (row < 999999999)
     {
-        sprintf(buffer, "%s%u", key.c_str(), ++row);
+        snprintf(buffer, sizeof(buffer), "%s%u", key.c_str(), ++row);
         const char *value = props.get(buffer);
 
         // not found ...
-        if (value == NULL || *value == 0)
+        if (!value || *value == 0)
             break;
 
         if (strlen(value) > 30)
@@ -395,7 +395,7 @@ StoredValueProvider::StoredValueProvider(const Properties &props, const std::str
 /**
  * Check consistency return number of value items (no random).
  */
-unsigned StoredValueProvider::checkSequence()
+size_t StoredValueProvider::checkSequence()
 {
     unsigned act = 0;
     unsigned row = 0;
@@ -409,7 +409,7 @@ unsigned StoredValueProvider::checkSequence()
         if (it.timeOffset < act)
         {
             char error[128];
-            sprintf(error, "Relative time in row %u is lower than previous one!", row);
+            snprintf(error, sizeof(error), "Relative time in row %u is lower than previous one!", row);
             throw Exception(error);
         }
         act = it.timeOffset;
@@ -537,12 +537,12 @@ void StoredValueProvider::parseLine(std::string &line, unsigned lineNo)
     else
         base = 10;
 
-    char *endPtr = NULL;
+    char *endPtr = nullptr;
     value = strtol(val.c_str(), &endPtr, base);
     if (endPtr == val.c_str())
     {
         char error[128];
-        sprintf(error, "Invalid line format in value of line %u", lineNo);
+        snprintf(error, sizeof(error), "Invalid line format in value of line %u", lineNo);
         throw Exception(error);
     }
 

@@ -25,12 +25,9 @@
 namespace stubserver {
 
 DeviceLedButton::DeviceLedButton(ValueProvider *vp)
-    : V2Device(NULL, this, true)
+    : DeviceLed(RGB_LED_BUTTON_FUNCTION_GET_COLOR, RGB_LED_BUTTON_FUNCTION_SET_COLOR)
     , valueProvider(vp)
 {
-    red = 0;
-    green = 0;
-    blue = 0;
     buttonStates = 0;
 }
 
@@ -46,20 +43,6 @@ bool DeviceLedButton::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
 
     // check function to perform
     switch (p.header.function_id) {
-    case RGB_LED_BUTTON_FUNCTION_SET_COLOR:
-        red   = p.fullData.payload[0];
-        green = p.fullData.payload[1];
-        blue  = p.fullData.payload[2];
-        notify(visualizationClient);
-        return true;
-
-    case RGB_LED_BUTTON_FUNCTION_GET_COLOR:
-        p.fullData.payload[0] = red;
-        p.fullData.payload[1] = green;
-        p.fullData.payload[2] = blue;
-        p.header.length += 3;
-        return true;
-
     case RGB_LED_BUTTON_FUNCTION_SET_COLOR_CALIBRATION:
         // data ignored
         return true;
@@ -80,7 +63,7 @@ bool DeviceLedButton::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visua
         return true;
 
     default:
-        return V2Device::consumeCommand(relativeTimeMs, p, visualizationClient);
+        return DeviceLed::consumeCommand(relativeTimeMs, p, visualizationClient);
     }
 }
 

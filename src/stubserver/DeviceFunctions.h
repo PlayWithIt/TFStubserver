@@ -1,7 +1,7 @@
 /*
  * DeviceFunctions.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ struct ResponseData
      * are used, since T is something like int32_t or unit16_t.
      */
     template<class T> T get() const {
-        T* result = (T*) (extData ? extData : bytes);
+        T* result = (T*)(extData ? extData : bytes);
         return *result;
     }
 
@@ -93,7 +93,7 @@ struct ResponseData
      * Set some binary data from the array.
      */
     template<class T> void set(T n) {
-        T* result = (T*) (extData ? extData : bytes);
+        T* result = (T*)(extData ? extData : bytes);
         *result = n;
     }
 };
@@ -127,8 +127,8 @@ protected:
     DeviceFunctions& operator=(const DeviceFunctions& o) = delete;
 
     // methods return the value parameter
-    int16_t triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int16_t value);
-    int32_t triggerCallbackInt  (uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int32_t value);
+    int16_t triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int value);
+    int32_t triggerCallbackInt  (uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int value);
 
 public:
     DeviceFunctions();
@@ -182,8 +182,8 @@ public:
     /**
      * Returns the header plus 'retSize' zero-bytes if the requested function equals 'funcCode'
      */
-    DoNothing(DeviceFunctions *other, uint8_t funcCode, unsigned retSize = 0, const uint8_t *returnBytes = NULL);
-    DoNothing(uint8_t funcCode, unsigned retSize = 0, const uint8_t *returnBytes = NULL);
+    DoNothing(DeviceFunctions *other, uint8_t funcCode, unsigned retSize = 0, const uint8_t *returnBytes = nullptr);
+    DoNothing(uint8_t funcCode, unsigned retSize = 0, const uint8_t *returnBytes = nullptr);
     DoNothing(const DoNothing& rhs);
     ~DoNothing();
 
@@ -239,8 +239,8 @@ public:
     /**
      * Returns the header plus 'retSize' zero-bytes if the requested function equals 'funcCode'
      */
-    GetSetRaw(DeviceFunctions *other, uint8_t getFunc, uint8_t setFunc, unsigned retSize, uint8_t *initBytes = NULL);
-    GetSetRaw(uint8_t getFunc, uint8_t setFunc, unsigned retSize, uint8_t *initBytes = NULL);
+    GetSetRaw(DeviceFunctions *other, uint8_t getFunc, uint8_t setFunc, unsigned retSize, uint8_t *initBytes = nullptr);
+    GetSetRaw(uint8_t getFunc, uint8_t setFunc, unsigned retSize, uint8_t *initBytes = nullptr);
     GetSetRaw(const GetSetRaw& rhs);
     ~GetSetRaw();
 
@@ -289,7 +289,7 @@ protected:
             T newValue = response.get<T>();
             if (newValue != oldValue) {
                 targetValue = newValue;
-                double f = (double)(newValue - oldValue) / 400.0;   // should take 2000ms to change
+                double f = static_cast<double>(newValue - oldValue) / 400.0;   // should take 2000ms to change
                 if (newValue > oldValue) {
                     // increment
                     fraction = (f < 1.0 ? 1 : f);

@@ -47,6 +47,13 @@ public:
     virtual ~Socket();
 
     /**
+     * Is the socket still open ?
+     */
+    bool isOpen() const {
+        return handle > 0;
+    }
+
+    /**
      * Set a read-timeout in milliseconds on all new client connections which are created by
      * {@link waitForClient()}. If the value is 0, no timeout will be set and <code>recv()</code>
      * is a blocking call.

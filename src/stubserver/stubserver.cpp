@@ -113,6 +113,12 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
 {
     std::ofstream os;
 
+
+    if (sizeof(PacketHeader) != 8) {
+        Log::error("ERROR: compile problem: PacketHeader type must have size 8, but has", sizeof(PacketHeader));
+        return 1;
+    }
+
     if (logName != NULL && *logName != 0)
     {
         // create a log-stream

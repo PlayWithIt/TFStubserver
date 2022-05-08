@@ -31,7 +31,7 @@ namespace utils {
  * implements basic IO, no seeking and no pushing back data into the buffer.
  * <P>
  * The implementation is STL specific since it relies on protected constructors
- * of the STL classes. This has the effect that thre are different implementations
+ * of the STL classes. This has the effect that there are different implementations
  * for GCC and MSG behind it.
  */
 class HandleStreambuf: public std::basic_streambuf<char>

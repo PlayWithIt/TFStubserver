@@ -94,7 +94,7 @@ void DeviceMotionDetector::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
     if (visualizationClient.useAsInputSource())
     {
         int newValue = visualizationClient.getInputState() != 0 ? 1 : 0;
-        if (newValue == false && newValue != sensorValue)
+        if (!newValue && newValue != sensorValue)
         {
             IOPacket packet(uid, isV2 ? MOTION_DETECTOR_V2_CALLBACK_DETECTION_CYCLE_ENDED : MOTION_DETECTOR_CALLBACK_DETECTION_CYCLE_ENDED);
             brickStack->dispatchCallback(packet);

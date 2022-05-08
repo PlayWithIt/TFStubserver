@@ -1,7 +1,7 @@
 /*
  * AsyncTask.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,11 +18,9 @@
  */
 
 #include "Log.h"
-#include "utils.h"
 #include "AsyncTask.h"
-
-#include <pthread.h>
-#include <signal.h>
+#include "SignalHandlers.h"
+#include "utils.h"
 
 using utils::MutexLock;
 
@@ -34,7 +32,7 @@ namespace utils {
  */
 AsyncTask::AsyncTask(const char* name)
    : taskName(name)
-   , th(NULL)
+   , th(nullptr)
    , active(false)
    , finish(false)
    , eventCondition()
@@ -47,7 +45,7 @@ AsyncTask::AsyncTask(const char* name)
  */
 AsyncTask::AsyncTask(const std::string &name)
    : taskName(name)
-   , th(NULL)
+   , th(nullptr)
    , active(false)
    , finish(false)
    , eventCondition()
@@ -56,7 +54,7 @@ AsyncTask::AsyncTask(const std::string &name)
 }
 
 AsyncTask::~AsyncTask() {
-    stop();
+    AsyncTask::stop();
 }
 
 /**
@@ -93,7 +91,7 @@ bool AsyncTask::shouldFinish(unsigned waitUs)
 {
     std::unique_lock<std::mutex> l(taskMutex);
     eventCondition.wait_for(l, std::chrono::microseconds(waitUs));
-    return finish || utils::shouldFinish();
+    return finish || SignalHandlers::shouldFinish();
 }
 
 /**
@@ -103,7 +101,7 @@ bool AsyncTask::shouldFinish(const std::chrono::system_clock::time_point &absTim
 {
     std::unique_lock<std::mutex> l(taskMutex);
     eventCondition.wait_until(l, absTime);
-    return finish || utils::shouldFinish();
+    return finish || SignalHandlers::shouldFinish();
 }
 
 /**
@@ -153,7 +151,7 @@ bool AsyncTask::stop(int wait) noexcept
         th->join();
         delete th;
     }
-    th = NULL;
+    th = nullptr;
     setActive(false);
     finish = false;
     return (ms >= 0);

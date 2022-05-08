@@ -1,7 +1,7 @@
 /*
  * BrickStack.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -268,17 +268,17 @@ void BrickStack::consumeRequestQueue()
             if (packet.header.function_id == FUNCTION_ENUMERATE)
                 enumerate(IPCON_ENUMERATION_TYPE_AVAILABLE, "");
             else if (responseExpected) {
-                Log(Log::ERROR) << "stack function " << (int) packet.header.function_id
-                        << " (len=" << (int) packet.header.length << ") with response_extected=true NOT CONSUMED!";
+                Log(Log::LogType::ERROR) << "stack function " << packet.header.getFunctionIdInt()
+                                         << " (len=" << packet.header.getLength() << ") with response_extected=true NOT CONSUMED!";
             }
 
             // DISCONNECT_PROBE also goes into this branch
         }
         else {
             // brick / bricklet command
-            if (dev == nullptr) {
+            if (!dev) {
                 std::string uidStr = utils::base58Encode(uid);
-                Log(Log::ERROR) << "cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
+                Log(Log::LogType::ERROR) << "cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
             }
             else {
                 try {
@@ -287,17 +287,17 @@ void BrickStack::consumeRequestQueue()
                     if (!done)
                     {
                         // not yet implemented
-                        Log(Log::ERROR) << "function " << (int) packet.header.function_id
-                                << " (len=" << (int) packet.header.length << ") for device "
-                                << dev->getDeviceTypeName() << " with id "
-                                << dev->getUidStr() << '(' << packet.header.uid << ") NOT CONSUMED!";
+                        Log(Log::LogType::ERROR) << "function " << packet.header.getFunctionIdInt()
+                                                 << " (len=" << packet.header.getLength() << ") for device "
+                                                 << dev->getDeviceTypeName() << " with id "
+                                                 << dev->getUidStr() << '(' << packet.header.uid << ") NOT CONSUMED!";
                         packet.setErrorCode(IOPacket::ErrorCode::NOT_SUPPORTED);
                     }
 
                     if (responseExpected)
                     {
                         BrickClient* cln = std::get<0>(item);
-                        if (cln == NULL) {
+                        if (!cln) {
                             Log::log("Logic error in consumeRequestQueue(): client is NULL!");
                         }
                         else {
@@ -373,7 +373,7 @@ void BrickStack::enumerate(uint8_t enumType, const std::string &uid)
         ++enumerated;
     }
 
-    Log() << "Enumerated " << enumerated << " devices, enum-type was " << (int) enumType;
+    Log() << "Enumerated " << enumerated << " devices, enum-type was " << static_cast<int>(enumType);
 }
 
 /**

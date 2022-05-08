@@ -22,7 +22,8 @@
 
 #include <chrono>
 #include <string>
-#include "Compatability.h"
+
+#include "Compatibility.h"
 
 namespace utils {
 

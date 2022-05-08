@@ -1,7 +1,7 @@
 /*
  * DeviceFunctions.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,11 +92,13 @@ DeviceFunctions::~DeviceFunctions()
 /**
  * Trigger a callback where the init16 value is set.
  */
-int16_t DeviceFunctions::triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int16_t value)
+int16_t DeviceFunctions::triggerCallbackShort(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int value)
 {
     IOPacket packet(uid, cb.callbackCode, 2);
     packet.int16Value = value;
     cb.relativeStartTime = relativeTimeMs;
+    cb.valueChanged = false;
+    cb.lastValue = value;
     brickStack->dispatchCallback(packet);
     return value;
 }
@@ -104,11 +106,13 @@ int16_t DeviceFunctions::triggerCallbackShort(uint64_t relativeTimeMs, unsigned 
 /**
  * Trigger a callback where the init32 value is set.
  */
-int32_t DeviceFunctions::triggerCallbackInt(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int32_t value)
+int32_t DeviceFunctions::triggerCallbackInt(uint64_t relativeTimeMs, unsigned int uid, BrickStack *brickStack, BasicCallback &cb, int value)
 {
     IOPacket packet(uid, cb.callbackCode, 4);
     packet.int32Value = value;
     cb.relativeStartTime = relativeTimeMs;
+    cb.valueChanged = false;
+    cb.lastValue = value;
     brickStack->dispatchCallback(packet);
     return value;
 }
@@ -509,9 +513,9 @@ bool V2Device::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizatio
 
         case FUNCTION_GET_STATUS_LED_CONFIG:
             if (visibleDeviceState)
-                p.fullData.payload[0] = visibleDeviceState->getStatusLedConfig();
+                p.fullData.payload[0] = static_cast<uint8_t>(visibleDeviceState->getStatusLedConfig());
             else
-                p.fullData.payload[0] = STATUS_LED_HEARTBEAT;
+                p.fullData.payload[0] = static_cast<uint8_t>(StatusLedConfig::LED_HEARTBEAT);
             p.header.length += 1;
             return true;
 

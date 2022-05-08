@@ -78,7 +78,7 @@ DeviceLedStrip::DeviceLedStrip(const char* _numLeds)
 {
     if (_numLeds && *_numLeds) {
         int l = atoi(_numLeds);
-        if (l < 32 || l > (int) MAX_LEDS)
+        if (l < 32 || l > static_cast<int>(MAX_LEDS))
             throw utils::OutOfRange("Number of LEDs", l, 32, MAX_LEDS);
         numLeds = l;
         utils::Log() << "Update DeviceLedStrip to " << numLeds << " LEDS";

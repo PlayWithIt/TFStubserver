@@ -1,7 +1,7 @@
 /*
- * DeviceDualSensor.cpp
+ * DeviceMultiSensor.cpp
  *
- * Copyright (C) 2015 Holger Grosenick
+ * Copyright (C) 2015-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,6 +174,7 @@ void DeviceMultiSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
         if (visualizationClient.useAsInputSource(no)) {
             currentValue = visualizationClient.getInputState(no);
             if (currentValue != it->getSensorValue()) {
+                it->rangeCallback.valueChanged = true;
                 it->setSensorValue(currentValue);
             }
         }
@@ -181,6 +182,7 @@ void DeviceMultiSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
             currentValue = it->values->getValue(relativeTimeMs);
             if (currentValue != it->getSensorValue())
             {
+                it->rangeCallback.valueChanged = true;
                 it->setSensorValue(currentValue);
                 it->notify(visualizationClient, VisibleDeviceState::VALUE_CHANGE);
             }
@@ -195,6 +197,7 @@ void DeviceMultiSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
 
             it->changedCb.relativeStartTime = relativeTimeMs;
             it->changedCb.lastValue = currentValue;
+            it->changedCb.valueChanged = false;
 
             if (valueSize != 4) {
                 utils::Log::log("DeviceMultiSensor::checkCallbacks - missing implementation");
@@ -210,6 +213,8 @@ void DeviceMultiSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid
             brickStack->dispatchCallback(packet);
 
             it->rangeCallback.relativeStartTime = relativeTimeMs;
+            it->rangeCallback.lastValue = currentValue;
+            it->rangeCallback.valueChanged = false;
 
             if (valueSize != 4) {
                 utils::Log::log("DeviceMultiSensor::checkCallbacks - missing implementation");
@@ -229,13 +234,13 @@ DeviceDualAnalogIn::DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2)
     s1->rangeCallback.setFunctions(INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_THRESHOLD, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_THRESHOLD,
             INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_DEBOUNCE_PERIOD, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_DEBOUNCE_PERIOD,
             INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE_REACHED );
-    s1->setStatusLedConfig(STATUS_LED_OFF);
+    s1->setStatusLedConfig(StatusLedConfig::LED_OFF);
     s1->setMinMax(-35 * 1000, 35 * 1000);
     s1->setInternalSensorNo(0);
 
     SensorData *s2 = new SensorData(v2, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_VOLTAGE_CALLBACK_PERIOD, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_SET_VOLTAGE_CALLBACK_PERIOD, INDUSTRIAL_DUAL_ANALOG_IN_CALLBACK_VOLTAGE);
     s2->rangeCallback = s1->rangeCallback;
-    s2->setStatusLedConfig(STATUS_LED_OFF);
+    s2->setStatusLedConfig(StatusLedConfig::LED_OFF);
     s2->setMinMax(-35 * 1000, 35 * 1000);
     s2->setInternalSensorNo(1);
 
@@ -250,5 +255,6 @@ DeviceDualAnalogIn::DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2)
     // 2*4 = 8 byte values
     other = new GetSet<uint64_t>(other, INDUSTRIAL_DUAL_ANALOG_IN_FUNCTION_GET_ADC_VALUES, 0);
 }
+
 
 } /* namespace stubserver */

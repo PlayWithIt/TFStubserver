@@ -64,7 +64,7 @@ void DeviceOutdoorWeather::addSensor(ValueProvider *vp, unsigned id)
         throw utils::Exception("DeviceOutdoorWeather::addSensor(): valueProvider must be non-null");
 
     sensors.push_back(new SensorData(vp, id));
-    printf("Add sensor %u\n", id);
+    // printf("Add sensor %u\n", id);
 }
 
 /**

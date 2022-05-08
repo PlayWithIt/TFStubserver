@@ -1,7 +1,7 @@
 /*
  * Properties.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,11 @@
 #include <errno.h>
 
 #include "Properties.h"
+#include "StringUtil.h"
+#include "utils.h"
 
 namespace utils {
+
 
 /**
  * Default constructor with empty map
@@ -89,8 +92,15 @@ Properties::Properties(const std::string &data, char separator)
         std::ostringstream os;
         do {
             char c = data[i];
+
+            // \xAA -> convert into a hex byte
             if (c == '\\') {
-                os << data[++i];
+                c = data[++i];
+                if (c == 'x' && i+2 < last) {
+                    c = hexValue(data[i+1], data[i+2]);
+                    i+=2;
+                }
+                os << c;
             }
             else
                 os << c;
@@ -262,7 +272,7 @@ std::ostream& Properties::write(std::ostream& output, bool sort) const
         }
         std::sort(keys.begin(), keys.end());
 
-        for (auto it : keys)
+        for (auto &it : keys)
         {
             auto item = values.find(it);
             if (item == values.end())
@@ -288,7 +298,7 @@ const char* Properties::get(const char *key) const noexcept
 {
     auto it = values.find(key);
     if (it == values.cend())
-        return NULL;
+        return nullptr;
     return it->second.c_str();
 }
 
@@ -389,12 +399,7 @@ double Properties::getDouble(const std::string &key) const
     if (!v)
         throw KeyNotFound(key);
 
-    char *end = const_cast<char*>(v);
-    double res = strtod(v, &end);
-    int l = strlen(v);
-    if (end != (v+l))
-        throw ValueFormatError(std::string("Cannot convert to double '") + v + "'");
-    return res;
+    return strings::parseDouble(v);
 }
 
 /**
@@ -438,23 +443,17 @@ void Properties::put(const std::string &key, bool b)
 
 void Properties::put(const std::string &key, int i)
 {
-    char buffer[32];
-    sprintf(buffer, "%d", i);
-    put(key, std::string(buffer));
+    put(key, std::to_string(i));
 }
 
 void Properties::put(const std::string &key, unsigned i)
 {
-    char buffer[32];
-    sprintf(buffer, "%u", i);
-    put(key, std::string(buffer));
+    put(key, std::to_string(i));
 }
 
 void Properties::put(const std::string &key, double d)
 {
-    char buffer[32];
-    sprintf(buffer, "%f", d);
-    put(key, std::string(buffer));
+    put(key, std::to_string(d));
 }
 
 /**

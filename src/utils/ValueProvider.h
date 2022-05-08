@@ -1,7 +1,7 @@
 /*
  * ValueProvider.h
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,7 +152,7 @@ public:
 class ConstantValueProvider : public ValueProvider
 {
 public:
-    ConstantValueProvider(int v);
+    explicit ConstantValueProvider(int v);
 
     /**
      * Get the actual value at the given relative time.
@@ -251,7 +251,7 @@ class StoredValueProvider : public ValueProvider
     /**
      * Check consistency return number of value items (no random).
      */
-    unsigned checkSequence();
+    size_t checkSequence();
     void checkApplyRandom();
 
 public:
@@ -259,13 +259,13 @@ public:
      * Reads the values from the given file, throws an exception if the file
      * does not exist or cannot be read.
      */
-    StoredValueProvider(const std::string &filename);
+    explicit StoredValueProvider(const std::string &filename);
 
     /**
      * Reads the values from the given file, throws an exception if the file
      * does not exist or cannot be read.
      */
-    StoredValueProvider(const File &file);
+    explicit StoredValueProvider(const File &file);
 
     /**
      * Reads the values from properties with a given prefix: the prefix will
@@ -316,7 +316,7 @@ class CSVValueProvider : public ValueProvider
     /**
      * Check consistency return number of value items (no random).
      */
-    unsigned checkSequence();
+    size_t checkSequence();
 
     // For test purpose
     void dump() const;
@@ -326,13 +326,13 @@ public:
      * Reads the values from the given file, throws an exception if the file
      * does not exist or cannot be read.
      */
-    CSVValueProvider(const std::string &filename);
+    explicit CSVValueProvider(const std::string &filename);
 
     /**
      * Reads the values from the given file, throws an exception if the file
      * does not exist or cannot be read.
      */
-    CSVValueProvider(const File &file);
+    explicit CSVValueProvider(const File &file);
 
     /**
      * Returns the number of rows defined in the input file.

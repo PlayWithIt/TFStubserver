@@ -75,7 +75,7 @@ void CharMask::init(const char** mask)
     bzero(bitMask, sizeof(bitMask));
     unsigned w = strlen(mask[0]);
 
-    for (unsigned y = 0; mask[y] && y < NUM_LINES; ++y)
+    for (unsigned y = 0; y < NUM_LINES && mask[y]; ++y)
     {
         const char *s = mask[y];
         for (unsigned x = 0; x < w; ++x)

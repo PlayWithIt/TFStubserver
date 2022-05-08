@@ -129,7 +129,7 @@ int Socket::waitForClient()
             return -1;
 
         // interrupted call: repeat, otherwise terminate
-        if (Log::perror("Socket::waitForClient - accept()") != EINTR)
+        if (Log::perror("Socket::waitForClient - accept()", errno) != EINTR)
             return -4;
     }
 

@@ -190,7 +190,7 @@ bool RangeCallback::consumeGetSetConfig(IOPacket &p)
             return true;
         }
 
-        throw utils::Exception("RangeCallback::getThreshold config with size != 2 or 4 not supported, size is %d", paramSize);
+        throw utils::Exception("RangeCallback::consumeGetSetConfig with size != 2 or 4 not supported, size is %d", paramSize);
     }
 
     if (func == setThresholdFunctionCode)
@@ -199,6 +199,7 @@ bool RangeCallback::consumeGetSetConfig(IOPacket &p)
             p.header.length = sizeof(p.header);
             setOption(p.callbackConfigInt.option);
 
+            valueHasToChange = p.callbackConfigShort.value_has_to_change;
             period = p.callbackConfigInt.period;
             param1 = p.callbackConfigInt.min;
             param2 = p.callbackConfigInt.max;
@@ -210,6 +211,7 @@ bool RangeCallback::consumeGetSetConfig(IOPacket &p)
             p.header.length = sizeof(p.header);
             setOption(p.callbackConfigShort.option);
 
+            valueHasToChange = p.callbackConfigShort.value_has_to_change;
             period = p.callbackConfigShort.period;
             param1 = p.callbackConfigShort.min;
             param2 = p.callbackConfigShort.max;
@@ -218,7 +220,7 @@ bool RangeCallback::consumeGetSetConfig(IOPacket &p)
             return true;
         }
 
-        throw utils::Exception("RangeCallback::setThreshold config with size != 2 or 4 not supported, size is %d", paramSize);
+        throw utils::Exception("RangeCallback::consumeGetSetConfig with size != 2 or 4 not supported, size is %d", paramSize);
     }
     return false;
 }
@@ -240,18 +242,41 @@ bool RangeCallback::shouldTriggerRangeCallback(uint64_t relativeTimeMs, int curr
 
     // From TF-documentation:
     // Wird die Option auf 'x' gesetzt (Threshold abgeschaltet), so wird der Callback mit der festen Periode ausgelöst.
+    switch (option) {
+    case 'x':
+        return true;
+    case 'i':
+        return (currentValue >= param1 && currentValue <= param2);
+    case 'o':
+        return (currentValue < param1 || currentValue > param2);
+    case '<':
+        return (currentValue < param1);
+    case '>':
+        return (currentValue > param1);
+    default:
+        // should not happen
+        return false;
+    }
+}
 
-    if (option == 'i' && (currentValue < param1 || currentValue > param2))
+/**
+ * Checks if the given time allows a new callback and if yes, checks if the given value
+ * is within the given range depending on the range option and if yes checks if the
+ * value has changed: if valueHasToChange is true, valueChanged must be true to.
+ * So the caller needs to take care about the 'valueChanged' flag.
+ *
+ * This method resets the valueChanged flag if it return true.
+ *
+ * @return true if a callback should be triggered
+ */
+bool RangeCallback::triggerRangeCallbackIfChanged(uint64_t relativeTimeMs, int currentValue)
+{
+    if (valueHasToChange && !valueChanged)
         return false;
-    if (option == 'o' && currentValue >= param1 && currentValue <= param2)
-        return false;
-    if (option == '<' && currentValue >= param1)
-        return false;
-    if (option == '>' && currentValue <= param1)
-        return false;
-
-    // fall through: option == 'x' and time reached or range option fulfilled
-    return true;
+    bool res = shouldTriggerRangeCallback(relativeTimeMs, currentValue);
+    if (res)
+        valueChanged = false;
+    return res;
 }
 
 /**
@@ -260,7 +285,7 @@ bool RangeCallback::shouldTriggerRangeCallback(uint64_t relativeTimeMs, int curr
 void RangeCallback::logCallbackStatus(uint32_t uid) const
 {
     utils::Log() << utils::base58Encode(uid) <<": set callback #" << static_cast<unsigned>(callbackCode) << " option '" << option
-                 << "', min=" << param1 << " max=" << param2 << " period=" << period;
+                 << "', min=" << param1 << " max=" << param2 << " period=" << period << " valueHasToChange=" << valueHasToChange;
 }
 
 /**

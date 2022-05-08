@@ -1,7 +1,7 @@
 /*
  * CyclicVector.h
  *
- * Copyright (C) 2014-2021 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -166,7 +166,7 @@ public:
             this->first     = other.first;
             this->vectorStart = other.vectorStart;
 
-            other.vectorStart = NULL;
+            other.vectorStart = nullptr;
             other.allocated   = 0;
             other.clear();
         }
@@ -351,7 +351,8 @@ public:
     reference operator[](unsigned index) {
         if (index >= used) {
             char buffer[200];
-            sprintf(buffer, "Index %u higher than use count %u", index, used);
+            snprintf(buffer, sizeof(buffer), "Index %u higher than use count %u", index, used);
+            buffer[sizeof(buffer) - 1] = 0;
             throw std::out_of_range(buffer);
         }
         return getAddr(index);
@@ -360,7 +361,8 @@ public:
     const_reference operator[](unsigned index) const {
         if (index >= used) {
             char buffer[200];
-            sprintf(buffer, "Index %u higher than use count %u", index, used);
+            snprintf(buffer, sizeof(buffer), "Index %u higher than use count %u", index, used);
+            buffer[sizeof(buffer) - 1] = 0;
             throw std::out_of_range(buffer);
         }
         return getAddr(index);

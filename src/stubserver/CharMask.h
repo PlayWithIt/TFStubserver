@@ -48,7 +48,7 @@ public:
       * Init the bitmask directly from 8 bytes.
       * @param inputMask bitmask with one byte per line in the bitmask
       */
-    CharMask(const unsigned char inputMask[8]);
+    explicit CharMask(const unsigned char inputMask[8]);
 
     /**
       * Init the bitmask from a 2-dimensional String array

@@ -1,7 +1,7 @@
 /*
  * HandleStreambuf.cpp
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ HandleStreambuf::HandleStreambuf(int _handle, bool _input, unsigned _bufSize)
 
 HandleStreambuf::~HandleStreambuf()
 {
-    close();
+    HandleStreambuf::close();
     delete[] buffer;
 }
 
@@ -127,6 +127,10 @@ HandleStreambuf::int_type HandleStreambuf::overflow(HandleStreambuf::int_type __
 int HandleStreambuf::sync()
 {
     if (input)
+        return 0;
+
+    // already closed ?
+    if (handle < 0)
         return 0;
 
     ssize_t s = _M_out_cur - _M_out_beg;
@@ -227,7 +231,7 @@ MappedFileStreambuf::MappedFileStreambuf(const char *fileName)
     }
 
     // map into virtual memory as read-only data
-    buffer = (char*) mmap(NULL, dataSize, PROT_READ, MAP_FILE | MAP_SHARED, handle, 0);
+    buffer = static_cast<char*>(mmap(NULL, dataSize, PROT_READ, MAP_FILE | MAP_SHARED, handle, 0));
     if (buffer == (char*) -1)
     {
         buffer = NULL;
@@ -246,7 +250,7 @@ MappedFileStreambuf::MappedFileStreambuf(const char *fileName)
  */
 MappedFileStreambuf::~MappedFileStreambuf()
 {
-    close();
+    MappedFileStreambuf::close();
 }
 
 /**

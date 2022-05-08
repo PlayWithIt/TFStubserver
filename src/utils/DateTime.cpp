@@ -1,7 +1,7 @@
 /*
  * DateTime.cpp
  *
- * Copyright (C) 2014-2021 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,26 @@
 
 #ifdef _WIN32
 #include <time.h>
-#include <Winsock2.h>
+#include <WinSock2.h>
+template<typename T1, typename T2>
+constexpr auto localtime_r(T1 in, T2 out) { return localtime_s(out, in); }
+
+#include <chrono>
+
+extern "C" {
+
+int gettimeofday(struct timeval* tp, struct timezone*)
+{
+    namespace sc = std::chrono;
+    sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
+    sc::seconds s = sc::duration_cast<sc::seconds>(d);
+    tp->tv_sec = s.count();
+    tp->tv_usec = sc::duration_cast<sc::microseconds>(d - s).count();
+    return 0;
+}
+
+}
+
 #else
 #include <sys/time.h>
 #endif
@@ -38,7 +57,7 @@ namespace utils {
 DateTime::DateTime()
 {
     struct timeval current;
-    gettimeofday(&current, NULL);
+    gettimeofday(&current, nullptr);
 
     secondsSinceEpoch = current.tv_sec;
     microsecs = current.tv_usec;
@@ -55,13 +74,16 @@ DateTime::DateTime()
  */
 static void initTime(std::tm &time)
 {
-    time_t current = ::time(NULL);
+    time_t current = ::time(nullptr);
     struct tm localTime;
     localtime_r(&current, &localTime);
 
     // set dst in fileTime;
     memset(&time, 0, sizeof(time));
+#ifdef __GNUC__
+    // gm_toff is GNU library only, not C standard
     time.tm_gmtoff = localTime.tm_gmtoff;
+#endif
     time.tm_isdst  = localTime.tm_isdst;
 
     // set isDst to 0 so that July and December times return the same time no matter when
@@ -106,7 +128,8 @@ DateTime::DateTime(const DateTime &other, int secondOffset)
 
 /**
  * Parses a date time out of the fixed format YYYY-MM-DD HH:MI:SS{.mmm}
- * @see #asString()
+ * This constructor also supports the JSON format YYYY-MM-DDTHH:MI:SS+nn:mm,
+ * but nn:mm is ignored.
  */
 DateTime::DateTime(const std::string &t)
   : secondsSinceEpoch(0)
@@ -115,11 +138,22 @@ DateTime::DateTime(const std::string &t)
     // set dst in fileTime;
     initTime(time);
 
-    int year, mon, day, hour, min, sec, msec;
-    auto count = sscanf(t.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &mon, &day, &hour, &min, &sec, &msec);
-    if (count != 7 && count != 6) {
-        // invalid format
-        throw ValueFormatError("DateTime(\"" + t + "\"): invalid input format");
+    int year, mon, day, hour, min, sec, msec, count;
+
+    if (t.find('T') == std::string::npos) {
+        count = SSCANF(t.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &mon, &day, &hour, &min, &sec, &msec);
+        if (count != 7 && count != 6) {
+            // invalid format
+            throw ValueFormatError("DateTime(\"" + t + "\"): invalid input format");
+        }
+    }
+    else {
+        // JSON format
+        count = SSCANF(t.c_str(), "%d-%d-%dT%d:%d:%d", &year, &mon, &day, &hour, &min, &sec);
+        if (count != 6) {
+            // invalid format
+            throw ValueFormatError("DateTime(\"" + t + "\"): invalid input format");
+        }
     }
 
     init(year, mon, day, hour, min, sec);
@@ -197,7 +231,7 @@ void DateTime::makeTime()
 {
     if ( ! localtime_r( &secondsSinceEpoch, &time ) ) {
         // conversion error !
-        throw Exception("DateTime::makeTime() failed call to gmtime_r()");
+        throw Exception("DateTime::makeTime() failed call to localtime_r()");
     }
     time.tm_year += 1900;  // 2000 and higher
     time.tm_mon += 1;      // 1 .. 12
@@ -229,12 +263,49 @@ bool DateTime::after(const DateTime &other) const
 
 
 /**
+ * Add the given number of seconds to the current date and recalculate
+ * all date / time fields.
+ */
+void DateTime::roll(int seconds)
+{
+    secondsSinceEpoch += seconds;
+    makeTime();
+}
+
+/**
  * Is this DateTime at the same day as other DateTime (ignore time)?
  */
 bool DateTime::sameDayAs(const DateTime &other) const
 {
     return day() == other.day() && month() == other.month() && year() == other.year();
 }
+
+
+/**
+ * Returns a unified format in the way DD.MM.YYYY {HH:MI}
+ * with out without hours and minutes.
+ */
+const std::string DateTime::asStringDMY(bool minutes) const
+{
+    char buffer[128];
+
+    if (minutes)
+        snprintf(buffer, sizeof(buffer), "%02d.%02d.%04d %02d:%02d",
+                 time.tm_mday,
+                 time.tm_mon,
+                 time.tm_year,
+                 time.tm_hour,
+                 time.tm_min);
+    else
+        snprintf(buffer, sizeof(buffer), "%02d.%02d.%04d",
+                 time.tm_mday,
+                 time.tm_mon,
+                 time.tm_year);
+
+    buffer[sizeof(buffer) - 1] = 0;
+    return buffer;
+}
+
 
 /**
  * Returns a unified format in the way YYYY-MM-DD HH:MI:SS{.mmm}
@@ -245,23 +316,24 @@ const std::string DateTime::asString(bool millis) const
     char buffer[128];
 
     if (millis)
-        sprintf(buffer, "%4d-%02d-%02d %02d:%02d:%02d.%03d",
-                time.tm_year,
-                time.tm_mon,
-                time.tm_mday,
-                time.tm_hour,
-                time.tm_min,
-                time.tm_sec,
-                microsecs % 1000);
+        snprintf(buffer, sizeof(buffer), "%4d-%02d-%02d %02d:%02d:%02d.%03d",
+                 time.tm_year,
+                 time.tm_mon,
+                 time.tm_mday,
+                 time.tm_hour,
+                 time.tm_min,
+                 time.tm_sec,
+                 microsecs % 1000);
     else
-        sprintf(buffer, "%4d-%02d-%02d %02d:%02d:%02d",
-                time.tm_year,
-                time.tm_mon,
-                time.tm_mday,
-                time.tm_hour,
-                time.tm_min,
-                time.tm_sec);
+        snprintf(buffer, sizeof(buffer), "%4d-%02d-%02d %02d:%02d:%02d",
+                 time.tm_year,
+                 time.tm_mon,
+                 time.tm_mday,
+                 time.tm_hour,
+                 time.tm_min,
+                 time.tm_sec);
 
+    buffer[sizeof(buffer) - 1] = 0;
     return buffer;
 }
 

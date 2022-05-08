@@ -1,7 +1,7 @@
 /*
  * SimpleCsv.cpp
  *
- * Copyright (C) 2015 Holger Grosenick
+ * Copyright (C) 2015-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ void SimpleCsvBase::open(const char *filename)
 
     // use CSV load with ';' or '|' as separator
     const char *s = strpbrk(line, ";|\t");
-    if (s == NULL)
+    if ( !s )
         throw utils::RuntimeError(std::string("Did not find one of the excepted column separators in ") + filename);
 
     // count number of columns: there is always at least one column, the first

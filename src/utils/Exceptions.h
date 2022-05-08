@@ -23,7 +23,7 @@
 #include <string>
 #include <exception>
 
-#include "Compatability.h"
+#include "Compatibility.h"
 
 namespace utils {
 

@@ -1,7 +1,7 @@
 /*
  * ChildProcess.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2021 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ struct Redirect
         TO_FILE
     };
 
-    Redirect() : file(), append(false), type(FROM_PARENT), pipeHandles{-1, -1}, in(NULL), out(NULL) { };
+    Redirect() : file(), append(false), type(FROM_PARENT), pipeHandles{-1, -1}, in(nullptr), out(nullptr) { };
 
     /**
      * Close all
@@ -95,7 +95,7 @@ struct Redirect
         if (type != Redirect::PIPE)
             throw std::logic_error("Cannot close child's stdin: not opened as PIPE");
         delete out;
-        out = NULL;
+        out = nullptr;
     }
 
 private:
@@ -123,9 +123,9 @@ void Redirect::closePipe()
         close(pipeHandles[1]);
 
     delete in;
-    in = NULL;
+    in = nullptr;
     delete out;
-    out = NULL;
+    out = nullptr;
 
     type = Redirect::FROM_PARENT;
 }
@@ -185,7 +185,7 @@ void Redirect::setFile(const File &f, bool _append)
 ChildProcess::ChildProcess(const std::string &_cmdline)
   : workDir(".")
   , redirect(new Redirect[3])
-  , th(NULL)
+  , th(nullptr)
   , active(false)
   , rc(-1)
   , pid(-1)
@@ -197,7 +197,7 @@ ChildProcess::ChildProcess(const std::string &_cmdline)
 ChildProcess::ChildProcess(const char *_cmdline)
   : workDir(".")
   , redirect(new Redirect[3])
-  , th(NULL)
+  , th(nullptr)
   , active(false)
   , rc(-1)
   , pid(-1)
@@ -210,7 +210,7 @@ ChildProcess::ChildProcess(const std::vector<std::string> &_programAndArgs)
   : programAndArgs(_programAndArgs)
   , workDir(".")
   , redirect(new Redirect[3])
-  , th(NULL)
+  , th(nullptr)
   , active(false)
   , rc(-1)
   , pid(-1)
@@ -374,7 +374,7 @@ void ChildProcess::start()
     {
         th->join();
         delete th;
-        th = NULL;
+        th = nullptr;
         redirect[0].closePipe();
         redirect[1].closePipe();
         redirect[2].closePipe();
@@ -431,8 +431,6 @@ void ChildProcess::tryToStart()
 
     if (!exeFile.exists())
         throw Exception(exe + ": no such executable!");
-    if (!exeFile.isRegularFile())
-        throw Exception(exe + ": is not a regular file!");
     if (!exeFile.canExecute())
         throw Exception(exe + ": is not an executable!");
 
@@ -454,9 +452,9 @@ void ChildProcess::tryToStart()
         char *cmd[MAX_ARGS];
         size_t i;
         for (i = 1; i < programAndArgs.size(); ++i)
-            cmd[i] = (char*) programAndArgs[i].c_str();
-        cmd[0] = (char*) exe.c_str();
-        cmd[i] = NULL;
+            cmd[i] = const_cast<char*>(programAndArgs[i].c_str());
+        cmd[0] = const_cast<char*>(exe.c_str());
+        cmd[i] = nullptr;
 
         execv(cmd[0], cmd);
         fprintf(::stderr, "execv(%s) failed: %s\n", cmd[0], strerror(errno));

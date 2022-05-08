@@ -72,7 +72,6 @@ class DeviceDigitalInV2 : public DeviceDigitalIn
 {
     BasicCallback getValueCallbacks[4];
     BasicCallback allValuesCallback;
-    uint8_t       ledConfig[4];
 
 public:
     DeviceDigitalInV2(utils::ValueProvider *vp);

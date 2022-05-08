@@ -24,25 +24,14 @@
 
 namespace utils {
 
-// set SIGTERM + SIGINT signal handler which sets in internal flag so that 'doFinish()'
-// will return true afterwards.
-void initSignalHandlers();
-
-// Set signal handler for example for SIGUSR1 or similar.
-// The function takes three arguments, the second is 'siginfo_t'
-void setSignalHandler(int signalNo, void (*function)(int, void *sigInfo, void *u_context), void *extraData);
-
-// convert the signal number into readable format ...
-const char *signal2char(int signum);
-
-// return a flag that is true after a signal handler is called.
-bool shouldFinish();
-
 // sleep 'ms' milliseconds
 void msleep(int ms);
 
 // sleep 'us' microseconds
 void usleep(int us);
+
+// returns the current process id, like "getpid()" on Linux
+uint64_t getProcessId();
 
 /**
  * Convert an int into a base58 encoded string.
@@ -52,7 +41,7 @@ unsigned int      base58Decode(const char *value);
 
 /**
  * Open a log-file: redirect stdout + stderr into a file.
- * Do nothing if the log-name is NULL.
+ * Do nothing if the log-name is NULL or empty.
  *
  * return true if OK, false in case of error
  */
@@ -68,6 +57,19 @@ unsigned bool2bits(bool states[], unsigned num);
  * Converts bits of on an unsigned into an array of boolean, one value per bit
  */
 void bits2bool(unsigned statesIn, bool statesOut[], unsigned num);
+
+/**
+ * Return the hexValue of a char:
+ * 0 .. 9 a b c d e f => 0 .. 15
+ *
+ * If a non hex char was input: an exception is thrown !
+ */
+int hexValue(char c1);
+
+/**
+ * Return the hexValue of two hex chars: hexValue(c1)*16 + hexValue(c2)
+ */
+int hexValue(char c1, char c2);
 
 }
 

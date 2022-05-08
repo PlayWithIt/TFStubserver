@@ -1,7 +1,7 @@
 /*
  * PacketTypes.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,13 +43,25 @@ namespace stubserver {
 /**
  * Same as in ip_connection.h
  */
-typedef struct {
+typedef struct PacketHeader {
         uint32_t uid;
         uint8_t length;
         uint8_t function_id;
         uint8_t sequence_number_and_options;
         uint8_t error_code_and_future_use;
-} ATTRIBUTE_PACKED PacketHeader;
+
+        /**
+         * Used for output or similar where uint8 is handled as char, not numeric.
+         */
+        int getFunctionIdInt() const {
+            return static_cast<int>(function_id);
+        }
+
+        int getLength() const {
+            return static_cast<int>(length);
+        }
+
+} ATTRIBUTE_PACKED _PacketHeader;
 
 /**
  *
@@ -114,6 +126,12 @@ typedef struct IOPacket
             int32_t  value1;
             int32_t  value2;
         } ATTRIBUTE_PACKED channelRequest;
+
+        struct {
+            uint8_t  channel;
+            int32_t  value1;
+            int16_t  value2;
+        } ATTRIBUTE_PACKED channelRequest2;
 
         struct {
             bool     state;

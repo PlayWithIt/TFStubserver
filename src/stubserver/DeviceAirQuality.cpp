@@ -1,7 +1,7 @@
 /*
  * DeviceAirQuality.cpp
  *
- * Copyright (C) 2019 Holger Grosenick
+ * Copyright (C) 2019 - 2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ DeviceAirQuality::DeviceAirQuality(ValueProvider *_vpT, ValueProvider *_vpH, Val
     // set to 0 so that the UI ignores this and uses its own values.
     this->min = 0;
     this->max = 0;
-    this->setStatusLedConfig(STATUS_LED_HEARTBEAT);
+    this->setStatusLedConfig(StatusLedConfig::LED_HEARTBEAT);
 
     if (vpT == NULL)
         throw utils::Exception("DeviceAirQuality::vpT must be non-null");
@@ -135,12 +135,13 @@ bool DeviceAirQuality::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visu
     case AIR_QUALITY_FUNCTION_SET_ALL_VALUES_CALLBACK_CONFIGURATION:
         cbAPeriod = p.int32Value;
         cbAStartTime = relativeTimeMs;
-        cbAHasToChange = p.fullData.payload[0] != 0;
+        cbAHasToChange = p.fullData.payload[4] != 0;
+        //printf("Enable allValues callback %u %d\n", cbAPeriod, cbAHasToChange);
         return true;
 
     case AIR_QUALITY_FUNCTION_GET_ALL_VALUES_CALLBACK_CONFIGURATION:
         p.int32Value = cbAPeriod;
-        p.fullData.payload[0] = cbAHasToChange;
+        p.fullData.payload[4] = cbAHasToChange;
         p.header.length += 5;
         return true;
 
@@ -195,8 +196,9 @@ void DeviceAirQuality::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid,
 
     if (newValue != sensorValue2)
     {
-        // printf("cbT change %lu (old=%d, new=%d)\n", relativeTimeMs, sensorValue2, newValue);
+        //printf("cbT change %lu (old=%d, new=%d)\n", relativeTimeMs, sensorValue2, newValue);
         anyChange = true;
+        cbT.valueChanged = true;
         sensorValue = sensorValue2 = newValue;
         notify(AIR_QUALITY_TEMP, visualizationClient, VALUE_CHANGE);
     }
@@ -214,6 +216,7 @@ void DeviceAirQuality::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid,
     {
         //printf("cbH change %lu\n", relativeTimeMs);
         anyChange = true;
+        cbH.valueChanged = true;
         sensorValue = sensorValue3 = newValue;
         notify(AIR_QUALITY_HUMIDITY, visualizationClient, VALUE_CHANGE);
     }
@@ -231,6 +234,7 @@ void DeviceAirQuality::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid,
     {
         //printf("cbP change %lu\n", relativeTimeMs);
         anyChange = true;
+        cbP.valueChanged = true;
         sensorValue = sensorValue4 = newValue;
         notify(AIR_QUALITY_PRESSURE, visualizationClient, VALUE_CHANGE);
     }
@@ -239,8 +243,10 @@ void DeviceAirQuality::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid,
     }
 
     //--------------- all values callback -----------------------------------------
-    if (!anyChange || cbAPeriod == 0 || (cbAStartTime + cbAPeriod > relativeTimeMs))
+    if ((!anyChange && cbAHasToChange) || cbAPeriod == 0 || (cbAStartTime + cbAPeriod > relativeTimeMs))
         return;
+
+    // printf("cbAll change %lu (%d, %d, %d)\n", relativeTimeMs, sensorValue2, sensorValue3, sensorValue4);
 
     //----- trigger callback
     {

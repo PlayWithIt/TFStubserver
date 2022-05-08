@@ -1,7 +1,7 @@
 /*
  * File.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,11 @@
 
 #include <string>
 #include <list>
+#include <filesystem>
 
 #include "Object.h"
 #include "FileVisitor.h"
+
 
 namespace utils {
 
@@ -44,15 +46,17 @@ public:
     File();
     explicit File(const char *name);
     explicit File(const std::string &name);
+    explicit File(const std::filesystem::path &path);
     explicit File(const File &parentDir, const char *name);
     explicit File(const File &parentDir, const std::string &name);
+    explicit File(const File &parentDir, const std::filesystem::path &path);
 
     typedef std::list<File> FileList;
 
     /**
      * Move constructor.
      */
-    File(File &&other);
+    File(File &&other) noexcept;
 
     /**
      * Copy constructor: sets the 'deleteOnDestroy' back to false !!
@@ -68,7 +72,7 @@ public:
      * Move operator: takes all the data from the referenced object, including 'deleteOnDestroy',
      * The referenced object cannot be used afterwards, it must be deleted immediately!
      */
-    File& operator=(File &&other);
+    File& operator=(File &&other) noexcept;
 
     /**
      * Free resource, delete file if 'deleteOnDestroy' is set.
@@ -270,7 +274,7 @@ public:
      *        If an object is passed, it is deleted at the end of this method!
      * @return the number of items put into the result
      */
-    size_t list(FileList &result, FileFilter *filter = NULL) const;
+    size_t list(FileList &result, FileFilter *filter = nullptr) const;
 
     /**
      * Same as list with FilterFilter pointer, but this filter will not be deleted
@@ -344,6 +348,12 @@ public:
      */
     size_t size() const;
 
+protected:
+    /**
+     * Refresh with a different name, similar to copy constructor, but more efficient.
+     */
+    void refresh(std::string &fullname);
+
 private:
     std::string path;
     std::string name;
@@ -355,7 +365,7 @@ private:
     void init();
     bool hasAccess(unsigned flag) const;
 
-    size_t listDirectory(FileList &result, FileFilter *filter = NULL) const;
+    size_t listDirectory(FileList &result, FileFilter *filter = nullptr) const;
 
     struct VisitOptions
     {
@@ -386,7 +396,7 @@ private:
  * The file is deleted when this object gets destroyed, so this object should
  * be located in the main() method.
  * <P>
- * Other than the File constructor, this constructor allows NULL or an empty filename:
+ * Other than the File constructor, this constructor allows nullptr or an empty filename:
  * in this case <b>NO</b> pid-file is written!
  */
 class PidFile : public File
@@ -400,9 +410,15 @@ class PidFile : public File
 
 public:
     /**
-     * If name is null or empty, no PID file will be written
+     * If name is null or empty an exception is thrown
      */
     explicit PidFile(const char *name);
+
+    /**
+     * Creates a file based on the name of the current executable: <exe-name>.pid
+     * in the actual working directory.
+     */
+    explicit PidFile();
 };
 
 } /* namespace utils */

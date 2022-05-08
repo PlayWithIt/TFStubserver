@@ -1,7 +1,7 @@
 /*
  * DateTime.h
  *
- * Copyright (C) 2014-2020 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ namespace utils {
 /**
  * A simple class that should unify the different usages of date time with standard C
  * and newer C++ classes.
+ * <b>
+ * The class internally adds +1 to the month of the struct tm, be aware ...
  */
 class DateTime {
 
@@ -53,7 +55,9 @@ public:
     explicit DateTime();
 
     /**
-     * Parses a date time out of the fixed format YYYY-MM-DD HH:MI:SS{.mmm}
+     * Parses a date time out of the fixed format YYYY-MM-DD HH:MI:SS{.mmm}.
+     * This constructor also supports the JSON format YYYY-MM-DDTHH:MI:SS{+nn:mm},
+     * but nn:mm is ignored.
      * @see #asString()
      */
     explicit DateTime(const std::string &t);
@@ -110,13 +114,13 @@ public:
     };
 
     enum Day {
-        SUNDAY = 0,
-        MONDAY,
-        TUESDAY,
-        WEDNESDAY,
-        THURSDAY,
-        FRIDAY,
-        SATURDAY
+        SUNDAY    = 0,
+        MONDAY    = 1,
+        TUESDAY   = 2,
+        WEDNESDAY = 3,
+        THURSDAY  = 4,
+        FRIDAY    = 5,
+        SATURDAY  = 6
     };
 
     /**
@@ -128,6 +132,7 @@ public:
 
     /**
      * Return the month 1 .. 12.
+     * (tm_mon is increased internally).
      */
     Month month() const {
         return static_cast<Month>(time.tm_mon);
@@ -162,6 +167,13 @@ public:
     }
 
     /**
+     * Daylight saving time active ?
+     */
+    bool dst() const {
+        return time.tm_isdst != 0;
+    }
+
+    /**
      * Return day of week, 0 == sunday.
      */
     Day weekDay() const {
@@ -190,6 +202,18 @@ public:
     }
 
     /**
+     * Add the given number of seconds to the current date and recalculate
+     * all date / time fields.
+     */
+    void roll(int seconds);
+
+    DateTime& operator+=(int seconds) {
+        roll(seconds);
+        return *this;
+    }
+
+
+    /**
      * Is this DateTime before another DateTime (microseconds included!).
      */
     bool before(const DateTime &other) const;
@@ -208,12 +232,13 @@ public:
     }
 
     /**
-     * Is this DateTime at the same day as other DateTime (ignore time)?
+     * Is this DateTime at the same as other DateTime (ignore time)?
      */
     bool sameDayAs(const DateTime &other) const;
 
     /**
      * Is the DateTime the same as another?
+     * Be aware: this also compares the microseconds.
      */
     bool operator==(const DateTime &other) const {
         return secondsSinceEpoch == other.secondsSinceEpoch && microsecs == other.microsecs;
@@ -221,10 +246,17 @@ public:
 
     /**
      * Is the DateTime not equals to another?
+     * Be aware: this also compares the microseconds.
      */
     bool operator!=(const DateTime &other) const {
         return secondsSinceEpoch != other.secondsSinceEpoch || microsecs != other.microsecs;
     }
+
+    /**
+     * Returns a unified format in the way DD.MM.YYYY {HH:MI}
+     * with out without hours and minutes.
+     */
+    const std::string asStringDMY(bool minutes = false) const;
 
     /**
      * Returns a unified format in the way YYYY-MM-DD HH:MI:SS{.mmm}

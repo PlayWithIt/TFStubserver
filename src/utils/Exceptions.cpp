@@ -1,7 +1,7 @@
 /*
  * Exceptions.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,18 +94,20 @@ KeyNotFound::KeyNotFound(const std::string &messagePrefix, const std::string &ke
 OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _max)
   : Exception()
 {
-    char buffer[256];
-    sprintf(buffer, "%s: %u is out of range, max = %u",
-            hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _max);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "%s: %u is out of range, max = %u",
+             hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _max);
+    buffer[sizeof(buffer) - 1] = 0;
     setMessage(hint + buffer);
 }
 
 OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max)
   : Exception()
 {
-    char buffer[256];
-    sprintf(buffer, "%s: %u is out of range, expected range is %u .. %u",
-            hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _min, _max);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "%s: %u is out of range, expected range is %u .. %u",
+             hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _min, _max);
+    buffer[sizeof(buffer) - 1] = 0;
     setMessage(hint + buffer);
 }
 

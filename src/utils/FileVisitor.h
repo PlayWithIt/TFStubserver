@@ -1,7 +1,7 @@
 /*
  * FileVisitor.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
 
 #include <stack>
 
-#include "File.h"
-#include "FileFilter.h"
 
 namespace utils {
+
+class File;
+class FileFilter;
 
 /**
  * FileVisitor interface is used by {@link utils::File::visit()} and is used by the
@@ -38,7 +39,7 @@ class FileVisitor {
 public:
     virtual ~FileVisitor();
 
-    enum VisitResult {
+    enum class VisitResult {
         /**
          * Continue visiting files + directories.
          */
@@ -84,21 +85,21 @@ class FileCollector : public FileVisitor
     FileFilter *filter;
     size_t recursionCount;
     size_t added;
-    bool allocated;
+    const bool allocated;
 
 public:
     /**
      * Inits the FileCollector with a client specific filter object.
      * The filter object gets NOT destroyed, so a 'delete' is necessary after filtering is done.
      */
-    FileCollector(FileFilter *_filter = NULL)
+    explicit FileCollector(FileFilter *_filter = nullptr)
      : result(new std::list<File>()), filter(_filter), recursionCount(0), added(0), allocated(true) { }
 
     /**
      * Inits the FileCollector with a client specific result list and a filter object.
      * The filter object gets NOT destroyed, so a 'delete' is necessary after filtering is done.
      */
-    FileCollector(std::list<File> *_result, FileFilter *_filter = NULL)
+    explicit FileCollector(std::list<File> *_result, FileFilter *_filter = nullptr)
      : result(_result), filter(_filter), recursionCount(0), added(0), allocated(false) { }
 
     /**

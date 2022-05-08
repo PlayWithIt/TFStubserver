@@ -1,7 +1,7 @@
 /*
  * Log.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ namespace utils {
 class Log {
 
 public:
-    enum LogType {
+    enum class LogType {
         DEBUG,
         INFO,
         WARN,
@@ -52,14 +52,14 @@ public:
      * Constructor for a temporary Log-record which prints the log data if
      * a newline appears in the input.
      */
-    Log(LogType t = INFO);
+    Log(LogType t = LogType::INFO);
 
     /**
      * Constructor for a temporary Log-record which prints the log data if
      * a newline appears in the input, if any double value is printed into
      * this stream, 'fixed' format will be used with the given number of decimals.
      */
-    Log(unsigned precision, LogType t = INFO);
+    Log(unsigned precision, LogType t = LogType::INFO);
     ~Log();
 
     /** max error in the memory list */
@@ -88,20 +88,45 @@ public:
     static void log(const char* msg, double v);
     static void log(const char* msg, int v);
     static void log(const char* msg, unsigned v);
-    static void log(const std::string& msg, int v);
-    static void log(const std::string& msg, unsigned v);
     static void log(const char* msg, uint64_t v);
     static void log(const char* msg, const char *arg);
+    static void log(const char* msg, const std::string &s) {
+        log(msg, s.c_str());
+    }
+
+    static void log(const std::string& msg, int v);
+    static void log(const std::string& msg, unsigned v);
+    static void log(const std::string& msg, uint64_t v);
     static void log(const std::string& msg, const char *arg);
-    static void log(const Log& _log);
+    static void log(const std::string& msg, const std::string &s) {
+        log(msg, s.c_str());
+    }
 
     /**
-     * Log message with strerror() as additional text, returns the errorCode which was the input.
+     * Log the content of the internal buffer, if there is something not logged yet.
      */
-    static int perror(const char* msg, int errorCode = errno);
+    void flush();
 
     /**
-     * Log message with strerror() as additional text, returns the errorCode which was the input.
+     * Log message with strerror(errno), returns the errorCode which was the input.
+     * A '%e' in the message is replaced with the error message for errno.
+     * A '%f' in the message is replaced with the function value.
+     * If these are not present, they'll appears at the end.
+     *
+     * So the message text by default is:
+     * <msg> <function>: <strerror(errno)>
+     */
+    static int perror(const char* msg, const char* function, int errorCode = errno);
+
+    /**
+     * Log message with strerror(errno), returns the errorCode which was the input.
+     */
+    static int perror(const char* msg, int errorCode = errno) {
+        return perror(msg, nullptr, errorCode);
+    }
+
+    /**
+     * Log message with strerror(errno), returns the errorCode which was the input.
      */
     static int perror(const std::string& msg, int errorCode = errno);
 

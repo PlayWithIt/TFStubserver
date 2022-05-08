@@ -1,7 +1,7 @@
 /*
  * ValueProviderCSV.cpp
  *
- * Copyright (C) 2020-2021 Holger Grosenick
+ * Copyright (C) 2020-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,11 +46,11 @@ namespace utils {
 uint64_t CSVValueProvider::parseTimestamp(const char *ts)
 {
     struct tm scannedTime;
-	uint64_t result = 0;
+    uint64_t result = 0;
     unsigned millis;
 
-    bzero(&scannedTime, sizeof(scannedTime));
-    int rc = sscanf(ts, "%d-%d-%d %d:%d:%d.%u",
+    memset(&scannedTime, 0, sizeof(scannedTime));
+    int rc = SSCANF(ts, "%d-%d-%d %d:%d:%d.%u",
                     &scannedTime.tm_year, &scannedTime.tm_mon, &scannedTime.tm_mday,
                     &scannedTime.tm_hour, &scannedTime.tm_min, &scannedTime.tm_sec, &millis);
     if (rc == 7) {
@@ -92,9 +92,10 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
     //printf("NumCols = %u in %s\n", numCols, filename);
 
     while (csv.loadLine()) {
-        unsigned size = cols.size();
+        unsigned size = static_cast<unsigned>(cols.size());
         if (size != numCols) {
-            sprintf(msg, "Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename.c_str());
+            snprintf(msg, sizeof(msg), "Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename.c_str());
+            msg[sizeof(msg) - 1] = 0;
             throw utils::ValueFormatError(msg);
         }
 
@@ -119,7 +120,8 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
                     // printf("Store offset %ld in line %d\n", v, csv.getLine());
                 }
                 else {
-                    sprintf(msg, "Invalid timestamp conversion in line %u of %s", csv.getLine(), filename.c_str());
+                    snprintf(msg, sizeof(msg), "Invalid timestamp conversion in line %u of %s", csv.getLine(), filename.c_str());
+                    msg[sizeof(msg) - 1] = 0;
                     throw utils::ValueFormatError(msg);
                 }
             }
@@ -139,7 +141,7 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
 /**
  * Check consistency return number of value items (no random).
  */
-unsigned CSVValueProvider::checkSequence()
+size_t CSVValueProvider::checkSequence()
 {
     int      act = 0;
     unsigned row = 0;
@@ -149,9 +151,10 @@ unsigned CSVValueProvider::checkSequence()
         ++row;
         if (it[0] < act)
         {
-            char error[128];
-            sprintf(error, "Relative time in data row %u is lower than previous one (%d < %d)!", row, it[0], act);
-            throw Exception(error);
+            char msg[200];
+            snprintf(msg, sizeof(msg), "Relative time in data row %u is lower than previous one (%d < %d)!", row, it[0], act);
+            msg[sizeof(msg) - 1] = 0;
+            throw Exception(msg);
         }
         act = it[0];
     }
@@ -173,7 +176,7 @@ void CSVValueProvider::dump() const
     printf("Next value up to time %d is %d\n", (*current)[0], (*current)[1]);
     unsigned row = 0;
     for (auto & it : values) {
-        printf("Row %2d: value up to time %d is %d\n", row, (it)[0], (it)[1]);
+        printf("Row %2u: value up to time %d is %d\n", row, (it)[0], (it)[1]);
         ++row;
     }
 }
@@ -219,12 +222,12 @@ int CSVValueProvider::getValues(uint64_t relativeTimeMs, std::vector<int> &resul
 
     // copy whole vector
     result.clear();
-    unsigned last = (*current).size();
-    for (unsigned i = 1; i < last; ++i) {
+    size_t last = (*current).size();
+    for (size_t i = 1; i < last; ++i) {
         result.push_back( (*current)[i] );
     }
 
-    return last-1;
+    return static_cast<int>(last-1);
 }
 
 

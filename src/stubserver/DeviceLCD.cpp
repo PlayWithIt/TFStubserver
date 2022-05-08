@@ -62,7 +62,7 @@ bool DeviceLCD::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizati
         // 2 is the byte offset in payload
         x = 2;
         while (c < cols && p.fullData.payload[x] != 0) {
-            text[l][c] = (char) p.fullData.payload[x];
+            text[l][c] = static_cast<char>(p.fullData.payload[x]);
             ++c;
             ++x;
         }
