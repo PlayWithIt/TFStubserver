@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -62,6 +62,16 @@ typedef Device HAT;
  * \ingroup BrickHAT
  */
 #define HAT_FUNCTION_GET_VOLTAGES_CALLBACK_CONFIGURATION 7
+
+/**
+ * \ingroup BrickHAT
+ */
+#define HAT_FUNCTION_SET_RTC_DRIVER 9
+
+/**
+ * \ingroup BrickHAT
+ */
+#define HAT_FUNCTION_GET_RTC_DRIVER 10
 
 /**
  * \ingroup BrickHAT
@@ -137,6 +147,16 @@ typedef Device HAT;
  */
 #define HAT_CALLBACK_VOLTAGES 8
 
+
+/**
+ * \ingroup BrickHAT
+ */
+#define HAT_RTC_DRIVER_PCF8523 0
+
+/**
+ * \ingroup BrickHAT
+ */
+#define HAT_RTC_DRIVER_DS1338 1
 
 /**
  * \ingroup BrickHAT
@@ -403,6 +423,30 @@ int hat_set_voltages_callback_configuration(HAT *hat, uint32_t period, bool valu
  * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int hat_get_voltages_callback_configuration(HAT *hat, uint32_t *ret_period, bool *ret_value_has_to_change);
+
+/**
+ * \ingroup BrickHAT
+ *
+ * Configures the RTC driver that is given to the Raspberry Pi to be used.
+ * Currently there are two different RTCs used:
+ * 
+ * * Hardware version <= 1.5: PCF8523
+ * * Hardware version 1.6: DS1338
+ * 
+ * The correct driver will be set during factory flashing by Tinkerforge.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Firmware)
+ */
+int hat_set_rtc_driver(HAT *hat, uint8_t rtc_driver);
+
+/**
+ * \ingroup BrickHAT
+ *
+ * Returns the RTC driver as set by {@link hat_set_rtc_driver}.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Firmware)
+ */
+int hat_get_rtc_driver(HAT *hat, uint8_t *ret_rtc_driver);
 
 /**
  * \ingroup BrickHAT

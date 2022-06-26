@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -223,8 +223,10 @@ int oled_64x48_get_display_configuration(OLED64x48 *oled_64x48, uint8_t *ret_con
  * 
  * The display uses a special 5x7 pixel charset. You can view the characters
  * of the charset in Brick Viewer.
+ * 
+ * The font conforms to code page 437.
  */
-int oled_64x48_write_line(OLED64x48 *oled_64x48, uint8_t line, uint8_t position, const char text[13]);
+int oled_64x48_write_line(OLED64x48 *oled_64x48, uint8_t line, uint8_t position, const char *text);
 
 /**
  * \ingroup BrickletOLED64x48

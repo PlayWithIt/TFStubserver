@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -1253,7 +1253,7 @@ int red_release_object_unchecked(RED *red, uint16_t object_id, uint16_t session_
 	return ret;
 }
 
-int red_allocate_string(RED *red, uint32_t length_to_reserve, const char buffer[58], uint16_t session_id, uint8_t *ret_error_code, uint16_t *ret_string_id) {
+int red_allocate_string(RED *red, uint32_t length_to_reserve, const char *buffer, uint16_t session_id, uint8_t *ret_error_code, uint16_t *ret_string_id) {
 	DevicePrivate *device_p = red->p;
 	AllocateString_Request request;
 	AllocateString_Response response;
@@ -1272,7 +1272,7 @@ int red_allocate_string(RED *red, uint32_t length_to_reserve, const char buffer[
 	}
 
 	request.length_to_reserve = leconvert_uint32_to(length_to_reserve);
-	memcpy(request.buffer, buffer, 58);
+	string_copy(request.buffer, buffer, 58);
 
 	request.session_id = leconvert_uint16_to(session_id);
 
@@ -1352,7 +1352,7 @@ int red_get_string_length(RED *red, uint16_t string_id, uint8_t *ret_error_code,
 	return ret;
 }
 
-int red_set_string_chunk(RED *red, uint16_t string_id, uint32_t offset, const char buffer[58], uint8_t *ret_error_code) {
+int red_set_string_chunk(RED *red, uint16_t string_id, uint32_t offset, const char *buffer, uint8_t *ret_error_code) {
 	DevicePrivate *device_p = red->p;
 	SetStringChunk_Request request;
 	SetStringChunk_Response response;
@@ -1372,7 +1372,7 @@ int red_set_string_chunk(RED *red, uint16_t string_id, uint32_t offset, const ch
 
 	request.string_id = leconvert_uint16_to(string_id);
 	request.offset = leconvert_uint32_to(offset);
-	memcpy(request.buffer, buffer, 58);
+	string_copy(request.buffer, buffer, 58);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));

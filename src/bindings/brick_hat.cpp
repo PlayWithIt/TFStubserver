@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -106,6 +106,20 @@ typedef struct {
 	uint16_t voltage_usb;
 	uint16_t voltage_dc;
 } ATTRIBUTE_PACKED Voltages_Callback;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t rtc_driver;
+} ATTRIBUTE_PACKED SetRTCDriver_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetRTCDriver_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t rtc_driver;
+} ATTRIBUTE_PACKED GetRTCDriver_Response;
 
 typedef struct {
 	PacketHeader header;
@@ -241,7 +255,7 @@ void hat_create(HAT *hat, const char *uid, IPConnection *ipcon) {
 	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(hat, uid, ipcon_p, 2, 0, 1, HAT_DEVICE_IDENTIFIER);
+	device_create(hat, uid, ipcon_p, 2, 0, 2, HAT_DEVICE_IDENTIFIER);
 
 	device_p = hat->p;
 
@@ -252,6 +266,8 @@ void hat_create(HAT *hat, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[HAT_FUNCTION_GET_VOLTAGES] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[HAT_FUNCTION_SET_VOLTAGES_CALLBACK_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_TRUE;
 	device_p->response_expected[HAT_FUNCTION_GET_VOLTAGES_CALLBACK_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[HAT_FUNCTION_SET_RTC_DRIVER] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[HAT_FUNCTION_GET_RTC_DRIVER] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[HAT_FUNCTION_GET_SPITFP_ERROR_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[HAT_FUNCTION_SET_BOOTLOADER_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[HAT_FUNCTION_GET_BOOTLOADER_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
@@ -489,6 +505,59 @@ int hat_get_voltages_callback_configuration(HAT *hat, uint32_t *ret_period, bool
 
 	*ret_period = leconvert_uint32_from(response.period);
 	*ret_value_has_to_change = response.value_has_to_change != 0;
+
+	return ret;
+}
+
+int hat_set_rtc_driver(HAT *hat, uint8_t rtc_driver) {
+	DevicePrivate *device_p = hat->p;
+	SetRTCDriver_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), HAT_FUNCTION_SET_RTC_DRIVER, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.rtc_driver = rtc_driver;
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int hat_get_rtc_driver(HAT *hat, uint8_t *ret_rtc_driver) {
+	DevicePrivate *device_p = hat->p;
+	GetRTCDriver_Request request;
+	GetRTCDriver_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), HAT_FUNCTION_GET_RTC_DRIVER, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_rtc_driver = response.rtc_driver;
 
 	return ret;
 }

@@ -17,12 +17,13 @@
 #ifndef __STDC_LIMIT_MACROS
 	#define __STDC_LIMIT_MACROS
 #endif
+
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
-#if (!defined __cplusplus && defined __GNUC__) || (defined _MSC_VER && _MSC_VER >= 1600)
+#if !defined __cplusplus && (defined __GNUC__ || (defined _MSC_VER && _MSC_VER >= 1600))
 	#include <stdbool.h>
 #endif
 
@@ -527,7 +528,7 @@ int ipcon_disconnect(IPConnection *ipcon);
  * For more information about authentication see
  * https://www.tinkerforge.com/en/doc/Tutorials/Tutorial_Authentication/Tutorial.html
  */
-int ipcon_authenticate(IPConnection *ipcon, const char secret[64]);
+int ipcon_authenticate(IPConnection *ipcon, const char *secret);
 
 /**
  * \ingroup IPConnection
@@ -726,6 +727,11 @@ uint64_t leconvert_uint64_from(uint64_t little);
  * \internal
  */
 float leconvert_float_from(float little);
+
+/**
+ * \internal
+ */
+char *string_copy(char *dest, const char *src, size_t n);
 
 #endif // IPCON_EXPOSE_INTERNALS
 

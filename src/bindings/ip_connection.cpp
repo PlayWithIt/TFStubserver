@@ -53,6 +53,11 @@
 	#include <sys/time.h> // gettimeofday
 #endif
 
+#if defined _MSC_VER && _MSC_VER < 1900
+	// snprintf is not available in older MSVC versions
+	#define snprintf _snprintf
+#endif
+
 #define IPCON_EXPOSE_INTERNALS
 #define IPCON_EXPOSE_MILLISLEEP
 
@@ -258,7 +263,7 @@ static uint32_t sha1_transform(SHA1 *sha1, const uint8_t buffer[SHA1_BLOCK_LENGT
 	// wipe variables
 	a = b = c = d = e = 0;
 
-	return a; // return a to avoid dead-store warning from clang static analyzer
+	return a + b + c + d + e; // return to avoid dead-store warning from clang static analyzer
 }
 
 static void sha1_init(SHA1 *sha1) {
@@ -1816,7 +1821,7 @@ static void ipcon_callback_loop(void *opaque) {
 
 	while (true) {
 		if (queue_get(&callback->queue, &kind, &data) < 0) {
-			// FIXME: what to do here? try again? exit?
+			// FIXME: what to do here? try again? exit? -> yes try again, see https://github.com/Tinkerforge/brickd/issues/21
 			break;
 		}
 
@@ -2421,7 +2426,7 @@ int ipcon_disconnect(IPConnection *ipcon) {
 	return E_OK;
 }
 
-int ipcon_authenticate(IPConnection *ipcon, const char secret[64]) {
+int ipcon_authenticate(IPConnection *ipcon, const char *secret) {
 	IPConnectionPrivate *ipcon_p = ipcon->p;
 	int ret;
 	uint32_t nonces[2]; // server, client
@@ -2728,6 +2733,23 @@ float leconvert_float_from(float little) {
 
 	return c.f;
 }
+
+char *string_copy(char *dest, const char *src, size_t n) {
+	size_t idx = 0;
+
+	while(src[idx] != '\0' && idx < n) {
+		dest[idx] = src[idx];
+		++idx;
+	}
+
+	while (idx < n) {
+		dest[idx] = '\0';
+		++idx;
+	}
+
+	return dest;
+}
+
 
 #ifdef __cplusplus
 }

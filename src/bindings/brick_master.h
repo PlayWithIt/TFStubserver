@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -687,7 +687,7 @@ typedef Device Master;
  * The {@link MASTER_CALLBACK_USB_VOLTAGE} callback is only triggered if the USB voltage has changed
  * since the last triggering.
  * 
- * Does not work with hardware version 2.1.
+ * Does not work with hardware version 2.1 or newer.
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
@@ -1604,7 +1604,7 @@ int master_is_wifi_present(Master *master, bool *ret_present);
  * 
  * It is recommended to use the Brick Viewer to set the WIFI configuration.
  */
-int master_set_wifi_configuration(Master *master, const char ssid[32], uint8_t connection, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint16_t port);
+int master_set_wifi_configuration(Master *master, const char *ssid, uint8_t connection, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint16_t port);
 
 /**
  * \ingroup BrickMaster
@@ -1660,7 +1660,7 @@ int master_get_wifi_configuration(Master *master, char ret_ssid[32], uint8_t *re
  * 
  * It is recommended to use the Brick Viewer to set the Wi-Fi encryption.
  */
-int master_set_wifi_encryption(Master *master, uint8_t encryption, const char key[50], uint8_t key_index, uint8_t eap_options, uint16_t ca_certificate_length, uint16_t client_certificate_length, uint16_t private_key_length);
+int master_set_wifi_encryption(Master *master, uint8_t encryption, const char *key, uint8_t key_index, uint8_t eap_options, uint16_t ca_certificate_length, uint16_t client_certificate_length, uint16_t private_key_length);
 
 /**
  * \ingroup BrickMaster
@@ -1802,7 +1802,7 @@ int master_get_wifi_regulatory_domain(Master *master, uint8_t *ret_domain);
 /**
  * \ingroup BrickMaster
  *
- * Returns the USB voltage. Does not work with hardware version 2.1.
+ * Returns the USB voltage. Does not work with hardware version 2.1 or newer.
  */
 int master_get_usb_voltage(Master *master, uint16_t *ret_voltage);
 
@@ -1819,7 +1819,7 @@ int master_get_usb_voltage(Master *master, uint16_t *ret_voltage);
  * 
  * .. versionadded:: 2.0.2$nbsp;(Firmware)
  */
-int master_set_long_wifi_key(Master *master, const char key[64]);
+int master_set_long_wifi_key(Master *master, const char *key);
 
 /**
  * \ingroup BrickMaster
@@ -1843,7 +1843,7 @@ int master_get_long_wifi_key(Master *master, char ret_key[64]);
  * 
  * .. versionadded:: 2.0.5$nbsp;(Firmware)
  */
-int master_set_wifi_hostname(Master *master, const char hostname[16]);
+int master_set_wifi_hostname(Master *master, const char *hostname);
 
 /**
  * \ingroup BrickMaster
@@ -2120,7 +2120,7 @@ int master_get_ethernet_status(Master *master, uint8_t ret_mac_address[6], uint8
  * 
  * .. versionadded:: 2.1.0$nbsp;(Firmware)
  */
-int master_set_ethernet_hostname(Master *master, const char hostname[32]);
+int master_set_ethernet_hostname(Master *master, const char *hostname);
 
 /**
  * \ingroup BrickMaster
@@ -2182,7 +2182,7 @@ int master_get_ethernet_websocket_configuration(Master *master, uint8_t *ret_soc
  * 
  * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
-int master_set_ethernet_authentication_secret(Master *master, const char secret[64]);
+int master_set_ethernet_authentication_secret(Master *master, const char *secret);
 
 /**
  * \ingroup BrickMaster
@@ -2212,7 +2212,7 @@ int master_get_ethernet_authentication_secret(Master *master, char ret_secret[64
  * 
  * .. versionadded:: 2.2.0$nbsp;(Firmware)
  */
-int master_set_wifi_authentication_secret(Master *master, const char secret[64]);
+int master_set_wifi_authentication_secret(Master *master, const char *secret);
 
 /**
  * \ingroup BrickMaster
@@ -2313,7 +2313,7 @@ int master_read_wifi2_serial_port(Master *master, uint8_t length, uint8_t ret_da
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
-int master_set_wifi2_authentication_secret(Master *master, const char secret[64]);
+int master_set_wifi2_authentication_secret(Master *master, const char *secret);
 
 /**
  * \ingroup BrickMaster
@@ -2413,7 +2413,7 @@ int master_get_wifi2_status(Master *master, bool *ret_client_enabled, uint8_t *r
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
-int master_set_wifi2_client_configuration(Master *master, bool enable, const char ssid[32], uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t mac_address[6], uint8_t bssid[6]);
+int master_set_wifi2_client_configuration(Master *master, bool enable, const char *ssid, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t mac_address[6], uint8_t bssid[6]);
 
 /**
  * \ingroup BrickMaster
@@ -2439,7 +2439,7 @@ int master_get_wifi2_client_configuration(Master *master, bool *ret_enable, char
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
-int master_set_wifi2_client_hostname(Master *master, const char hostname[32]);
+int master_set_wifi2_client_hostname(Master *master, const char *hostname);
 
 /**
  * \ingroup BrickMaster
@@ -2463,7 +2463,7 @@ int master_get_wifi2_client_hostname(Master *master, char ret_hostname[32]);
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
-int master_set_wifi2_client_password(Master *master, const char password[64]);
+int master_set_wifi2_client_password(Master *master, const char *password);
 
 /**
  * \ingroup BrickMaster
@@ -2514,7 +2514,7 @@ int master_get_wifi2_client_password(Master *master, char ret_password[64]);
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
-int master_set_wifi2_ap_configuration(Master *master, bool enable, const char ssid[32], uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t encryption, bool hidden, uint8_t channel, uint8_t mac_address[6]);
+int master_set_wifi2_ap_configuration(Master *master, bool enable, const char *ssid, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t encryption, bool hidden, uint8_t channel, uint8_t mac_address[6]);
 
 /**
  * \ingroup BrickMaster
@@ -2539,7 +2539,7 @@ int master_get_wifi2_ap_configuration(Master *master, bool *ret_enable, char ret
  * 
  * .. versionadded:: 2.4.0$nbsp;(Firmware)
  */
-int master_set_wifi2_ap_password(Master *master, const char password[64]);
+int master_set_wifi2_ap_password(Master *master, const char *password);
 
 /**
  * \ingroup BrickMaster
@@ -2641,7 +2641,7 @@ int master_is_wifi2_status_led_enabled(Master *master, bool *ret_enabled);
  * 
  * .. versionadded:: 2.4.2$nbsp;(Firmware)
  */
-int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t root_ip[4], uint8_t root_subnet_mask[4], uint8_t root_gateway[4], uint8_t router_bssid[6], uint8_t group_id[6], const char group_ssid_prefix[16], uint8_t gateway_ip[4], uint16_t gateway_port);
+int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t root_ip[4], uint8_t root_subnet_mask[4], uint8_t root_gateway[4], uint8_t router_bssid[6], uint8_t group_id[6], const char *group_ssid_prefix, uint8_t gateway_ip[4], uint16_t gateway_port);
 
 /**
  * \ingroup BrickMaster
@@ -2674,7 +2674,7 @@ int master_get_wifi2_mesh_configuration(Master *master, bool *ret_enable, uint8_
  * 
  * .. versionadded:: 2.4.2$nbsp;(Firmware)
  */
-int master_set_wifi2_mesh_router_ssid(Master *master, const char ssid[32]);
+int master_set_wifi2_mesh_router_ssid(Master *master, const char *ssid);
 
 /**
  * \ingroup BrickMaster
@@ -2703,7 +2703,7 @@ int master_get_wifi2_mesh_router_ssid(Master *master, char ret_ssid[32]);
  * 
  * .. versionadded:: 2.4.2$nbsp;(Firmware)
  */
-int master_set_wifi2_mesh_router_password(Master *master, const char password[64]);
+int master_set_wifi2_mesh_router_password(Master *master, const char *password);
 
 /**
  * \ingroup BrickMaster

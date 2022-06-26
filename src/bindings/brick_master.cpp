@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -2210,7 +2210,7 @@ int master_is_wifi_present(Master *master, bool *ret_present) {
 	return ret;
 }
 
-int master_set_wifi_configuration(Master *master, const char ssid[32], uint8_t connection, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint16_t port) {
+int master_set_wifi_configuration(Master *master, const char *ssid, uint8_t connection, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint16_t port) {
 	DevicePrivate *device_p = master->p;
 	SetWifiConfiguration_Request request;
 	int ret;
@@ -2227,7 +2227,7 @@ int master_set_wifi_configuration(Master *master, const char ssid[32], uint8_t c
 		return ret;
 	}
 
-	memcpy(request.ssid, ssid, 32);
+	string_copy(request.ssid, ssid, 32);
 
 	request.connection = connection;
 	memcpy(request.ip, ip, 4 * sizeof(uint8_t));
@@ -2274,7 +2274,7 @@ int master_get_wifi_configuration(Master *master, char ret_ssid[32], uint8_t *re
 	return ret;
 }
 
-int master_set_wifi_encryption(Master *master, uint8_t encryption, const char key[50], uint8_t key_index, uint8_t eap_options, uint16_t ca_certificate_length, uint16_t client_certificate_length, uint16_t private_key_length) {
+int master_set_wifi_encryption(Master *master, uint8_t encryption, const char *key, uint8_t key_index, uint8_t eap_options, uint16_t ca_certificate_length, uint16_t client_certificate_length, uint16_t private_key_length) {
 	DevicePrivate *device_p = master->p;
 	SetWifiEncryption_Request request;
 	int ret;
@@ -2292,7 +2292,7 @@ int master_set_wifi_encryption(Master *master, uint8_t encryption, const char ke
 	}
 
 	request.encryption = encryption;
-	memcpy(request.key, key, 50);
+	string_copy(request.key, key, 50);
 
 	request.key_index = key_index;
 	request.eap_options = eap_options;
@@ -2624,7 +2624,7 @@ int master_get_usb_voltage(Master *master, uint16_t *ret_voltage) {
 	return ret;
 }
 
-int master_set_long_wifi_key(Master *master, const char key[64]) {
+int master_set_long_wifi_key(Master *master, const char *key) {
 	DevicePrivate *device_p = master->p;
 	SetLongWifiKey_Request request;
 	int ret;
@@ -2641,7 +2641,7 @@ int master_set_long_wifi_key(Master *master, const char key[64]) {
 		return ret;
 	}
 
-	memcpy(request.key, key, 64);
+	string_copy(request.key, key, 64);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -2678,7 +2678,7 @@ int master_get_long_wifi_key(Master *master, char ret_key[64]) {
 	return ret;
 }
 
-int master_set_wifi_hostname(Master *master, const char hostname[16]) {
+int master_set_wifi_hostname(Master *master, const char *hostname) {
 	DevicePrivate *device_p = master->p;
 	SetWifiHostname_Request request;
 	int ret;
@@ -2695,7 +2695,7 @@ int master_set_wifi_hostname(Master *master, const char hostname[16]) {
 		return ret;
 	}
 
-	memcpy(request.hostname, hostname, 16);
+	string_copy(request.hostname, hostname, 16);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -3240,7 +3240,7 @@ int master_get_ethernet_status(Master *master, uint8_t ret_mac_address[6], uint8
 	return ret;
 }
 
-int master_set_ethernet_hostname(Master *master, const char hostname[32]) {
+int master_set_ethernet_hostname(Master *master, const char *hostname) {
 	DevicePrivate *device_p = master->p;
 	SetEthernetHostname_Request request;
 	int ret;
@@ -3257,7 +3257,7 @@ int master_set_ethernet_hostname(Master *master, const char hostname[32]) {
 		return ret;
 	}
 
-	memcpy(request.hostname, hostname, 32);
+	string_copy(request.hostname, hostname, 32);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -3344,7 +3344,7 @@ int master_get_ethernet_websocket_configuration(Master *master, uint8_t *ret_soc
 	return ret;
 }
 
-int master_set_ethernet_authentication_secret(Master *master, const char secret[64]) {
+int master_set_ethernet_authentication_secret(Master *master, const char *secret) {
 	DevicePrivate *device_p = master->p;
 	SetEthernetAuthenticationSecret_Request request;
 	int ret;
@@ -3361,7 +3361,7 @@ int master_set_ethernet_authentication_secret(Master *master, const char secret[
 		return ret;
 	}
 
-	memcpy(request.secret, secret, 64);
+	string_copy(request.secret, secret, 64);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -3398,7 +3398,7 @@ int master_get_ethernet_authentication_secret(Master *master, char ret_secret[64
 	return ret;
 }
 
-int master_set_wifi_authentication_secret(Master *master, const char secret[64]) {
+int master_set_wifi_authentication_secret(Master *master, const char *secret) {
 	DevicePrivate *device_p = master->p;
 	SetWifiAuthenticationSecret_Request request;
 	int ret;
@@ -3415,7 +3415,7 @@ int master_set_wifi_authentication_secret(Master *master, const char secret[64])
 		return ret;
 	}
 
-	memcpy(request.secret, secret, 64);
+	string_copy(request.secret, secret, 64);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -3603,7 +3603,7 @@ int master_read_wifi2_serial_port(Master *master, uint8_t length, uint8_t ret_da
 	return ret;
 }
 
-int master_set_wifi2_authentication_secret(Master *master, const char secret[64]) {
+int master_set_wifi2_authentication_secret(Master *master, const char *secret) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2AuthenticationSecret_Request request;
 	int ret;
@@ -3620,7 +3620,7 @@ int master_set_wifi2_authentication_secret(Master *master, const char secret[64]
 		return ret;
 	}
 
-	memcpy(request.secret, secret, 64);
+	string_copy(request.secret, secret, 64);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -3765,7 +3765,7 @@ int master_get_wifi2_status(Master *master, bool *ret_client_enabled, uint8_t *r
 	return ret;
 }
 
-int master_set_wifi2_client_configuration(Master *master, bool enable, const char ssid[32], uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t mac_address[6], uint8_t bssid[6]) {
+int master_set_wifi2_client_configuration(Master *master, bool enable, const char *ssid, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t mac_address[6], uint8_t bssid[6]) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2ClientConfiguration_Request request;
 	int ret;
@@ -3783,7 +3783,7 @@ int master_set_wifi2_client_configuration(Master *master, bool enable, const cha
 	}
 
 	request.enable = enable ? 1 : 0;
-	memcpy(request.ssid, ssid, 32);
+	string_copy(request.ssid, ssid, 32);
 
 	memcpy(request.ip, ip, 4 * sizeof(uint8_t));
 	memcpy(request.subnet_mask, subnet_mask, 4 * sizeof(uint8_t));
@@ -3831,7 +3831,7 @@ int master_get_wifi2_client_configuration(Master *master, bool *ret_enable, char
 	return ret;
 }
 
-int master_set_wifi2_client_hostname(Master *master, const char hostname[32]) {
+int master_set_wifi2_client_hostname(Master *master, const char *hostname) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2ClientHostname_Request request;
 	int ret;
@@ -3848,7 +3848,7 @@ int master_set_wifi2_client_hostname(Master *master, const char hostname[32]) {
 		return ret;
 	}
 
-	memcpy(request.hostname, hostname, 32);
+	string_copy(request.hostname, hostname, 32);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -3885,7 +3885,7 @@ int master_get_wifi2_client_hostname(Master *master, char ret_hostname[32]) {
 	return ret;
 }
 
-int master_set_wifi2_client_password(Master *master, const char password[64]) {
+int master_set_wifi2_client_password(Master *master, const char *password) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2ClientPassword_Request request;
 	int ret;
@@ -3902,7 +3902,7 @@ int master_set_wifi2_client_password(Master *master, const char password[64]) {
 		return ret;
 	}
 
-	memcpy(request.password, password, 64);
+	string_copy(request.password, password, 64);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -3939,7 +3939,7 @@ int master_get_wifi2_client_password(Master *master, char ret_password[64]) {
 	return ret;
 }
 
-int master_set_wifi2_ap_configuration(Master *master, bool enable, const char ssid[32], uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t encryption, bool hidden, uint8_t channel, uint8_t mac_address[6]) {
+int master_set_wifi2_ap_configuration(Master *master, bool enable, const char *ssid, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint8_t encryption, bool hidden, uint8_t channel, uint8_t mac_address[6]) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2APConfiguration_Request request;
 	int ret;
@@ -3957,7 +3957,7 @@ int master_set_wifi2_ap_configuration(Master *master, bool enable, const char ss
 	}
 
 	request.enable = enable ? 1 : 0;
-	memcpy(request.ssid, ssid, 32);
+	string_copy(request.ssid, ssid, 32);
 
 	memcpy(request.ip, ip, 4 * sizeof(uint8_t));
 	memcpy(request.subnet_mask, subnet_mask, 4 * sizeof(uint8_t));
@@ -4009,7 +4009,7 @@ int master_get_wifi2_ap_configuration(Master *master, bool *ret_enable, char ret
 	return ret;
 }
 
-int master_set_wifi2_ap_password(Master *master, const char password[64]) {
+int master_set_wifi2_ap_password(Master *master, const char *password) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2APPassword_Request request;
 	int ret;
@@ -4026,7 +4026,7 @@ int master_set_wifi2_ap_password(Master *master, const char password[64]) {
 		return ret;
 	}
 
-	memcpy(request.password, password, 64);
+	string_copy(request.password, password, 64);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -4194,7 +4194,7 @@ int master_is_wifi2_status_led_enabled(Master *master, bool *ret_enabled) {
 	return ret;
 }
 
-int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t root_ip[4], uint8_t root_subnet_mask[4], uint8_t root_gateway[4], uint8_t router_bssid[6], uint8_t group_id[6], const char group_ssid_prefix[16], uint8_t gateway_ip[4], uint16_t gateway_port) {
+int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t root_ip[4], uint8_t root_subnet_mask[4], uint8_t root_gateway[4], uint8_t router_bssid[6], uint8_t group_id[6], const char *group_ssid_prefix, uint8_t gateway_ip[4], uint16_t gateway_port) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2MeshConfiguration_Request request;
 	int ret;
@@ -4217,7 +4217,7 @@ int master_set_wifi2_mesh_configuration(Master *master, bool enable, uint8_t roo
 	memcpy(request.root_gateway, root_gateway, 4 * sizeof(uint8_t));
 	memcpy(request.router_bssid, router_bssid, 6 * sizeof(uint8_t));
 	memcpy(request.group_id, group_id, 6 * sizeof(uint8_t));
-	memcpy(request.group_ssid_prefix, group_ssid_prefix, 16);
+	string_copy(request.group_ssid_prefix, group_ssid_prefix, 16);
 
 	memcpy(request.gateway_ip, gateway_ip, 4 * sizeof(uint8_t));
 	request.gateway_port = leconvert_uint16_to(gateway_port);
@@ -4264,7 +4264,7 @@ int master_get_wifi2_mesh_configuration(Master *master, bool *ret_enable, uint8_
 	return ret;
 }
 
-int master_set_wifi2_mesh_router_ssid(Master *master, const char ssid[32]) {
+int master_set_wifi2_mesh_router_ssid(Master *master, const char *ssid) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2MeshRouterSSID_Request request;
 	int ret;
@@ -4281,7 +4281,7 @@ int master_set_wifi2_mesh_router_ssid(Master *master, const char ssid[32]) {
 		return ret;
 	}
 
-	memcpy(request.ssid, ssid, 32);
+	string_copy(request.ssid, ssid, 32);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -4318,7 +4318,7 @@ int master_get_wifi2_mesh_router_ssid(Master *master, char ret_ssid[32]) {
 	return ret;
 }
 
-int master_set_wifi2_mesh_router_password(Master *master, const char password[64]) {
+int master_set_wifi2_mesh_router_password(Master *master, const char *password) {
 	DevicePrivate *device_p = master->p;
 	SetWifi2MeshRouterPassword_Request request;
 	int ret;
@@ -4335,7 +4335,7 @@ int master_set_wifi2_mesh_router_password(Master *master, const char password[64
 		return ret;
 	}
 
-	memcpy(request.password, password, 64);
+	string_copy(request.password, password, 64);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);

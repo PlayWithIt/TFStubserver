@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -1084,7 +1084,7 @@ int red_release_object_unchecked(RED *red, uint16_t object_id, uint16_t session_
  * 
  * Returns the object ID of the new string object and the resulting error code.
  */
-int red_allocate_string(RED *red, uint32_t length_to_reserve, const char buffer[58], uint16_t session_id, uint8_t *ret_error_code, uint16_t *ret_string_id);
+int red_allocate_string(RED *red, uint32_t length_to_reserve, const char *buffer, uint16_t session_id, uint8_t *ret_error_code, uint16_t *ret_string_id);
 
 /**
  * \ingroup BrickRED
@@ -1108,7 +1108,7 @@ int red_get_string_length(RED *red, uint16_t string_id, uint8_t *ret_error_code,
  * 
  * Returns the resulting error code.
  */
-int red_set_string_chunk(RED *red, uint16_t string_id, uint32_t offset, const char buffer[58], uint8_t *ret_error_code);
+int red_set_string_chunk(RED *red, uint16_t string_id, uint32_t offset, const char *buffer, uint8_t *ret_error_code);
 
 /**
  * \ingroup BrickRED

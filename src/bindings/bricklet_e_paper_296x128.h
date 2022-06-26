@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -97,6 +97,16 @@ typedef Device EPaper296x128;
  * \ingroup BrickletEPaper296x128
  */
 #define E_PAPER_296X128_FUNCTION_GET_DISPLAY_TYPE 15
+
+/**
+ * \ingroup BrickletEPaper296x128
+ */
+#define E_PAPER_296X128_FUNCTION_SET_DISPLAY_DRIVER 16
+
+/**
+ * \ingroup BrickletEPaper296x128
+ */
+#define E_PAPER_296X128_FUNCTION_GET_DISPLAY_DRIVER 17
 
 /**
  * \ingroup BrickletEPaper296x128
@@ -288,6 +298,16 @@ typedef Device EPaper296x128;
  * \ingroup BrickletEPaper296x128
  */
 #define E_PAPER_296X128_DISPLAY_TYPE_BLACK_WHITE_GRAY 1
+
+/**
+ * \ingroup BrickletEPaper296x128
+ */
+#define E_PAPER_296X128_DISPLAY_DRIVER_SSD1675A 0
+
+/**
+ * \ingroup BrickletEPaper296x128
+ */
+#define E_PAPER_296X128_DISPLAY_DRIVER_SSD1680 1
 
 /**
  * \ingroup BrickletEPaper296x128
@@ -571,8 +591,10 @@ int e_paper_296x128_fill_display(EPaper296x128 *e_paper_296x128, uint8_t color);
  * 
  * This function writes the pixels into the black/white/red|gray pixel buffer, to draw the buffer
  * to the display use {@link e_paper_296x128_draw}.
+ * 
+ * The font conforms to code page 437.
  */
-int e_paper_296x128_draw_text(EPaper296x128 *e_paper_296x128, uint16_t position_x, uint8_t position_y, uint8_t font, uint8_t color, uint8_t orientation, const char text[50]);
+int e_paper_296x128_draw_text(EPaper296x128 *e_paper_296x128, uint16_t position_x, uint8_t position_y, uint8_t font, uint8_t color, uint8_t orientation, const char *text);
 
 /**
  * \ingroup BrickletEPaper296x128
@@ -661,6 +683,27 @@ int e_paper_296x128_set_display_type(EPaper296x128 *e_paper_296x128, uint8_t dis
  * black/white/red or black/white/gray.
  */
 int e_paper_296x128_get_display_type(EPaper296x128 *e_paper_296x128, uint8_t *ret_display_type);
+
+/**
+ * \ingroup BrickletEPaper296x128
+ *
+ * Sets the type of display driver. The Bricklet can currently support
+ * SSD1675A and SSD1680. This will be factory set
+ * during the flashing and testing phase. The value is saved in
+ * non-volatile memory and will stay after a power cycle.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
+ */
+int e_paper_296x128_set_display_driver(EPaper296x128 *e_paper_296x128, uint8_t display_driver);
+
+/**
+ * \ingroup BrickletEPaper296x128
+ *
+ * Returns the e-paper display driver.
+ * 
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
+ */
+int e_paper_296x128_get_display_driver(EPaper296x128 *e_paper_296x128, uint8_t *ret_display_driver);
 
 /**
  * \ingroup BrickletEPaper296x128

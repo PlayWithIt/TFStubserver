@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -309,8 +309,11 @@ int ambient_light_v2_get_api_version(AmbientLightV2 *ambient_light_v2, uint8_t r
  * up to about 100000lux, but above 64000lux the precision starts to drop.
  * 
  * .. versionchanged:: 2.0.2$nbsp;(Plugin)
- *   An illuminance of 0lux indicates that the sensor is saturated and the
- *   configuration should be modified, see {@link ambient_light_v2_set_configuration}.
+ *   An illuminance of 0lux indicates an error condition where the sensor cannot
+ *   perform a reasonable measurement. This can happen with very dim or very bright
+ *   light conditions. In bright light conditions this might indicate that the sensor
+ *   is saturated and the configuration should be modified ({@link ambient_light_v2_set_configuration})
+ *   to better match the light conditions.
  * 
  * If you want to get the illuminance periodically, it is recommended to use the
  * {@link AMBIENT_LIGHT_V2_CALLBACK_ILLUMINANCE} callback and set the period with

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -199,7 +199,7 @@ int piezo_speaker_beep(PiezoSpeaker *piezo_speaker, uint32_t duration, uint16_t 
 	return ret;
 }
 
-int piezo_speaker_morse_code(PiezoSpeaker *piezo_speaker, const char morse[60], uint16_t frequency) {
+int piezo_speaker_morse_code(PiezoSpeaker *piezo_speaker, const char *morse, uint16_t frequency) {
 	DevicePrivate *device_p = piezo_speaker->p;
 	MorseCode_Request request;
 	int ret;
@@ -216,7 +216,7 @@ int piezo_speaker_morse_code(PiezoSpeaker *piezo_speaker, const char morse[60], 
 		return ret;
 	}
 
-	memcpy(request.morse, morse, 60);
+	string_copy(request.morse, morse, 60);
 
 	request.frequency = leconvert_uint16_to(frequency);
 

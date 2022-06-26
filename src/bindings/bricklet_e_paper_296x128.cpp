@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -173,6 +173,20 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	uint8_t display_driver;
+} ATTRIBUTE_PACKED SetDisplayDriver_Request;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetDisplayDriver_Request;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t display_driver;
+} ATTRIBUTE_PACKED GetDisplayDriver_Response;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetSPITFPErrorCount_Request;
 
 typedef struct {
@@ -302,7 +316,7 @@ void e_paper_296x128_create(EPaper296x128 *e_paper_296x128, const char *uid, IPC
 	IPConnectionPrivate *ipcon_p = ipcon->p;
 	DevicePrivate *device_p;
 
-	device_create(e_paper_296x128, uid, ipcon_p, 2, 0, 0, E_PAPER_296X128_DEVICE_IDENTIFIER);
+	device_create(e_paper_296x128, uid, ipcon_p, 2, 0, 1, E_PAPER_296X128_DEVICE_IDENTIFIER);
 
 	device_p = e_paper_296x128->p;
 
@@ -320,6 +334,8 @@ void e_paper_296x128_create(EPaper296x128 *e_paper_296x128, const char *uid, IPC
 	device_p->response_expected[E_PAPER_296X128_FUNCTION_GET_UPDATE_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[E_PAPER_296X128_FUNCTION_SET_DISPLAY_TYPE] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[E_PAPER_296X128_FUNCTION_GET_DISPLAY_TYPE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[E_PAPER_296X128_FUNCTION_SET_DISPLAY_DRIVER] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[E_PAPER_296X128_FUNCTION_GET_DISPLAY_DRIVER] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[E_PAPER_296X128_FUNCTION_GET_SPITFP_ERROR_COUNT] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[E_PAPER_296X128_FUNCTION_SET_BOOTLOADER_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[E_PAPER_296X128_FUNCTION_GET_BOOTLOADER_MODE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
@@ -573,7 +589,7 @@ int e_paper_296x128_fill_display(EPaper296x128 *e_paper_296x128, uint8_t color) 
 	return ret;
 }
 
-int e_paper_296x128_draw_text(EPaper296x128 *e_paper_296x128, uint16_t position_x, uint8_t position_y, uint8_t font, uint8_t color, uint8_t orientation, const char text[50]) {
+int e_paper_296x128_draw_text(EPaper296x128 *e_paper_296x128, uint16_t position_x, uint8_t position_y, uint8_t font, uint8_t color, uint8_t orientation, const char *text) {
 	DevicePrivate *device_p = e_paper_296x128->p;
 	DrawText_Request request;
 	int ret;
@@ -595,7 +611,7 @@ int e_paper_296x128_draw_text(EPaper296x128 *e_paper_296x128, uint16_t position_
 	request.font = font;
 	request.color = color;
 	request.orientation = orientation;
-	memcpy(request.text, text, 50);
+	string_copy(request.text, text, 50);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -762,6 +778,59 @@ int e_paper_296x128_get_display_type(EPaper296x128 *e_paper_296x128, uint8_t *re
 	}
 
 	*ret_display_type = response.display_type;
+
+	return ret;
+}
+
+int e_paper_296x128_set_display_driver(EPaper296x128 *e_paper_296x128, uint8_t display_driver) {
+	DevicePrivate *device_p = e_paper_296x128->p;
+	SetDisplayDriver_Request request;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), E_PAPER_296X128_FUNCTION_SET_DISPLAY_DRIVER, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.display_driver = display_driver;
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
+
+	return ret;
+}
+
+int e_paper_296x128_get_display_driver(EPaper296x128 *e_paper_296x128, uint8_t *ret_display_driver) {
+	DevicePrivate *device_p = e_paper_296x128->p;
+	GetDisplayDriver_Request request;
+	GetDisplayDriver_Response response;
+	int ret;
+
+	ret = device_check_validity(device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = packet_header_create(&request.header, sizeof(request), E_PAPER_296X128_FUNCTION_GET_DISPLAY_DRIVER, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response, sizeof(response));
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	*ret_display_driver = response.display_driver;
 
 	return ret;
 }

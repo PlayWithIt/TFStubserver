@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -319,9 +319,6 @@ int motion_detector_v2_get_api_version(MotionDetectorV2 *motion_detector_v2, uin
  *
  * Returns 1 if a motion was detected. It returns 1 approx. for 1.8 seconds
  * until the sensor checks for a new movement.
- * 
- * There is also a blue LED on the Bricklet that is on as long as the Bricklet is
- * in the "motion detected" state.
  */
 int motion_detector_v2_get_motion_detected(MotionDetectorV2 *motion_detector_v2, uint8_t *ret_motion);
 

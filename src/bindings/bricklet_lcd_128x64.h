@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -799,7 +799,7 @@ int lcd_128x64_get_display_configuration(LCD128x64 *lcd_128x64, uint8_t *ret_con
  * in the LCD 20x4 Bricklet. You can draw text at a specific pixel position
  * and with different font sizes with the {@link lcd_128x64_draw_text} function.
  */
-int lcd_128x64_write_line(LCD128x64 *lcd_128x64, uint8_t line, uint8_t position, const char text[22]);
+int lcd_128x64_write_line(LCD128x64 *lcd_128x64, uint8_t line, uint8_t position, const char *text);
 
 /**
  * \ingroup BrickletLCD128x64
@@ -917,9 +917,11 @@ int lcd_128x64_draw_box(LCD128x64 *lcd_128x64, uint8_t position_x_start, uint8_t
  * 
  * You can use one of 9 different font sizes and draw the text in white or black.
  * 
+ * The font conforms to code page 437.
+ * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
-int lcd_128x64_draw_text(LCD128x64 *lcd_128x64, uint8_t position_x, uint8_t position_y, uint8_t font, bool color, const char text[22]);
+int lcd_128x64_draw_text(LCD128x64 *lcd_128x64, uint8_t position_x, uint8_t position_y, uint8_t font, bool color, const char *text);
 
 /**
  * \ingroup BrickletLCD128x64
@@ -946,7 +948,7 @@ int lcd_128x64_draw_text(LCD128x64 *lcd_128x64, uint8_t position_x, uint8_t posi
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
-int lcd_128x64_set_gui_button(LCD128x64 *lcd_128x64, uint8_t index, uint8_t position_x, uint8_t position_y, uint8_t width, uint8_t height, const char text[16]);
+int lcd_128x64_set_gui_button(LCD128x64 *lcd_128x64, uint8_t index, uint8_t position_x, uint8_t position_y, uint8_t width, uint8_t height, const char *text);
 
 /**
  * \ingroup BrickletLCD128x64
@@ -1132,7 +1134,7 @@ int lcd_128x64_get_gui_tab_configuration(LCD128x64 *lcd_128x64, uint8_t *ret_cha
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
-int lcd_128x64_set_gui_tab_text(LCD128x64 *lcd_128x64, uint8_t index, const char text[5]);
+int lcd_128x64_set_gui_tab_text(LCD128x64 *lcd_128x64, uint8_t index, const char *text);
 
 /**
  * \ingroup BrickletLCD128x64
@@ -1252,7 +1254,7 @@ int lcd_128x64_get_gui_tab_selected(LCD128x64 *lcd_128x64, int8_t *ret_index);
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
-int lcd_128x64_set_gui_graph_configuration(LCD128x64 *lcd_128x64, uint8_t index, uint8_t graph_type, uint8_t position_x, uint8_t position_y, uint8_t width, uint8_t height, const char text_x[4], const char text_y[4]);
+int lcd_128x64_set_gui_graph_configuration(LCD128x64 *lcd_128x64, uint8_t index, uint8_t graph_type, uint8_t position_x, uint8_t position_y, uint8_t width, uint8_t height, const char *text_x, const char *text_y);
 
 /**
  * \ingroup BrickletLCD128x64

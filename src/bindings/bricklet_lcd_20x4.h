@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -234,7 +234,7 @@ int lcd_20x4_get_api_version(LCD20x4 *lcd_20x4, uint8_t ret_api_version[3]);
  * for details. The Unicode example above shows how to specify non-ASCII characters
  * and how to translate from Unicode to the LCD charset.
  */
-int lcd_20x4_write_line(LCD20x4 *lcd_20x4, uint8_t line, uint8_t position, const char text[20]);
+int lcd_20x4_write_line(LCD20x4 *lcd_20x4, uint8_t line, uint8_t position, const char *text);
 
 /**
  * \ingroup BrickletLCD20x4
@@ -344,7 +344,7 @@ int lcd_20x4_get_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t ret_
  * 
  * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
-int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char text[20]);
+int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char *text);
 
 /**
  * \ingroup BrickletLCD20x4

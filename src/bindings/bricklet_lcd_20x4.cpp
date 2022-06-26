@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2020-11-02.      *
+ * This file was automatically generated on 2022-05-11.      *
  *                                                           *
- * C/C++ Bindings Version 2.1.30                             *
+ * C/C++ Bindings Version 2.1.33                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -266,7 +266,7 @@ int lcd_20x4_get_api_version(LCD20x4 *lcd_20x4, uint8_t ret_api_version[3]) {
 	return device_get_api_version(lcd_20x4->p, ret_api_version);
 }
 
-int lcd_20x4_write_line(LCD20x4 *lcd_20x4, uint8_t line, uint8_t position, const char text[20]) {
+int lcd_20x4_write_line(LCD20x4 *lcd_20x4, uint8_t line, uint8_t position, const char *text) {
 	DevicePrivate *device_p = lcd_20x4->p;
 	WriteLine_Request request;
 	int ret;
@@ -285,7 +285,7 @@ int lcd_20x4_write_line(LCD20x4 *lcd_20x4, uint8_t line, uint8_t position, const
 
 	request.line = line;
 	request.position = position;
-	memcpy(request.text, text, 20);
+	string_copy(request.text, text, 20);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
@@ -530,7 +530,7 @@ int lcd_20x4_get_custom_character(LCD20x4 *lcd_20x4, uint8_t index, uint8_t ret_
 	return ret;
 }
 
-int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char text[20]) {
+int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char *text) {
 	DevicePrivate *device_p = lcd_20x4->p;
 	SetDefaultText_Request request;
 	int ret;
@@ -548,7 +548,7 @@ int lcd_20x4_set_default_text(LCD20x4 *lcd_20x4, uint8_t line, const char text[2
 	}
 
 	request.line = line;
-	memcpy(request.text, text, 20);
+	string_copy(request.text, text, 20);
 
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL, 0);
