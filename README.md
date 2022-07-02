@@ -19,8 +19,8 @@ very specific combinations.
 Requirements:
 -------------
 * Linux (also compiles on Tinkerforge's RED Brick or RasPi)
-* g++ 4.6.3 or higher (as on Raspberry PI, OpenSuse 13.1)
-* clang++ 3.3 (llvm) or higher should work too
+* g++ 8 or higher (C++ 17)
+* clang++ 9 (llvm) or higher should work too
 * optional: ALSA devel packages (libasound2-dev on Debian, alsa-devel on OpenSuse)
 
 Compile:
