@@ -19,7 +19,7 @@ very specific combinations.
 Requirements:
 -------------
 * Linux (also compiles on Tinkerforge's RED Brick or RasPi)
-* g++ 8 or higher (C++ 17)
+* g++ 11 or higher (C++ 17)
 * clang++ 9 (llvm) or higher should work too
 * optional: ALSA devel packages (libasound2-dev on Debian, alsa-devel on OpenSuse)
 
