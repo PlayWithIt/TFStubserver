@@ -122,7 +122,7 @@ public:
     /**
      * Check if the function in the packet is get/set callback config,
      * this is similar to callback threshold, but structure is a little different.
-     * Used in newer V2 devices which use these parameters:
+     * Used for V2 devices which use these parameters:
      *  uint32_t period, bool value_has_to_change, char option, int32_t min, int32_t max
      *
      * @return true if the function was get/set callback config, false otherwise

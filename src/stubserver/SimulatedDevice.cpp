@@ -58,6 +58,7 @@
 #include "DeviceBarometer.h"
 #include "DeviceBrick.h"
 #include "DeviceCo2.h"
+#include "DeviceDualAnalogIn.h"
 #include "DeviceDualButton.h"
 #include "DeviceDualSensor.h"
 #include "DeviceInOut.h"
@@ -66,7 +67,6 @@
 #include "DeviceLedButton.h"
 #include "DeviceLedStrip.h"
 #include "DeviceMotionDetector.h"
-#include "DeviceMultiSensor.h"
 #include "DeviceOled.h"
 #include "DeviceOutdoorWeather.h"
 #include "DevicePiezoSpeaker.h"
@@ -487,7 +487,11 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case INDUSTRIAL_DUAL_ANALOG_IN_DEVICE_IDENTIFIER:
-        functions = new DeviceDualAnalogIn(createValueProvider("valueProvider1"), createValueProvider("valueProvider2"));
+        functions = new DeviceDualAnalogIn(createValueProvider("valueProvider1"), createValueProvider("valueProvider2"), false);
+        break;
+
+    case INDUSTRIAL_DUAL_ANALOG_IN_V2_DEVICE_IDENTIFIER:
+        functions = new DeviceDualAnalogIn(createValueProvider("valueProvider1"), createValueProvider("valueProvider2"), true);
         break;
 
     case INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER:

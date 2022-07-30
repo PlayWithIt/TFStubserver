@@ -1,7 +1,7 @@
 /*
  * DeviceDualSensor.h
  *
- * Copyright (C) 2021 Holger Grosenick
+ * Copyright (C) 2021-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 namespace stubserver {
 
 /**
- * Device with two independent sensor values that can have callbacks and getter functions.
+ * Device with two independent sensor values that can have callbacks and getter functions per value type.
  */
 class DeviceDualSensor : public V2Device, public SensorState
 {

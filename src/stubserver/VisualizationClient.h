@@ -471,6 +471,10 @@ public:
         return max;
     }
 
+    int getZeroPoint() const {
+        return zeroPoint;
+    }
+
 protected:
     int      min, max;
     int      sensorValue;
@@ -478,6 +482,7 @@ protected:
     int      sensorValue2;
     int      sensorValue3;
     int      sensorValue4;
+    int      zeroPoint;                 // defines an offset (0-value)
     unsigned counter;
     uint8_t  led1, led2, led3, led4;    // multiple purpose
 };

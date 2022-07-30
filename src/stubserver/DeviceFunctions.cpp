@@ -63,7 +63,7 @@ ResponseData::ResponseData(uint8_t *_extData, unsigned _size)
 //----- DeviceFunctions
 //-----------------------------------------------------------------------------
 DeviceFunctions::DeviceFunctions()
-  : other(NULL)
+  : other(nullptr)
 { }
 
 DeviceFunctions::DeviceFunctions(DeviceFunctions *o)
@@ -71,7 +71,7 @@ DeviceFunctions::DeviceFunctions(DeviceFunctions *o)
 { }
 
 DeviceFunctions::DeviceFunctions(const DeviceFunctions& o)
-  : other(NULL)
+  : other(nullptr)
 {
     // Do not really copy anything!
     // The callbacks are private and the mutex too...

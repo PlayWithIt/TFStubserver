@@ -1,7 +1,7 @@
 /*
- * DeviceMultiSensor.h
+ * DeviceDualAnalogIn.h
  *
- * Copyright (C) 2015-2021 Holger Grosenick
+ * Copyright (C) 2015-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STUBSERVER_DEVICEMULTISENSOR_H_
-#define STUBSERVER_DEVICEMULTISENSOR_H_
+#ifndef STUBSERVER_DEVICEDUALANALOGIN_H_
+#define STUBSERVER_DEVICEDUALANALOGIN_H_
 
 #include <utils/MinMax.h>
 
@@ -28,12 +28,13 @@
 namespace stubserver {
 
 /**
- * A simulated device which supports multiple independent sensors values.
+ * DeviceDualAnalogIn: a simulated device which supports multiple independent sensors values
+ * (two in this case) and some LED features per sensor channel.
  * <P>
- * The major difference to the {@link DeviceSensor} is that the sensor number is
+ * The major difference to the simple {@link DeviceDualSensor} is that the sensor number is
  * part of the call arguments, not part of the function code.
  */
-class DeviceMultiSensor : public DeviceFunctions, public SensorState
+class DeviceDualAnalogIn : public V2Device, public SensorState
 {
 protected:
     /**
@@ -45,6 +46,8 @@ protected:
         BasicCallback   changedCb;
         RangeCallback   rangeCallback;
         ValueProvider  *values;
+        int            channelStatusMin, channelStatusMax;
+        uint8_t        channelLedConfig;
 
         void setSensorValue(int v) {
             sensorValue = v;
@@ -58,36 +61,27 @@ protected:
         /**
          * Init value provider and BasicCallback (RangeCallback is optional).
          */
-        SensorData(ValueProvider *v, uint8_t getFuncCode, uint8_t setFuncCode, uint8_t cbCode);
+        SensorData(ValueProvider *v, uint8_t cbCode);
         ~SensorData();
     };
 
     std::vector<SensorData*> sensors;
-
-    unsigned   valueSize;      // size in bytes: 1,2 or 4 bytes
-    uint8_t    getValueFunc;
+    uint8_t                  getValueFunc;
+    uint32_t                 allVoltagesPeriod;
+    bool                     allVoltagesHasToChange;
 
     /**
-     * Check sensor index and return NULL if invalid.
+     * Check sensor index and throws an exception if invalid.
      */
     SensorData* checkIndex(uint8_t index);
 
 public:
-    DeviceMultiSensor(unsigned _valueSize, uint8_t _getValueFunc);
-    ~DeviceMultiSensor();
+    DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2, bool isV2);
+    ~DeviceDualAnalogIn();
 
     DECLARE_OWN_DEVICE_CALLBACKS
 };
 
-/**
- * Industrial dual analog in.
- */
-class DeviceDualAnalogIn : public DeviceMultiSensor
-{
-public:
-    DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2);
-};
-
 } /* namespace stubserver */
 
-#endif /* STUBSERVER_DEVICEMULTISENSOR_H_ */
+#endif /* STUBSERVER_DEVICEDUALANALOGIN_H_ */

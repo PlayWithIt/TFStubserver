@@ -30,6 +30,9 @@ while [ ! -z "$1" ]; do
 	-vg)
 	    VG="valgrind --leak-check=full --show-reachable=yes --log-file=vg.log "
 	    ;;
+	-hg)
+	    VG="valgrind --tool=helgrind --log-file=vg.log "
+	    ;;
 	*) FILE=$1
 	    ;;
     esac
@@ -44,7 +47,7 @@ fi
 export LD_LIBRARY_PATH=../../lib/$CONFIG
 
 if [ $UI == "1" ]; then
-	$VG ./TFStubViz -d $FILE
+	$VG ./TFStubViz -d $FILE $OPT
 else
 	# echo $VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE
 	$VG ../../bin/$CONFIG/stubserver -p 4225 $OPT -d $FILE

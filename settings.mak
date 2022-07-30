@@ -15,10 +15,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+GCC:=$(shell test -x /usr/bin/g++-11 && echo g++-11)
+ifeq "$(GCC)" ""
+    GCC:=$(shell test -x /usr/bin/g++-10 && echo g++-10)
+endif
+ifeq "$(GCC)" ""
+    GCC:=g++
+endif
+
 ifdef USE_LLVM
 CC:= clang++
 else
-CC:= g++-10
+CC:= $(GCC)
 endif
 
 ifeq "$(CONFIG)" "Release"

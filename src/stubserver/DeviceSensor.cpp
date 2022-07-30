@@ -41,7 +41,6 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint
   , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
-  , zeroPoint(0)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, 0, 0, 0)
@@ -61,7 +60,6 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getCallbackConfigFunc
   , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
-  , zeroPoint(0)
   , values(NULL)
   , changedCb(0, 0, 0, 0)
   , changedAnalogCb(0, 0, 0, 0)
@@ -82,7 +80,6 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, u
   , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
-  , zeroPoint(0)
   , values(NULL)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -101,7 +98,6 @@ DeviceSensor::DeviceSensor(ValueProvider *values,
   , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
-  , zeroPoint(0)
   , values(values)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
@@ -249,16 +245,17 @@ void DeviceSensor::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, Bri
     int currentValue;
 
     if (visualizationClient.useAsInputSource(getInternalSensorNo())) {
+        // the UI client must handle the zero point on its own !
         currentValue = visualizationClient.getInputState(getInternalSensorNo());
         if (currentValue != sensorValue) {
-            sensorValue = currentValue - zeroPoint;
+            sensorValue = currentValue;
         }
     }
     else {
-        currentValue = values->getValue(relativeTimeMs);
+        currentValue = values->getValue(relativeTimeMs) - zeroPoint;
         if (currentValue != sensorValue)
         {
-            sensorValue = currentValue - zeroPoint;
+            sensorValue = currentValue;
             notify(visualizationClient, VALUE_CHANGE);
             // Log() << "New value " << sensorValue;
         }

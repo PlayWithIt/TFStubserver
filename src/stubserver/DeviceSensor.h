@@ -1,7 +1,7 @@
 /*
  * DeviceSensor.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,6 @@ class DeviceSensor : public V2Device, public SensorState
     uint8_t  calibrateZeroFunc;
     unsigned maxAnalogValue;
     unsigned valueSize;      // size in bytes: 1,2 or 4 bytes
-    int      zeroPoint;      // defines an offset (0-value)
 
     ValueProvider *values;
 
