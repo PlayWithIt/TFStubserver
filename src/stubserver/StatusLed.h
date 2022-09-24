@@ -71,9 +71,26 @@ public:
         return static_cast<uint8_t>(config);
     }
 
+    /**
+     * Read current status.
+     */
     bool isLedOn() const {
         return ledOn;
     }
+
+    /**
+     * Update LED status unconditionally
+     */
+    void setLedOn(bool on) {
+        ledOn = on;
+    }
+
+    /**
+     * Change LED on/off based on bricklet or channel activity:
+     * if config is ON or OFF, this method does nothing, only in state ACTIVITY
+     * this updates the led state.
+     */
+    void setActivity(bool on);
 
     /**
      * Change the LED config:
@@ -87,13 +104,6 @@ public:
      * first map the value to valid config values and then set the led.
      */
     void setLedConfig(uint8_t cfg);
-
-    /**
-     * Change LED on/off based on bricklet or channel activity:
-     * if config is ON or OFF, this method does nothing, only in state ACTIVITY
-     * this updates the led state.
-     */
-    void setActivity(bool on);
 };
 
 } /* namespace stubserver */

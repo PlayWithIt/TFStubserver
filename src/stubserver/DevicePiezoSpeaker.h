@@ -29,19 +29,29 @@ using utils::SoundPlayback;
 
 /**
  * This simulated devices makes some sound via ALSA API.
- * The "visible state" of this device is only the status LED of the v2 speaker.
+ * The "visible state" of this device is only the status LED of the v2 speaker and the frequency.
  */
-class DevicePiezoSpeaker : public V2Device, public VisibleDeviceState
+class DevicePiezoSpeaker : public V2Device, public SensorState
 {
     // these are to handle the callback when sound finishes
     uint64_t callbackTime;
+    uint64_t alarmUpdateTime;
     int8_t   callbackFunctionId;
     bool     sendCallback;
+    bool     plusFrequency;
 
     // frequency & duration of the last buffer
     unsigned frequency;
     unsigned duration;
     unsigned volume;
+
+    // alaram data for V2 device
+    uint16_t startFrequency;
+    uint16_t endFrequency;
+    uint16_t stepSize;
+    uint16_t stepDelay;
+    uint16_t currentFrequency;
+
     SoundPlayback::WavBuffer wavBuffer;
     SoundPlayback player;
 

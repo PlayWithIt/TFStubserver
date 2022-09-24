@@ -122,6 +122,17 @@ typedef struct IOPacket
         } ATTRIBUTE_PACKED beepV2Request;
 
         struct {
+            uint16_t start_frequency;
+            uint16_t end_frequency;
+            uint16_t step_size;
+            uint16_t step_delay;
+            uint8_t  volume;
+            uint32_t duration;
+            uint32_t duration_remaining;
+            uint16_t current_frequency;
+        } ATTRIBUTE_PACKED alarmRequest;
+
+        struct {
             uint8_t  channel;
             int32_t  value1;
             int32_t  value2;

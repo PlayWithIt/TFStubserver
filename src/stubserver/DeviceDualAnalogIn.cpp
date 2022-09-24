@@ -36,8 +36,10 @@ DeviceDualAnalogIn::SensorData::SensorData(ValueProvider *v, uint8_t cbCode)
    , values(v)
    , channelStatusMin(0)
    , channelStatusMax(0)
-   , channelLedConfig(0)
-{ }
+   , channelLedConfig(INDUSTRIAL_DUAL_ANALOG_IN_V2_CHANNEL_LED_CONFIG_ON)
+{
+    setStatusLedConfig(StatusLedConfig::LED_ON);
+}
 
 DeviceDualAnalogIn::SensorData::~SensorData()
 {
@@ -60,7 +62,6 @@ DeviceDualAnalogIn::DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2, boo
 
     if (isV2) {
         s1 = new SensorData(v1, INDUSTRIAL_DUAL_ANALOG_IN_V2_CALLBACK_VOLTAGE);
-        s1->setStatusLedConfig(StatusLedConfig::LED_OFF);
         s1->setMinMax(-35 * 1000, 35 * 1000);
         s1->setInternalSensorNo(0);
 
@@ -70,7 +71,7 @@ DeviceDualAnalogIn::DeviceDualAnalogIn(ValueProvider *v1, ValueProvider *v2, boo
 
         s2 = new SensorData(v2, INDUSTRIAL_DUAL_ANALOG_IN_V2_CALLBACK_VOLTAGE);
         s2->rangeCallback = s1->rangeCallback;
-        s2->setStatusLedConfig(StatusLedConfig::LED_OFF);
+        s2->setStatusLedConfig(StatusLedConfig::LED_ON);
         s2->setMinMax(-35 * 1000, 35 * 1000);
         s2->setInternalSensorNo(1);
 
@@ -181,6 +182,7 @@ bool DeviceDualAnalogIn::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Vi
         if (func == INDUSTRIAL_DUAL_ANALOG_IN_V2_FUNCTION_SET_CHANNEL_LED_CONFIG) {
             sensor = checkIndex(p.uint8Value);
             sensor->setStatusLedConfig(p.thresholdChannelInt.option);
+            sensor->notify(visualizationClient, VisibleDeviceState::LED_CHANGE);
             return true;
         }
         if (func == INDUSTRIAL_DUAL_ANALOG_IN_V2_FUNCTION_GET_CHANNEL_LED_STATUS_CONFIG) {

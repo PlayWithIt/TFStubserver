@@ -138,12 +138,15 @@ public:
     void setStatusLedConfig(StatusLedConfig cfg) {
         statusLed.setLedConfig(cfg, 0);
     }
+    void setStatusLedOn(bool on) {
+        statusLed.setLedOn(on);
+    }
 
     /**
      * Returns true if there is any light on the LED in some cases.
      */
     bool isStatusLedOn() const {
-        return statusLed.getConfig() != StatusLedConfig::LED_OFF;
+        return statusLed.isLedOn();
     }
 
     StatusLedConfig getStatusLedConfig() const {
