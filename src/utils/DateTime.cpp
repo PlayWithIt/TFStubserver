@@ -49,6 +49,18 @@ int gettimeofday(struct timeval* tp, struct timezone*)
 #include "Exceptions.h"
 
 
+// Be aware that these sources are in UTF-8 !!
+// the LCD has a different charset: 0xE1 is 'ä'
+static const char MONTH_DE[13][6] = {
+   "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+   "Jul", "Aug", "Sep", "Okt", "Nov", "Dez", "???"
+};
+//static const char MONTH_EN[13][6] = {
+//   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+//   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "???"
+//};
+
+
 namespace utils {
 
 /**
@@ -119,11 +131,33 @@ DateTime::DateTime(const std::chrono::system_clock::time_point &now)
  *
  * If secondOffset is for example 86400, then one day is added.
  */
-DateTime::DateTime(const DateTime &other, int secondOffset)
-  : secondsSinceEpoch(other.secondsSinceEpoch + secondOffset)
+DateTime::DateTime(const DateTime &other, int offset, OffsetType ot)
+  : secondsSinceEpoch(other.secondsSinceEpoch)
   , microsecs(other.microsecs)
 {
+    if (ot == OffsetType::SECONDS)
+        secondsSinceEpoch += offset;
+    else if (ot == OffsetType::DAYS)
+        secondsSinceEpoch += offset * (24 * 60 * 60);
+
     makeTime();
+
+    if (ot == OffsetType::YEARS) {
+        init(time.tm_year + offset, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+    }
+    else if (ot == OffsetType::MONTH) {
+        int yo = offset / 12;
+        int mo = offset % 12;
+        if (time.tm_mon + offset >= 13) {
+            ++yo;
+            mo -= 12;
+        }
+        else if (time.tm_mon + offset < 0) {
+            --yo;
+            mo += 12;
+        }
+        init(time.tm_year + yo, time.tm_mon + mo, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+    }
 }
 
 /**
@@ -235,6 +269,28 @@ void DateTime::makeTime()
     }
     time.tm_year += 1900;  // 2000 and higher
     time.tm_mon += 1;      // 1 .. 12
+}
+
+
+/**
+ * Returns a month name with 3 chars
+ */
+const char* DateTime::monthName3() const
+{
+    Month mon = month();
+    if (mon >= JAN && mon <= DEC)
+        return MONTH_DE[mon - 1];
+    throw Exception("Invalid month value: %d", static_cast<int>(mon));
+}
+
+/**
+ * Returns a month name with 3 chars
+ */
+const char* DateTime::monthName3(Month mon)
+{
+    if (mon >= JAN && mon <= DEC)
+        return MONTH_DE[mon - 1];
+    throw Exception("Invalid month value: %d", static_cast<int>(mon));
 }
 
 /**

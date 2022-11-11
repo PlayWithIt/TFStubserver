@@ -86,7 +86,6 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
     unsigned numCols = csv.getNumCols();
     const std::vector< const char* > &cols = csv.getColumns();
     std::vector<int> columnData;
-    char msg[512];
 
     uint64_t offset = 0;
     //printf("NumCols = %u in %s\n", numCols, filename);
@@ -94,9 +93,7 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
     while (csv.loadLine()) {
         unsigned size = static_cast<unsigned>(cols.size());
         if (size != numCols) {
-            snprintf(msg, sizeof(msg), "Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename.c_str());
-            msg[sizeof(msg) - 1] = 0;
-            throw utils::ValueFormatError(msg);
+            throw utils::ValueFormatError("Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename.c_str());
         }
 
         if (values.empty() && strchr(cols[0], ':') != NULL) {
@@ -116,13 +113,11 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
                 uint64_t v = parseTimestamp(cols[0]);
                 if (v > 0) {
                     v -= offset;
-                    columnData.push_back(v);
+                    columnData.push_back(static_cast<int>(v));
                     // printf("Store offset %ld in line %d\n", v, csv.getLine());
                 }
                 else {
-                    snprintf(msg, sizeof(msg), "Invalid timestamp conversion in line %u of %s", csv.getLine(), filename.c_str());
-                    msg[sizeof(msg) - 1] = 0;
-                    throw utils::ValueFormatError(msg);
+                    throw utils::ValueFormatError("Invalid timestamp conversion in line %u of %s", csv.getLine(), filename.c_str());
                 }
             }
             else {
@@ -151,10 +146,7 @@ size_t CSVValueProvider::checkSequence()
         ++row;
         if (it[0] < act)
         {
-            char msg[200];
-            snprintf(msg, sizeof(msg), "Relative time in data row %u is lower than previous one (%d < %d)!", row, it[0], act);
-            msg[sizeof(msg) - 1] = 0;
-            throw Exception(msg);
+            throw Exception("Relative time in data row %u is lower than previous one (%d < %d)!", row, it[0], act);
         }
         act = it[0];
     }

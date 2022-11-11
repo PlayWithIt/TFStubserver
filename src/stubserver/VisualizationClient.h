@@ -425,6 +425,34 @@ public:
     SensorState(int _min, int _max);
 
     /**
+     * Returns the value of led1.
+     */
+    uint8_t getLed1() const {
+        return led1;
+    }
+
+    /**
+     * Returns the value of led2.
+     */
+    uint8_t getLed2() const {
+        return led2;
+    }
+
+    /**
+     * Returns the value of led3.
+     */
+    uint8_t getLed3() const {
+        return led3;
+    }
+
+    /**
+     * Returns the value of led1.
+     */
+    uint8_t getLed4() const {
+        return led4;
+    }
+
+    /**
      * Returns the current "sensor" value.
      */
     int getSensorValue() const {

@@ -101,6 +101,11 @@ public:
     static int signal2osSignal(Signal s);
 
     /**
+     * Returns the process id (PID) which sent the latest signal to this process.
+     */
+    static int pidOfLatestSignal();
+
+    /**
      * Returns true if Ctrl-C was pressed / SIGINT was triggered: soft exit.
      * This method is equal to "hasSignal(SIG_TERM) || hasSignal(SIG_INT)".
      */

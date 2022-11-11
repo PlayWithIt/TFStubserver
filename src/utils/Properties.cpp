@@ -1,7 +1,7 @@
 /*
  * Properties.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@ Properties::Properties(const std::string &data, char separator)
             if (c == '\\') {
                 c = data[++i];
                 if (c == 'x' && i+2 < last) {
-                    c = hexValue(data[i+1], data[i+2]);
+                    c = hex2int(data[i+1], data[i+2]);
                     i+=2;
                 }
                 os << c;
@@ -341,10 +341,7 @@ bool Properties::getBool(const std::string &key) const
         return true;
     if (strcmp(v, "false") != 0)
     {
-        char buffer[256];
-        snprintf(buffer, sizeof(buffer), "Invalid bool value: '%s', key was '%s'", v, key.c_str());
-        buffer[sizeof(buffer) - 1] = 0;
-        throw ValueFormatError(buffer);
+        throw ValueFormatError("Invalid bool value: '%s', key was '%s'", v, key.c_str());
     }
     return false;
 }
@@ -422,14 +419,16 @@ double Properties::getDouble(const std::string &key, double defaultValue) const
  */
 void Properties::put(const char *key, const char *value)
 {
-    std::pair<TStringMap::iterator, bool> res = values.insert(std::make_pair(key, value));
+    // std::pair<TStringMap::iterator, bool>
+    auto res = values.insert(std::make_pair(key, value));
     if (false == res.second)
         (res.first)->second = value;
 }
 
 void Properties::put(const std::string &key, const std::string &value)
 {
-    std::pair<TStringMap::iterator, bool> res = values.insert(std::make_pair(key, value));
+    // std::pair<TStringMap::iterator, bool>
+    auto res = values.insert(std::make_pair(key, value));
     if (false == res.second)
         (res.first)->second = value;
 }

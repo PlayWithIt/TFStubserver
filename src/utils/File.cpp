@@ -331,9 +331,16 @@ std::string File::getAbsolutePath() const
     if (!exists())
         throw std::logic_error("Cannot determine the absolute path of a non-existing file");
 
-    std::filesystem::path p;
-    p = fullname;
-    return std::filesystem::absolute(p).string();
+    char actualpath [PATH_MAX+1];
+#ifdef _WIN32
+    char* ptr = _fullpath(actualpath, fullname.c_str(), PATH_MAX);
+#else
+    char *ptr = realpath(fullname.c_str(), actualpath);
+#endif
+    if (!ptr) {
+        throw std::logic_error("realpath() returned an error");
+    }
+    return actualpath;
 }
 
 /**

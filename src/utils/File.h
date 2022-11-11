@@ -330,7 +330,7 @@ public:
      * <P>
      * If the file is not found, an exception is thrown.
      *
-     * @param envName - name of the environment variable
+     * @param envName - name of the environment variable which holds the search path (e.g. "PATH")
      * @param filename - name of the file to look for
      * @throws utils::KeyNotFound if the environment variable does not exist or the specified
      *         file was not found along the path.

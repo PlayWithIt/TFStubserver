@@ -872,8 +872,6 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     , isV2(false)
     , traceLv(0)
 {
-    char msg[200];
-
     std::string key(uidStr + ".properties");
     const char *str = props.get(key);
     if (str && *str)
@@ -896,9 +894,8 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
             deviceTypeId = gAllDeviceIdentifiers[i].deviceIdentifier;
     }
     if (deviceTypeId == 0) {
-        sprintf(msg, "Unkown device type '%s' for uid %s", str, _uidStr);
         cleanup();  // cleanup removes the properties -> 'str' would be empty
-        throw Exception(msg);
+        throw Exception("Unkown device type '%s' for uid %s", str, _uidStr);
     }
     deviceTypeName = str;
     label    = getProperty("label");
@@ -936,8 +933,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     }
     else {
         cleanup();
-        sprintf(msg, "Invalid position char '%c' for uid %s", p, _uidStr);
-        throw Exception(msg);
+        throw Exception("Invalid position char '%c' for uid %s", p, _uidStr);
     }
 
     // Main brick which is not connected to another brick has parent id '0'
@@ -966,12 +962,10 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
 
         // parts are already checked above ...
         if (false == isBrick && (position < 'A' || position > 'H')) {
-            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICKLET %s (must be A..D)", position, position, uidStr.c_str());
-            throw utils::Exception(msg);
+            throw Exception("ERROR: invalid position char '%c' (%d) for BRICKLET %s (must be A..D)", position, position, uidStr.c_str());
         }
         if (true == isBrick && (position < '0' || position > '9') && position != 'I') {
-            sprintf(msg, "ERROR: invalid position char '%c' (%d) for BRICK %s (must be 0..9,I)", position, position, uidStr.c_str());
-            throw utils::Exception(msg);
+            throw Exception("ERROR: invalid position char '%c' (%d) for BRICK %s (must be 0..9,I)", position, position, uidStr.c_str());
         }
     }
     catch (const std::exception &e) {
@@ -1020,22 +1014,20 @@ void SimulatedDevice::clearVisualizationClient() const {
 const char *SimulatedDevice::getProperty(const std::string &key, int minLength)
 {
     const char *res = properties->get(uidStr + "." + key);
-    if (res == NULL || *res == 0)
+    if (!res || *res == 0)
         res = properties->get(key);
-    if (res == NULL) {
+    if (!res) {
         if (minLength <= 0)
             return "";
     }
-    if (res == NULL || static_cast<int>(strlen(res)) < minLength)
+    if (!res || static_cast<int>(strlen(res)) < minLength)
     {
-        char msg[128];
         if (!res)
-            sprintf(msg, "Property '%s' for uid %s does not exist, check properties",
-                    key.c_str(), uidStr.c_str());
-        else
-            sprintf(msg, "Property '%s' for uid %s must have length %u, but has %d",
-                    key.c_str(), uidStr.c_str(), minLength, res ? static_cast<int>(strlen(res)) : 0);
-        throw Exception(msg);
+            throw Exception("Property '%s' for uid %s does not exist, check properties",
+                            key.c_str(), uidStr.c_str());
+
+        throw Exception("Property '%s' for uid %s must have length %u, but has %d",
+                        key.c_str(), uidStr.c_str(), minLength, res ? static_cast<int>(strlen(res)) : 0);
     }
     return res;
 }
@@ -1094,7 +1086,6 @@ void SimulatedDevice::checkCallbacks()
  */
 void SimulatedDevice::connect(SimulatedDevice* child)
 {
-    char msg[128];
     bool positions[128];
     unsigned index;
 
@@ -1103,8 +1094,7 @@ void SimulatedDevice::connect(SimulatedDevice* child)
     for (auto it : children)
     {
         if (it->uid == child->uid) {
-            sprintf(msg, "Device with uid %s already connected!", it->getUidStr().c_str());
-            throw std::logic_error(msg);
+            throw Exception("Device with uid %s already connected!", it->getUidStr().c_str());
         }
         index = it->position;
         positions[index] = true;
@@ -1125,14 +1115,12 @@ void SimulatedDevice::connect(SimulatedDevice* child)
     }
 
     if (index > maxIndex) {
-        sprintf(msg, "Device with uid %s uses position '%c' which is an invalid value, max port value is '%c'!",
-                child->getUidStr().c_str(), index, maxIndex);
-        throw std::logic_error(msg);
+        throw Exception("Device with uid %s uses position '%c' which is an invalid value, max port value is '%c'!",
+                               child->getUidStr().c_str(), index, maxIndex);
     }
     if (positions[index]) {
-        sprintf(msg, "Device with uid %s uses position '%c' which is already connected!",
-                child->getUidStr().c_str(), index);
-        throw std::logic_error(msg);
+        throw Exception("Device with uid %s uses position '%c' which is already connected!",
+                               child->getUidStr().c_str(), index);
     }
     children.push_back(child);
 }

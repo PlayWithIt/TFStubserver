@@ -138,8 +138,11 @@ public:
     static void error(const std::string& msg, const char *arg);
     static void error(const std::string& msg, int arg);
 
-    // exception trace
-    static void error(const char* msg, const std::exception &ex);
+    /**
+     * Exception trace:
+     * Exception of type 't' in: 'func': ex.what()
+     */
+    static void error(const char* func, const std::exception &ex);
     static void error(const std::string& func, const std::exception &ex);
 
     /**

@@ -274,7 +274,7 @@ void toString(char buf[512], double d, unsigned digits, char sep)
     char fmt[32];
 
     if (!buf)
-        throw RuntimeError("buffer may not be NULL");
+        throw std::invalid_argument("buffer may not be NULL");
     if (digits > 20)
         throw OutOfRange("Number of digits may not be larger than 20", digits, 20);
 

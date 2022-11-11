@@ -1,7 +1,7 @@
 /*
  * Compatability.h
  *
- * Copyright (C) 2015 Holger Grosenick
+ * Copyright (C) 2015-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UTILS_COMPATABILITY_H_
-#define UTILS_COMPATABILITY_H_
+#ifndef UTILS_COMPATIBILITY_H_
+#define UTILS_COMPATIBILITY_H_
 
 /**
  * Some basic defines to handle differences between Windows (Visual Studio 2013) and Linux.
  */
 
 #ifdef _WIN32
-#define NOEXCEPT
+//--- Windows ---
 #include <stdint.h>
+
+// Compatibility implemented in DateTime.cpp
+extern "C" {
+int gettimeofday(struct timeval* tp, struct timezone* tzp);
+}
+
+#define SSCANF sscanf_s
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+
 #else
-#define NOEXCEPT noexcept
+//--- Linux ---
+
+#define SSCANF sscanf
+
 #endif
 
-#endif /* UTILS_COMPATABILITY_H_ */
+#endif /* UTILS_COMPATIBILITY_H_ */

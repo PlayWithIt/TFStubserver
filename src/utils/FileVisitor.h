@@ -137,6 +137,56 @@ public:
     virtual VisitResult afterVisitDirectory(const File &dir) override;
 };
 
+
+/**
+ * Recurses into all directories and searches the given file.
+ */
+class FileFinder : public FileVisitor
+{
+    const std::string toFind;
+    const bool caseSensitive;
+    unsigned    visitCount;
+    std::string result;
+
+public:
+    /**
+     * Search the file without wildcards, filename is handled case sensitive by default.
+     */
+    explicit FileFinder(const std::string &toFind, bool caseSensitive = true);
+
+    /**
+     * Search the file without wildcards, filename is handled case sensitive by default.
+     */
+    explicit FileFinder(const char *toFind, bool caseSensitive = true);
+
+    /**
+     * Return the full path to the file or an empty string if not found.
+     */
+    const std::string& getResult() const {
+        return result;
+    }
+
+    /**
+     * If the result is not empty, then we found the file.
+     */
+    bool found() const {
+        return ! result.empty();
+    }
+
+    /**
+     * Returns the number of files and directories checked (more for test purpose).
+     */
+    unsigned getVisitCount() const {
+        return visitCount;
+    }
+
+    virtual VisitResult visitFile(const File &f) override;
+
+    virtual VisitResult visitDirectory(const File &dir) override;
+
+    virtual VisitResult afterVisitDirectory(const File &dir) override;
+};
+
 } /* namespace utils */
 
 #endif /* FILEVISITOR_H_ */

@@ -1,7 +1,7 @@
 /*
  * Exceptions.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,17 @@
 
 #include <string>
 #include <exception>
+#include <stdarg.h>
 
 #include "Compatibility.h"
 
 namespace utils {
+
+#ifdef __GNUC__
+#define __PRINTF_CHECK   __attribute__ ((__format__ (__printf__, 2, 3)))
+#else
+#define __PRINTF_CHECK
+#endif
 
 
 /**
@@ -42,6 +49,9 @@ class Exception : public std::exception
 protected:
     Exception() {  }
 
+    // set message via printf style format in derived classes
+    void setMessage(const char *msg, va_list args);
+
     void setMessage(const std::string &m) {
         msg = m;
     }
@@ -52,8 +62,11 @@ protected:
 
 public:
     explicit Exception(const std::string &msg);
-    explicit Exception(const char *msg);
-    explicit Exception(const char *msg, int arg);
+
+    /**
+     * Use a printf style format to build the error message
+     */
+    explicit Exception(const char *msg, ...) __PRINTF_CHECK;
 
     // std::~exception is already virtual ...
     virtual ~Exception();
@@ -68,7 +81,7 @@ public:
 class ConnectionLostException : public Exception
 {
 public:
-    explicit ConnectionLostException(const std::string &msg);
+    explicit ConnectionLostException(const std::string &msg) : Exception(msg) { }
 };
 
 
@@ -81,6 +94,7 @@ public:
 class IOException : public Exception
 {
 public:
+    // message:  func + '(' + args + "): " + errno
     IOException(const std::string &func, const std::string &args);
     IOException(int _errno, const std::string &func, const std::string &args);
 };
@@ -113,9 +127,9 @@ public:
 class ValueFormatError : public Exception
 {
 public:
-    explicit ValueFormatError(const std::string &msg);
-    explicit ValueFormatError(const char *msg, int arg)
-      : Exception(msg, arg) { }
+    explicit ValueFormatError(const std::string &msg) : Exception(msg) { }
+
+    explicit ValueFormatError(const char *msg, ...) __PRINTF_CHECK;
 };
 
 /**
@@ -125,8 +139,8 @@ public:
 class RuntimeError : public Exception
 {
 public:
-    explicit RuntimeError(const char *msg);
     explicit RuntimeError(const std::string &msg);
+    explicit RuntimeError(const char *msg);
     explicit RuntimeError(const char *msg, int _errno);
 };
 

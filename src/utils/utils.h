@@ -1,7 +1,7 @@
 /*
  * utils.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,13 +31,38 @@ void msleep(int ms);
 void usleep(int us);
 
 // returns the current process id, like "getpid()" on Linux
-uint64_t getProcessId();
+int getProcessId();
+
+// convert long to char with 10 a base, use a 32 byte buffer which will be null terminated at the end
+char*  ltoa(char dest[32], int64_t value);
+char* ultoa(char dest[32], uint64_t value);
+char*  itoa(char dest[16], int32_t value);
+char* uitoa(char dest[16], uint32_t value);
+
+/**
+ * Similar to the standard snprintf, but with one difference:
+ * if the buffer is too small, an exception is thrown.
+ */
+int snprintf(char *str, size_t size, const char *format, ...);
 
 /**
  * Convert an int into a base58 encoded string.
  */
 const std::string base58Encode(unsigned int value);
 unsigned int      base58Decode(const char *value);
+
+/**
+ * Create a shell file which contains the current environment and the commandline
+ * that was called.
+ *
+ * argPos - the position of the command  line option that was used to trigger
+ *          dumping the command line, this argument and the next one are skipped
+ *          in the dump (use -1 to skip nothing)
+ * argc, argv, env - as passed to main()
+ *
+ * returns true if the dump was OK, false in case of file errors.
+ */
+bool dumpAsShell(int argPos, int argc, char const* const* argv, char const* const* env);
 
 /**
  * Open a log-file: redirect stdout + stderr into a file.
@@ -64,12 +89,23 @@ void bits2bool(unsigned statesIn, bool statesOut[], unsigned num);
  *
  * If a non hex char was input: an exception is thrown !
  */
-int hexValue(char c1);
+int hex2int(char c1);
 
 /**
  * Return the hexValue of two hex chars: hexValue(c1)*16 + hexValue(c2)
  */
-int hexValue(char c1, char c2);
+int hex2int(char c1, char c2);
+
+/**
+ * Return the hexValue of a string with hex sequence chars.
+ *
+ * Be aware:
+ * the result is int64 => ffffffff is a positive value.
+ */
+int64_t hex2int(const char *in);
+inline int64_t hex2int(const std::string &in) {
+    return hex2int(in.c_str());
+}
 
 }
 

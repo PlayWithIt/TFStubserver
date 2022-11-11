@@ -408,9 +408,7 @@ size_t StoredValueProvider::checkSequence()
 
         if (it.timeOffset < act)
         {
-            char error[128];
-            snprintf(error, sizeof(error), "Relative time in row %u is lower than previous one!", row);
-            throw Exception(error);
+            throw Exception("Relative time in row %u is lower than previous one!", row);
         }
         act = it.timeOffset;
     }
@@ -541,9 +539,7 @@ void StoredValueProvider::parseLine(std::string &line, unsigned lineNo)
     value = strtol(val.c_str(), &endPtr, base);
     if (endPtr == val.c_str())
     {
-        char error[128];
-        snprintf(error, sizeof(error), "Invalid line format in value of line %u", lineNo);
-        throw Exception(error);
+        throw Exception("Invalid line format in value of line %u", lineNo);
     }
 
     // add more offset to all following values?

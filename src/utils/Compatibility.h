@@ -25,6 +25,7 @@
  */
 
 #ifdef _WIN32
+//--- Windows ---
 #include <stdint.h>
 
 // Compatibility implemented in DateTime.cpp
@@ -33,8 +34,11 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp);
 }
 
 #define SSCANF sscanf_s
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
 
 #else
+//--- Linux ---
 
 #define SSCANF sscanf
 

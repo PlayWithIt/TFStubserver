@@ -62,7 +62,15 @@ AsyncTask::~AsyncTask() {
  */
 void AsyncTask::callRunMethod()
 {
-    run();
+    try {
+        run();
+    }
+    catch (const std::exception &e) {
+        Log::error("callRunMethod()", e);
+    }
+    catch (...) {
+        Log::error("Unspecific exception in callRunMethod() !");
+    }
     setActive(false);
 }
 

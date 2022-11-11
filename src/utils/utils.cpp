@@ -22,6 +22,8 @@
 #include <Windows.h>
 #else
 #include <fcntl.h>
+#include <stdarg.h>
+#include <stdexcept>
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -30,9 +32,14 @@
 #include <signal.h>
 #include <string.h>
 #include <atomic>
+#include <filesystem>
+#include <fstream>
+#include <list>
 #include <stdexcept>
+#include <type_traits>
 
 #include "Log.h"
+#include "StringUtil.h"
 #include "utils.h"
 
 
@@ -41,6 +48,7 @@
 static const char BASE58_ALPHABET[] = \
         "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
 
+namespace fs = std::filesystem;
 
 namespace utils {
 
@@ -151,8 +159,105 @@ unsigned int base58Decode(const char *str)
 }
 
 
+/**
+ * Create a shell file which contains the current environment and the commandline
+ * that was called.
+ *
+ * argPos - the position of the command  line option that was used to trigger
+ *          dumping the command line, this argument and the next one are skipped
+ *          in the dump (use -1 to skip nothing)
+ * argc, argv, env - as passed to main()
+ *
+ * returns true if the dump was OK, false in case of file errors.
+ */
+bool dumpAsShell(int argPos, int argc, char const* const* argv, char const* const* env)
+{
+    const char *file = argv[argPos + 1];
+    if (!file || !(*file))
+        return false;
+
+    // wrong arguments
+    if (!argv)
+        return false;
+
+    // start writing the file
+    std::ofstream os(file, std::ofstream::out);
+    if (!os.is_open()) {
+        Log::perror(file);
+        return false;
+    }
+
+    // make the file readable + exec for the owner only, no other user
+    fs::permissions(file, fs::perms::owner_all, fs::perm_options::replace);
+
+    if (env) {
+        // these variables should not be dumped, they are re-created in normal ssh shell
+        std::list<std::string> excludes;
+        excludes.push_back("_");
+        excludes.push_back("HOME");         // user specific
+        excludes.push_back("HOST");         // current host
+        excludes.push_back("LESS");         // only for 'less'
+        excludes.push_back("LS_");          // only for 'less'
+        excludes.push_back("LOG_NAME");     // user specific
+        excludes.push_back("SHLVL");        // shell specific
+        excludes.push_back("SSH_");         // ssh, never overwrite !
+        excludes.push_back("USER");         // user specific
+        excludes.push_back("XTERM");        // user specific
+
+        // sort the env list and remove vars which are mentioned in the exclude list
+        const char *shell = nullptr;
+        std::list<std::string> envList;
+
+        for (int i = 0; env[i]; ++i) {
+            bool skip = false;
+            std::string e = env[i];
+
+            // find the shell name
+            if (strings::startsWith(e, "SHELL=")) {
+                shell = strchr(env[i], '=');
+                if (shell)
+                    ++shell;
+            }
+
+            // check for excludes
+            for (auto &s : excludes) {
+                if (strings::startsWith(e, s)) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip)
+                envList.push_back(env[i]);
+        }
+
+        envList.sort();
+        if (shell) {
+            os << "#!" << shell << std::endl;
+
+        }
+        os << std::endl;
+        for (auto e : envList) {
+            os << "export " << e << std::endl;
+        }
+    }
+
+    os << std::endl;
+    for (int i = 0; i < argc && argv[i]; ++i) {
+        if (i == argPos) {
+            // skip the arg to dump the environment and call, so that if the shell
+            // is started again, this should not dump again.
+            ++i;
+        }
+        else {
+            os << argv[i] << ' ';
+        }
+    }
+    os << std::endl << std::endl;
+    return true;
+}
+
 // returns the current process id like "getpid()" on Linux
-uint64_t getProcessId()
+int getProcessId()
 {
     return getpid();
 }
@@ -163,7 +268,7 @@ uint64_t getProcessId()
  *
  * If a non hex char was input: an exception is thrown !
  */
-int hexValue(char c1)
+int hex2int(char c1)
 {
     if (c1 >= '0' && c1 <= '9')
         return c1 - '0';
@@ -180,8 +285,94 @@ int hexValue(char c1)
 /**
  * Return the hexValue of two hex chars: hexValue(c1)*16 + hexValue(c2)
  */
-int hexValue(char c1, char c2) {
-    return hexValue(c1)*16 + hexValue(c2);
+int hex2int(char c1, char c2) {
+    return hex2int(c1)*16 + hex2int(c2);
+}
+
+/**
+ * Return the hexValue of a string with hex sequence chars
+ */
+int64_t hex2int(const char *in)
+{
+    if (!in)
+        return 0;
+
+    int64_t result = 0;
+    while (*in) {
+        result *= 16;
+        result += hex2int(*in);
+        ++in;
+    }
+    return result;
+}
+
+/**
+ * Convert a numeric value with base 10 into a string.
+ */
+template<class T> char* convertToAscii(char *dest, int size, T value)
+{
+    if (value == 0) {
+        dest[0] = '0';
+        dest[1] = 0;
+        return dest;
+    }
+
+    int i = 0;
+    bool sign = false;
+    char buffer[128];
+
+    // only check if the type is signed
+    if (std::is_signed<T>::value) {
+        sign = value < 0;
+    }
+
+    // now convert
+    while (value) {
+        int mod = (value % 10);
+        buffer[i] = '0' + (mod < 0 ? -mod : mod);
+        ++i;
+        value /= 10;
+
+        if (i >= size) {
+            char msg[256];
+            sprintf(msg, "convertToAscii: value exceeds '%u' chars", size);
+            throw std::overflow_error(msg);
+        }
+    }
+
+    // copy back in reverse (correct order).
+    int d = 0;
+    if (sign) {
+        // value was negative: start with minus
+        dest[d++] = '-';
+    }
+
+    // copy back in correct order
+    while (i > 0) {
+        dest[d++] = buffer[--i];
+    }
+    dest[d] = 0;
+
+    return dest;
+}
+
+/**
+ * Integer to ascii
+ */
+char* itoa(char dest[16], int32_t value) {
+    return convertToAscii(dest, 16, value);
+}
+
+char* uitoa(char dest[16], uint32_t value) {
+    return convertToAscii(dest, 16, value);
+}
+
+char* ltoa(char dest[32], int64_t value) {
+    return convertToAscii(dest, 32, value);
+}
+
+char* ultoa(char dest[32], uint64_t value) {
+    return convertToAscii(dest, 32, value);
 }
 
 // sleep some milliseconds
@@ -238,6 +429,30 @@ bool redirectStdout(const char *logName)
         result = false;
     }
     return result;
+}
+
+/**
+ * Similar to the standard snprintf, but with one difference:
+ * if the buffer is too small, an exception is thrown.
+ */
+int snprintf(char *str, size_t size, const char  *format, ...)
+{
+    str[size-1] = 0;
+
+    va_list args;
+    va_start(args, format);
+    size_t res = ::vsnprintf(str, size, format, args);
+    va_end(args);
+
+    if (str[size-1] != 0 || res >= size) {
+        char value1[32];
+        char value2[32];
+        ltoa(value1, size);
+        ltoa(value2, res);
+        throw std::length_error(std::string("utils::snprintf overflow, size=") + value1 + " result=" + value2);
+    }
+
+    return res;
 }
 
 }

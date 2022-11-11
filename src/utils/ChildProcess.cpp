@@ -1,7 +1,7 @@
 /*
  * ChildProcess.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ struct Redirect
         if (pipeHandles[0] >= 0 || pipeHandles[1] >= 0)
             throw std::logic_error("Child stream already open, cannot change any more!");
         if (pipe(pipeHandles) < 0)
-            throw utils::RuntimeError("pipe() failed");
+            throw utils::IOException("pipe", "");
         type = Redirect::PIPE;
     }
 
@@ -309,7 +309,7 @@ void ChildProcess::setWorkDir(const char *_workDir)
 void ChildProcess::splitCmdLine(const char *cmdLine, std::vector<std::string> &out)
 {
     if (!cmdLine || *cmdLine == 0 )       // invalid argument
-        throw Exception("Invalid argument: 'cmdLine' is NULL or empty");
+        throw std::invalid_argument("'cmdLine' is NULL or empty");
 
     out.clear();                          // remove all previous entries
     const char *c = cmdLine;
@@ -352,8 +352,31 @@ void ChildProcess::splitCmdLine(const char *cmdLine, std::vector<std::string> &o
       else
           ++c;                              // set to next valid char
 
+//      printf("ADD: %s\n", arg);
       out.push_back(std::string(arg));
     } while (!done);
+}
+
+/**
+ * Start the child process and waits until it finishes in the given time period.
+ * If 'ms' is zero then we wait forever until the process finishes.
+ * <P>
+ * Internally this is the sequence of
+ * - start()
+ * - waitFor()
+ * - getRc()
+ * <P>
+ * Returns:
+ *   -1 : if ms is larger than zero and the process did not finish yet
+ * negative values: process terminated with signal / exception
+ * other : normal return code of the process
+ */
+int ChildProcess::run(unsigned ms)
+{
+    start();
+    if (waitFor(ms))
+        return getRc();
+    return -1;
 }
 
 /**
@@ -492,11 +515,7 @@ void ChildProcess::tryToStart()
     else {
         // PID < 0: start of process failed ...
         active = false;
-
-        int err = errno;
-        char buffer[2048];
-        sprintf(buffer, "Start of '%s' failed", programAndArgs[0].c_str());
-        throw utils::RuntimeError(buffer, err);
+        throw utils::IOException("execv", programAndArgs[0].c_str());
     }
 }
 
@@ -540,7 +559,6 @@ void ChildProcess::validateRedirect()
 {
     if (active)
         throw Exception("Child process already active, cannot change redirect any more!");
-
 }
 
 /**

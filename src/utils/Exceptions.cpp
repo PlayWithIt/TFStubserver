@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 
@@ -25,6 +26,9 @@
 
 namespace utils {
 
+// max message length for exceptions
+#define __MSG_LEN 1024
+
 //--------------------------------------------------------------------------
 // utils::Exception
 //--------------------------------------------------------------------------
@@ -32,34 +36,33 @@ Exception::Exception(const std::string &m)
   : msg(m)
 { }
 
-Exception::Exception(const char *m)
-  : msg(m)
-{ }
-
-Exception::Exception(const char *m, int arg)
-  : msg()
+Exception::Exception(const char *m, ...)
 {
-    char buffer[1024];
-
-    snprintf(buffer, sizeof(buffer), m, arg);
-    buffer[sizeof(buffer) - 1] = 0;
-    msg = buffer;
+    va_list args;
+    va_start(args, m);
+    setMessage(m, args);
+    va_end(args);
 }
 
 Exception::~Exception() { }
+
+
+/**
+ * set message via printf style format
+ */
+void Exception::setMessage(const char *m, va_list args)
+{
+    char buffer[__MSG_LEN];
+
+    ::vsnprintf(buffer, sizeof(buffer), m, args);
+    buffer[sizeof(buffer) - 1] = 0;
+    msg = buffer;
+}
 
 const char *Exception::what() const noexcept
 {
     return msg.c_str();
 }
-
-
-//--------------------------------------------------------------------------
-// utils::ConnectionLostException
-//--------------------------------------------------------------------------
-ConnectionLostException::ConnectionLostException(const std::string &m)
-: Exception(m)
-{ }
 
 
 //--------------------------------------------------------------------------
@@ -94,9 +97,9 @@ KeyNotFound::KeyNotFound(const std::string &messagePrefix, const std::string &ke
 OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _max)
   : Exception()
 {
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "%s: %u is out of range, max = %u",
-             hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _max);
+    char buffer[__MSG_LEN];
+    ::snprintf(buffer, sizeof(buffer), "%s: %u is out of range, max = %u",
+               hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _max);
     buffer[sizeof(buffer) - 1] = 0;
     setMessage(hint + buffer);
 }
@@ -104,9 +107,9 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _max)
 OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max)
   : Exception()
 {
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "%s: %u is out of range, expected range is %u .. %u",
-             hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _min, _max);
+    char buffer[__MSG_LEN];
+    ::snprintf(buffer, sizeof(buffer), "%s: %u is out of range, expected range is %u .. %u",
+               hint.length() > 0 && hint.length() < 150 ? "" : "Value", current, _min, _max);
     buffer[sizeof(buffer) - 1] = 0;
     setMessage(hint + buffer);
 }
@@ -133,10 +136,13 @@ RuntimeError::RuntimeError(const char *msg, int _errno)
 //--------------------------------------------------------------------------
 // utils::ValueFormatError
 //--------------------------------------------------------------------------
-ValueFormatError::ValueFormatError(const std::string &m)
-  : Exception(m)
-{ }
-
+ValueFormatError::ValueFormatError(const char *m, ...)
+{
+    va_list args;
+    va_start(args, m);
+    setMessage(m, args);
+    va_end(args);
+}
 
 //--------------------------------------------------------------------------
 // utils::IOException

@@ -50,6 +50,13 @@ class DateTime {
 
 public:
     /**
+     * Type of offset for the constructor which supports and offset
+     */
+    enum class OffsetType {
+        SECONDS, DAYS, MONTH, YEARS
+    };
+
+    /**
      * Determine current date time with microseconds.
      */
     explicit DateTime();
@@ -78,7 +85,7 @@ public:
      *
      * If secondOffset is for example 86400, then one day is added.
      */
-    explicit DateTime(const DateTime &other, int secondOffset);
+    explicit DateTime(const DateTime &other, int offset, OffsetType ot = OffsetType::SECONDS);
 
     /**
      * Init with single fields:<br>
@@ -137,6 +144,16 @@ public:
     Month month() const {
         return static_cast<Month>(time.tm_mon);
     }
+
+    /**
+     * Returns a month name with 3 chars
+     */
+    const char* monthName3() const;
+
+    /**
+     * Returns a month name with 3 chars
+     */
+    static const char* monthName3(Month m);
 
     /**
      * Returns the day in month 1 .. 31

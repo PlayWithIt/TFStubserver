@@ -30,24 +30,28 @@ namespace utils {
 // global flag to indicate that the application should finish
 #define MAX_SINGALS 64
 static bool calledSignal[MAX_SINGALS];
-
+static int  signalFromPid;
 
 /**
  * Signal handler to terminate the application if 'shouldFinish' is checked regularly.
  */
-static void sigTermHandler(int sig, siginfo_t *, void *)
+#ifndef _WIN32
+static void sigTermHandler(int sig, siginfo_t *info, void *)
 {
     static unsigned count = 0;
 
     if (++count == 5) {
-        Log() << "sigTermHandler(" << sig << ") called 5 times => hard exit ...";
+        Log() << "sigTermHandler(" << sig << ") triggered 5 times => hard exit ...";
         exit(16);
     }
 
+    signalFromPid = info ? info->si_pid : 0;
     if (count == 1)
-        Log() << "sigTermHandler(" << sig << ") called => finish ...";
+        Log() << "sigTermHandler(" << sig << ") triggered from pid "
+              << signalFromPid << " => should finish ...";
     else
-        Log() << "sigTermHandler(" << sig << ") called (" << count << " times) => finish ...";
+        Log() << "sigTermHandler(" << sig << ") triggered (" << count << " times) from pid "
+              << signalFromPid << " => should finish ...";
 
     calledSignal[SIGTERM] = true;
 }
@@ -56,9 +60,11 @@ static void sigTermHandler(int sig, siginfo_t *, void *)
 /**
  * Signal handler for all other signals that should just set a flag.
  */
-static void anySignalHandler(int sig, siginfo_t *, void *)
+static void anySignalHandler(int sig, siginfo_t *info, void *)
 {
-    // Log() << "anySignalHandler(" << sig << ") called";
+    Log() << "anySignalHandler(" << sig << ") triggered from pid " << signalFromPid;
+
+    signalFromPid = info ? info->si_pid : 0;
     if (sig > 0 && sig < MAX_SINGALS)
         calledSignal[sig] = true;
 }
@@ -68,9 +74,10 @@ static void anySignalHandler(int sig, siginfo_t *, void *)
  */
 static void sigKillHandler(int sig, siginfo_t *, void *)
 {
-    Log() << "CAUGHT CRITICAL SIGNAL: signal=" << sig << '(' << SignalHandlers::signal2char(sig) << ") => abort!";
+    Log() << "CAUGHT CRITICAL SIGNAL " << sig << " (" << SignalHandlers::signal2char(sig) << ") => abort!";
     exit(16);
 }
+#endif
 
 /**
  * Activate some defaults for signal handlers:
@@ -171,6 +178,14 @@ bool SignalHandlers::gotSignal(Signal sigNum)
     return calledSignal[osSignal];
 }
 
+/**
+ * Returns the process id (PID) which sent the latest signal to this process.
+ */
+int SignalHandlers::pidOfLatestSignal()
+{
+    return signalFromPid;
+}
+
 
 // set signal handler for example for SIGUSR1 or similar
 void SignalHandlers::setHandler(Signal sigNum, void (*function)(int, void *sigInfo, void *u_context))
@@ -194,31 +209,36 @@ void SignalHandlers::setHandler(Signal sigNum, void (*function)(int, void *sigIn
  */
 const char *SignalHandlers::signal2char(int signum)
 {
-    if (signum == SIGBUS)
-        return "SIGBUS";
-    if (signum == SIGSEGV)
-        return "SIGSEGV";
-    if (signum == SIGPIPE)
-        return "SIGPIPE";
+    static char sigStr[64];
+
     if (signum == SIGILL)
         return "SIGILL";
     if (signum == SIGFPE)
         return "SIGFPE";
+    if (signum == SIGSEGV)
+        return "SIGSEGV";
+    if (signum == SIGINT)
+        return "SIGINT";
+    if (signum == SIGTERM)
+        return "SIGTERM";
+#ifndef _WIN32
+    if (signum == SIGBUS)
+        return "SIGBUS";
+    if (signum == SIGPIPE)
+        return "SIGPIPE";
     if (signum == SIGKILL)
         return "SIGKILL";
     if (signum == SIGCHLD)
         return "SIGCHLD";
     if (signum == SIGUSR1)
         return "SIGUSR1";
-#ifdef SIGUSR2
     if (signum == SIGUSR2)
         return "SIGUSR2";
 #endif
-    if (signum == SIGINT)
-        return "SIGINT";
-    if (signum == SIGTERM)
-        return "SIGTERM";
-    return "unknown SIG";
+
+    snprintf(sigStr, sizeof(sigStr), "SIG(%d)", signum);
+    sigStr[sizeof(sigStr) - 1] = 0;
+    return sigStr;
 }
 
 /**
@@ -228,16 +248,18 @@ const char *SignalHandlers::signal2char(int signum)
 int SignalHandlers::signal2osSignal(Signal s)
 {
     switch (s) {
-    case SIG_HANGUP:
-        return SIGHUP;
     case SIG_INT:
         return SIGINT;
+    case SIG_TERM:
+        return SIGTERM;
+#ifndef _WIN32
+    case SIG_HANGUP:
+        return SIGHUP;
     case SIG_USER1:
         return SIGUSR1;
     case SIG_USER2:
         return SIGUSR2;
-    case SIG_TERM:
-        return SIGTERM;
+#endif
     }
     Log::log("SignalHandlers::signal2osSignal: not supported signal", s);
     return -1;

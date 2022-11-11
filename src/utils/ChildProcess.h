@@ -1,7 +1,7 @@
 /*
  * ChildProcess.h
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,15 @@ struct Redirect;
 /**
  * This class is used for starting other processes asynchronously.
  * The status of the process can be asked via the class methods.
+ * <p>
+ * Usual way to start a ChildProcess is the call sequence:<br>
+ * - start()
+ * - optionally use redirect methods like "stdout()"
+ * - waitFor()
+ * - getRc
+ *
+ * OR just
+ * - run()
  */
 class ChildProcess {
 
@@ -65,11 +74,31 @@ public:
     }
 
     /**
+     * Start the child process and waits until it finishes in the given time period.
+     * If 'ms' is zero then we wait forever until the process finishes.
+     * <p>
+     * When run() is used, redirecting stdout / stderr is not possible !
+     * <P>
+     * Internally this is the sequence of
+     * - start()
+     * - waitFor()
+     * - getRc()
+     * <P>
+     * Returns:
+     *   -1 : if ms is larger than zero and the process did not finish yet
+     * negative values: process terminated with signal / exception
+     * other : normal return code of the process
+     */
+    int run(unsigned ms = 0);
+
+    /**
      * Start the child process asynchronously and return. If starting the process fails, an
      * exception is thrown.
      * <P>
      * If a child has finished, the start() method maybe called again. Be aware that existing
      * redirects get invalidated when the child terminates.
+     * <P>
+     * After start() you have to use waitFor() to check if the process has finished.
      */
     void start();
 

@@ -1,7 +1,7 @@
 /*
  * FileVisitor.cpp
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 #include <stdexcept>
+#include "Compatibility.h"
 #include "File.h"
 #include "FileFilter.h"
 #include "FileVisitor.h"
@@ -61,5 +62,57 @@ FileVisitor::VisitResult FileCollector::afterVisitDirectory(const File &)
     --recursionCount;
     return VisitResult::CONTINUE;
 }
+
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * Search the file without wildcards, filename is handled case sensitive by default.
+ */
+FileFinder::FileFinder(const std::string &toFind, bool caseSensitive)
+  : toFind(toFind)
+  , caseSensitive(caseSensitive)
+  , visitCount(0)
+{
+}
+
+/**
+ * Search the file without wildcards, filename is handled case sensitive by default.
+ */
+FileFinder::FileFinder(const char *toFind, bool caseSensitive)
+  : toFind(toFind)
+  , caseSensitive(caseSensitive)
+  , visitCount(0)
+{
+}
+
+FileFinder::VisitResult FileFinder::visitFile(const File &f)
+{
+    ++visitCount;
+    if (caseSensitive) {
+        if (f.getName() == toFind) {
+            result = f.getAbsolutePath();
+            return FileFinder::VisitResult::STOP;
+        }
+    }
+    else {
+        if (strcasecmp(f.getName().c_str(), toFind.c_str()) == 0) {
+            result = f.getAbsolutePath();
+            return FileFinder::VisitResult::STOP;
+        }
+    }
+    return VisitResult::CONTINUE;
+}
+
+FileFinder::VisitResult FileFinder::visitDirectory(const File &dir)
+{
+    ++visitCount;
+    return VisitResult::CONTINUE;
+}
+
+FileFinder::VisitResult FileFinder::afterVisitDirectory(const File &dir)
+{
+    return VisitResult::CONTINUE;
+}
+
 
 } /* namespace utils */
