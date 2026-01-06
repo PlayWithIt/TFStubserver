@@ -1,7 +1,7 @@
 /*
  * DeviceRelay.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +18,9 @@
  */
 
 #include <cstring>
-#include <sstream>
 
-#include <bricklet_multi_touch.h>
-#include <bricklet_multi_touch_v2.h>
+#include <bindings/bricklet_multi_touch.h>
+#include <bindings/bricklet_multi_touch_v2.h>
 
 #include <utils/utils.h>
 
@@ -35,7 +34,7 @@ namespace stubserver {
  * Default init.
  */
 DeviceTouchPad::DeviceTouchPad(unsigned _numButtons, ValueProvider *vp, bool isV2)
-  : V2Device(NULL, NULL, isV2)
+  : V2Device(nullptr, nullptr, isV2)
   , numButtons(_numButtons), sensitivity(181)
   , currentState(0), enabledBits(0xFFFF), values(vp)
 {

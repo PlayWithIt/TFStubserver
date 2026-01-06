@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_tilt.h>
+#include <bindings/bricklet_tilt.h>
 
 #include "BrickStack.h"
 #include "DeviceTilt.h"

@@ -68,11 +68,11 @@ const char *Exception::what() const noexcept
 //--------------------------------------------------------------------------
 // utils::FileOpenError
 //--------------------------------------------------------------------------
-FileOpenError::FileOpenError(bool read, const std::string &filename)
+FileOpenException::FileOpenException(bool read, const std::string &filename)
   : IOException(read ? "read" : "write", filename)
 { }
 
-FileOpenError::FileOpenError(bool read, const char *filename)
+FileOpenException::FileOpenException(bool read, const char *filename)
   : IOException(read ? "read" : "write", filename)
 { }
 
@@ -116,27 +116,9 @@ OutOfRange::OutOfRange(const std::string &hint, unsigned current, unsigned _min,
 
 
 //--------------------------------------------------------------------------
-// utils::RuntimeError
-//--------------------------------------------------------------------------
-RuntimeError::RuntimeError(const std::string &msg)
-{
-    setMessage(msg + ": " + strings::strerror(errno));
-}
-
-RuntimeError::RuntimeError(const char *msg)
-{
-    setMessage(std::string(msg) + ": " + strings::strerror(errno));
-}
-
-RuntimeError::RuntimeError(const char *msg, int _errno)
-{
-    setMessage(std::string(msg) + ": " + strings::strerror(_errno));
-}
-
-//--------------------------------------------------------------------------
 // utils::ValueFormatError
 //--------------------------------------------------------------------------
-ValueFormatError::ValueFormatError(const char *m, ...)
+ValueFormatException::ValueFormatException(const char *m, ...)
 {
     va_list args;
     va_start(args, m);

@@ -28,9 +28,9 @@ namespace utils {
 static int const dateFormatIndex = std::ios_base::xalloc();
 
 const char * const DateTimeFormat::LOG_FORMAT_DATE             = "%Y-%0M-%0D";
-const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME        = "%Y-%0M-%0D %0h:%0m:%0s";
-const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME_MILLIS = "%Y-%0M-%0D %0h:%0m:%0s.%t";
-const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME_MICROS = "%Y-%0M-%0D %0h:%0m:%0s.%u";
+const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME        = "%Y-%0M-%0D %T";
+const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME_MILLIS = "%Y-%0M-%0D %T.%t";
+const char * const DateTimeFormat::LOG_FORMAT_DATE_TIME_MICROS = "%Y-%0M-%0D %T.%u";
 
 
 DateTimeFormat::DateTimeFormat(const char *_format)
@@ -136,13 +136,23 @@ void DateTimeFormat::printTo(std::ostream& out, const DateTime& f) const
             break;
 
         case 't':
-            // t - millisecond (0..999)
+            // t - millisecond (0..999)2022-12-03 14:32:16.501310  Callbacks OFF for SOUND_INPUT
+
             s = f.millis();
             if (s < 10)
                 out << "00";
             else if (s < 100)
                 out << '0';
             out << s;
+            break;
+
+        case 'T':
+            // Time in the format HH24:MM:SS
+            twoDigit(out, true, f.hour());
+            out << ':';
+            twoDigit(out, true, f.minute());
+            out << ':';
+            twoDigit(out, true, f.second());
             break;
 
         case 'u':
@@ -194,7 +204,12 @@ std::ostream& operator<< (std::ostream& out, const DateTimeFormat& f) {
 std::ostream& operator<< (std::ostream& out, const DateTime& f)
 {
     const DateTimeFormat* manip = static_cast<const DateTimeFormat*>(out.pword(dateFormatIndex));
-    if (manip && false == manip->isInvalid())
+    if (!manip) {
+        // nothing set: use default date time
+        DateTimeFormat dt(DateTimeFormat::LOG_FORMAT_DATE_TIME);
+        dt.printTo(out, f);
+    }
+    else if (manip && false == manip->isInvalid())
         manip->printTo(out, f);
     return out;
 }

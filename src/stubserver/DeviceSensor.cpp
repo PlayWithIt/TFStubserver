@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_rotary_poti.h>
-#include <bricklet_linear_poti.h>
+#include <bindings/bricklet_rotary_poti.h>
+#include <bindings/bricklet_linear_poti.h>
 #include <utils/Log.h>
 #include <utils/Exceptions.h>
 
@@ -41,7 +41,7 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _setCallbackFunc, uint
   , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
-  , values(NULL)
+  , values(nullptr)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, 0, 0, 0)
 {
@@ -60,7 +60,7 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getCallbackConfigFunc
   , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
-  , values(NULL)
+  , values(nullptr)
   , changedCb(0, 0, 0, 0)
   , changedAnalogCb(0, 0, 0, 0)
 {
@@ -80,7 +80,7 @@ DeviceSensor::DeviceSensor(uint8_t _getValueFunc, uint8_t _getValueAnalogFunc, u
   , calibrateZeroFunc(0)
   , maxAnalogValue(4095)
   , valueSize(2)
-  , values(NULL)
+  , values(nullptr)
   , changedCb(0, _setCallbackFunc, _callbackCode, 0)
   , changedAnalogCb(0, _setCallbackFuncAnalog, _callbackCodeAnalog, 0)
 {
@@ -116,7 +116,7 @@ DeviceSensor::~DeviceSensor()
 
 bool DeviceSensor::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
-    if (values == NULL)
+    if (!values)
         throw utils::Exception("ValueProvider not set!");
 
     uint8_t func = p.header.function_id;

@@ -54,6 +54,14 @@ public:
         amps.setValueProvider(vp);
     }
 
+    // import both methods, override just one
+    using VisibleDeviceState::notify;
+
+    /**
+     * Notify the client about changes or the connected state.
+     */
+    void notify(VisualizationClient &client, unsigned code) override;
+
     DECLARE_OWN_DEVICE_CALLBACKS
 };
 

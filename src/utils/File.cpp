@@ -1,7 +1,7 @@
 /*
  * File.cpp
  *
- * Copyright (C) 2014-2022 Holger Grosenick
+ * Copyright (C) 2014-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,10 +43,12 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <limits.h>   // PATH_MAX
 
 #include <stdexcept>
 #include <fstream>
 #include <filesystem>
+#include <cstring>
 
 #include "DateTime.h"
 #include "Exceptions.h"
@@ -54,10 +56,6 @@
 #include "FileFilter.h"
 #include "Log.h"
 #include "StringUtil.h"
-
-#ifndef PATH_MAX
-#define PATH_MAX 2048
-#endif
 
 #define ERR_MOVED_AWAY 999999
 
@@ -73,6 +71,10 @@ namespace utils {
 const char File::PATH_SEP_CHAR = '\\';
 const char File::PATH_LIST_SEP_CHAR = ';';
 const char * const File::PATH_SEP_STR = "\\";
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 #else
 const char File::PATH_SEP_CHAR = '/';
 const char File::PATH_LIST_SEP_CHAR = ':';
@@ -383,7 +385,7 @@ uint64_t File::getLastModified() const
 #ifdef _WIN32
     return STAT_BUF(this)->st_mtime * 1000;
 #else
-    return STAT_BUF(this)->st_mtim.tv_sec * 1000 + STAT_BUF(this)->st_mtim.tv_nsec / 1000;
+    return STAT_BUF(this)->st_mtim.tv_sec * 1000 + STAT_BUF(this)->st_mtim.tv_nsec / (1000 * 1000 * 1000);
 #endif
 }
 
@@ -454,7 +456,7 @@ const File File::currentExe()
     char buf[PATH_MAX];
 
 #ifdef _WIN32
-    GetModuleFileName(NULL, buf, MAX_PATH);
+    GetModuleFileName(nullptr, buf, MAX_PATH);
 #else
     ssize_t s = readlink("/proc/self/exe", buf, sizeof(buf));
     if (s <= 0)
@@ -710,11 +712,7 @@ bool File::renameTo(const char *newNameAndPath, bool overwrite)
     int rc = rename(fullname.c_str(), newNameAndPath);
     if (rc != 0)
     {
-        char buffer[1024];
-        int e = errno;
-        snprintf(buffer, sizeof(buffer), "Cannot rename to %s", newNameAndPath);
-        buffer[sizeof(buffer) - 1] = 0;
-        throw utils::RuntimeError(buffer, e);
+        throw utils::IOException("rename", newNameAndPath);
     }
 
     *this = target;

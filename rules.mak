@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-CCFLAGS += $(DEBUG) -std=c++17 -Wall -Werror -I. -I../../src $(CC_USER_FLAGS)
+CCFLAGS += $(DEBUG) -std=c++23 -Wall -Werror -fPIC -I. -I../../src $(CC_USER_FLAGS)
 
 ifneq "$(NO_COMPILE_CPP)" ""
 SRC := $(filter-out $(NO_COMPILE_CPP),$(SRC))

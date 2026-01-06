@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_lcd_20x4.h>
+#include <bindings/bricklet_lcd_20x4.h>
 #include <string.h>
 
 #include <utils/Log.h>

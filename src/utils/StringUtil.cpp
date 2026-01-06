@@ -1,7 +1,7 @@
 /*
  * StringUtil.cpp
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdint>
 #include <math.h>
 #include <string.h>
 #include <sstream>
@@ -40,22 +41,33 @@ std::vector<std::string>& split(const std::string &s, char delim, std::vector<st
     return elems;
 }
 
-
 /**
- * Parse a double where the decimal point must be a '.', so NOT locale specific
+ * Parses a double where the decimal point must be a '.', so NOT locale specific
  * and only the format NNN.NNNeYY is supported.
+ *
+ * If 'trimAround' is true, leading whitespaces are skipped and trailing non-digits
+ * also, so this might parse a sub-string and does not assure that the whole
+ * string represents a double.
  *
  * Throws an exception if parsing fails!
  */
-double parseDouble(const char *s)
+double parseDouble(const char *start, bool trimAround)
 {
     bool negate = false;
     bool digits = false;
+    bool ok     = false;
     double res = 0;
     double factor = 0.1;
 
-    if (!s) {
-        throw ValueFormatError("Cannot convert NULL to double");
+    if (!start) {
+        throw ValueFormatException("Cannot convert NULL to double");
+    }
+
+    // skip leading whitespaces?
+    const char *s = start;
+    if (trimAround) {
+        while (isblank(*s))
+            ++s;
     }
 
     if (*s == '-') {
@@ -72,10 +84,11 @@ double parseDouble(const char *s)
         ++s;
         if (c == '.') {
             if (digits)
-                throw ValueFormatError(std::string("Multiple '.' in string, cannot convert to double '") + s + "'");
+                throw ValueFormatException(std::string("Multiple '.' in string, cannot convert to double '") + start + "'");
             digits = true;
             continue;
         }
+        ok = true;
         if (!digits)
             res = res * 10.0 + (c - '0');
         else {
@@ -95,7 +108,7 @@ double parseDouble(const char *s)
             ++s;
         }
         if (*s == 0)
-            throw ValueFormatError(std::string("Missing exponent string, cannot convert to double '") + s + "'");
+            throw ValueFormatException(std::string("Missing exponent string, cannot convert to double '") + start + "'");
 
         // first digit
         exp *= (*s - '0');
@@ -111,14 +124,55 @@ double parseDouble(const char *s)
     }
 
     // end of string not reached ?
-    if (*s)
-        throw ValueFormatError(std::string("Cannot convert to double '") + s + "'");
+    if (!ok)
+        throw ValueFormatException(std::string("No digit found, cannot convert to double '") + start + "'");
+    if (*s && !trimAround)
+        throw ValueFormatException(std::string("Cannot convert to double '") + start + "'");
 
     return negate ? -res : res;
 }
 
+double parseDouble(const char *s) {
+    return parseDouble(s, false);
+}
 double parseDouble(const std::string &s) {
-    return parseDouble(s.c_str());
+    return parseDouble(s.c_str(), false);
+}
+
+
+/**
+ * Split a string into pieces using the given separator (default ',') and convert
+ * each part into a double or a string. For doubles we use 'parseDouble', which
+ * means the decimal separator is always '.'.
+ *
+ * Stores the result in the elems vector and returns number of items added.
+ */
+unsigned parseDoubles(const std::string &s, std::vector<double> &elems, const char sep)
+{
+    std::stringstream ss(s);
+    std::string item;
+    unsigned res = 0;
+
+    while (std::getline(ss, item, sep)) {
+        double d = parseDouble(item);
+        elems.push_back(d);
+        ++res;
+    }
+    return res;
+}
+
+unsigned parseIntegers(const std::string &s, std::vector<int> &elems, const char sep)
+{
+    std::stringstream ss(s);
+    std::string item;
+    unsigned res = 0;
+
+    while (std::getline(ss, item, sep)) {
+        double d = atoi(item.c_str());
+        elems.push_back(d);
+        ++res;
+    }
+    return res;
 }
 
 /**

@@ -1,7 +1,7 @@
 /*
  * DeviceRTC.cpp
  *
- * Copyright (C) 2017 Holger Grosenick
+ * Copyright (C) 2017-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include <sys/time.h>
 #include <ctime>
 
-#include <bricklet_real_time_clock.h>
+#include <bindings/bricklet_real_time_clock.h>
 #include <utils/Log.h>
 
 #include "BrickStack.h"
@@ -44,7 +44,7 @@ DeviceRTC::DeviceRTC()
     , nextAlarm(-1)
     , alarmActive(false)
 {
-    brickletTime = time(NULL);
+    brickletTime = time(nullptr);
 }
 
 /**
@@ -98,7 +98,7 @@ bool DeviceRTC::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, Visualizati
         tmData.tm_isdst = -1;
 
         brickletTime  = mktime(&tmData);
-        realTimeDelta = time(NULL) - brickletTime;
+        realTimeDelta = time(nullptr) - brickletTime;
         return true;
 
     case REAL_TIME_CLOCK_FUNCTION_GET_DATE_TIME:
@@ -208,7 +208,7 @@ void DeviceRTC::checkCallbacks(uint64_t relativeTimeMs, unsigned int uid, BrickS
     if (++callbackCount % 10 == 0)
     {
         // update bricklet time
-        time_t current = time(NULL);
+        time_t current = time(nullptr);
         time_t newTime = current - realTimeDelta;
 
         if (newTime != brickletTime)

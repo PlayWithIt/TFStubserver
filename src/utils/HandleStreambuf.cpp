@@ -208,7 +208,7 @@ MappedFileStreambuf::MappedFileStreambuf(const char *fileName)
     File fileIn(fileName);
     if (!fileIn.exists()) {
         errno = ENOENT;
-        throw utils::FileOpenError(true, fileName);
+        throw utils::FileOpenException(true, fileName);
     }
 
     if (!fileIn.isRegularFile()) {
@@ -218,7 +218,7 @@ MappedFileStreambuf::MappedFileStreambuf(const char *fileName)
 
     handle = open(fileName, O_RDONLY);
     if (handle < 0)
-        throw utils::FileOpenError(true, fileName);
+        throw utils::FileOpenException(true, fileName);
 
     dataSize = fileIn.size();
     if ( 0 == dataSize )

@@ -1,20 +1,32 @@
 /*
  * DeviceSoundPressure.cpp
  *
- * Copyright (C) 2020 Holger Grosenick
+ * Copyright (C) 2020-2023 Holger Grosenick
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_sound_pressure_level.h>
+#include <bindings/bricklet_sound_pressure_level.h>
 
-#include <BrickStack.h>
-
+#include "BrickStack.h"
 #include "DeviceSoundPressure.h"
 
 namespace stubserver {
 
 
 DeviceSoundPressure::DeviceSoundPressure(utils::CSVValueProvider *_values)
-  : V2Device(NULL, this, true)
+  : V2Device(nullptr, this, true)
   , SensorState(0, 1000)  // -0 .. 100dbA
   , values(_values)
   , spectrumCallback(SOUND_PRESSURE_LEVEL_FUNCTION_GET_SPECTRUM_CALLBACK_CONFIGURATION,
@@ -40,7 +52,7 @@ DeviceSoundPressure::~DeviceSoundPressure()
 
 bool DeviceSoundPressure::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, VisualizationClient &visualizationClient)
 {
-    if (values == NULL)
+    if (!values)
         throw utils::Exception("ValueProvider not set!");
 
     uint8_t func = p.header.function_id;

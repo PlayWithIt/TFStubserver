@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_led_strip.h>
+#include <bindings/bricklet_led_strip.h>
 #include <utils/Exceptions.h>
 #include <utils/Log.h>
 
@@ -31,7 +31,7 @@ namespace stubserver {
  * Default init.
  */
 LedStripState::LedStripState()
-   : VisibleDeviceState(VisibleDeviceState::DISCONNECT)
+   : VisibleDeviceState(0)
    , numLeds(80)
    , frameLength(0)
 {

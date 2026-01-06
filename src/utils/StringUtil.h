@@ -1,7 +1,7 @@
 /*
  * StringUtil.h
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,13 +121,35 @@ namespace strings
     std::string& trim(std::string &in);
 
     /**
-     * Parse a double where the decimal point must be a '.', so NOT locale specific
+     * Parses a double where the decimal point must be a '.', so NOT locale specific
      * and only the format NNN.NNNeYY is supported.
+     *
+     * If 'trimAround' is true, leading whitespaces are skipped and trailing non-digits
+     * also, so this might parse a sub-string and does not assure that the whole
+     * string represents a double.
+     *
+     * Throws an exception if parsing fails!
+     */
+    double parseDouble(const char *s, bool trimAround);
+
+    /**
+     * Same as the above with 'trimAround = false':
+     * the whole string must represent a double string values.
      *
      * Throws an exception if parsing fails!
      */
     double parseDouble(const std::string &s);
     double parseDouble(const char *s);
+
+    /**
+     * Split a string into pieces using the given separator (default ',') and convert
+     * each part into a double or a string. For doubles we use 'parseDouble', which
+     * means the decimal separator is always '.'.
+     *
+     * Stores the result in the elems vector and returns number of items added.
+     */
+    unsigned parseDoubles(const std::string &s, std::vector<double> &elems, const char sep = ',');
+    unsigned parseIntegers(const std::string &s, std::vector<int> &elems, const char sep = ',');
 
 } /* namespace strings */
 } /* namespace utils */

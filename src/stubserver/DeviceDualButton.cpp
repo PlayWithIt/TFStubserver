@@ -1,7 +1,7 @@
 /*
  * DeviceDualButton.cpp
  *
- * Copyright (C) 2017 Holger Grosenick
+ * Copyright (C) 2017-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_dual_button.h>
+#include <bindings/bricklet_dual_button.h>
 
 #include "BrickStack.h"
 #include "DeviceDualButton.h"
@@ -109,7 +109,7 @@ static uint8_t getLedState(uint8_t buttonState, uint8_t ledConfig)
  * @param buttonValue current button value
  * @param dest 4 byte array for callback return data
  */
-bool DeviceDualButton::calculateStates(int buttonValue, uint8_t dest[])
+bool DeviceDualButton::calculateStates(int buttonValue, uint8_t dest[4])
 {
     dest[0] = (buttonValue & 1) ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;
     dest[1] = (buttonValue & 2) ? DUAL_BUTTON_BUTTON_STATE_PRESSED : DUAL_BUTTON_BUTTON_STATE_RELEASED;

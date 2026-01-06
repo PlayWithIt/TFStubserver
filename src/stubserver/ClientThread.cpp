@@ -26,7 +26,6 @@
 #include <utils/utils.h>
 
 #include "ClientThread.h"
-#include "SimulatedDevice.h"
 
 namespace stubserver {
 

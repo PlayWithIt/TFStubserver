@@ -32,6 +32,25 @@ const uint8_t DisplayState::SINGLE_PIXEL[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 
 VisibleDeviceState::~VisibleDeviceState() { }
 
+
+/**
+ * Notify a change of a special sensor.
+ */
+void VisibleDeviceState::notify(unsigned sn, VisualizationClient &client, unsigned code) {
+    internalSensorNo = sn;
+    changeCode = code;
+    client.notify(*this);
+}
+
+/**
+ * Notify change of the default sensor.
+ */
+void VisibleDeviceState::notify(VisualizationClient &client, unsigned code) {
+    changeCode = code;
+    client.notify(*this);
+}
+
+
 VisualizationClient::~VisualizationClient() { }
 
 /**

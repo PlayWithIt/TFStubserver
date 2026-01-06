@@ -148,6 +148,11 @@ public:
     std::list<const SimulatedDevice*> getUiDevices() const;
 
     /**
+     * Clear all references to a VisualizationClient in all SimulatedDevice.
+     */
+    void clearVisualizationClients();
+
+    /**
      * Registers a client that will be triggered with callbacks.
      */
     void registerClient  (BrickClient *cln);

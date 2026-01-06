@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_industrial_digital_in_4.h>
-#include <bricklet_industrial_digital_in_4_v2.h>
-#include <bricklet_io16.h>
-#include <bricklet_io4.h>
+#include <bindings/bricklet_industrial_digital_in_4.h>
+#include <bindings/bricklet_industrial_digital_in_4_v2.h>
+#include <bindings/bricklet_io16.h>
+#include <bindings/bricklet_io4.h>
 
 #include <utils/Log.h>
 #include <utils/Exceptions.h>

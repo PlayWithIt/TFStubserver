@@ -1,7 +1,7 @@
 /*
  * CharMask.cpp
  *
- * Copyright (C) 2015-2017 Holger Grosenick
+ * Copyright (C) 2015-2013 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ CharMask::CharMask(const char *m1, const char *m2, const char *m3, const char *m
   * Init the bitmask directly from 8 bytes.
   * @param inputMask bitmask with one byte per line in the bitmask
   */
-CharMask::CharMask(const unsigned char inputMask[])
+CharMask::CharMask(const unsigned char inputMask[8])
 {
     bzero(bitMask, sizeof(bitMask));
     const unsigned leftBit = 0b00010000;

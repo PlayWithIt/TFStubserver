@@ -17,9 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_humidity_v2.h>
+#include <bindings/bricklet_humidity_v2.h>
 
-#include "utils/Log.h"
 #include "DeviceDualSensor.h"
 #include "BrickStack.h"
 

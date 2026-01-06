@@ -1,7 +1,7 @@
 /*
  * DateTime.cpp
  *
- * Copyright (C) 2014-2022 Holger Grosenick
+ * Copyright (C) 2014-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,17 +68,7 @@ namespace utils {
  */
 DateTime::DateTime()
 {
-    struct timeval current;
-    gettimeofday(&current, nullptr);
-
-    secondsSinceEpoch = current.tv_sec;
-    microsecs = current.tv_usec;
-
-    // if this constructor was used, guarantee that microsecs is not 0
-    if (microsecs == 0)
-        ++microsecs;
-
-    makeTime();
+    setToNow();
 }
 
 /**
@@ -165,7 +155,7 @@ DateTime::DateTime(const DateTime &other, int offset, OffsetType ot)
  * This constructor also supports the JSON format YYYY-MM-DDTHH:MI:SS+nn:mm,
  * but nn:mm is ignored.
  */
-DateTime::DateTime(const std::string &t)
+DateTime::DateTime(const char *t)
   : secondsSinceEpoch(0)
   , microsecs(0)
 {
@@ -174,19 +164,19 @@ DateTime::DateTime(const std::string &t)
 
     int year, mon, day, hour, min, sec, msec, count;
 
-    if (t.find('T') == std::string::npos) {
-        count = SSCANF(t.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &mon, &day, &hour, &min, &sec, &msec);
+    if (strchr(t, 'T') == nullptr) {
+        count = SSCANF(t, "%d-%d-%d %d:%d:%d.%d", &year, &mon, &day, &hour, &min, &sec, &msec);
         if (count != 7 && count != 6) {
             // invalid format
-            throw ValueFormatError("DateTime(\"" + t + "\"): invalid input format");
+            throw ValueFormatException("DateTime(\"" + std::string(t) + "\"): invalid input format");
         }
     }
     else {
         // JSON format
-        count = SSCANF(t.c_str(), "%d-%d-%dT%d:%d:%d", &year, &mon, &day, &hour, &min, &sec);
+        count = SSCANF(t, "%d-%d-%dT%d:%d:%d", &year, &mon, &day, &hour, &min, &sec);
         if (count != 6) {
             // invalid format
-            throw ValueFormatError("DateTime(\"" + t + "\"): invalid input format");
+            throw ValueFormatException("DateTime(\"" + std::string(t) + "\"): invalid input format");
         }
     }
 
@@ -317,6 +307,26 @@ bool DateTime::after(const DateTime &other) const
     return microsecs > other.microsecs;
 }
 
+
+/**
+ * Update the current date/time with "now()", same as in the constructor without args.
+ * @return the current object
+ */
+DateTime& DateTime::setToNow()
+{
+    struct timeval current;
+    gettimeofday(&current, nullptr);
+
+    secondsSinceEpoch = current.tv_sec;
+    microsecs = current.tv_usec;
+
+    // if this constructor was used, guarantee that microsecs is not 0
+    if (microsecs == 0)
+        ++microsecs;
+
+    makeTime();
+    return *this;
+}
 
 /**
  * Add the given number of seconds to the current date and recalculate

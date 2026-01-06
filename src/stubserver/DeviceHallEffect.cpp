@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_hall_effect.h>
-#include <bricklet_hall_effect_v2.h>
+#include <bindings/bricklet_hall_effect.h>
+#include <bindings/bricklet_hall_effect_v2.h>
 
 #include "BrickStack.h"
 #include "DeviceHallEffect.h"

@@ -1,7 +1,7 @@
 /*
  * DateTime.h
  *
- * Copyright (C) 2014-2022 Holger Grosenick
+ * Copyright (C) 2014-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,8 @@ public:
      * but nn:mm is ignored.
      * @see #asString()
      */
-    explicit DateTime(const std::string &t);
+    explicit DateTime(const char *t);
+    explicit DateTime(const std::string &t) : DateTime(t.c_str()) {}
 
     /**
      * Use given date / time without microseconds.
@@ -252,6 +253,12 @@ public:
      * Is this DateTime at the same as other DateTime (ignore time)?
      */
     bool sameDayAs(const DateTime &other) const;
+
+    /**
+     * Update the current date/time with "now()", same as in the constructor without args.
+     * @return the current object
+     */
+    DateTime& setToNow();
 
     /**
      * Is the DateTime the same as another?

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_rgb_led_button.h>
+#include <bindings/bricklet_rgb_led_button.h>
 
 #include "BrickStack.h"
 #include "DeviceLedButton.h"

@@ -1,7 +1,7 @@
 /*
  * VisualizationClient.h
  *
- * Copyright (C) 2015-2022 Holger Grosenick
+ * Copyright (C) 2015-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,6 @@ public:
     /**
      * If an event is triggered with this code, the object gets invalidated.
      */
-    static const unsigned DISCONNECT   = 0;
     static const unsigned CONNECTED    = 1;
     static const unsigned VALUE_CHANGE = 2;
 
@@ -114,10 +113,6 @@ public:
 
     void setChangeCode(unsigned c) {
         changeCode = c;
-    }
-
-    bool isDisconnected() const {
-        return DISCONNECT == changeCode;
     }
 
     unsigned getChangeCode() const {
@@ -164,16 +159,12 @@ public:
     /**
      * Notify a change of a special sensor.
      */
-    void notify(unsigned sn, VisualizationClient &client, unsigned code = VALUE_CHANGE) {
-        internalSensorNo = sn;
-        changeCode = code;
-        client.notify(*this);
-    }
+    virtual void notify(unsigned sn, VisualizationClient &client, unsigned code = VALUE_CHANGE);
 
-    void notify(VisualizationClient &client, unsigned code = VALUE_CHANGE) {
-        changeCode = code;
-        client.notify(*this);
-    }
+    /**
+     * Notify change of the default sensor.
+     */
+    virtual void notify(VisualizationClient &client, unsigned code = VALUE_CHANGE);
 };
 
 /**

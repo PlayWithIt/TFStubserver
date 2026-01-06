@@ -329,7 +329,7 @@ StoredValueProvider::StoredValueProvider(const std::string &filename)
 
     // open file
     if (!input.is_open()) {
-        throw FileOpenError(true, filename);
+        throw FileOpenException(true, filename);
     }
 
     // valueProvider constructor doesn't allow max < min, but we determine min&max below

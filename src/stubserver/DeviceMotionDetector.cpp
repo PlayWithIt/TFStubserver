@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_motion_detector.h>
-#include <bricklet_motion_detector_v2.h>
+#include <bindings/bricklet_motion_detector.h>
+#include <bindings/bricklet_motion_detector_v2.h>
 
 #include "BrickStack.h"
 #include "DeviceMotionDetector.h"

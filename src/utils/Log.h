@@ -1,7 +1,7 @@
 /*
  * Log.h
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,21 +49,23 @@ public:
     };
 
     /**
-     * Constructor for a temporary Log-record which prints the log data if
-     * a newline appears in the input.
+     * Constructor for a in-memory Log-record which prints the log data
+     * to the output file if a newline appears in the input.
      */
     Log(LogType t = LogType::INFO);
 
     /**
-     * Constructor for a temporary Log-record which prints the log data if
-     * a newline appears in the input, if any double value is printed into
-     * this stream, 'fixed' format will be used with the given number of decimals.
+     * Constructor for a in-memory Log-record which prints the log data
+     * to the output file if a newline appears in the input, if any double
+     * value is printed into this stream, 'fixed' format will be used with
+     * the given number of decimals.
      */
     Log(unsigned precision, LogType t = LogType::INFO);
     ~Log();
 
-    /** max error in the memory list */
-    static const size_t MAX_ERRORS = 50;
+    /** max errors/messages in the in-memory lists */
+    static const unsigned MAX_ERRORS;      // 50
+    static const unsigned MAX_MESSAGES;    // 500
 
     Log& operator<<(const char *);
     Log& operator<<(const char);
@@ -94,6 +96,7 @@ public:
         log(msg, s.c_str());
     }
 
+    static void log(const std::string& msg, double v);
     static void log(const std::string& msg, int v);
     static void log(const std::string& msg, unsigned v);
     static void log(const std::string& msg, uint64_t v);
@@ -101,6 +104,11 @@ public:
     static void log(const std::string& msg, const std::string &s) {
         log(msg, s.c_str());
     }
+
+    /**
+     * Print information about the current process into the log stream.
+     */
+    static void logProcessInformation();
 
     /**
      * Log the content of the internal buffer, if there is something not logged yet.
@@ -135,6 +143,9 @@ public:
     static void error(const std::string& msg) {
         error(msg.c_str());
     }
+    static void error(const std::string& msg, const std::string &arg) {
+        error(msg, arg.c_str());
+    }
     static void error(const std::string& msg, const char *arg);
     static void error(const std::string& msg, int arg);
 
@@ -148,12 +159,23 @@ public:
     /**
      * Read the error messages that are in the list.
      *
-     * @param errorList if the parameter is non-NULL, the messages are moved
-     *        into this list and the internal list is cleared. If the value
-     *        is NULL, only the number of items is returned.
+     * @param errorList  the messages are moved into this list and the internal list is cleared.
      * @return the number of messages in the list
      */
-    static size_t getErrorHistory(std::vector<std::string> *errorList = NULL);
+    static unsigned getAndClearErrors(std::vector<std::string> &errorList);
+
+    /**
+     * Read the messages that are in the list (including errors).
+     *
+     * @param msgList  mandatory output parameter, messages are copied into this list.
+     * @return the number of messages in the list
+     */
+    static unsigned getMessages(std::vector<std::string> &msgList);
+
+    /**
+     * Returns true if at least one error is in the error history list.
+     */
+    static bool hasErrors();
 
     // switch the logging stream
     static std::ostream& setStream(std::ostream& os);
@@ -167,9 +189,10 @@ private:
     Log& operator=(const Log &other) = delete;
 
     static void saveAndPrintError(std::ostringstream &os);
+    static void saveAndPrintMessage(std::ostringstream &os);
 
-    // print date time and microseconds to the stream
-    static void printTime(std::ostream *os = NULL);
+    // print date time and microseconds (6 digits) to the stream
+    static void printTime(std::ostream *os = nullptr);
 
 };
 

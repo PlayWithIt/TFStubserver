@@ -34,6 +34,7 @@
 #include "Log.h"
 #include "HandleStreambuf.h"
 #include "StringUtil.h"
+#include "utils.h"
 
 #define MAX_ARGS 200
 
@@ -261,6 +262,7 @@ bool ChildProcess::kill(int signum)
     utils::Log() << "ChildProcess::kill pid " <<  pid << " with signal " << signal
                  << " (" << programAndArgs[0] << ')';
     int rc = ::kill(pid, signal);
+    utils::msleep(10);
 
     return rc == 0;
 }

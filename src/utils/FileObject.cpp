@@ -288,13 +288,11 @@ FileObject::FileObject(const File &file, bool detectCharset)
 
 
 FileObject::FileObject(int _handle, bool detectCharset)
+   : handle(_handle)
 {
     char buf[64];
-    sprintf(buf, "<handle %d>", handle);
-
-    name   = buf;
-    handle = _handle;
-
+    sprintf(buf, "<handle %d>", _handle);
+    name = buf;
     initBuffer(true, detectCharset);
 }                //----- constructor
 
@@ -434,6 +432,64 @@ unsigned FileObject::load(std::vector<std::string> &list)
     return line;
 }
 
+// load all chars from the file into a byte buffer and return that buffer.
+// Also set the 'length' value.
+// Doesn't read more than 'maxBytes' chars, throws an exception if file is larger.
+char *FileObject::load(unsigned maxBytes, unsigned &length)
+{
+    if (!isOpen()) {
+        length = 0;
+        return nullptr;
+    }
+
+    if (0 == maxBytes)
+        throw Exception("maxBytes is zero, should be at least 1");
+    if (size() > maxBytes)
+        throw Exception("File size too large: %zu", size());
+    if (maxBytes > 1000000000)
+        throw Exception("maxBytes too large, max is 1000000000");
+
+    char* dest = new char[maxBytes+1];
+    length = read(dest, maxBytes);
+
+    if (length != static_cast<unsigned>(size())) {
+        delete[] dest;
+        throw Exception("Read error: read only %d bytes, excepted %zu", length, size());
+    }
+
+    dest[length] = 0;
+    return dest;
+}
+
+
+// load all chars from the file into one string, returns the number of bytes read.
+// Doesn't read more than 'maxBytes' chars, throws an exception if file is larger.
+unsigned FileObject::load(std::string &data, unsigned maxBytes)
+{
+    unsigned length = 0;
+    char* dest = load(maxBytes, length);
+    if (!dest)
+        return 0;
+
+    data = dest;
+    delete[] dest;
+    return length;
+}
+
+// load all chars from the file into a byte vector, returns the number of bytes read.
+// Doesn't read more than 'maxBytes' chars, throws an exception if file is larger.
+unsigned FileObject::load(std::vector<uint8_t> &data, unsigned maxBytes)
+{
+    unsigned length = 0;
+    char* dest = load(maxBytes, length);
+    if (!dest)
+        return 0;
+
+    data.assign(dest, dest+length);
+    delete[] dest;
+    return length;
+}
+
 /**
  * Determines the size of the file. If the size is known, there will be no call to 'stat' !
  *
@@ -470,7 +526,7 @@ int FileObject::readOnce(char *dest, int anz)
     if (n >= anz) {                        // data available in one paket
         memcpy(dest, next, anz);
         next += anz;
-        return anz;                          // desired number of bytes read
+        return anz;                        // desired number of bytes read
     }
 
     if (n > 0)                             // something remaining => copy this

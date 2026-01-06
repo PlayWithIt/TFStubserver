@@ -93,7 +93,7 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
     while (csv.loadLine()) {
         unsigned size = static_cast<unsigned>(cols.size());
         if (size != numCols) {
-            throw utils::ValueFormatError("Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename.c_str());
+            throw utils::ValueFormatException("Invalid number of columns (%u, expected is %u) in line %u of %s", size, numCols, csv.getLine(), filename.c_str());
         }
 
         if (values.empty() && strchr(cols[0], ':') != NULL) {
@@ -117,7 +117,7 @@ CSVValueProvider::CSVValueProvider(const std::string &filename)
                     // printf("Store offset %ld in line %d\n", v, csv.getLine());
                 }
                 else {
-                    throw utils::ValueFormatError("Invalid timestamp conversion in line %u of %s", csv.getLine(), filename.c_str());
+                    throw utils::ValueFormatException("Invalid timestamp conversion in line %u of %s", csv.getLine(), filename.c_str());
                 }
             }
             else {

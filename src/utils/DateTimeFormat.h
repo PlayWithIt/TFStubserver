@@ -1,7 +1,7 @@
 /*
  * DateTimeFormat.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2022 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,8 @@ namespace utils {
 class DateTime;
 
 /**
- * Provides a formatter which can be used to format an object of type {@link DateTime}.
+ * Provides a formatter which can be used to format an object of type {@link DateTime}
+ * in stream operations.
  *
  * <b>Format string variables:</b><br>
  * y - 2 digit year with leading '0' <br>
@@ -37,6 +38,7 @@ class DateTime;
  * D - day in month (1..31) <br>
  * h - hour (0..23) <br>
  * H - hour (12..11) for am/pm (see http://de.wikipedia.org/wiki/2-mal-12-Stunden-Z%C3%A4hlung) <br>
+ * T - time with 24 hours format hh:mm:ss <br>
  * a - am/pm flag
  * m - minute (0..59) <br>
  * s - second (0..59) <br>
@@ -44,14 +46,14 @@ class DateTime;
  * u - microsecond (000000..999999 - always 6 digits)
  * <p>
  * if a '%' is followed by '0' the next value has a leading zero (e.g. '01' instead of '1') if necessary.
+ *
+ * Sample:
+ * ostream << utils::DateTimeFormat("%Y-%0M-%0D %0h:%0m") << dt << ';'
  */
 class DateTimeFormat
 {
     std::string format;
     bool invalid;
-
-protected:
-    explicit DateTimeFormat();
 
 public:
     explicit DateTimeFormat(const char *_format);

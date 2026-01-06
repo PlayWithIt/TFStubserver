@@ -29,9 +29,7 @@
 #include <sys/resource.h>
 #endif
 
-#include <signal.h>
 #include <string.h>
-#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <list>
@@ -172,12 +170,12 @@ unsigned int base58Decode(const char *str)
  */
 bool dumpAsShell(int argPos, int argc, char const* const* argv, char const* const* env)
 {
-    const char *file = argv[argPos + 1];
-    if (!file || !(*file))
-        return false;
-
     // wrong arguments
     if (!argv)
+        return false;
+
+    const char *file = argv[argPos + 1];
+    if (!file || !(*file))
         return false;
 
     // start writing the file
@@ -236,7 +234,7 @@ bool dumpAsShell(int argPos, int argc, char const* const* argv, char const* cons
 
         }
         os << std::endl;
-        for (auto e : envList) {
+        for (auto &e : envList) {
             os << "export " << e << std::endl;
         }
     }
@@ -453,6 +451,21 @@ int snprintf(char *str, size_t size, const char  *format, ...)
     }
 
     return res;
+}
+
+/**
+ * Open a file, create it if it does not exist, and close it immediately.
+ * @param filename filename with path
+ * @return true if the file could be opended for write, false otherwise
+ */
+bool touch(const char *filename)
+{
+    std::ofstream os(filename, std::ofstream::out);
+    if (!os.is_open()) {
+        Log::perror(filename);
+        return false;
+    }
+    return true;
 }
 
 }

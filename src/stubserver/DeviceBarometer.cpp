@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_barometer.h>
-#include <bricklet_barometer_v2.h>
+#include <bindings/bricklet_barometer.h>
+#include <bindings/bricklet_barometer_v2.h>
 
 #include "DeviceBarometer.h"
 

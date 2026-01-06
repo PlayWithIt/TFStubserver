@@ -212,6 +212,16 @@ public:
     void put(const Properties &other);
 
     /**
+     * Changes all chars with a value > 127 to a hex-string '\xOO'
+     */
+    static const std::string encode(const std::string &str);
+
+    /**
+     * Decodes all hex-strings like '\xOO' into a single char.
+     */
+    static const std::string decode(const std::string &str);
+
+    /**
      * Returns the number of elements in the container.
      */
     size_t size() const {

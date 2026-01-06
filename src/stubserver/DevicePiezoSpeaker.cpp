@@ -1,7 +1,7 @@
 /*
  * DevicePiezoSpeaker.cpp
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_piezo_speaker.h>
-#include <bricklet_piezo_speaker_v2.h>
+#include <bindings/bricklet_piezo_speaker.h>
+#include <bindings/bricklet_piezo_speaker_v2.h>
 
 #include <utils/Log.h>
 
@@ -28,7 +28,7 @@
 namespace stubserver {
 
 DevicePiezoSpeaker::DevicePiezoSpeaker(bool isV2)
-  : V2Device(NULL, this, isV2)
+  : V2Device(nullptr, this, isV2)
   , SensorState(0, 44000)
   , callbackTime(0)
   , alarmUpdateTime(0)
@@ -46,7 +46,6 @@ DevicePiezoSpeaker::DevicePiezoSpeaker(bool isV2)
 {
     // default is on
     if (isV2) {
-        printf("PiezoSpeaker created\n");
         setStatusLedOn(true);
     }
 }

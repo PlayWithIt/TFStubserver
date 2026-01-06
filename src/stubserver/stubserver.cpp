@@ -1,7 +1,7 @@
 /*
  * stubserver.cpp
  *
- * Copyright (C) 2013-2021 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ namespace stubserver {
 
 
 static std::list<ClientThread*> clients;
-static BrickThread *brickThread = NULL;
+static BrickThread *brickThread = nullptr;
 static Socket *gSocket;
 static std::mutex socketMutex;
 
@@ -67,13 +67,13 @@ static void initSignalHandlers()
     // TERM + INT: terminate process
     act.sa_sigaction = sigTermHandler;
     act.sa_flags     = SA_SIGINFO;
-    sigaction(SIGTERM, &act, NULL);
-    sigaction(SIGINT,  &act, NULL);
+    sigaction(SIGTERM, &act, nullptr);
+    sigaction(SIGINT,  &act, nullptr);
 
     // HUP: disconnect and reconnect a brick (simulate)
     memset(&act, 0, sizeof(act));
     act.sa_handler = sigHupHandler;
-    sigaction(SIGHUP, &act, NULL);
+    sigaction(SIGHUP, &act, nullptr);
 }
 
 /**
@@ -83,11 +83,13 @@ static void initSignalHandlers()
  */
 bool stopServer()
 {
+    if (brickThread)
+        brickThread->clearVisualizationClients();
     if (gSocket)
     {
         utils::MutexLock lock(socketMutex);
         delete gSocket;
-        gSocket = NULL;
+        gSocket = nullptr;
         return true;
     }
     return false;
@@ -113,13 +115,12 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
 {
     std::ofstream os;
 
-
     if (sizeof(PacketHeader) != 8) {
         Log::error("ERROR: compile problem: PacketHeader type must have size 8, but has", sizeof(PacketHeader));
         return 1;
     }
 
-    if (logName != NULL && *logName != 0)
+    if (logName && *logName != 0)
     {
         // create a log-stream
         os.open(logName, std::ofstream::out | std::ofstream::app);
@@ -148,7 +149,7 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
     }
     catch (const std::exception &e) {
         delete brickThread;
-        brickThread = NULL;
+        brickThread = nullptr;
         throw;
     }
 
@@ -162,7 +163,7 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
         Log::log(std::string("Opening a socket failed: ") + e.what());
         brickThread->stop();
         delete brickThread;
-        brickThread = NULL;
+        brickThread = nullptr;
         return 4;
     }
     initSignalHandlers();
@@ -203,7 +204,7 @@ int runServer(const char *deviceList, int port, const char *logName, bool logReq
     clients.clear();
 
     delete brickThread;
-    brickThread = NULL;
+    brickThread = nullptr;
 
     // if a piezo speaker was used: release global data
     utils::SoundPlayback::releaseAll();

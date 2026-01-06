@@ -104,44 +104,32 @@ public:
  * Exception thrown if a file cannot be opened: it adds the last errno
  * message text.
  */
-class FileOpenError : public IOException
+class FileOpenException : public IOException
 {
 public:
     /**
      * Error in case of file open: if 'read' is true it was an open for
      * reading, otherwise for writing.
      */
-    FileOpenError(bool read, const std::string &filename);
+    FileOpenException(bool read, const std::string &filename);
 
     /**
      * Error in case of file open: if 'read' is true it was an open for
      * reading, otherwise for writing.
      */
-    FileOpenError(bool read, const char *filename);
+    FileOpenException(bool read, const char *filename);
 };
 
 
 /**
  * Exception thrown if a value has not the expected format.
  */
-class ValueFormatError : public Exception
+class ValueFormatException : public Exception
 {
 public:
-    explicit ValueFormatError(const std::string &msg) : Exception(msg) { }
+    explicit ValueFormatException(const std::string &msg) : Exception(msg) { }
 
-    explicit ValueFormatError(const char *msg, ...) __PRINTF_CHECK;
-};
-
-/**
- * An exception used when a system function failed unpredicted.
- * The constructor <b>always</b> appends the result of 'strerror(errno)' to the messages text.
- */
-class RuntimeError : public Exception
-{
-public:
-    explicit RuntimeError(const std::string &msg);
-    explicit RuntimeError(const char *msg);
-    explicit RuntimeError(const char *msg, int _errno);
+    explicit ValueFormatException(const char *msg, ...) __PRINTF_CHECK;
 };
 
 
@@ -170,6 +158,8 @@ public:
     OutOfRange(const std::string &hint, unsigned current, unsigned _max);
     OutOfRange(const std::string &hint, unsigned current, unsigned _min, unsigned _max);
 };
+
+#undef __PRINTF_CHECK
 
 } /* namespace utils */
 #endif /* EXCEPTIONS_H_ */

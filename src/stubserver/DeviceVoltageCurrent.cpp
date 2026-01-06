@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_voltage_current.h>
+#include <bindings/bricklet_voltage_current.h>
 #include <utils/Log.h>
 
 #include "DeviceVoltageCurrent.h"
@@ -180,6 +180,17 @@ void DeviceVoltageCurrent::checkCallbacks(uint64_t relativeTimeMs, unsigned int 
 
     if (other)
         other->checkCallbacks(relativeTimeMs, uid, brickStack, visualizationClient);
+}
+
+
+void DeviceVoltageCurrent::notify(VisualizationClient &client, unsigned code)
+{
+    setChangeCode(code);
+    client.notify(*this);
+    if (code == CONNECTED) {
+        amps.setChangeCode(code);
+        client.notify(amps);
+    }
 }
 
 } /* namespace stubserver */

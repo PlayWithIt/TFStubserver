@@ -1,7 +1,7 @@
 /*
  * DeviceFunctions.cpp
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <utils/Log.h>
 #include <utils/Exceptions.h>
 
-#include <BrickStack.h>
+#include "BrickStack.h"
 #include "DeviceFunctions.h"
 
 namespace stubserver {
@@ -33,7 +33,7 @@ using utils::Log;
 
 
 ResponseData::ResponseData(unsigned _size, const uint8_t *initBytes)
-  : extData(NULL)
+  : extData(nullptr)
   , size(_size)
 {
     bzero(bytes, sizeof(bytes));
@@ -80,7 +80,7 @@ DeviceFunctions::DeviceFunctions(const DeviceFunctions& o)
 DeviceFunctions* DeviceFunctions::clone() const
 {
     throw utils::Exception("Raw DeviceFunctions is not cloneable!");
-    return NULL;
+    return nullptr;
 }
 
 DeviceFunctions::~DeviceFunctions()

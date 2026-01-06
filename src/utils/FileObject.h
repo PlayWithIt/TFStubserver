@@ -1,7 +1,7 @@
 /*
  * FileObject.h
  *
- * Copyright (C) 2014 Holger Grosenick
+ * Copyright (C) 2014-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,11 @@ private:
     // cannot be used: copy constructor + assignment opr.
     FileObject(const FileObject &) = delete;
     FileObject & operator= (const FileObject &) = delete;
+
+    // load all chars from the file into a byte buffer and return that buffer.
+    // Also set the 'length' value.
+    // Doesn't read more than 'maxBytes' chars, throws an exception if file is larger.
+    char *load(unsigned maxBytes, unsigned &length);
 
 public:
     /**
@@ -190,6 +195,14 @@ public:
 
     // load all lines from the file into the given list, return number of lines read.
     unsigned load(std::vector<std::string> &list);
+
+    // load all chars from the file into one string, returns the number of bytes read.
+    // Doesn't read more than 'maxBytes' chars, throws an exception if file is larger.
+    unsigned load(std::string &data, unsigned maxBytes = 128000);
+
+    // load all chars from the file into a byte vector, returns the number of bytes read.
+    // Doesn't read more than 'maxBytes' chars, throws an exception if file is larger.
+    unsigned load(std::vector<uint8_t> &data, unsigned maxBytes = 128000);
 
     // this method is more for testing purpose:
     // change default buffer size to a smaller value in order to force

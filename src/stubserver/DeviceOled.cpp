@@ -4,9 +4,9 @@
  * Copyright (C) 2017 Holger Grosenick
  */
 
-#include <bricklet_lcd_128x64.h>
-#include <bricklet_oled_128x64.h>
-#include <bricklet_oled_64x48.h>
+#include <bindings/bricklet_lcd_128x64.h>
+#include <bindings/bricklet_oled_128x64.h>
+#include <bindings/bricklet_oled_64x48.h>
 
 #include <utils/Log.h>
 

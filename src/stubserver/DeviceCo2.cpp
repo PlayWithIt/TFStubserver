@@ -4,7 +4,7 @@
  * Copyright (C) 2020 Holger Grosenick
  */
 
-#include <bricklet_co2_v2.h>
+#include <bindings/bricklet_co2_v2.h>
 
 #include "BrickStack.h"
 #include "DeviceCo2.h"

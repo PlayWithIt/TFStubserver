@@ -22,8 +22,8 @@
 #include <utils/StringUtil.h>
 #include <utils/Exceptions.h>
 
-#include <device_identifiers.h>
-#include <ip_connection.h>
+#include <bindings/device_identifiers.h>
+#include <bindings/ip_connection.h>
 
 #include "BrickStack.h"
 #include "BrickClient.h"
@@ -229,6 +229,16 @@ void BrickStack::checkCallbacks()
             it->checkCallbacks();
         }
     }
+}
+
+
+/**
+ * Clear all references to a VisualizationClient in all SimulatedDevice.
+ */
+void BrickStack::clearVisualizationClients()
+{
+    for (auto it : devices)
+        it->clearVisualizationClient();
 }
 
 /**

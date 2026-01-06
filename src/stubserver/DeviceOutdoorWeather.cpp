@@ -1,7 +1,7 @@
 /*
  * DeviceOutdoorWeather.cpp
  *
- * Copyright (C) 2018-2021 Holger Grosenick
+ * Copyright (C) 2018-2025 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_outdoor_weather.h>
+#include <bindings/bricklet_outdoor_weather.h>
+
+#include <utils/Log.h>
+#include <utils/utils.h>
 
 #include "DeviceOutdoorWeather.h"
 #include "BrickStack.h"
 
-// ID 0..255 are simple sensors, ID 256 .. 511 are outdoor stations
-#define STATION_ID_OFFSET 256
+// ID 0..255 are simple sensors, ID 300 .. 556 are outdoor stations
+// ID 256 .. 300 are used within brickapi for external sensors via data file
+#define STATION_ID_OFFSET 300
 
 namespace stubserver {
 
@@ -62,6 +66,8 @@ void DeviceOutdoorWeather::addSensor(ValueProvider *vp, unsigned id)
 
     if (! vp)
         throw utils::Exception("DeviceOutdoorWeather::addSensor(): valueProvider must be non-null");
+    if ((id >= 256 && id < STATION_ID_OFFSET) || id >= STATION_ID_OFFSET+256)
+        throw utils::Exception("DeviceOutdoorWeather::addSensor(): wrong ID '%u': must be < 256 or >= 300", id);
 
     sensors.push_back(new SensorData(vp, id));
     // printf("Add sensor %u\n", id);
@@ -156,6 +162,7 @@ bool DeviceOutdoorWeather::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
 
     case OUTDOOR_WEATHER_FUNCTION_SET_SENSOR_CALLBACK_CONFIGURATION:
         sensorCallback = p.boolValue;
+        utils::Log() << utils::base58Encode(p.header.uid) <<": set sensor callback to " << (p.boolValue ? "ON" : "OFF");
         return true;
 
     case OUTDOOR_WEATHER_FUNCTION_GET_SENSOR_CALLBACK_CONFIGURATION:
@@ -165,6 +172,7 @@ bool DeviceOutdoorWeather::consumeCommand(uint64_t relativeTimeMs, IOPacket &p, 
 
     case OUTDOOR_WEATHER_FUNCTION_SET_STATION_CALLBACK_CONFIGURATION:
         stationCallback = p.boolValue;
+        utils::Log() << utils::base58Encode(p.header.uid) <<": set station callback to " << (p.boolValue ? "ON" : "OFF");
         return true;
 
     case OUTDOOR_WEATHER_FUNCTION_GET_STATION_CALLBACK_CONFIGURATION:

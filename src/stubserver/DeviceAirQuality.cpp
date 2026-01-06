@@ -1,7 +1,7 @@
 /*
  * DeviceAirQuality.cpp
  *
- * Copyright (C) 2019 - 2022 Holger Grosenick
+ * Copyright (C) 2019 - 2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_air_quality.h>
+#include <bindings/bricklet_air_quality.h>
 
 #include "DeviceAirQuality.h"
 #include "BrickStack.h"
@@ -32,7 +32,7 @@ namespace stubserver {
  * @param _vpI ValueProvider for IAQ index
  */
 DeviceAirQuality::DeviceAirQuality(ValueProvider *_vpT, ValueProvider *_vpH, ValueProvider *_vpP, ValueProvider *_vpI)
-    : V2Device(NULL, this, true)
+    : V2Device(nullptr, this, true)
     , SensorState(-1000, 1000)  // -100 .. +100°C
     , vpT(_vpT)
     , vpH(_vpH)
@@ -53,13 +53,13 @@ DeviceAirQuality::DeviceAirQuality(ValueProvider *_vpT, ValueProvider *_vpH, Val
     this->max = 0;
     this->setStatusLedConfig(StatusLedConfig::LED_HEARTBEAT);
 
-    if (vpT == NULL)
+    if (!vpT)
         throw utils::Exception("DeviceAirQuality::vpT must be non-null");
-    if (vpH == NULL)
+    if (!vpH)
         throw utils::Exception("DeviceAirQuality::vpH must be non-null");
-    if (vpP == NULL)
+    if (!vpP)
         throw utils::Exception("DeviceAirQuality::vpP must be non-null");
-    if (vpI == NULL)
+    if (!vpI)
         throw utils::Exception("DeviceAirQuality::vpI must be non-null");
 
     cbT.setFunctions(AIR_QUALITY_FUNCTION_SET_TEMPERATURE_CALLBACK_CONFIGURATION,

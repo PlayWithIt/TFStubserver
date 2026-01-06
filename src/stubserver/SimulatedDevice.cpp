@@ -1,7 +1,7 @@
 /*
  * SimulatedDevice.cpp
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2025 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,38 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
-#include <stdexcept>
+#include <bindings/brick_master.h>
+#include <bindings/brick_servo.h>
+#include <bindings/brick_dc.h>
 
-#include <brick_master.h>
-#include <brick_servo.h>
-#include <brick_dc.h>
-
-#include <bricklet_analog_in.h>
-#include <bricklet_analog_in_v2.h>
-#include <bricklet_analog_out.h>
-#include <bricklet_ambient_light.h>
-#include <bricklet_ambient_light_v2.h>
-#include <bricklet_color.h>
-#include <bricklet_distance_ir.h>
-#include <bricklet_distance_us.h>
-#include <bricklet_dust_detector.h>
-#include <bricklet_humidity.h>
-#include <bricklet_humidity_v2.h>
-#include <bricklet_industrial_digital_in_4.h>
-#include <bricklet_line.h>
-#include <bricklet_load_cell.h>
-#include <bricklet_load_cell_v2.h>
-#include <bricklet_moisture.h>
-#include <bricklet_ptc.h>
-#include <bricklet_rgb_led_v2.h>
-#include <bricklet_rgb_led_button.h>
-#include <bricklet_sound_intensity.h>
-#include <bricklet_temperature.h>
-#include <bricklet_temperature_v2.h>
-#include <bricklet_temperature_ir.h>
-#include <bricklet_uv_light.h>
-#include <device_table.h>
+#include <bindings/bricklet_analog_in.h>
+#include <bindings/bricklet_analog_in_v2.h>
+#include <bindings/bricklet_analog_out.h>
+#include <bindings/bricklet_ambient_light.h>
+#include <bindings/bricklet_ambient_light_v2.h>
+#include <bindings/bricklet_color.h>
+#include <bindings/bricklet_distance_ir.h>
+#include <bindings/bricklet_distance_us.h>
+#include <bindings/bricklet_dust_detector.h>
+#include <bindings/bricklet_humidity.h>
+#include <bindings/bricklet_humidity_v2.h>
+#include <bindings/bricklet_industrial_digital_in_4.h>
+#include <bindings/bricklet_line.h>
+#include <bindings/bricklet_load_cell.h>
+#include <bindings/bricklet_load_cell_v2.h>
+#include <bindings/bricklet_moisture.h>
+#include <bindings/bricklet_ptc.h>
+#include <bindings/bricklet_rgb_led_v2.h>
+#include <bindings/bricklet_rgb_led_button.h>
+#include <bindings/bricklet_sound_intensity.h>
+#include <bindings/bricklet_temperature.h>
+#include <bindings/bricklet_temperature_v2.h>
+#include <bindings/bricklet_temperature_ir.h>
+#include <bindings/bricklet_uv_light.h>
+#include <bindings/device_table.h>
 
 #include <utils/Log.h>
 #include <utils/utils.h>
@@ -168,7 +165,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case SERVO_DEVICE_IDENTIFIER:
-        functions = new EnableDisableBool(NULL, SERVO_FUNCTION_ENABLE, SERVO_FUNCTION_DISABLE, SERVO_FUNCTION_IS_ENABLED);
+        functions = new EnableDisableBool(nullptr, SERVO_FUNCTION_ENABLE, SERVO_FUNCTION_DISABLE, SERVO_FUNCTION_IS_ENABLED);
         getSet = new GetSet<uint16_t>(functions, SERVO_FUNCTION_GET_ACCELERATION, SERVO_FUNCTION_SET_ACCELERATION, 65535);
         getSet = new GetSet<int16_t>(getSet, SERVO_FUNCTION_GET_POSITION, SERVO_FUNCTION_SET_POSITION);
         getSet->setFunctionIntermediate(SERVO_FUNCTION_GET_CURRENT_POSITION);
@@ -197,7 +194,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
         break;
 
     case DC_DEVICE_IDENTIFIER:
-        functions = new DeviceBrick(deviceTypeId, NULL, DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, DC_FUNCTION_GET_CURRENT_CONSUMPTION);
+        functions = new DeviceBrick(deviceTypeId, nullptr, DC_FUNCTION_GET_STACK_INPUT_VOLTAGE, DC_FUNCTION_GET_CURRENT_CONSUMPTION);
         functions = new EnableDisableBool(functions, DC_FUNCTION_ENABLE, DC_FUNCTION_DISABLE, DC_FUNCTION_IS_ENABLED);
         doNothing = new DoNothing(functions, DC_FUNCTION_FULL_BRAKE);
         doNothing = new DoNothing(doNothing, DC_FUNCTION_GET_EXTERNAL_INPUT_VOLTAGE, 2, buildBytes(12340));
@@ -812,7 +809,7 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
                 vc->setVoltageValueProvider(createValueProvider("valueProviderV"));
             if (getProperty("valueProviderC"))
                 vc->setCurrentValueProvider(createValueProvider("valueProviderC"));
-            functions  = vc;
+            functions = vc;
             label = "Voltage mV";
         }
         break;
@@ -826,8 +823,8 @@ DeviceFunctions *SimulatedDevice::setupFunctions()
  */
 SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, unsigned int _typeId)
     : brickStack(_brickStack)
-    , properties(NULL)
-    , functions(NULL)
+    , properties(nullptr)
+    , functions(nullptr)
     , visualizationClient(&dummyVisualisationInstance)
     , deviceMutex()
     , uidStr(_uidStr)
@@ -849,8 +846,8 @@ void SimulatedDevice::cleanup()
 {
     delete properties;
     delete functions;
-    properties = NULL;
-    functions  = NULL;
+    properties = nullptr;
+    functions  = nullptr;
 }
 
 /**
@@ -860,8 +857,8 @@ void SimulatedDevice::cleanup()
  */
 SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, const Properties &props)
     : brickStack(_brickStack)
-    , properties(NULL)
-    , functions(NULL)
+    , properties(nullptr)
+    , functions(nullptr)
     , visualizationClient(&dummyVisualisationInstance)
     , deviceMutex()
     , uidStr(_uidStr)
@@ -947,7 +944,7 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
     if (! isMainBrick() != 0)
     {
         SimulatedDevice *parent = brickStack->getDevice(connectedUidStr);
-        if (parent == NULL) {
+        if (parent == nullptr) {
             Log() << "ERROR: parent device with uid " << str
                   << " not found! (I am " << getUidStr() << "), check order of config file";
         }
@@ -977,7 +974,6 @@ SimulatedDevice::SimulatedDevice(BrickStack *_brickStack, const char *_uidStr, c
 /** clear objects */
 SimulatedDevice::~SimulatedDevice()
 {
-    visualizationClient->notify(VisibleDeviceState(VisibleDeviceState::DISCONNECT));
     cleanup();
 }
 
@@ -1009,7 +1005,7 @@ void SimulatedDevice::clearVisualizationClient() const {
  * Read a property from the properties: first with UID prefix and if
  * this doesn't exist without prefix. Check for min expected length.
  *
- * @return a non-NULL value: if the key doesn't exist a zero length string is returned
+ * @return a non-nullptr value: if the key doesn't exist a zero length string is returned
  */
 const char *SimulatedDevice::getProperty(const std::string &key, int minLength)
 {
@@ -1035,7 +1031,7 @@ const char *SimulatedDevice::getProperty(const std::string &key, int minLength)
 const char *SimulatedDevice::getProperty(const std::string &key, const char *defaultValue)
 {
     const char *res = getProperty(key);
-    if (res == NULL || *res == 0)
+    if (!res || *res == 0)
         res = defaultValue;
     return res;
 }

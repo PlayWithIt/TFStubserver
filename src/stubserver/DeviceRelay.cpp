@@ -20,13 +20,13 @@
 #include <cstring>
 #include <stdexcept>
 
-#include <bricklet_industrial_quad_relay.h>
-#include <bricklet_industrial_quad_relay_v2.h>
-#include <bricklet_industrial_digital_out_4.h>
-#include <bricklet_industrial_digital_out_4_v2.h>
-#include <bricklet_dual_relay.h>
-#include <bricklet_remote_switch.h>
-#include <bricklet_solid_state_relay.h>
+#include <bindings/bricklet_industrial_quad_relay.h>
+#include <bindings/bricklet_industrial_quad_relay_v2.h>
+#include <bindings/bricklet_industrial_digital_out_4.h>
+#include <bindings/bricklet_industrial_digital_out_4_v2.h>
+#include <bindings/bricklet_dual_relay.h>
+#include <bindings/bricklet_remote_switch.h>
+#include <bindings/bricklet_solid_state_relay.h>
 
 #include <utils/Exceptions.h>
 #include <utils/Log.h>
@@ -38,6 +38,7 @@ namespace stubserver {
 
 using utils::Log;
 
+// used for constant responses (DoNothing)
 static const uint8_t NO4[4]  = {'n', 'n', 'n', 'n' };
 static const uint8_t TRUE[1] = { 1 };
 
@@ -46,7 +47,7 @@ static const uint8_t TRUE[1] = { 1 };
  * Just basic init.
  */
 DeviceRelay::DeviceRelay(unsigned n, bool _bitSwitches, bool isV2)
-    : V2Device(NULL, this, isV2)
+    : V2Device(nullptr, this, isV2)
     , RelayState(n)
     , bitSwitches(_bitSwitches)
     , callbacks()

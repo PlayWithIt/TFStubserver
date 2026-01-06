@@ -18,6 +18,10 @@
  */
 
 #include <stdexcept>
+#ifndef _WIN32
+#include <strings.h>
+#endif
+
 #include "Compatibility.h"
 #include "File.h"
 #include "FileFilter.h"

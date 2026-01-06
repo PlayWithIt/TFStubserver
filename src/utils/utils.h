@@ -1,7 +1,7 @@
 /*
  * utils.h
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <cstdint>
 #include <string>
 
 namespace utils {
@@ -43,7 +44,11 @@ char* uitoa(char dest[16], uint32_t value);
  * Similar to the standard snprintf, but with one difference:
  * if the buffer is too small, an exception is thrown.
  */
+#ifdef __GNUC__
+int snprintf(char *str, size_t size, const char *format, ...) __attribute__ ((__format__ (__printf__, 3, 4)));
+#else
 int snprintf(char *str, size_t size, const char *format, ...);
+#endif
 
 /**
  * Convert an int into a base58 encoded string.
@@ -106,6 +111,13 @@ int64_t hex2int(const char *in);
 inline int64_t hex2int(const std::string &in) {
     return hex2int(in.c_str());
 }
+
+/**
+ * Open a file, create it if it does not exist, and close it immediately.
+ * @param filename filename with path
+ * @return true if the file could be opended for write, false otherwise
+ */
+bool touch(const char *filename);
 
 }
 

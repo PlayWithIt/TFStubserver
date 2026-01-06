@@ -1,7 +1,7 @@
 /*
  * SimpleCsv.h
  *
- * Copyright (C) 2015 Holger Grosenick
+ * Copyright (C) 2015-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,9 @@
 #ifndef UTILS_SIMPLECSV_H_
 #define UTILS_SIMPLECSV_H_
 
+#include "DateTime.h"
 #include "FileObject.h"
+#include "StringUtil.h"
 
 namespace utils
 {
@@ -98,6 +100,20 @@ public:
      */
     const std::vector< _Tp >& getColumns() const {
         return cols;
+    }
+
+    /**
+     * Gets the columns value of the given column as double.
+     */
+    double getDouble(unsigned no) const {
+        return strings::parseDouble(cols[no]);
+    }
+
+    /**
+     * Gets the columns value of the given column as utils::DateTime object.
+     */
+    const utils::DateTime getDateTime(unsigned no) const {
+        return utils::DateTime(cols[no]);
     }
 
     /**

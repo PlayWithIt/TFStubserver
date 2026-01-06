@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bricklet_industrial_dual_analog_in.h>
-#include <bricklet_industrial_dual_analog_in_v2.h>
+#include <bindings/bricklet_industrial_dual_analog_in.h>
+#include <bindings/bricklet_industrial_dual_analog_in_v2.h>
 #include <utils/Log.h>
 #include <utils/utils.h>
 

@@ -1,7 +1,7 @@
 /*
  * Log.cpp
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,19 +25,26 @@
 
 #include "Mutexes.h"
 #include "Log.h"
+#include "CyclicVector.h"
 #include "DateTime.h"
 #include "DateTimeFormat.h"
+#include "ProcessInformation.h"
 #include "StringUtil.h"
-#include "CyclicVector.h"
+
+
+namespace utils {
 
 static std::ostream* logStream = &std::cerr;
 static std::mutex    logMutex;
 
+const unsigned Log::MAX_ERRORS = 50;      // 50
+const unsigned Log::MAX_MESSAGES = 500;    // 500
+
 static utils::DateTimeFormat format(utils::DateTimeFormat::LOG_FORMAT_DATE_TIME_MICROS);
 static utils::CyclicVector<std::string> errors(utils::Log::MAX_ERRORS);
+static utils::CyclicVector<std::string> messages(utils::Log::MAX_MESSAGES);
 
 
-namespace utils {
 
 Log::Log(unsigned precision, LogType t) : logType(t)
 {
@@ -152,8 +159,10 @@ void Log::printTime(std::ostream *os)
 void Log::log(const char* msg)
 {
     MutexLock lock(logMutex);
-    printTime();
-    *logStream << msg << '\n' << std::flush;
+    std::ostringstream os;
+    printTime(&os);
+    os << msg;
+    saveAndPrintMessage(os);
 }
 
 /**
@@ -162,39 +171,54 @@ void Log::log(const char* msg)
 void Log::log(const char* msg, int v)
 {
     MutexLock lock(logMutex);
-    printTime();
-    *logStream << msg << ' ' << v << '\n' << std::flush;
+    std::ostringstream os;
+    printTime(&os);
+    os << msg << ' ' << v;
+    saveAndPrintMessage(os);
 }
 
 void Log::log(const char* msg, unsigned v)
 {
     MutexLock lock(logMutex);
-    printTime();
-    *logStream << msg << ' ' << v << '\n' << std::flush;
+    std::ostringstream os;
+    printTime(&os);
+    os << msg << ' ' << v;
+    saveAndPrintMessage(os);
 }
 
 void Log::log(const char* msg, double v)
 {
     MutexLock lock(logMutex);
-    printTime();
-    *logStream << msg << ' ' << std::fixed << std::setprecision(2) << v << '\n' << std::flush;
+    std::ostringstream os;
+    printTime(&os);
+    os << msg << ' ' << std::fixed << std::setprecision(2) << v;
+    saveAndPrintMessage(os);
 }
 
 void Log::log(const char* msg, uint64_t v)
 {
     MutexLock lock(logMutex);
-    printTime();
-    *logStream << msg << ' ' << v << '\n' << std::flush;
+    std::ostringstream os;
+    printTime(&os);
+    os << msg << ' ' << v;
+    saveAndPrintMessage(os);
 }
 
 void Log::log(const char* msg, const char *arg)
 {
     MutexLock lock(logMutex);
-    printTime();
-    *logStream << msg << ' ' << (arg ? arg : "NULL") << '\n' << std::flush;
+    std::ostringstream os;
+    printTime(&os);
+    os << msg << ' ' << (arg ? arg : "NULL");
+    saveAndPrintMessage(os);
 }
 
 void Log::log(const std::string& msg, const char *v)
+{
+    log(msg.c_str(), v);
+}
+
+void Log::log(const std::string& msg, double v)
 {
     log(msg.c_str(), v);
 }
@@ -212,6 +236,20 @@ void Log::log(const std::string& msg, unsigned v)
 void Log::log(const std::string& msg, uint64_t v)
 {
     log(msg.c_str(), v);
+}
+
+/**
+ * Print information about the current process into the log stream.
+ */
+void Log::logProcessInformation()
+{
+    ProcessInformation pi;
+
+    MutexLock lock(logMutex);
+    std::ostringstream os;
+    printTime(&os);
+    os << "Current process information:\n" << pi;
+    saveAndPrintMessage(os);
 }
 
 /**
@@ -292,22 +330,42 @@ void Log::error(const std::string& msg, const std::exception &ex)
 /**
  * Read the error messages that are in the list.
  *
- * @param errorList if the parameter is non-NULL, the messages are moved
- *        into this list and the internal list is cleared. If the value
- *        is NULL, only the number of items is returned.
+ * @param errorList  the messages are moved into this list and the internal list is cleared.
  * @return the number of messages in the list
  */
-size_t Log::getErrorHistory(std::vector<std::string> *errorList)
+unsigned Log::getAndClearErrors(std::vector<std::string> &errorList)
 {
-    size_t num = errors.size();
+    MutexLock lock(logMutex);
 
-    if (errorList) {
-        for (auto& it : errors)
-            errorList->push_back(it);
-        errors.clear();
-    }
+    for (auto& it : errors)
+        errorList.push_back(it);
+    errors.clear();
 
-    return num;
+    return errorList.size();
+}
+
+/**
+ * Read the messages that are in the list (including errors).
+ *
+ * @param msgList mandatory output parameter, messages are copied into this list.
+ * @return the number of messages in the list
+ */
+unsigned Log::getMessages(std::vector<std::string> &msgList)
+{
+    MutexLock lock(logMutex);
+
+    for (auto& it : messages)
+        msgList.push_back(it);
+    return msgList.size();
+}
+
+/**
+ * Returns true if at least one error is still in the error history list.
+ * A call to 'getErrorHistory' should return at least one items then.
+ */
+bool Log::hasErrors()
+{
+    return !errors.empty();
 }
 
 /**
@@ -317,7 +375,18 @@ void Log::saveAndPrintError(std::ostringstream &os)
 {
     std::string s = os.str();
     *logStream << s << '\n' << std::flush;
+    messages.push_back(s);
     errors.push_back(std::move(s));
+}
+
+/**
+ * Append the message to the internal message list and dump into the 'logStream'.
+ */
+void Log::saveAndPrintMessage(std::ostringstream &os)
+{
+    std::string s = os.str();
+    *logStream << s << '\n' << std::flush;
+    messages.push_back(std::move(s));
 }
 
 std::ostream& Log::setStream(std::ostream& os)

@@ -1,7 +1,7 @@
 /*
  * main.cpp
  *
- * Copyright (C) 2013 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@
 int main(int argc, char *argv[])
 {
     int port               = 4223;
-    const char *deviceList = NULL;
-    const char *logName    = NULL;
+    const char *deviceList = nullptr;
+    const char *logName    = nullptr;
     bool logRequests       = false;
 
     for (int i = 1; i < argc; ++i)

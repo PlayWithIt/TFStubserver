@@ -15,9 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-GCC:=$(shell test -x /usr/bin/g++-11 && echo g++-11)
+GCC:=$(shell test -x /usr/bin/g++-15 && echo g++-15)
 ifeq "$(GCC)" ""
-    GCC:=$(shell test -x /usr/bin/g++-10 && echo g++-10)
+    GCC:=$(shell test -x /usr/bin/g++-14 && echo g++-14)
 endif
 ifeq "$(GCC)" ""
     GCC:=g++

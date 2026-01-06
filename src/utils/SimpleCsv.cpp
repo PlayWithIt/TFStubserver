@@ -58,7 +58,7 @@ void SimpleCsvBase::open(const char *filename)
     numCols = 1;
     line = 0;
     if (!isOpen()) {
-        throw utils::FileOpenError(true, filename);
+        throw utils::FileOpenException(true, filename);
     }
 
     // empty file ?
@@ -84,12 +84,14 @@ void SimpleCsvBase::open(const char *filename)
         if (*p && *p != comment)
             break;
     }
-    seek(0);
+
+    if (seek(0) < 0)
+        throw utils::IOException("seek", "0");
 
     // use CSV load with ';' or '|' as separator
     const char *s = strpbrk(line, ";|\t");
     if ( !s )
-        throw utils::RuntimeError(std::string("Did not find one of the excepted column separators in ") + filename);
+        throw utils::Exception(std::string("Did not find one of the excepted column separators in ") + filename);
 
     // count number of columns: there is always at least one column, the first
     // separator starts the second column !

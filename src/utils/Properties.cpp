@@ -1,7 +1,7 @@
 /*
  * Properties.cpp
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2023 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@
 #include "utils.h"
 
 namespace utils {
+
+static const char HEX_ALPHABET[] = "0123456789abcdef";
 
 
 /**
@@ -100,6 +102,9 @@ Properties::Properties(const std::string &data, char separator)
                     c = hex2int(data[i+1], data[i+2]);
                     i+=2;
                 }
+                else if (c == 't') c = '\t';
+                else if (c == 'n') c = '\n';
+                else if (c == 'r') c = '\r';
                 os << c;
             }
             else
@@ -125,6 +130,103 @@ void Properties::clear() noexcept {
 }
 
 /**
+ * Decodes all hex-strings like '\xOO' into a single char.
+ */
+const std::string Properties::decode(const std::string &str)
+{
+    const char *value = str.c_str();
+    int start = 0;
+
+    // check if there is a \\ in the string
+    char ch = value[0];
+    while (ch) {
+        if (ch == '\\') {
+            break;
+        }
+        ch = value[++start];
+    }
+    if (!ch) { // 0-byte found: no backslash in the string
+        return str;
+    }
+
+    // backslash found at start
+    std::string res(value, 0, start);
+
+    while (ch) {
+        if (ch == '\\') {
+            ch = value[++start];
+            switch (ch) {
+            case 't': ch = '\t';    break;
+            case 'n': ch = '\n';    break;
+            case 'r': ch = '\r';    break;
+            case 'f': ch = '\f';    break;
+            case '\\': /* double to single \\ */  break;
+            case 'x': {
+                char b1 = value[++start];
+                if (!b1)
+                    throw std::logic_error(std::string("Malformed hex property \\xHH in '") + value + "', end of string");
+                char b2 = value[++start];
+                if (!b2)
+                    throw std::logic_error(std::string("Malformed hex property \\xHH in '") + value + "', end of string");
+
+                ch = utils::hex2int(b1, b2);
+                break;
+              }
+            default:
+                --start;
+                ch = '\\';
+            }
+        }
+        res += ch;
+        ch = value[++start];
+    }
+    return res;
+}
+
+
+/**
+ * Changes all chars with a value > 127 to a hex-string '\xOO'
+ */
+const std::string Properties::encode(const std::string &str)
+{
+    const char *value = str.c_str();
+    int start = 0;
+
+    // check if there is a \\ in the string
+    unsigned char ch = value[0];
+    while (ch) {
+        if (ch & 0x80) {
+            break;
+        }
+        ch = value[++start];
+    }
+    if (!ch) { // char > 127 found: no backslash in the string
+        return str;
+    }
+
+    // backslash found at start
+    std::string res(value, 0, start);
+
+    while (ch) {
+        if (ch & 0x80) {
+            char bytes[5];
+            bytes[0] = '\\';
+            bytes[1] = 'x';
+            bytes[2] = HEX_ALPHABET[ch / 16];
+            bytes[3] = HEX_ALPHABET[ch % 16];
+            bytes[4] = 0;
+
+            res += bytes;
+        }
+        else
+            res += ch;
+        ch = value[++start];
+    }
+    return res;
+}
+
+
+/**
  * Load the properties out of a file, one value per line, '#' is used for
  * comments.
  */
@@ -134,15 +236,13 @@ void Properties::load(const char *filename)
 
     // open file
     if (!input.is_open()) {
-        throw FileOpenError(true, filename);
+        throw FileOpenException(true, filename);
     }
 
     // now parse text
     std::string line;
-    int lineNo = 0;
     while (std::getline(input, line))
     {
-        ++lineNo;
         size_t l = line.length();
 
         // skip leading spaces
@@ -199,7 +299,7 @@ void Properties::load(const char *filename)
             right = line.substr(start, end - start + 1);
 
         // insert new value
-        put(left, right);
+        put(left, decode(right.c_str()));
     }
 
     input.close();
@@ -222,7 +322,7 @@ void Properties::save(const char *filename, bool sort) const
     output.open(filename);
 
     if (!output.is_open()) {
-        throw FileOpenError(false, filename);
+        throw FileOpenException(false, filename);
     }
     write(output, sort);
     output.close();
@@ -277,7 +377,7 @@ std::ostream& Properties::write(std::ostream& output, bool sort) const
             auto item = values.find(it);
             if (item == values.end())
                 throw std::logic_error(std::string("Key not found any more: '") + it + "'");
-            output << it << '=' << item->second << '\n';
+            output << it << '=' << encode(item->second) << '\n';
         }
         return output;
     }
@@ -285,7 +385,7 @@ std::ostream& Properties::write(std::ostream& output, bool sort) const
     // unsorted but fast
     for (auto it = values.cbegin(); it != values.cend(); ++it)
     {
-        output << it->first << '=' << it->second << '\n';
+        output << it->first << '=' << encode(it->second) << '\n';
     }
     return output;
 }
@@ -341,7 +441,7 @@ bool Properties::getBool(const std::string &key) const
         return true;
     if (strcmp(v, "false") != 0)
     {
-        throw ValueFormatError("Invalid bool value: '%s', key was '%s'", v, key.c_str());
+        throw ValueFormatException("Invalid bool value: '%s', key was '%s'", v, key.c_str());
     }
     return false;
 }
