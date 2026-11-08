@@ -30,6 +30,8 @@ namespace utils
  * Small class that reads CSV files in a very simple way. The class does not support
  * CSV files with just one column (without separator): use plain text methods of
  * the FileObject instead.
+ * <p>
+ * SimpleCsv does not use column headers.
  */
 class SimpleCsvBase : public FileObject
 {
@@ -74,9 +76,8 @@ public:
 
 
 /**
- * Small class that reads CSV files in a very simple way. The class does not support
- * CSV files with just one column (without separator): use plain text methods of
- * the FileObject instead.
+ * This class adds some types to the column of the CSV: based on the SimpleCsv
+ * the get methods for column data can have types.
  */
 template <typename _Tp> class SimpleCsvTmpl : public SimpleCsvBase
 {
@@ -85,7 +86,7 @@ protected:
 
 public:
     /**
-     * Open the given CSV file, if the given separator is -1, is class tries
+     * Open the given CSV file, if the given separator is <= 0, is class tries
      * to determines the separator itself: depending on the first data line, it
      * searches for ';', TAB and '|' and the first char found will be the separator.
      * <P>

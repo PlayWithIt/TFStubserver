@@ -144,21 +144,30 @@ static uint32_t buildBytes(int16_t a, uint16_t b)
 DeviceFunctions *SimulatedDevice::setupFunctions()
 {
     DeviceSensor *sensor;
+    DeviceBrick *br;
     DoNothing *doNothing;
     GetSetRaw *getSet;
     ValueProvider *vp;
 
     switch (deviceTypeId) {
     case MASTER_DEVICE_IDENTIFIER:
-        functions = new DeviceBrick(deviceTypeId, MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
-                                    MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD,
-                                    MASTER_CALLBACK_STACK_VOLTAGE, MASTER_CALLBACK_STACK_CURRENT);
+        br = new DeviceBrick(deviceTypeId, MASTER_FUNCTION_GET_STACK_VOLTAGE, MASTER_FUNCTION_GET_STACK_CURRENT,
+                             MASTER_FUNCTION_SET_STACK_VOLTAGE_CALLBACK_PERIOD, MASTER_FUNCTION_SET_STACK_CURRENT_CALLBACK_PERIOD,
+                             MASTER_CALLBACK_STACK_VOLTAGE, MASTER_CALLBACK_STACK_CURRENT);
+        functions = br;
+        br->setVoltageValueProvider(createValueProvider("valueProviderV", "linear min=11000,max=12000,step=56,interval=1200"));
+        br->setCurrentValueProvider(createValueProvider("valueProviderC", "linear min=200,max=500,step=32,interval=500"));
+
         isBrick = true;
         label = "Voltage mV";
         break;
 
     case HAT_DEVICE_IDENTIFIER:
-        functions = new DeviceHatBrick(deviceTypeId, nullptr);
+        br = new DeviceHatBrick(deviceTypeId, nullptr);
+        functions = br;
+        br->setVoltageValueProvider(createValueProvider("valueProviderV", "linear min=11000,max=12000,step=56,interval=1200"));
+        br->setCurrentValueProvider(createValueProvider("valueProviderC", "linear min=200,max=500,step=32,interval=500"));
+
         isBrick = true;
         isV2 = true;
         label = "Voltage mV";
@@ -1143,7 +1152,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
             return true;
     }
     catch (const std::exception &e) {
-        Log(Log::LogType::ERROR) << "for bricklet " << uidStr << " of type " << deviceTypeName
+        Log(Log::Level::ERROR) << "for bricklet " << uidStr << " of type " << deviceTypeName
                                  << ", function code " << static_cast<unsigned>(p.header.function_id) << ": " << e.what();
         p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
@@ -1180,7 +1189,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
             }
         }
 
-        Log(Log::LogType::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
+        Log(Log::Level::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
         p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
     }
@@ -1258,7 +1267,7 @@ bool SimulatedDevice::consumePacket(IOPacket &p, bool responseExpected)
             }
         }
 
-        Log(Log::LogType::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
+        Log(Log::Level::ERROR) << "ERROR: bricklet on position " << port << " of brick " << uidStr << " not found";
         p.setErrorCode(IOPacket::ErrorCode::INVALID_PARAMETER);
         return true;
     }

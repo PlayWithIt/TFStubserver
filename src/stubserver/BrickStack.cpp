@@ -1,7 +1,7 @@
 /*
  * BrickStack.cpp
  *
- * Copyright (C) 2013-2022 Holger Grosenick
+ * Copyright (C) 2013-2026 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -278,8 +278,8 @@ void BrickStack::consumeRequestQueue()
             if (packet.header.function_id == FUNCTION_ENUMERATE)
                 enumerate(IPCON_ENUMERATION_TYPE_AVAILABLE, "");
             else if (responseExpected) {
-                Log(Log::LogType::ERROR) << "stack function " << packet.header.getFunctionIdInt()
-                                         << " (len=" << packet.header.getLength() << ") with response_extected=true NOT CONSUMED!";
+                Log(Log::Level::ERROR) << "stack function " << packet.header.getFunctionIdInt()
+                                       << " (len=" << packet.header.getLength() << ") with response_extected=true NOT CONSUMED!";
             }
 
             // DISCONNECT_PROBE also goes into this branch
@@ -288,7 +288,7 @@ void BrickStack::consumeRequestQueue()
             // brick / bricklet command
             if (!dev) {
                 std::string uidStr = utils::base58Encode(uid);
-                Log(Log::LogType::ERROR) << "cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
+                Log(Log::Level::ERROR) << "cannot find device with uid " << uidStr << " (" << std::hex << uid << ')';
             }
             else {
                 try {
@@ -297,10 +297,10 @@ void BrickStack::consumeRequestQueue()
                     if (!done)
                     {
                         // not yet implemented
-                        Log(Log::LogType::ERROR) << "function " << packet.header.getFunctionIdInt()
-                                                 << " (len=" << packet.header.getLength() << ") for device "
-                                                 << dev->getDeviceTypeName() << " with id "
-                                                 << dev->getUidStr() << '(' << packet.header.uid << ") NOT CONSUMED!";
+                        Log(Log::Level::ERROR) << "function " << packet.header.getFunctionIdInt()
+                                               << " (len=" << packet.header.getLength() << ") for device "
+                                               << dev->getDeviceTypeName() << " with id "
+                                               << dev->getUidStr() << '(' << packet.header.uid << ") NOT CONSUMED!";
                         packet.setErrorCode(IOPacket::ErrorCode::NOT_SUPPORTED);
                     }
 

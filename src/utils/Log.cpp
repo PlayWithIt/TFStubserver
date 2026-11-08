@@ -1,7 +1,7 @@
 /*
  * Log.cpp
  *
- * Copyright (C) 2013-2023 Holger Grosenick
+ * Copyright (C) 2013-2026 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #endif
 
 #include <iomanip>
+#include <stdarg.h>
 
 #include "Mutexes.h"
 #include "Log.h"
@@ -46,12 +47,12 @@ static utils::CyclicVector<std::string> messages(utils::Log::MAX_MESSAGES);
 
 
 
-Log::Log(unsigned precision, LogType t) : logType(t)
+Log::Log(unsigned precision, Level t) : level(t)
 {
     os << std::fixed << std::setprecision(precision);
-    if (t == LogType::ERROR)
+    if (t == Level::ERROR)
         os << "ERROR: ";
-    if (t == LogType::FATAL)
+    if (t == Level::FATAL)
         os << "FATAL: ";
 }
 
@@ -59,11 +60,11 @@ Log::Log(unsigned precision, LogType t) : logType(t)
  * Constructor for a temporary Log-record which prints the log data if
  * a newline appears in the input.
  */
-Log::Log(LogType t) : logType(t)
+Log::Log(Level t) : level(t)
 {
-    if (t == LogType::ERROR)
+    if (t == Level::ERROR)
         os << "ERROR: ";
-    if (t == LogType::FATAL)
+    if (t == Level::FATAL)
         os << "FATAL: ";
 }
 
@@ -257,7 +258,7 @@ void Log::logProcessInformation()
  */
 void Log::flush()
 {
-    if (logType == LogType::ERROR)
+    if (level == Level::ERROR)
         error(os.str());
     else
         log(os.str());
@@ -418,6 +419,23 @@ Log& Log::operator<<(const char c)
     else if (c != 13)
         os << c;
     return *this;
+}
+
+/**
+ * Use a printf style format to build the log message, the level
+ * is set already in the Log(Level) constructor.
+ */
+void Log::print(const char *msg, ...)
+{
+    char buffer[2048];
+    va_list args;
+
+    va_start(args, msg);
+    ::vsnprintf(buffer, sizeof(buffer), msg, args);
+    buffer[sizeof(buffer) - 1] = 0;
+    va_end(args);
+
+    *this << buffer;
 }
 
 } /* namespace utils */

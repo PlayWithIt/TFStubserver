@@ -55,7 +55,7 @@ public:
         WavBuffer(int);
         ~WavBuffer();
 
-        std::shared_ptr<char> data;
+        std::shared_ptr<char[]> data;
         int size;
     };
 

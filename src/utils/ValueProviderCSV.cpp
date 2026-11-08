@@ -22,16 +22,14 @@
 #include <time.h>
 #include <string.h>
 
-#include <fstream>
 #include <cstring>
 #include <ctime>
-#include <limits>
 
 #include "Exceptions.h"
 #include "Log.h"
-#include "StringUtil.h"
 #include "ValueProvider.h"
 #include "SimpleCsv.h"
+#include "Compatibility.h"
 
 
 namespace utils {

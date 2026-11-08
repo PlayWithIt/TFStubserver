@@ -19,7 +19,7 @@ very specific combinations.
 Requirements:
 -------------
 * Linux (also compiles on Tinkerforge's RED Brick or RasPi)
-* g++ 13 or higher (C++ 23)
+* g++ 14 or higher (C++ 23)
 * clang++ 19 (llvm) or higher should work too
 * optional: ALSA devel packages (libasound2-dev on Debian, alsa-devel on OpenSuse)
 
@@ -44,8 +44,8 @@ Example:
 
 Configuration properties:
 -------------------------
-* a property file must have a setting ``UIDS`` which holds the space separated list of brick/bricklet UIDS which should be emulated.
-* the setting ``UI_UIDS`` is the for UI only (see TFStubViz above): this is a list of bricks/bricklets shown in the Qt UI. This is a subset of ``UIDS`` and you can for example exclude the master brick(s) to have a reduced set, only the relevant bricklets in the UI. 
+* a property file must have a property named ``UIDS`` which holds the space separated list of brick/bricklet UIDS to be emulated.
+* the property ``UI_UIDS`` is for the UI only (see TFStubViz above): this is a list of bricks/bricklets shown in the Qt UI. This is a subset of ``UIDS`` and you can for example exclude the master brick(s) to have a reduced set visible in the UI, in order to see only the most relevant ones. 
 * for each UID out of that list further settings are required
   * ``<UID>.type``: a device type which is derived from the DEVICE_IDENTIFIED constant out of the bindings
   * ``<UID>.firmwareVersion``: firmware version to report, 202 mean 2.0.2; 2410 means 2.4.10

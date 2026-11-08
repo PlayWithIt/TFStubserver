@@ -1,7 +1,7 @@
 /*
  * Log.h
  *
- * Copyright (C) 2013-2023 Holger Grosenick
+ * Copyright (C) 2013-2026 Holger Grosenick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,12 @@
 #undef ERROR
 #endif
 
+#ifdef __GNUC__
+#define __PRINTF_CHECK   __attribute__ ((__format__ (__printf__, 2, 3)))
+#else
+#define __PRINTF_CHECK
+#endif
+
 namespace utils {
 
 /**
@@ -40,7 +46,7 @@ namespace utils {
 class Log {
 
 public:
-    enum class LogType {
+    enum class Level {
         DEBUG,
         INFO,
         WARN,
@@ -52,7 +58,7 @@ public:
      * Constructor for a in-memory Log-record which prints the log data
      * to the output file if a newline appears in the input.
      */
-    Log(LogType t = LogType::INFO);
+    Log(Level t = Level::INFO);
 
     /**
      * Constructor for a in-memory Log-record which prints the log data
@@ -60,7 +66,7 @@ public:
      * value is printed into this stream, 'fixed' format will be used with
      * the given number of decimals.
      */
-    Log(unsigned precision, LogType t = LogType::INFO);
+    Log(unsigned precision, Level t = Level::INFO);
     ~Log();
 
     /** max errors/messages in the in-memory lists */
@@ -104,6 +110,11 @@ public:
     static void log(const std::string& msg, const std::string &s) {
         log(msg, s.c_str());
     }
+
+    /**
+     * Use a printf style format to build the log message.
+     */
+    void print(const char *msg, ...) __PRINTF_CHECK;
 
     /**
      * Print information about the current process into the log stream.
@@ -182,7 +193,7 @@ public:
 
 private:
     std::ostringstream os;
-    LogType logType;
+    Level level;
 
     // no copy
     Log(const Log &other) = delete;

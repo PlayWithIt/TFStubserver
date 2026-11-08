@@ -22,7 +22,7 @@
 #include <chrono>
 
 #include "Log.h"
-#include "utils.h"
+#include "Mutexes.h"
 #include "TimerThread.h"
 
 using utils::Log;
@@ -193,7 +193,7 @@ void TimerThread::run()
 
             // throw away commands that are not used any more
             if (c->getRemainingCalls() == 0) {
-//                std::cout << "Callcount == 0 -> remove a command from queue\n";
+//              std::cout << "Callcount == 0 -> remove command " << c->getName() << " from queue\n";
                 c->onRemove();
                 if (c->destroyAfterRemove())
                     delete c;

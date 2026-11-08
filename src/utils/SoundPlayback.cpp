@@ -103,7 +103,7 @@ SoundPlayback::WavBuffer::WavBuffer(int s)
     if (s > 0)
     {
         char *v = new char[s];
-        bzero(v, s);
+        memset(v, 0, s);
         data.reset(v, ArrayDeleter<char>());
     }
 }
